@@ -260,9 +260,7 @@ pred_one = function(model, data_point) {
 
 
 # Evaluate the distance between samples and Support Vectors lying in the hyperspace
-
 uncertainty_dist_v2 = function(org, samp){
-  
   #create dataframe to store label and distance
   distance = data.frame(matrix(nrow=nrow(samp),ncol=2))
   colnames(distance) = c("control_label", "distance")
@@ -285,34 +283,30 @@ uncertainty_dist_v2 = function(org, samp){
       print(paste(round(progress, 1), "%"))
     }
   } 
-  
   #normalize distances
   preProc = preProcess(distance, method = "range")
   normdistance = predict(preProc, distance)
   
-  
   #join distance coloumn to the original samples
   samp = cbind(samp,normdistance)
-  
   return(samp)
-  
 }
 
 
 uncertainty_dist_v2_2 = function(org, samp) {
   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
   
-  n <- nrow(samp)
-  increment_size <- floor(nrow(samp) / 100)
-  print("Progress:")
-  for (k in seq_along(1:n)) {
+  pb <- progress_bar$new(
+    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+    total = nrow(samp),
+    clear = FALSE
+  )
+  
+  for (k in seq_along(1:nrow(samp))) {
     distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]))) *
                       ifelse(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)])) > 0, 1, -1)
+    pb$tick()
     
-    if (k %% increment_size == 0) {
-      progress <- (k / n) * 100
-      print(paste(round(progress, 1), "%"))
-    }
   }
   preProc <- preProcess(distance, method = "range")
   normdistance <- predict(preProc, distance)
@@ -320,34 +314,28 @@ uncertainty_dist_v2_2 = function(org, samp) {
   samp <- cbind(samp, normdistance)
   return(samp)
 }
-
-
   
-uncertainty_dist_v2_4 = function(org, samp) {
-    distance <- data.frame( control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
-    
-    pb <- progress_bar$new(
-      format = "[:bar] :percent ETA: :eta",
-      total = nrow(samp),
-      clear = FALSE
-    )
-    
-    for (k in seq_along(1:nrow(samp))) {
-      distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]))) *
-        ifelse(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)])) > 0, 1, -1)
-      
-      pb$tick()
-    }
-    
-    preProc <- preProcess(distance, method = "range")
-    normdistance <- predict(preProc, distance)
-    
-    samp <- cbind(samp, normdistance)
-    return(samp)
-  }
-
-
-
+# uncertainty_dist_v2_4 = function(org, samp) {
+#     distance <- data.frame( control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+#     
+#     pb <- progress_bar$new(
+#       format = "[:bar] :percent ETA: :eta",
+#       total = nrow(samp),
+#       clear = FALSE
+#     )
+#     
+#     for (k in seq_along(1:nrow(samp))) {
+#       distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]))) *
+#                           ifelse(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)])) > 0, 1, -1)
+#       pb$tick()
+#     }
+#     
+#     preProc <- preProcess(distance, method = "range")
+#     normdistance <- predict(preProc, distance)
+#     
+#     samp <- cbind(samp, normdistance)
+#     return(samp)
+#   }
 
 
 alter_labels = function(distance_data, ref){
@@ -1678,7 +1666,7 @@ SVindex = tunedSVMUn$finalModel@SVindex   # indices 1:(sample size per class) ; 
 SVtotalUn = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
 
 # calculate uncertainty of the samples by selecting SV's and data set
-normdistsvm_sl_un_v2 = uncertainty_dist_v2(tunedSVMUn, predLabelsSVMsumUn_unc)
+normdistsvm_sl_un_v2 = uncertainty_dist_v2_2(tunedSVMUn, predLabelsSVMsumUn_unc)
 
 # add real labels
 normdistsvm_sl_un_v2_refad = cbind(normdistsvm_sl_un_v2,validateLabels )
