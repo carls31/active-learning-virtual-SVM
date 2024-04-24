@@ -567,7 +567,7 @@ pE = 1/6
 pF = 1/6
 
 # definition of training sample set sizes S [% of max. sample size]
-sCur = sMax*(sampleSizesPor[2]/100)
+sCur = sMax*(sampleSizesPor[1]/100)
 ##definition of sample shares
 nA = round(sCur*pA)
 nB = round(sCur*pB)
@@ -1088,7 +1088,7 @@ predLabelsVSVMsumUn_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
 predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 
 #calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+normdistvsvm_sl_un = uncertainty_dist_v2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 
 predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
 accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
