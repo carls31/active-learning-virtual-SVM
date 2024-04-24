@@ -13,6 +13,7 @@ b = 30 # balanced_unlabeled_samples
 r = 60 # random_unlabeled_samples
 
 path = "D:/tunc_oz/apply_model"
+path = '/home/rsrg9/Documents/tunc_oz/apply_model'
 
 ########################################  Utils  ########################################
 
@@ -1087,7 +1088,7 @@ predLabelsVSVMsumUn_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
 predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 
 #calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_un = uncertainty_dist_v2_4(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 
 predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
 accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
