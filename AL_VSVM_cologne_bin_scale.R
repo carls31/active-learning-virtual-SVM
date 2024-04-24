@@ -3,6 +3,7 @@ library(kernlab)
 library(sampling)
 # library(foreign)
 # library(e1071)
+library(progress) # for percentage bar (console visualization)
 
 # Define the class sample size 
 sample_size = 2
@@ -224,12 +225,12 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernelfunc){
   return(VSV1)
 }
 
-pred_one = function(modelfin, dataPoint ){
-  pred = sum(sapply(1:modelfin@nSV, function(j) 
-  modelfin@kernelf(xmatrix(modelfin)[[1]][j,],dataPoint)*modelfin@coef[[1]][j]))-modelfin@b
-  
-  return(pred)   
-}
+# pred_one = function(modelfin, dataPoint ){
+#   pred = sum(sapply(1:modelfin@nSV, function(j) 
+#   modelfin@kernelf(xmatrix(modelfin)[[1]][j,],dataPoint)*modelfin@coef[[1]][j]))-modelfin@b
+#   
+#   return(pred)   
+# }
 
 pred_one = function(model, data_point) {
   # Extract necessary components from the SVM model
@@ -259,18 +260,17 @@ pred_one = function(model, data_point) {
 
 
 # Evaluate the distance between samples and Support Vectors lying in the hyperspace
+
 uncertainty_dist_v2 = function(org, samp){
-  #add two parameters org = tunedXXX and samp = data set to add distance column 
   
   #create dataframe to store label and distance
   distance = data.frame(matrix(nrow=nrow(samp),ncol=2))
   colnames(distance) = c("control_label", "distance")
   
-  print("Progress:")
   increment_size <- floor(nrow(samp) / 100)
+  print("Progress:")
   for(k in seq(along = c(1:nrow(samp)))){
-    
-    distance[k,1] =as.character(samp[k, (samp)])
+    distance[k,1] =as.character(samp[k,ncol(samp)])
     
     signa = as.numeric(pred_one(org$finalModel, unlist(samp[k,-ncol(samp)])))
     
@@ -291,7 +291,7 @@ uncertainty_dist_v2 = function(org, samp){
   normdistance = predict(preProc, distance)
   
   
-  #join distance column to the original samples
+  #join distance coloumn to the original samples
   samp = cbind(samp,normdistance)
   
   return(samp)
@@ -301,9 +301,9 @@ uncertainty_dist_v2 = function(org, samp){
 
 uncertainty_dist_v2_2 = function(org, samp) {
   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
-  increment_size <- floor(nrow(samp) / 100)
-  n <- nrow(samp)
   
+  n <- nrow(samp)
+  increment_size <- floor(nrow(samp) / 100)
   print("Progress:")
   for (k in seq_along(1:n)) {
     distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]))) *
@@ -314,13 +314,40 @@ uncertainty_dist_v2_2 = function(org, samp) {
       print(paste(round(progress, 1), "%"))
     }
   }
-  
   preProc <- preProcess(distance, method = "range")
   normdistance <- predict(preProc, distance)
   
   samp <- cbind(samp, normdistance)
   return(samp)
 }
+
+
+  
+uncertainty_dist_v2_4 = function(org, samp) {
+    distance <- data.frame( control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+    
+    pb <- progress_bar$new(
+      format = "[:bar] :percent ETA: :eta",
+      total = nrow(samp),
+      clear = FALSE
+    )
+    
+    for (k in seq_along(1:nrow(samp))) {
+      distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]))) *
+        ifelse(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)])) > 0, 1, -1)
+      
+      pb$tick()
+    }
+    
+    preProc <- preProcess(distance, method = "range")
+    normdistance <- predict(preProc, distance)
+    
+    samp <- cbind(samp, normdistance)
+    return(samp)
+  }
+
+
+
 
 
 alter_labels = function(distance_data, ref){
@@ -823,150 +850,150 @@ SVinvarUn_b = rbind(setNames(SVinvar,objInfoNames),
                     setNames(SVinvarUn_b,objInfoNames)
 )
 
-######## Random samples
-
-stratSampRemaining_r = strata(trainDataCurRemaining, size = r, method = "srswor")
-#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
-
-samplesRemaining_r = getdata(trainDataCurRemaining, stratSampRemaining_r)
-
-trainDataCurRemaining_r = samplesRemaining_r[,1:ncol(trainDataPoolAllLev)]
-# trainFeatRemaining_r = trainDataCurRemaining_r[,1:(ncol(trainDataPoolAllLev)-1)]
-# trainLabelsRemaining_r = trainDataCurRemaining_r[,ncol(trainDataPoolAllLev)]
-trainDataCurRemainingsub_r = trainDataCurRemaining_r[sindexSVMDATA:eindexSVMDATA]
-
-REF_r = predict(tunedVSVM, trainDataCurRemainingsub_r)
-
-# get SV of unlabeled samples 
-SVindexUn_r = 1:nrow(trainDataCurRemainingsub_r)
-SVtotalUn_r = trainDataCurRemaining_r[SVindexUn_r ,c(sindexSVMDATA:eindexSVMDATA)]
-SVtotalUn_r = cbind(SVtotalUn_r, REF_r)
-
-# get VS, means rows of SV but with subset on different level
-SVL2Un_r = cbind(trainDataCurRemaining[SVindexUn_r,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_r)
-SVL3Un_r = cbind(trainDataCurRemaining[SVindexUn_r,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_r)
-
-SVL5Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_r)
-SVL6Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_r)
-SVL7Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_r)
-SVL8Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_r)
-SVL9Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_r)
-SVL10Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_r)
-SVL11Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_r)
-
-# bind original SV with modified to new train data set
-SVinvarUn_r = rbind(setNames(SVtotalUn_r,objInfoNames),
-                    setNames(SVL2Un_r,objInfoNames),
-                    setNames(SVL3Un_r,objInfoNames),
-                    setNames(SVL5Un_r,objInfoNames), 
-                    setNames(SVL6Un_r,objInfoNames),
-                    setNames(SVL7Un_r,objInfoNames),
-                    setNames(SVL8Un_r,objInfoNames),
-                    setNames(SVL9Un_r,objInfoNames),
-                    setNames(SVL10Un_r,objInfoNames),
-                    setNames(SVL11Un_r,objInfoNames)
-)
-
-SVinvarUn_r = rbind(setNames(SVinvar,objInfoNames),
-                    setNames(SVinvarUn_r,objInfoNames)
-)
-
-######################## VSVM - EVALUATION of all Level VSV + Random & Balanced samples #########################
-
-############## Random Unlabeled samples
-
-actKappa = 0
-
-# iteration over bound to test different bound thresholds determining the radius of acception
-for(jj in seq(along = c(1:length(bound)))){
-  
-  # remove VSV which are not located within certain distance to org.SV; 
-  # done by "rem_extrem_kerneldist()" which evaluates the kernel distance (in hyperspace) under consideration of the kernelfunction used in baseSVM
-  # to use euclidian distance (in inputspace) instead of kernel distance use "rem_extrem()"
-  SVinvarRadiUn_r = rbind(setNames(rem_extrem(SVtotal, SVL2, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL3, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL5, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL6, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL7, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL8, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL9, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL10, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotal, SVL11, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL2Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL3Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL5Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL6Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL7Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL8Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL9Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL10Un_r, bound[jj]),objInfoNames),
-                          setNames(rem_extrem(SVtotalUn_r, SVL11Un_r, bound[jj]),objInfoNames)
-  )
-  
-  # remove NAs 
-  SVinvarRadiUn_r = na.omit(SVinvarRadiUn_r)
-  
-  # iterating over boundMargin to test different threshold on margin distance
-  for (kk in seq(along = c(1:length(boundMargin)))){
-    
-    # remove VSV which are not located in certain distance to desicion function
-    # data.frame to store elected VSV within the margin
-    SVinvarUn_r=setNames(data.frame(matrix(ncol = numFeat+1)), objInfoNames)
-    
-    # iterate over SVinvarRadi and evaluate distance to hyperplane
-    # implementation checks class membership for case that each class should be evaluate on different bound
-    for(m in seq(along = c(1:nrow(SVinvarRadiUn_r)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_r[m,-ncol(SVinvarRadiUn_r)])))
-      
-      if(SVinvarRadiUn_r[m,ncol(SVinvarRadiUn_r)] == levels(generalDataPool$REF)[1]){
-        if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
-          SVinvarUn_r = rbind(SVinvarUn_r, SVinvarRadiUn_r[m,])
-        }
-      }else{
-        if(SVinvarRadiUn_r[m,ncol(SVinvarRadiUn_r)] == levels(generalDataPool$REF)[2]){
-          if((signa > -boundMargin[kk])&& (signa < boundMargin[kk])){
-            SVinvarUn_r = rbind(SVinvarUn_r, SVinvarRadiUn_r[m,])
-            
-          }
-        }
-      }
-    }
-    
-    # merge elected VSV with original SV
-    SVinvar_orgUn_r = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvarUn_r,objInfoNames))
-    
-    SVinvar_orgUn_r=na.omit(SVinvar_orgUn_r)
-    
-    # split for training to feature and label
-    trainFeatVSVMUn_r = SVinvar_orgUn_r[,1:(ncol(SVinvar_orgUn_r)-1)]
-    trainLabelsVSVMUn_r = SVinvar_orgUn_r[,ncol(SVinvar_orgUn_r)]
-    
-    # get list with index of trainData to split between train and test in svmFit
-    countTrainDataUn_r = nrow(SVinvar_orgUn_r)
-    indexTrainDataUn_r = list(c(1:countTrainDataUn_r))
-    
-    # join of train and test data (through indesTrainData in svmFit seperable)
-    names = objInfoNames[1:length(objInfoNames)-1]
-    tuneFeatVSVMUn_r = rbind(trainFeatVSVMUn_r, setNames(testFeatsub, names))
-    tuneLabelsVSVMUn_r = unlist(list(trainLabelsVSVMUn_r, testLabels))
-    
-    ######################################## VSVM control parameter tuning ########################################
-    tunedVSVMUn_r = svmFit(tuneFeatVSVMUn_r, tuneLabelsVSVMUn_r, indexTrainDataUn_r)
-    
-    # of all Different bound settings get the one with best Kappa and save its model
-    if(actKappa < tunedVSVMUn_r$resample$Kappa){
-      actKappa = tunedVSVMUn_r$resample$Kappa
-      bestFittingModelUn_r = tunedVSVMUn_r
-    }
-  }
-}
-
-# run classification and accuracy assessment for the best bound setting
-# predict labels of test data
-predLabelsVSVMsumUn_r = predict(bestFittingModelUn_r, validateFeatsub)
-
-# accuracy assessment
-accVSVM_SL_Un_r = confusionMatrix(predLabelsVSVMsumUn_r, validateLabels)
+# ######## Random samples
+# 
+# stratSampRemaining_r = strata(trainDataCurRemaining, size = r, method = "srswor")
+# #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+# 
+# samplesRemaining_r = getdata(trainDataCurRemaining, stratSampRemaining_r)
+# 
+# trainDataCurRemaining_r = samplesRemaining_r[,1:ncol(trainDataPoolAllLev)]
+# # trainFeatRemaining_r = trainDataCurRemaining_r[,1:(ncol(trainDataPoolAllLev)-1)]
+# # trainLabelsRemaining_r = trainDataCurRemaining_r[,ncol(trainDataPoolAllLev)]
+# trainDataCurRemainingsub_r = trainDataCurRemaining_r[sindexSVMDATA:eindexSVMDATA]
+# 
+# REF_r = predict(tunedVSVM, trainDataCurRemainingsub_r)
+# 
+# # get SV of unlabeled samples 
+# SVindexUn_r = 1:nrow(trainDataCurRemainingsub_r)
+# SVtotalUn_r = trainDataCurRemaining_r[SVindexUn_r ,c(sindexSVMDATA:eindexSVMDATA)]
+# SVtotalUn_r = cbind(SVtotalUn_r, REF_r)
+# 
+# # get VS, means rows of SV but with subset on different level
+# SVL2Un_r = cbind(trainDataCurRemaining[SVindexUn_r,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_r)
+# SVL3Un_r = cbind(trainDataCurRemaining[SVindexUn_r,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_r)
+# 
+# SVL5Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_r)
+# SVL6Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_r)
+# SVL7Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_r)
+# SVL8Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_r)
+# SVL9Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_r)
+# SVL10Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_r)
+# SVL11Un_r = cbind(trainDataCurRemaining_r[SVindexUn_r,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_r)
+# 
+# # bind original SV with modified to new train data set
+# SVinvarUn_r = rbind(setNames(SVtotalUn_r,objInfoNames),
+#                     setNames(SVL2Un_r,objInfoNames),
+#                     setNames(SVL3Un_r,objInfoNames),
+#                     setNames(SVL5Un_r,objInfoNames), 
+#                     setNames(SVL6Un_r,objInfoNames),
+#                     setNames(SVL7Un_r,objInfoNames),
+#                     setNames(SVL8Un_r,objInfoNames),
+#                     setNames(SVL9Un_r,objInfoNames),
+#                     setNames(SVL10Un_r,objInfoNames),
+#                     setNames(SVL11Un_r,objInfoNames)
+# )
+# 
+# SVinvarUn_r = rbind(setNames(SVinvar,objInfoNames),
+#                     setNames(SVinvarUn_r,objInfoNames)
+# )
+# 
+# ######################## VSVM - EVALUATION of all Level VSV + Random & Balanced samples #########################
+# 
+# ############## Random Unlabeled samples
+# 
+# actKappa = 0
+# 
+# # iteration over bound to test different bound thresholds determining the radius of acception
+# for(jj in seq(along = c(1:length(bound)))){
+#   
+#   # remove VSV which are not located within certain distance to org.SV; 
+#   # done by "rem_extrem_kerneldist()" which evaluates the kernel distance (in hyperspace) under consideration of the kernelfunction used in baseSVM
+#   # to use euclidian distance (in inputspace) instead of kernel distance use "rem_extrem()"
+#   SVinvarRadiUn_r = rbind(setNames(rem_extrem(SVtotal, SVL2, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL3, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL5, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL6, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL7, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL8, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL9, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL10, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotal, SVL11, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL2Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL3Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL5Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL6Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL7Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL8Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL9Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL10Un_r, bound[jj]),objInfoNames),
+#                           setNames(rem_extrem(SVtotalUn_r, SVL11Un_r, bound[jj]),objInfoNames)
+#   )
+#   
+#   # remove NAs 
+#   SVinvarRadiUn_r = na.omit(SVinvarRadiUn_r)
+#   
+#   # iterating over boundMargin to test different threshold on margin distance
+#   for (kk in seq(along = c(1:length(boundMargin)))){
+#     
+#     # remove VSV which are not located in certain distance to desicion function
+#     # data.frame to store elected VSV within the margin
+#     SVinvarUn_r=setNames(data.frame(matrix(ncol = numFeat+1)), objInfoNames)
+#     
+#     # iterate over SVinvarRadi and evaluate distance to hyperplane
+#     # implementation checks class membership for case that each class should be evaluate on different bound
+#     for(m in seq(along = c(1:nrow(SVinvarRadiUn_r)))){
+#       signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_r[m,-ncol(SVinvarRadiUn_r)])))
+#       
+#       if(SVinvarRadiUn_r[m,ncol(SVinvarRadiUn_r)] == levels(generalDataPool$REF)[1]){
+#         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
+#           SVinvarUn_r = rbind(SVinvarUn_r, SVinvarRadiUn_r[m,])
+#         }
+#       }else{
+#         if(SVinvarRadiUn_r[m,ncol(SVinvarRadiUn_r)] == levels(generalDataPool$REF)[2]){
+#           if((signa > -boundMargin[kk])&& (signa < boundMargin[kk])){
+#             SVinvarUn_r = rbind(SVinvarUn_r, SVinvarRadiUn_r[m,])
+#             
+#           }
+#         }
+#       }
+#     }
+#     
+#     # merge elected VSV with original SV
+#     SVinvar_orgUn_r = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvarUn_r,objInfoNames))
+#     
+#     SVinvar_orgUn_r=na.omit(SVinvar_orgUn_r)
+#     
+#     # split for training to feature and label
+#     trainFeatVSVMUn_r = SVinvar_orgUn_r[,1:(ncol(SVinvar_orgUn_r)-1)]
+#     trainLabelsVSVMUn_r = SVinvar_orgUn_r[,ncol(SVinvar_orgUn_r)]
+#     
+#     # get list with index of trainData to split between train and test in svmFit
+#     countTrainDataUn_r = nrow(SVinvar_orgUn_r)
+#     indexTrainDataUn_r = list(c(1:countTrainDataUn_r))
+#     
+#     # join of train and test data (through indesTrainData in svmFit seperable)
+#     names = objInfoNames[1:length(objInfoNames)-1]
+#     tuneFeatVSVMUn_r = rbind(trainFeatVSVMUn_r, setNames(testFeatsub, names))
+#     tuneLabelsVSVMUn_r = unlist(list(trainLabelsVSVMUn_r, testLabels))
+#     
+#     ######################################## VSVM control parameter tuning ########################################
+#     tunedVSVMUn_r = svmFit(tuneFeatVSVMUn_r, tuneLabelsVSVMUn_r, indexTrainDataUn_r)
+#     
+#     # of all Different bound settings get the one with best Kappa and save its model
+#     if(actKappa < tunedVSVMUn_r$resample$Kappa){
+#       actKappa = tunedVSVMUn_r$resample$Kappa
+#       bestFittingModelUn_r = tunedVSVMUn_r
+#     }
+#   }
+# }
+# 
+# # run classification and accuracy assessment for the best bound setting
+# # predict labels of test data
+# predLabelsVSVMsumUn_r = predict(bestFittingModelUn_r, validateFeatsub)
+# 
+# # accuracy assessment
+# accVSVM_SL_Un_r = confusionMatrix(predLabelsVSVMsumUn_r, validateLabels)
 
 ############## Balanced Unlabeled samples
 
@@ -1072,7 +1099,7 @@ predLabelsVSVMsumUn_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
 predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 
 #calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+normdistvsvm_sl_un = uncertainty_dist_v2_4(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 
 predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
 accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
@@ -1214,7 +1241,7 @@ for(jj in seq(along = c(1:length(bound)))){
 predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
 
 ##accuracy assessment
-accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
+accVSVM_SL_vUn_b1 = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
 
 #########################################################################################################
 #                                                                                                       #
@@ -1359,7 +1386,7 @@ refLabelsSVMsumUn_unc = cbind(validateFeatsub, validateLabels)
 predLabelsVSVMsumVUn_unc = setNames(predLabelsVSVMsumVUn_unc, objInfoNames)
 
 #calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_vun = uncertainty_dist_v2(tunedVSVMvUn_b, predLabelsVSVMsumVUn_unc)
+normdistvsvm_sl_vun = uncertainty_dist_v2_2(tunedVSVMvUn_b, predLabelsVSVMsumVUn_unc)
 
 predlabels_vsvm_Slvu = alter_labels(normdistvsvm_sl_vun,validateLabels)
 accVSVM_SL_vUn_b_ad = confusionMatrix(predlabels_vsvm_Slvu, validateLabels)
