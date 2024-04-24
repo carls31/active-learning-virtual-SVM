@@ -3,7 +3,7 @@ library(kernlab)
 library(sampling)
 # library(foreign)
 # library(e1071)
-library(progress) # for percentage bar (console visualization)
+library(progress) # for progress bar visualization
 
 # Define the class sample size 
 sample_size = 2
