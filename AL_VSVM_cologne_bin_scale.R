@@ -434,7 +434,7 @@ generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
 
 # transform to 2-Class-Case "Bushes Trees" VS rest
-print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
+print('First label class:', levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
 f=levels(generalDataPool$REF)[1]
 generalDataPool$REF = as.character(generalDataPool$REF)
 generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
