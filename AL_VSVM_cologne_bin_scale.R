@@ -12,7 +12,7 @@ sample_size = 2
 b = 30 # balanced_unlabeled_samples
 r = 60 # random_unlabeled_samples
 
-path = "D:/tunc_oz/apply_model"
+#path = "D:/tunc_oz/apply_model"
 path = '/home/rsrg9/Documents/tunc_oz/apply_model'
 
 ########################################  Utils  ########################################
@@ -434,7 +434,7 @@ generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
 
 # transform to 2-Class-Case "Bushes Trees" VS rest
-print('First label class:', levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
+print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
 f=levels(generalDataPool$REF)[1]
 generalDataPool$REF = as.character(generalDataPool$REF)
 generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
@@ -586,7 +586,7 @@ stratSamp = strata(trainDataCur, c("REF"), size = shares, method = "srswor")#siz
 # get samples of trainDataCur and set trainDataCur new
 samples = getdata(trainDataCur, stratSamp)
 
-samplesID = samples[,182]
+samplesID = samples$ID_unit
 trainDataCurRemaining <- trainDataCur[-c(samplesID), ]
 
 trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
