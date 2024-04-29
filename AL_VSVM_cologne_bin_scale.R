@@ -5,13 +5,12 @@ library(sampling)
 # library(e1071)
 library(progress) # for progress bar visualization
 
-library(reticulate)
-
-myenvs=conda_list()
-envname=myenvs$name[2]
-use_condaenv(envname, required = TRUE)
-source_python('utils.py')
-prova()
+# library(reticulate)
+# myenvs=conda_list()
+# envname=myenvs$name[2]
+# use_condaenv(envname, required = TRUE)
+# source_python('utils.py')
+# prova()
 
 # Define the class sample size 
 sample_size = 2
