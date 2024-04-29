@@ -36,7 +36,7 @@ b=30 ## insert value here for the unlabeled sample size per class
 
 ## define path into folder "apply_model" manually  (e.g. D:/Projects/VSVM/apply_model)
 
-apply_model_path = "D:/tunc_oz/apply_model" ##insert path here
+apply_model_path = '/home/rsrg9/Documents/tunc_oz/apply_model' ##insert path here
 
 
 ## execute the script
