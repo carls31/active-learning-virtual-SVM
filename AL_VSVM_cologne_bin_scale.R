@@ -5,6 +5,13 @@ library(sampling)
 # library(e1071)
 library(progress) # for progress bar visualization
 
+# library(reticulate)
+# myenvs=conda_list()
+# envname=myenvs$name[2]
+# use_condaenv(envname, required = TRUE)
+# source_python('utils.py')
+# prova()
+
 # Define the class sample size 
 sample_size = 2
 
@@ -783,7 +790,7 @@ predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
 
 # accuracy assessment
 accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-
+print(accVSVM_SL)
 ##########################################################################################################
 
 #################################  Balanced & Random unlabeled samples ###################################
@@ -1074,12 +1081,12 @@ for(jj in seq(along = c(1:length(bound)))){
 
 # run classification and accuracy assessment for the best bound setting
 # predict labels of test data
-print(nrow(validateFeatsub))
+# print(nrow(validateFeatsub))
 predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
 
 # accuracy assessment
 accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-
+print(accVSVM_SL_Un_b)
 ######################################## UNCERTAINTY function on VSVM-SL-UNL  #########################################
 
 #  add predicted labels to the features data set
