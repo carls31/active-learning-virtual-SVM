@@ -80,11 +80,21 @@ svmFit = function(x, y, indexTrain){{ #x = training descriptors, y = class label
   return(svmFitNarrow)  
 }
 
+rbf_kernel <- function(x, y, sigma) {
+  # Calculate the squared Euclidean distance between x and y
+  distance_squared <- sum((x - y)^2)
+  
+  # Compute the RBF kernel value using the squared distance and sigma
+  kernel_value <- exp(-distance_squared / (2 * sigma^2))
+  
+  return(kernel_value)
+}
+
 # Kernel distance between two point lying in the hyperspace
 kern_dis = function(a, b, kernelfunc){
   a = unlist(a)
   b = unlist(b)
-  dk =sqrt( kernelfunc(a,a)+kernelfunc(b,b)-2*kernelfunc(a,b))
+  dk =sqrt( kernelfunc(a,a,1)+kernelfunc(b,b,1)-2*kernelfunc(a,b,1))
   return(dk)
 }
 
@@ -156,7 +166,51 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernelfunc){
   return(VSV1)
 }
 
+# pred_one = function(model, data_point) {
+#   # Extract necessary components from the SVM model
+#   support_vectors <- model@nSV
+#   kernel_function <- model@kernelf
+#   coefficients <- model@coef[[1]]
+#   intercept <- model@b
+#   
+#   # Initialize prediction variable
+#   prediction <- 0
+#   
+#   # Iterate over each support vector
+#   for (j in 1:support_vectors) {
+#     # Compute kernel function value between the j-th support vector and the data point
+#     kernel_value <- kernel_function(xmatrix(model)[[1]][j,], data_point)
+#     
+#     # Multiply kernel value by the corresponding coefficient and add to prediction
+#     weighted_value <- kernel_value * coefficients[j]
+#     prediction <- prediction + weighted_value
+#   }
+#   
+#   # Subtract intercept to get the final prediction
+#   final_prediction <- prediction - intercept
+#   
+#   return(final_prediction)
+# }
 
+## Sum(a_i * y_i * K(x_i, n)) + b
+## Sum(coef_i * K(x_i, n)) - b
+## for multiclass problems maybe use predict and $probabilities or with type = desicion
+pred_one = function(modelfin, dataPoint, binaryClassProblem ){
+  
+  smallestDistance = 1000
+  dataPointLabel = dataPoint[length(dataPoint)]
+  for(l in seq(along = binaryClassProblem)){
+    if(as.integer(dataPointLabel) %in% binaryClassProblem[[l]]){
+      
+      pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
+        modelfin@kernelf(xmatrix(modelfin)[[l]][j,],dataPoint[1:(length(dataPoint)-1)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+      
+      if(abs(pred) < abs(smallestDistance))
+        smallestDistance = pred
+    }
+  }
+  return(smallestDistance)   
+}
 
 # Evaluate Margin Sampling (MS)
 margin_sampling <- function(org, samp) {
@@ -207,8 +261,6 @@ margin_sampling <- function(org, samp) {
   return(merged_data)
 }
 
-
-
 # Evaluate Multiclass Level Uncertainty (MCLU)
 mclu_sampling <- function(org, samp) {
   # Initialize data frame to store uncertainty for each sample
@@ -253,41 +305,6 @@ mclu_sampling <- function(org, samp) {
   
   return(merged_data)
 }
-
-
-# pred_one = function(modelfin, dataPoint ){
-#   pred = sum(sapply(1:modelfin@nSV, function(j) 
-#   modelfin@kernelf(xmatrix(modelfin)[[1]][j,],dataPoint)*modelfin@coef[[1]][j]))-modelfin@b
-#   
-#   return(pred)   
-# }
-
-pred_one = function(model, data_point) {
-  # Extract necessary components from the SVM model
-  support_vectors <- model@nSV
-  kernel_function <- model@kernelf
-  coefficients <- model@coef[[1]]
-  intercept <- model@b
-  
-  # Initialize prediction variable
-  prediction <- 0
-  
-  # Iterate over each support vector
-  for (j in 1:support_vectors) {
-    # Compute kernel function value between the j-th support vector and the data point
-    kernel_value <- kernel_function(xmatrix(model)[[1]][j,], data_point)
-    
-    # Multiply kernel value by the corresponding coefficient and add to prediction
-    weighted_value <- kernel_value * coefficients[j]
-    prediction <- prediction + weighted_value
-  }
-  
-  # Subtract intercept to get the final prediction
-  final_prediction <- prediction - intercept
-  
-  return(final_prediction)
-}
-
 
 # Evaluate the distance between samples and Support Vectors lying in the hyperspace
 uncertainty_dist_v2_2 = function(org, samp) {
@@ -673,21 +690,30 @@ print(accVSVM)
 
 actKappa = 0
 
+# **********************
+## records which 2 classes are involved in 2 class problems
+binaryClassProblem = list()
+
+for(jj in seq(along = c(1:length(tunedVSVM$finalModel@xmatrix)))){
+  binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
+}
+# **********************
+
 # iteration over bound to test different bound thresholds determining the radius of acception
 for(jj in seq(along = c(1:length(bound)))){
   
   # remove VSV which are not located within certain distance to org.SV; 
   # done by "rem_extrem_kerneldist()" which evaluates the kernel distance (in hyperspace) under consideration of the kernelfunction used in baseSVM
   # to use euclidian distance (in inputspace) instead of kernel distance use "rem_extrem()"
-  SVinvarRadi = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj]),objInfoNames),
-                      setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj]),objInfoNames)
+  SVinvarRadi = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj],rbf_kernel),objInfoNames),
+                      setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj],rbf_kernel),objInfoNames)
                       #setNames(rem_extrem(SVtotal, SVL12, bound[jj]),objInfoNames)
                       #setNames(rem_extrem(SVtotal, SVL13, bound[jj]),objInfoNames)
   ) 
@@ -705,7 +731,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadi)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m,-ncol(SVinvarRadi)])))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m,-ncol(SVinvarRadi)]),binaryClassProblem))
       
       if(SVinvarRadi[m,ncol(SVinvarRadi)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -961,30 +987,37 @@ SVinvarUn_b = rbind(setNames(SVinvar,objInfoNames),
 
 actKappa = 0
 
+## records which 2 classes are involved in 2 class problems
+binaryClassProblem = list()
+
+for(jj in seq(along = c(1:length(tunedVSVM$finalModel@xmatrix)))){
+  binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
+}
+
 # iteration over bound to test different bound thresholds determining the radius of acception
 for(jj in seq(along = c(1:length(bound)))){
   
   # remove VSV which are not located within certain distance to org.SV; 
   # done by "rem_extrem_kerneldist()" which evaluates the kernel distance (in hyperspace) under consideration of the kernelfunction used in baseSVM
   # to use euclidian distance (in inputspace) instead of kernel distance use "rem_extrem()"
-  SVinvarRadiUn_b = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL2Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL3Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL5Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL6Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL7Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL8Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL9Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL10Un_b, bound[jj]),objInfoNames),
-                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL11Un_b, bound[jj]),objInfoNames)
+  SVinvarRadiUn_b = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL2Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL3Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL5Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL6Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL7Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL8Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL9Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL10Un_b, bound[jj],rbf_kernel),objInfoNames),
+                          setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL11Un_b, bound[jj],rbf_kernel),objInfoNames)
   )
   
   # remove NAs 
@@ -1000,7 +1033,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadiUn_b)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_b[m,-ncol(SVinvarRadiUn_b)])))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_b[m,-ncol(SVinvarRadiUn_b)]),binaryClassProblem))
       
       if(SVinvarRadiUn_b[m,ncol(SVinvarRadiUn_b)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -1067,7 +1100,6 @@ margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn
 # Extract labels for prediction
 pred_labels_margin_sampled <- margin_sampled_data[, ncol(margin_sampled_data) - 4]
 
-
 # ******
 
 # Calculate uncertainty of the samples using MCLU
@@ -1076,8 +1108,10 @@ mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc
 pred_labels_mclu_sampled <- mclu_sampled_data[, ncol(mclu_sampled_data) - 4]
 
 # ******
+
 #calculate uncertainty of the samples by selecting SV's and data set
 normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+
 # ******
 
 predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
@@ -1140,24 +1174,24 @@ for(jj in seq(along = c(1:length(bound)))){
   # remove VSV which are not located within certain distance to org.SV; 
   # done by "rem_extrem_kerneldist()" which evaluates the kernel distance (in hyperspace) under consideration of the kernelfunction used in baseSVM
   # to use euclidian distance (in inputspace) instead of kernel distance use "rem_extrem()"
-  SVinvarRadivUn = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL2vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL3vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL5vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL6vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL7vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL8vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL9vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL10vUn_b, bound[jj]),objInfoNames),
-                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL11vUn_b, bound[jj]),objInfoNames)
+  SVinvarRadivUn = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL2vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL3vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL5vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL6vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL7vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL8vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL9vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL10vUn_b, bound[jj],rbf_kernel),objInfoNames),
+                         setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL11vUn_b, bound[jj],rbf_kernel),objInfoNames)
   ) 
   
   # remove NAs 
