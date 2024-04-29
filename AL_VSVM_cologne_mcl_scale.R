@@ -1,9 +1,9 @@
-###LOAD LIBRARIES:
-#install.packages("caret")
-#install.packages("kernlab")
-#install.packages("sampling")
-#install.packages("foreign")
-#install.packaages("e1071")
+# ##LOAD LIBRARIES:
+# install.packages("caret")
+# install.packages("kernlab")
+# install.packages("sampling")
+# install.packages("foreign")
+# install.packages("e1071")
 
 library(caret)
 library(kernlab)
@@ -431,7 +431,7 @@ boundMargin = c(1.5,1.0,0.5)                                    #threshold for d
 plotmatrix = c(3,3)
 #sampleSizesPor = c(100,70,40,25,16,10,6,3,1)                         #vector with % of max
 sampleSizesPor = c(60,50,40,25,16,10,6,3)
-#colheader =c("100","70","40","25","16","10","6","3","1")       #corespondung column names
+#colheader =c("100","70","40","25","16","10","6","3","1")       #corresponding column names
 colheader = c("60","50","40","25","16","10","6","3")
 sindexSVMDATA = 37                                                    #start of base data
 numFeat = 18                                                          #number of features per level(dimensionality)
@@ -648,7 +648,7 @@ colnames(accuSVM_SL_Un) = colheader
 
 #set randomized seed for the random sampling procedure
 seed = 5
-
+nR = 2 
 ##loop over nR realizations
 ra = 1:nR
 
