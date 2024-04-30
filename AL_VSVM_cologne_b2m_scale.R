@@ -25,7 +25,7 @@ path = '/home/rsrg9/Documents/tunc_oz/apply_model'
 ########################################  Utils  ########################################
 
 # Coarse and Narrow grid search for SVM parameters tuning
-svmFit = function(x, y, indexTrain){{ #x = training descriptors, y = class labels
+svmFit = function(x, y, indexTrain){ #x = training descriptors, y = class labels
   
   #expand coarse grid
   coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
@@ -74,9 +74,11 @@ svmFit = function(x, y, indexTrain){{ #x = training descriptors, y = class label
                        trControl = trainControl ( method = "cv",
                                                   verboseIter=T,
                                                   index = indexTrain,
-                                                  indexFinal= indexTrain[[1]]),
+                                                  indexFinal= indexTrain[[1]],
+                                                  classProbs =  TRUE),
+                       
                        scaled = FALSE)
-}
+
   return(svmFitNarrow)  
 }
 
@@ -197,13 +199,14 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernelfunc){
 ## for multiclass problems maybe use predict and $probabilities or with type = desicion
 pred_one = function(modelfin, dataPoint, binaryClassProblem ){
   
-  smallestDistance = 1000
+  smallestDistance = 100000
   dataPointLabel = dataPoint[length(dataPoint)]
   for(l in seq(along = binaryClassProblem)){
-    if(as.integer(dataPointLabel) %in% binaryClassProblem[[l]]){
-      
+    #if(as.integer(dataPointLabel) %in% binaryClassProblem[[l]]){
+    if(dataPointLabel %in% binaryClassProblem[[l]]){
+        
       pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
-        modelfin@kernelf(xmatrix(modelfin)[[l]][j,],dataPoint[1:(length(dataPoint)-1)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+        modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[-ncol(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
       
       if(abs(pred) < abs(smallestDistance))
         smallestDistance = pred
@@ -211,6 +214,13 @@ pred_one = function(modelfin, dataPoint, binaryClassProblem ){
   }
   return(smallestDistance)   
 }
+
+# if(unlist(predLabelsVSVMsumUn_unc[1, length(predLabelsVSVMsumUn_unc)]) %in% names(probabilities)[1]){
+#   print("veroo")
+#   pred = sum(sapply(1:nrow(bestFittingModelUn_b$finalModel@xmatrix[[1]]), function(j) 
+#     bestFittingModelUn_b$finalModel@kernelf(xmatrix(bestFittingModelUn_b$finalModel)[[1]][j,], unlist(predLabelsVSVMsumUn_unc[1,1:(length(predLabelsVSVMsumUn_unc)-1)]))*bestFittingModelUn_b$finalModel@coef[[1]][j]))-bestFittingModelUn_b$finalModel@b[1]
+#   }
+
 
 # Evaluate Margin Sampling (MS)
 margin_sampling <- function(org, samp) {
@@ -226,15 +236,15 @@ margin_sampling <- function(org, samp) {
   
   for (k in seq_along(1:nrow(samp))) {
     # Get prediction probabilities for the current sample
-    probabilities <- predict(org$finalModel, newdata = unlist(samp[k, -ncol(samp)]), type = "response")
-    
+    probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
+    # predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1],type="prob")
     # Find the class with the maximal confidence
     max_confidence_class <- names(which.max(probabilities))
     
     # Get the distance to the hyperplane for each class
     distances <- rep(0, length(probabilities))
     for (i in 1:length(probabilities)) {
-      distances[i] <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), names(probabilities)[i])
+      distances[i] <- pred_one(org$finalModel, unlist(samp[k, ]), names(probabilities)[i])
     }
     
     # Calculate the margin distance as the difference between the distance to the hyperplane of the max confidence class and the distance to the hyperplane of the other classes
@@ -243,20 +253,25 @@ margin_sampling <- function(org, samp) {
     pb$tick()
   }
   
-  # Sort the samples based on margin distance (ascending order)
-  margin_distance <- margin_distance[order(margin_distance$margin_distance), , drop = FALSE]
+  # # Sort the samples based on margin distance (ascending order)
+  # margin_distance <- margin_distance[order(margin_distance$margin_distance), , drop = FALSE]
+  # 
+  # # Take the top 250 samples with the smallest margin distance
+  # selected_samples <- margin_distance[1:250, , drop = FALSE]
+  # 
+  # # Set margin distance of selected samples to 1
+  # selected_samples$margin_distance <- 1
+  # 
+  # # Merge selected samples back with the original dataset
+  # merged_data <- merge(samp, selected_samples, by = "control_label", all.x = TRUE)
   
-  # Take the top 250 samples with the smallest margin distance
-  selected_samples <- margin_distance[1:250, , drop = FALSE]
+  # # Reorder the dataset by its index
+  # merged_data <- merged_data[order(as.numeric(row.names(merged_data))), ]
   
-  # Set margin distance of selected samples to 1
-  selected_samples$margin_distance <- 1
+  preProc <- preProcess(margin_distance, method = "range")
+  normdistance <- predict(preProc, margin_distance)
   
-  # Merge selected samples back with the original dataset
-  merged_data <- merge(samp, selected_samples, by = "control_label", all.x = TRUE)
-  
-  # Reorder the dataset by its index
-  merged_data <- merged_data[order(as.numeric(row.names(merged_data))), ]
+  merged_data <- cbind(samp, normdistance)
   
   return(merged_data)
 }
@@ -275,33 +290,38 @@ mclu_sampling <- function(org, samp) {
   
   for (k in seq_along(1:nrow(samp))) {
     # Get prediction probabilities for the current sample
-    probabilities <- predict(org$finalModel, newdata = unlist(samp[k, -ncol(samp)]), type = "response")
+    probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
     
     # Get the two most probable classes
     top_classes <- names(sort(probabilities, decreasing = TRUE)[1:2])
     
     # Calculate the difference between the distances to the margin for the two most probable classes
-    distance_top1 <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), top_classes[1])
-    distance_top2 <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), top_classes[2])
+    distance_top1 <- pred_one(org$finalModel, unlist(samp[k, ]), top_classes[1])
+    distance_top2 <- pred_one(org$finalModel, unlist(samp[k, ]), top_classes[2])
     uncertainty[k, "uncertainty"] <- abs(distance_top1 - distance_top2)
     
     pb$tick()
   }
   
-  # Sort the samples based on uncertainty (ascending order)
-  uncertainty <- uncertainty[order(uncertainty$uncertainty), , drop = FALSE]
+  # # Sort the samples based on uncertainty (ascending order)
+  # uncertainty <- uncertainty[order(uncertainty$uncertainty), , drop = FALSE]
+  # 
+  # # Take the top 250 samples with the highest uncertainty
+  # selected_samples <- uncertainty[1:250, , drop = FALSE]
+  # 
+  # # Set uncertainty of selected samples to 1
+  # selected_samples$uncertainty <- 1
+  # 
+  # # Merge selected samples back with the original dataset
+  # merged_data <- merge(samp, selected_samples, by = "control_label", all.x = TRUE)
+  # 
+  # # Reorder the dataset by its index
+  # merged_data <- merged_data[order(as.numeric(row.names(merged_data))), ]
   
-  # Take the top 250 samples with the highest uncertainty
-  selected_samples <- uncertainty[1:250, , drop = FALSE]
+  preProc <- preProcess(uncertainty, method = "range")
+  normdistance <- predict(preProc, uncertainty)
   
-  # Set uncertainty of selected samples to 1
-  selected_samples$uncertainty <- 1
-  
-  # Merge selected samples back with the original dataset
-  merged_data <- merge(samp, selected_samples, by = "control_label", all.x = TRUE)
-  
-  # Reorder the dataset by its index
-  merged_data <- merged_data[order(as.numeric(row.names(merged_data))), ]
+  merged_data <- cbind(samp, normdistance)
   
   return(merged_data)
 }
@@ -317,8 +337,8 @@ uncertainty_dist_v2_2 = function(org, samp) {
   )
   
   for (k in seq_along(1:nrow(samp))) {
-    distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]))) *
-                      ifelse(pred_one(org$finalModel, unlist(samp[k, -ncol(samp)])) > 0, 1, -1)
+    distance[k, "distance"] <- sign(pred_one(org$finalModel, unlist(samp[k, ]), binaryClassProblem)) *
+                      ifelse(pred_one(org$finalModel, unlist(samp[k, ]), binaryClassProblem) > 0, 1, -1)
     pb$tick()
     
   }
@@ -695,7 +715,7 @@ actKappa = 0
 binaryClassProblem = list()
 
 for(jj in seq(along = c(1:length(tunedVSVM$finalModel@xmatrix)))){
-  binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
+  binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedVSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
 }
 # **********************
 
@@ -731,7 +751,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadi)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m,-ncol(SVinvarRadi)]),binaryClassProblem))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m,]),binaryClassProblem))
       
       if(SVinvarRadi[m,ncol(SVinvarRadi)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -987,13 +1007,6 @@ SVinvarUn_b = rbind(setNames(SVinvar,objInfoNames),
 
 actKappa = 0
 
-## records which 2 classes are involved in 2 class problems
-binaryClassProblem = list()
-
-for(jj in seq(along = c(1:length(tunedVSVM$finalModel@xmatrix)))){
-  binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
-}
-
 # iteration over bound to test different bound thresholds determining the radius of acception
 for(jj in seq(along = c(1:length(bound)))){
   
@@ -1033,7 +1046,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadiUn_b)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_b[m,-ncol(SVinvarRadiUn_b)]),binaryClassProblem))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_b[m,]),binaryClassProblem))
       
       if(SVinvarRadiUn_b[m,ncol(SVinvarRadiUn_b)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -1092,33 +1105,28 @@ print(accVSVM_SL_Un_b)
 predLabelsVSVMsumUn_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
 
 predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
-
+#predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1])
 # ******
 
 # Calculate margin distance of the samples using MS
 margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # Extract labels for prediction
-pred_labels_margin_sampled <- margin_sampled_data[, ncol(margin_sampled_data) - 4]
-
+predlabels_vsvm_Slu = alter_labels(margin_sampled_data, validateLabels)
 # ******
 
 # Calculate uncertainty of the samples using MCLU
 mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # Extract labels for prediction
-pred_labels_mclu_sampled <- mclu_sampled_data[, ncol(mclu_sampled_data) - 4]
-
+predlabels_vsvm_Slu = alter_labels(mclu_sampled_data, validateLabels)
 # ******
 
 #calculate uncertainty of the samples by selecting SV's and data set
 normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
-
+predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
 # ******
 
-predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
-
-
 accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
-
+print(accVSVM_SL_Un_b_ad)
 ################################### VSVM-sL + VIRTUAL (Balanced) Unlabeled Samples #################################### 
 
 REF_v = predict(tunedVSVMUn_b, trainDataCurRemainingsub_b)
@@ -1207,7 +1215,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadivUn)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadivUn[m,-ncol(SVinvarRadivUn)])))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadivUn[m,])))
       
       if(SVinvarRadivUn[m,ncol(SVinvarRadivUn)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -1340,7 +1348,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadivUn)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadivUn[m,-ncol(SVinvarRadivUn)])))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadivUn[m,])))
       
       if(SVinvarRadivUn[m,ncol(SVinvarRadivUn)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -1535,7 +1543,7 @@ for(jj in seq(along = c(1:length(bound)))){
     # iterate over SVinvarRadi and evaluate distance to hyperplane
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadiUn)))){
-      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn[m,-ncol(SVinvarRadiUn)])))
+      signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn[m,])))
       
       if(SVinvarRadiUn[m,ncol(SVinvarRadiUn)] == levels(generalDataPool$REF)[1]){
         if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
