@@ -14,3 +14,4 @@ https://scikit-learn.org/stable/modules/generated/sklearn.metrics.ConfusionMatri
 https://scikit-learn.org/stable/modules/model_evaluation.html#classification-metrics
 https://cran.r-project.org/web/packages/reticulate/vignettes/calling_python.html
 
+https://stackoverflow.com/questions/17846534/support-vector-machine-train-caret-error-kernlab-class-probability-calculations
