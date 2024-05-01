@@ -963,6 +963,7 @@ for (i in seq(along=ra)){
     
     ## records which 2 classes are involved in 2 class problems
     binaryClassProblem = list()
+    # WHAT IS USED FOR? A LIST WITH NAME OF THE CLASS ISN'T ENOUGH?
     
     for(jj in seq(along = c(1:length(tunedVSVM$finalModel@xmatrix)))){
       binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
