@@ -161,23 +161,44 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernelfunc){
   return(VSV1)
 }
 
-pred_one = function(modelfin, dataPoint, binaryClassProblem ){
+pred_one = function(modelfin, dataPoint, dataPointLabels, binaryClassProblem ){
   
   smallestDistance = 9999
-  dataPointLabel = dataPoint[length(dataPoint)]
-  #print(dataPointLabel)
-  for(l in seq(along = binaryClassProblem)){
-    #print(binaryClassProblem[[l]])
+  
+  for(ll in seq(along = dataPointLabels)){
     
-    #if(as.integer(dataPointLabel) %in% binaryClassProblem[[l]]){
-    if(as.integer(dataPointLabel) %in% as.integer(binaryClassProblem[[l]])){
-      #print(paste("vero", pred))
-      pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
-        modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)-1])*modelfin@coef[[l]][j]))-modelfin@b[l]
+    print(dataPointLabels[ll])
+    for(l in seq(along = binaryClassProblem)){
+      #print(binaryClassProblem[[l]])
       
-      if(abs(pred) < abs(smallestDistance))
-        smallestDistance = abs(pred)
+      #if(as.integer(dataPointLabel) %in% binaryNameClasses[[l]]){
+      #if(dataPoint[length(dataPoint)] %in% binaryNameClasses[[l]]){
+      if(as.integer(dataPointLabels[ll]) %in% as.integer(binaryClassProblem[[l]])){
+        #print(paste("vero", pred))
+        pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
+          modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+        
+        if(abs(pred) < abs(smallestDistance))
+          smallestDistance = abs(pred)
+      }
     }
+  }
+
+  return(smallestDistance)   
+}
+
+smallest_class = function(modelfin, dataPoint){
+  
+  smallestDistance = 9999
+
+  for(l in seq(along =  c(1:6))){
+
+    pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
+      modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)-1])*modelfin@coef[[l]][j]))-modelfin@b[l]
+    
+    if(abs(pred) < abs(smallestDistance))
+      smallestDistance = abs(pred)
+  
   }
   return(smallestDistance)   
 }
@@ -185,10 +206,11 @@ pred_one = function(modelfin, dataPoint, binaryClassProblem ){
 # probabilities <- predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1],type="prob")
 # 
 # smallestDistance = 9999
-# for(l in seq(along = binaryClassProblem)){
-#   if(unlist(predLabelsVSVMsumUn_unc[1, length(predLabelsVSVMsumUn_unc)]) %in% binaryClassProblem[[l]]){
+# binaryNameClasses = names(probabilities)[1]
+# for(l in seq(along = binaryNameClasses)){
+#   if(unlist(predLabelsVSVMsumUn_unc[1, length(predLabelsVSVMsumUn_unc)]) %in% binaryNameClasses[l]){
 #     print("veroo")
-#     print(binaryClassProblem[[l]])
+#     print(binaryNameClasses[l])
 #     pred = sum(sapply(1:nrow(bestFittingModelUn_b$finalModel@xmatrix[[1]]), function(j)
 #       bestFittingModelUn_b$finalModel@kernelf(xmatrix(bestFittingModelUn_b$finalModel)[[l]][j,], unlist(predLabelsVSVMsumUn_unc[1,1:(length(predLabelsVSVMsumUn_unc)-1)]))*bestFittingModelUn_b$finalModel@coef[[l]][j]))-bestFittingModelUn_b$finalModel@b[l]
 #     print(pred)
@@ -196,12 +218,12 @@ pred_one = function(modelfin, dataPoint, binaryClassProblem ){
 #       smallestDistance = abs(pred)
 #     }
 #   }
-# pred
+# 
 # smallestDistance
 
 
 # Evaluate Margin Sampling (MS)
-margin_sampling <- function(org, samp) {
+margin_sampling <- function(org, samp, binaryClassProblem) {
   # Initialize data frame to store margin distance for each sample
   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
   
@@ -215,18 +237,18 @@ margin_sampling <- function(org, samp) {
   for (k in seq_along(1:nrow(samp))) {
     # Get prediction probabilities for the current sample
     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
-    # predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1],type="prob")
+    
     # Find the class with the maximal confidence
-    max_confidence_class <- names(which.max(probabilities))
+    max_confidence_class <- which.max(probabilities)
     
     # Get the distance to the hyperplane for each class
     distances <- rep(0, length(probabilities))
     for (i in 1:length(probabilities)) {
-      distances[i] <- pred_one(org$finalModel, unlist(samp[k, ]), names(probabilities)[i])
+      distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i], binaryClassProblem)
     }
     
     # Calculate the margin distance as the difference between the distance to the hyperplane of the max confidence class and the distance to the hyperplane of the other classes
-    margin_distance[k, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which(names(distances) == max_confidence_class)])
+    margin_distance[k, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which.max(probabilities)])
     
     pb$tick()
   }
@@ -236,8 +258,20 @@ margin_sampling <- function(org, samp) {
   
   merged_data <- cbind(samp, normdistance)
   
+  #return(margin_distance)
   return(merged_data)
 }
+
+# margin_distance <- data.frame(control_label = as.character(predLabelsVSVMsumUn_unc[1, ncol(predLabelsVSVMsumUn_unc)]), margin_distance = numeric(nrow(predLabelsVSVMsumUn_unc[1,])))
+# probabilities <- predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,-ncol(predLabelsVSVMsumUn_unc)],type="prob")
+# max_confidence_class <- which.max(probabilities)
+# distances <- rep(0, length(probabilities))
+# for (i in 1:length(probabilities)) {
+#   distances[factor(names(probabilities))[i]] <- pred_one(bestFittingModelUn_b$finalModel, unlist(predLabelsVSVMsumUn_unc[1,-ncol(predLabelsVSVMsumUn_unc)]),factor(names(probabilities))[i],  binaryClassProblem)
+# }
+# 
+# margin_distance[1, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which.max(probabilities)])
+
 
 # Evaluate Multiclass Level Uncertainty (MCLU)
 mclu_sampling <- function(org, samp) {
@@ -287,7 +321,7 @@ uncertainty_dist_v2_2 = function(org, samp, binaryClassProblem) {
   
   for (k in seq_along(1:nrow(samp))) {
     
-    distance[k, "distance"] <- pred_one(org$finalModel, unlist(samp[k, ]), binaryClassProblem)
+    distance[k, "distance"] <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)], binaryClassProblem)
     
     pb$tick()
     
@@ -299,6 +333,31 @@ uncertainty_dist_v2_2 = function(org, samp, binaryClassProblem) {
   return(samp)
   #return(distance)
 }
+
+# uncertainty_dist_v2_3 = function(org, samp) {
+#   
+#   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+#   
+#   pb <- progress_bar$new(
+#     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+#     total = nrow(samp),
+#     clear = FALSE
+#   )
+#   
+#   for (k in seq_along(1:nrow(samp))) {
+#     
+#     distance[k, "distance"] <- smallest_class(org$finalModel, unlist(samp[k, ]))
+#     
+#     pb$tick()
+#     
+#   }
+#   preProc <- preProcess(distance, method = "range")
+#   normdistance <- predict(preProc, distance)
+#   
+#   samp <- cbind(samp, normdistance)
+#   return(samp)
+#   #return(distance)
+# }
 
 alter_labels = function(distance_data, ref){
   
@@ -578,9 +637,9 @@ predLabelsSVM = predict(tunedSVM, validateFeatsub)
 accSVM = confusionMatrix(predLabelsSVM, validateLabels)
 print(accSVM)
 
-setwd(paste0(path, "saved_models"))
-saveRDS(tunedSVM, "tunedSVM.rds")
-tunedSVM <- readRDS("tunedSVM.rds")
+# setwd(paste0(path, "saved_models"))
+# saveRDS(tunedSVM, "tunedSVM.rds")
+# tunedSVM <- readRDS("tunedSVM.rds")
 #########################################################################################################
 
 ######################################### VSVM on all Level SV #########################################
@@ -640,8 +699,8 @@ predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
 accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
 print(accVSVM)
 
-saveRDS(tunedVSVM, "tunedVSVM.rds")
-tunedSVM <- readRDS("tunedVSVM.rds")
+# saveRDS(tunedVSVM, "tunedVSVM.rds")
+# tunedVSVM <- readRDS("tunedVSVM.rds")
 ##########################################################################################################
 
 ######################################## VSVM - EVALUATION of all Level VSV ########################################
@@ -745,8 +804,8 @@ predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
 accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
 print(accVSVM_SL)
 
-saveRDS(bestFittingModel, "bestFittingModel.rds")
-tunedSVM <- readRDS("bestFittingModel.rds")
+# saveRDS(bestFittingModel, "bestFittingModel.rds")
+# bestFittingModel <- readRDS("bestFittingModel.rds")
 ##########################################################################################################
 
 #################################  Balanced unlabeled samples ###################################
@@ -896,8 +955,8 @@ predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
 accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
 print(accVSVM_SL_Un_b)
 
-saveRDS(predLabelsVSVMsumUn_b, "predLabelsVSVMsumUn_b.rds")
-tunedSVM <- readRDS("predLabelsVSVMsumUn_b.rds")
+# saveRDS(bestFittingModelUn_b, "bestFittingModelUn_b.rds")
+# bestFittingModelUn_b <- readRDS("bestFittingModelUn_b.rds")
 ######################################## UNCERTAINTY function on VSVM-SL-UNL  #########################################
 
 #  add predicted labels to the features data set
@@ -908,7 +967,7 @@ predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 # ******
 
 # Calculate margin distance of the samples using MS
-margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1:1000,])
+margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[50:51,],binaryClassProblem)
 # Extract labels for prediction
 predlabels_vsvm_Slu = alter_labels(margin_sampled_data, validateLabels)
 # ******
@@ -920,7 +979,7 @@ predlabels_vsvm_Slu = alter_labels(mclu_sampled_data, validateLabels)
 # ******
 
 #calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1:100,],binaryClassProblem)
+normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[50:51,],binaryClassProblem)
 predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
 # ******
 

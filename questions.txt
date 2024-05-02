@@ -9,3 +9,4 @@ row 78  rbf_kernel -> that I added is required, right?
 row 179 abs(pred) -> for the distance we need only positive values, right?
 row 311 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance?
 row 655 binaryClassProblem -> A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
+In svm what is the difference between probability class and distance class? 
