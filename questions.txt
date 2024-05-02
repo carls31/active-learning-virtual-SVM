@@ -1,9 +1,9 @@
-#P:
-#P:
-#P:
-#P:
-#P:
-#P:
+row 436 #P: we already did this at row 421-426
+row 550 #P: check in 2Class Setting only first two records are used BY DEFAULT
+row 637 #P: we can remove the redundancy then?
+row 636 #P: yes but SOME of this data are used before for training/test/validate, right? 
+row 738 #P: just for confirmation, the trainFeatVSVM is made only by VSVs?
+roe 770 #P: we should keep the Random, but for the sake of balanced train set we use Balanced
 row 36  trainControl -> how does actually work with the indexTrain
 row 78  rbf_kernel -> that I added is required, right?
 row 179 abs(pred) -> for the distance we need only positive values, right?
