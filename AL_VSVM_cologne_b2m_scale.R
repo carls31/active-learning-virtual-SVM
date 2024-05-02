@@ -13,7 +13,7 @@ b = 30 # balanced_unlabeled_samples
 r = 60 # random_unlabeled_samples
 
 #path = "D:/tunc_oz/apply_model"
-path = '/home/rsrg9/Documents/tunc_oz/apply_model'
+path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 
 ########################################  Utils  ########################################
 
@@ -171,10 +171,10 @@ pred_one = function(modelfin, dataPoint, binaryClassProblem ){
     
     #if(as.integer(dataPointLabel) %in% binaryClassProblem[[l]]){
     if(as.integer(dataPointLabel) %in% as.integer(binaryClassProblem[[l]])){
-      #print("vero")
+      #print(paste("vero", pred))
       pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
         modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)-1])*modelfin@coef[[l]][j]))-modelfin@b[l]
-      #print(pred)
+      
       if(abs(pred) < abs(smallestDistance))
         smallestDistance = abs(pred)
     }
@@ -383,9 +383,7 @@ columnClass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 "factor","integer")
 
-setwd(path)
-
-setwd("csv_data_r_import/cologne/scale")
+setwd(paste0(path, "csv_data_r_import/cologne/scale"))
 
 # import data
 generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnClass)
@@ -579,6 +577,10 @@ predLabelsSVM = predict(tunedSVM, validateFeatsub)
 # accuracy assessment
 accSVM = confusionMatrix(predLabelsSVM, validateLabels)
 print(accSVM)
+
+setwd(paste0(path, "saved_models"))
+saveRDS(tunedSVM, "tunedSVM.rds")
+tunedSVM <- readRDS("tunedSVM.rds")
 #########################################################################################################
 
 ######################################### VSVM on all Level SV #########################################
@@ -637,6 +639,9 @@ predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
 # accuracy assessment
 accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
 print(accVSVM)
+
+saveRDS(tunedVSVM, "tunedVSVM.rds")
+tunedSVM <- readRDS("tunedVSVM.rds")
 ##########################################################################################################
 
 ######################################## VSVM - EVALUATION of all Level VSV ########################################
@@ -648,7 +653,7 @@ actKappa = 0
 # **********************
 ## records which 2 classes are involved in 2 class problems
 binaryClassProblem = list()
-# WHAT IS USED FOR? A LIST WITH NAME OF THE CLASS ISN'T ENOUGH?
+# WHAT IS USED FOR? A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
 
 for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){
   binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
@@ -739,12 +744,12 @@ predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
 # accuracy assessment
 accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
 print(accVSVM_SL)
+
+saveRDS(bestFittingModel, "bestFittingModel.rds")
+tunedSVM <- readRDS("bestFittingModel.rds")
 ##########################################################################################################
 
-#################################  Balanced & Random unlabeled samples ###################################
-# ARE ACTUALLY BOTH REQUIRED?
-
-######## Balanced samples
+#################################  Balanced unlabeled samples ###################################
 
 # definition of sampling configuration (strata:random sampling without replacement)
 stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
@@ -890,6 +895,9 @@ predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
 # accuracy assessment
 accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
 print(accVSVM_SL_Un_b)
+
+saveRDS(predLabelsVSVMsumUn_b, "predLabelsVSVMsumUn_b.rds")
+tunedSVM <- readRDS("predLabelsVSVMsumUn_b.rds")
 ######################################## UNCERTAINTY function on VSVM-SL-UNL  #########################################
 
 #  add predicted labels to the features data set
@@ -1522,7 +1530,7 @@ accSVM_SL_Un_Ad = confusionMatrix(predlabels_svm_Slu, validateLabels)
 
 ####################################### apply model and export data #####################################
 
-setwd("D:/tunc_oz/apply_model/results/uncertainty/final")
+setwd(paste0(path,"results/uncertainty/final"))
 
 # save mean and sd of each kappa matrices for all variations ##
 save(accSVM,accSVM_M,accVSVM,accVSVM_SL,accVSVM_SL_Un_b,accVSVM_SL_vUn_b,accSVM_SL_Un,file =paste("ColScaleBinary_accuracy_",r,"unlabledsamples.RData",sep=""))
