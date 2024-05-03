@@ -165,15 +165,13 @@ pred_one = function(modelfin, dataPoint, dataPointLabels, binaryClassProblem ){
   
   smallestDistance = 9999
   
-  for(ll in seq(along = dataPointLabels)){
+  for(i in seq(along = dataPointLabels)){
     
-    print(dataPointLabels[ll])
+    #print(dataPointLabels[ll])
     for(l in seq(along = binaryClassProblem)){
       #print(binaryClassProblem[[l]])
-      
-      #if(as.integer(dataPointLabel) %in% binaryNameClasses[[l]]){
-      #if(dataPoint[length(dataPoint)] %in% binaryNameClasses[[l]]){
-      if(as.integer(dataPointLabels[ll]) %in% as.integer(binaryClassProblem[[l]])){
+
+      if(as.integer(dataPointLabels) %in% as.integer(binaryClassProblem[[l]])){
         #print(paste("vero", pred))
         pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
           modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
@@ -184,22 +182,6 @@ pred_one = function(modelfin, dataPoint, dataPointLabels, binaryClassProblem ){
     }
   }
 
-  return(smallestDistance)   
-}
-
-smallest_class = function(modelfin, dataPoint){
-  
-  smallestDistance = 9999
-
-  for(l in seq(along =  c(1:6))){
-
-    pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
-      modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)-1])*modelfin@coef[[l]][j]))-modelfin@b[l]
-    
-    if(abs(pred) < abs(smallestDistance))
-      smallestDistance = abs(pred)
-  
-  }
   return(smallestDistance)   
 }
 
@@ -274,7 +256,7 @@ margin_sampling <- function(org, samp, binaryClassProblem) {
 
 
 # Evaluate Multiclass Level Uncertainty (MCLU)
-mclu_sampling <- function(org, samp) {
+mclu_sampling <- function(org, samp, binaryClassProblem) {
   # Initialize data frame to store uncertainty for each sample
   uncertainty <- data.frame(control_label = as.character(samp[, ncol(samp)]), uncertainty = numeric(nrow(samp)))
   
@@ -290,11 +272,11 @@ mclu_sampling <- function(org, samp) {
     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
     
     # Get the two most probable classes
-    top_classes <- names(sort(probabilities, decreasing = TRUE)[1:2])
+    top_classes <- as.factor(names(sort(unlist(probabilities), decreasing = TRUE)))[1:2]
     
     # Calculate the difference between the distances to the margin for the two most probable classes
-    distance_top1 <- pred_one(org$finalModel, unlist(samp[k, ]), top_classes[1])
-    distance_top2 <- pred_one(org$finalModel, unlist(samp[k, ]), top_classes[2])
+    distance_top1 <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), top_classes[1], binaryClassProblem)
+    distance_top2 <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), top_classes[2], binaryClassProblem)
     uncertainty[k, "uncertainty"] <- abs(distance_top1 - distance_top2)
     
     pb$tick()
@@ -967,19 +949,19 @@ predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 # ******
 
 # Calculate margin distance of the samples using MS
-margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[50:51,],binaryClassProblem)
+margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc,binaryClassProblem)
 # Extract labels for prediction
 predlabels_vsvm_Slu = alter_labels(margin_sampled_data, validateLabels)
 # ******
 
 # Calculate uncertainty of the samples using MCLU
-mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc,binaryClassProblem)
 # Extract labels for prediction
 predlabels_vsvm_Slu = alter_labels(mclu_sampled_data, validateLabels)
 # ******
 
 #calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[50:51,],binaryClassProblem)
+normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc,binaryClassProblem)
 predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
 # ******
 
