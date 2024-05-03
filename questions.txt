@@ -10,3 +10,8 @@ row 179 abs(pred) -> for the distance we need only positive values, right?
 row 311 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance?
 row 655 binaryClassProblem -> A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
 In svm what is the difference between probability class and distance class? 
+
+descriptive stats
+check the values inside the computed vectors
+check the acc
+think how improve performance
