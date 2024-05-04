@@ -13,5 +13,5 @@ In svm what is the difference between probability class and distance class?
 
 descriptive stats
 check the values inside the computed vectors
-check the acc
+check the accuracies
 think how improve performance
