@@ -1,4 +1,4 @@
-BINARY
+* BINARY *
 
 accSVM_SL_Un
 Accuracy : 0.9468
@@ -28,19 +28,23 @@ accSVM
 Accuracy : 0.9184
 Kappa : 0.7737
 
-MULTICLASS
+*** MULTICLASS ***
 
 accVSVM_SL_Un_b
 Accuracy : 0.5981
 Kappa : 0.4771
+
+accVSVM_SL_kern2eucl
+Accuracy : 0.7324
+Kappa : 0.6338
 
 accVSVM_SL_rem_extrem
 Accuracy : 0.6723 
 Kappa : 0.4067
 
 accVSVM_SL_rem_extrem_kerneldist
-Accuracy : 0.65
-Kappa : 0.5347
+Accuracy : 0.6721
+Kappa : 0.5589
 
 accVSVM_SL
 Accuracy : 0.6238
