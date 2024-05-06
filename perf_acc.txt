@@ -28,11 +28,16 @@ accSVM
 Accuracy : 0.9184
 Kappa : 0.7737
 
+
 *** MULTICLASS ***
 
 accVSVM_SL_Un_b
-Accuracy : 0.5981
-Kappa : 0.4771
+Accuracy : 0.7105
+Kappa : 0.6047
+
+accVSVM_SL_rem_extrem_kerneldist
+Accuracy : 0.7368
+Kappa : 0.6353
 
 accVSVM_SL_kern2eucl
 Accuracy : 0.7324
@@ -41,10 +46,6 @@ Kappa : 0.6338
 accVSVM_SL_rem_extrem
 Accuracy : 0.6723 
 Kappa : 0.4067
-
-accVSVM_SL_rem_extrem_kerneldist
-Accuracy : 0.6721
-Kappa : 0.5589
 
 accVSVM_SL
 Accuracy : 0.6238

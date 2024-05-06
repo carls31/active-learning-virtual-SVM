@@ -2,6 +2,11 @@ library(caret)
 library(kernlab)
 library(sampling)
 library(progress) # for progress bar visualization
+library(foreach)    # for parallel processing
+library(doParallel) # for multiple CPU core
+
+# Adjust the number of cores as per your system capabilities
+num_cores <- parallel::detectCores()
 
 # Define the class sample size 
 sample_size = 2
@@ -54,7 +59,6 @@ svmFit = function(x, y, indexTrain){ #x = training descriptors, y = class labels
   #expand narrow grid
   narrowGrid = expand.grid(sigma = 2^seq(aS,bS,by=0.5), C = 2^seq(aC,bC,by=0.5))
   
-  #set seed
   set.seed(31)
   
   print("Running narrow grid search...")
@@ -75,120 +79,117 @@ svmFit = function(x, y, indexTrain){ #x = training descriptors, y = class labels
   return(svmFitNarrow)  
 }
 
-#### get original SV + VSV; return VSV that move in "close" distance to origianl SV ###################
-# with org=SV, VSV1=VSV, a = Factor of mean distance to calculate threshold
-euc_dis = function(a, b){
-  temp = 0
-  for(ii in seq(along = c(1:length(a)))){
-    temp = temp +((a[[ii]]-b[[ii]])^2)
-  }
-  return(sqrt(temp))
-}
-
-rem_extrem = function(org, VSV1, a){      
-  
-  distance = data.frame(matrix(nrow=nrow(org),ncol=2))
-  distanceSVC1 = c()
-  distanceSVC2 = c()
-  
-  numClass = nlevels(org$REF)
-  SVClass = list()
-  
-  # split SV according to its classes
-  for(f in seq(along = c(1:numClass))){
-    SVClass[[f]]=org[which(org$REF==levels(org$"REF")[[f]]),]
-  }
-  
-  
-  # save label of sample and the distance between SV and VSV in "distance" for each pair of SV and VSV
-  for(l in seq(along = c(1:nrow(org)))){
-    distance[l,1] = as.character( org[l,ncol(org)])
-    distance[l,2] = euc_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
-  }
-  distance$X1 = factor(distance$X1)
-  
-  # **********************
-  
-  boundClass = list()
-  
-  
-  # calculate the distance for each SV in ClassX to all the SV in  classX, 
-  # get the mean of the distances and multiply it with a to get the final threshold
-  for(f in seq(along = c(1:length(SVClass)))){
-    distanceSVC1 = c()
-    if(nrow(SVClass[[f]])>0){
-      for(n in seq(along = 1:(nrow(SVClass[[f]])-1))){
-        for(nn in seq(along = c(n:(nrow(SVClass[[f]])-1)))){
-          distanceSVC1[length(distanceSVC1)+1] = euc_dis(SVClass[[f]][n,-ncol(SVClass[[f]])], SVClass[[f]][(n+nn),-ncol(SVClass[[f]])])
-        }
-      }
-      disClass1mean = mean(distanceSVC1)
-      boundClass[[f]] = disClass1mean*a
-    }
-  }
-  
-  distance$X1 = factor(distance$X1)
-  
-  # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
-  
-  ### vorkommen von negativen distancen pr?fen und eventuell mit be?tragsfunktionen transformieren! 
-  ### check for the occurrence of negative distances and possibly transform them with loss functions! 
-  for(k in seq(along = c(1:nrow(org)))){
-    
-    if(as.integer(distance[k,1]) == 1){
-      if(!is.na(boundClass[1])){
-        if(distance[k,2] != 0 && distance[k,2] > (boundClass[[1]])){
-          VSV1[k,]=NA
-        }
-      }
-    }else{
-      if(as.integer(distance[k,1]) == 2){
-        if(!is.na(boundClass[[2]])){
-          if(distance[k,2] != 0 && distance[k,2] > (boundClass[[2]])){
-            VSV1[k,]=NA
-          }
-        }
-      }else{
-        if(as.integer(distance[k,1]) == 3){
-          if(!is.na(boundClass[[3]])){
-            if(distance[k,2] != 0 && distance[k,2] > (boundClass[[3]])){
-              VSV1[k,]=NA
-            }
-          }
-        }else{
-          if(as.integer(distance[k,1]) == 4){
-            if(!is.na(boundClass[[4]])){
-              if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
-                VSV1[k,]=NA
-              }
-            }
-          }else{
-            if(as.integer(distance[k,1]) == 5){
-              if(!is.na(boundClass[[5]])){
-                if(distance[k,2] != 0 && distance[k,2] > (boundClass[[5]])){
-                  VSV1[k,]=NA
-                }
-              }
-            }else{
-              if(as.integer(distance[k,1]) == 6){
-                if(!is.na(boundClass[[6]])){
-                  if(distance[k,2] != 0 && distance[k,2] > (boundClass[[6]])){
-                    VSV1[k,]=NA
-                  }
-                }
-              }else{
-                if(is.na(distance[k,1])){
-                  VSV1[k,]=NA
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return(VSV1)
-}
+# euc_dis = function(a, b){
+#   temp = 0
+#   for(ii in seq(along = c(1:length(a)))){
+#     temp = temp +((a[[ii]]-b[[ii]])^2)
+#   }
+#   return(sqrt(temp))
+# }
+# 
+# rem_extrem = function(org, VSV1, a){      
+#   
+#   distance = data.frame(matrix(nrow=nrow(org),ncol=2))
+#   distanceSVC1 = c()
+#   distanceSVC2 = c()
+#   
+#   numClass = nlevels(org$REF)
+#   SVClass = list()
+#   
+#   # split SV according to its classes
+#   for(f in seq(along = c(1:numClass))){
+#     SVClass[[f]]=org[which(org$REF==levels(org$"REF")[[f]]),]
+#   }
+#   
+#   
+#   # save label of sample and the distance between SV and VSV in "distance" for each pair of SV and VSV
+#   for(l in seq(along = c(1:nrow(org)))){
+#     distance[l,1] = as.character( org[l,ncol(org)])
+#     distance[l,2] = euc_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
+#   }
+#   distance$X1 = factor(distance$X1)
+#   
+#   # **********************
+#   
+#   boundClass = list()
+#   
+#   # calculate the distance for each SV in ClassX to all the SV in  classX, 
+#   # get the mean of the distances and multiply it with a to get the final threshold
+#   for(f in seq(along = c(1:length(SVClass)))){
+#     distanceSVC1 = c()
+#     if(nrow(SVClass[[f]])>0){
+#       for(n in seq(along = 1:(nrow(SVClass[[f]])-1))){
+#         for(nn in seq(along = c(n:(nrow(SVClass[[f]])-1)))){
+#           distanceSVC1[length(distanceSVC1)+1] = euc_dis(SVClass[[f]][n,-ncol(SVClass[[f]])], SVClass[[f]][(n+nn),-ncol(SVClass[[f]])])
+#         }
+#       }
+#       disClass1mean = mean(distanceSVC1)
+#       boundClass[[f]] = disClass1mean*a
+#     }
+#   }
+#   
+#   distance$X1 = factor(distance$X1)
+#   
+#   # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
+#   
+#   ### vorkommen von negativen distancen pr?fen und eventuell mit be?tragsfunktionen transformieren! 
+#   ### check for the occurrence of negative distances and possibly transform them with loss functions! 
+#   for(k in seq(along = c(1:nrow(org)))){
+#     
+#     if(as.integer(distance[k,1]) == 1){
+#       if(!is.na(boundClass[1])){
+#         if(distance[k,2] != 0 && distance[k,2] > (boundClass[[1]])){
+#           VSV1[k,]=NA
+#         }
+#       }
+#     }else{
+#       if(as.integer(distance[k,1]) == 2){
+#         if(!is.na(boundClass[[2]])){
+#           if(distance[k,2] != 0 && distance[k,2] > (boundClass[[2]])){
+#             VSV1[k,]=NA
+#           }
+#         }
+#       }else{
+#         if(as.integer(distance[k,1]) == 3){
+#           if(!is.na(boundClass[[3]])){
+#             if(distance[k,2] != 0 && distance[k,2] > (boundClass[[3]])){
+#               VSV1[k,]=NA
+#             }
+#           }
+#         }else{
+#           if(as.integer(distance[k,1]) == 4){
+#             if(!is.na(boundClass[[4]])){
+#               if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
+#                 VSV1[k,]=NA
+#               }
+#             }
+#           }else{
+#             if(as.integer(distance[k,1]) == 5){
+#               if(!is.na(boundClass[[5]])){
+#                 if(distance[k,2] != 0 && distance[k,2] > (boundClass[[5]])){
+#                   VSV1[k,]=NA
+#                 }
+#               }
+#             }else{
+#               if(as.integer(distance[k,1]) == 6){
+#                 if(!is.na(boundClass[[6]])){
+#                   if(distance[k,2] != 0 && distance[k,2] > (boundClass[[6]])){
+#                     VSV1[k,]=NA
+#                   }
+#                 }
+#               }else{
+#                 if(is.na(distance[k,1])){
+#                   VSV1[k,]=NA
+#                 }
+#               }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+#   return(VSV1)
+# }
 
 # ***********************************
 
@@ -273,7 +274,7 @@ rem_extrem_kerneldist = function(org, VSV1, a){
           }
         }else{
           if(as.integer(distance[k,1]) == 4){
-            if(!is.na(boundClass[[4]])){
+            if(!is.null(boundClass[[4]]) && !is.na(boundClass[[4]])){
               if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
                 VSV1[k,]=NA
               }
@@ -306,22 +307,22 @@ rem_extrem_kerneldist = function(org, VSV1, a){
   return(VSV1)
 }
 
-# distance = data.frame(matrix(nrow=nrow(SVtotal),ncol=2))
+# distance = data.frame(matrix(nrow=nrow(SVtotalUn_b),ncol=2))
 # distanceSVC1 = c()
 # distanceSVC2 = c()
 # 
-# numClass = nlevels(SVtotal$REF)
+# numClass = nlevels(SVtotalUn_b$REF)
 # SVClass = list()
 # 
 # # split SV according to its classes
 # for(f in seq(along = c(1:numClass))){
-#   SVClass[[f]]=SVtotal[which(SVtotal$REF==levels(SVtotal$"REF")[[f]]),]
+#   SVClass[[f]]=SVtotalUn_b[which(SVtotalUn_b$REF==levels(SVtotalUn_b$"REF")[[f]]),]
 # }
 # 
 # # save label of sample and the distance between SV and VSV in distance for each pair of SV and VSV
-# for(l in seq(along = c(1:nrow(SVtotal)))){
-#   distance[l,1] = as.character( SVtotal[l,ncol(SVtotal)])
-#   distance[l,2] = kern_dis(SVtotal[l,-ncol(SVtotal)],SVL7[l,-ncol(SVL7)], )
+# for(l in seq(along = c(1:nrow(SVtotalUn_b)))){
+#   distance[l,1] = as.character( SVtotalUn_b[l,ncol(SVtotalUn_b)])
+#   distance[l,2] = kern_dis(SVtotalUn_b[l,-ncol(SVtotalUn_b)],SVL3Un_b[l,-ncol(SVL3Un_b)])
 # }
 # 
 # boundClass = list()
@@ -335,7 +336,7 @@ rem_extrem_kerneldist = function(org, VSV1, a){
 #       }
 #     }
 #     disClass1mean = mean(distanceSVC1)
-#     boundClass[[f]] = disClass1mean*a
+#     boundClass[[f]] = disClass1mean*bound[jj]
 #   }
 # }
 
@@ -382,45 +383,131 @@ pred_one = function(modelfin, dataPoint, dataPointLabels, binaryClassProblem ){
 # smallestDistance
 
 
+
+# margin_sampling <- function(org, samp, binaryClassProblem) {
+#   
+#   # Set up parallel backend
+#   cl <- makeCluster(num_cores)
+#   registerDoParallel(cl)
+#   
+#   # Initialize data frame to store margin distance for each sample
+#   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
+#   
+#   # Progress bar for tracking computation
+#   pb <- progress_bar$new(
+#     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+#     total = nrow(samp),
+#     clear = FALSE
+#   )
+#   
+#   # Define the function to calculate margin distance for a single sample
+#   calculate_margin_distance <- function(k) {
+#     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
+#     max_confidence_class <- which.max(probabilities)
+#     
+#     distances <- rep(0, length(probabilities))
+#     for (i in 1:length(probabilities)) {
+#       distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i], binaryClassProblem)
+#     }
+#     
+#     return(distances[max_confidence_class] - max(distances[-which.max(probabilities)]))
+#   }
+#   
+#   # Use foreach for parallel processing
+#   margin_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+#     pb$tick()
+#     calculate_margin_distance(k)
+#   }
+#   
+#   margin_distance$margin_distance <- margin_distances
+#   
+#   preProc <- preProcess(margin_distance, method = "range")
+#   normdistance <- predict(preProc, margin_distance)
+#   
+#   merged_data <- cbind(samp, normdistance)
+#   
+#   stopCluster(cl)
+#   
+#   return(merged_data)
+# }
+
 # Evaluate Margin Sampling (MS)
 margin_sampling <- function(org, samp, binaryClassProblem) {
   # Initialize data frame to store margin distance for each sample
   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
-  
+
   # Progress bar for tracking computation
   pb <- progress_bar$new(
     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
     total = nrow(samp),
     clear = FALSE
   )
-  
+
   for (k in seq_along(1:nrow(samp))) {
     # Get prediction probabilities for the current sample
     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
-    
+
     # Find the class with the maximal confidence
     max_confidence_class <- which.max(probabilities)
-    
+
     # Get the distance to the hyperplane for each class
     distances <- rep(0, length(probabilities))
     for (i in 1:length(probabilities)) {
       distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i], binaryClassProblem)
     }
-    
+
     # Calculate the margin distance as the difference between the distance to the hyperplane of the max confidence class and the distance to the hyperplane of the other classes
     margin_distance[k, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which.max(probabilities)])
-    
+
     pb$tick()
   }
-  
+
   preProc <- preProcess(margin_distance, method = "range")
   normdistance <- predict(preProc, margin_distance)
-  
+
   merged_data <- cbind(samp, normdistance)
-  
+
   #return(margin_distance)
   return(merged_data)
 }
+
+compute_margin_distances <- function(samp, org) {
+  # Define the function for margin distance calculation
+  margin_distance_calculation <- function(org, samp_row) {
+    # Get prediction probabilities for the current sample
+    probabilities <- predict(org, newdata = samp_row[1:ncol(samp_row)], type = "prob")
+    
+    # Find the class with the maximal confidence
+    max_confidence_class <- which.max(probabilities)
+    
+    # Initialize vector to store distances
+    distances <- rep(0, length(probabilities))
+    
+    # Iterate over classes
+    for (i in 1:length(probabilities)) {
+      distances[i] <- pred_one(org$finalModel, unlist(samp_row[1:ncol(samp_row)]), names(probabilities)[i], binaryClassProblem)
+    }
+    
+    # Calculate margin distance
+    margin_distance <- distances[max_confidence_class] - max(distances[-max_confidence_class])
+    
+    return(margin_distance)
+  }
+  
+  # Apply margin_distance_calculation function to each row of samp
+  margin_distances <- apply(predLabelsVSVMsumUn_unc, 1, margin_distance_calculation, org = bestFittingModelUn_b)
+  
+  # Combine margin distances with samp
+  merged_data <- cbind(samp, margin_distance = margin_distances)
+  
+  # Normalize margin distance
+  preProc <- preProcess(merged_data[, "margin_distance", drop = FALSE], method = "range")
+  normdistance <- predict(preProc, merged_data[, "margin_distance", drop = FALSE])
+  merged_data <- cbind(merged_data, normdistance)
+  
+  return(merged_data)
+}
+
 
 # margin_distance <- data.frame(control_label = as.character(predLabelsVSVMsumUn_unc[1, ncol(predLabelsVSVMsumUn_unc)]), margin_distance = numeric(nrow(predLabelsVSVMsumUn_unc[1,])))
 # probabilities <- predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,-ncol(predLabelsVSVMsumUn_unc)],type="prob")
@@ -493,31 +580,6 @@ uncertainty_dist_v2_2 = function(org, samp, binaryClassProblem) {
   return(samp)
   #return(distance)
 }
-
-# uncertainty_dist_v2_3 = function(org, samp) {
-#   
-#   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
-#   
-#   pb <- progress_bar$new(
-#     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-#     total = nrow(samp),
-#     clear = FALSE
-#   )
-#   
-#   for (k in seq_along(1:nrow(samp))) {
-#     
-#     distance[k, "distance"] <- smallest_class(org$finalModel, unlist(samp[k, ]))
-#     
-#     pb$tick()
-#     
-#   }
-#   preProc <- preProcess(distance, method = "range")
-#   normdistance <- predict(preProc, distance)
-#   
-#   samp <- cbind(samp, normdistance)
-#   return(samp)
-#   #return(distance)
-# }
 
 alter_labels = function(distance_data, ref){
   
@@ -883,7 +945,7 @@ for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){
 }
 # **********************
 
-train = TRUE
+# train = TRUE
 if (file.exists("bestFittingModel.rds") && !train) {
   bestFittingModel <- readRDS("bestFittingModel.rds")
   actKappa = bestFittingModel$resample$Kappa
@@ -891,7 +953,7 @@ if (file.exists("bestFittingModel.rds") && !train) {
 } else {
   actKappa = 0
 
-  # iteration over bound to test different bound thresholds determining the radius of acception
+  # iteration over bound to test different bound thresholds determining the radius of acceptation
   for(jj in seq(along = c(1:length(bound)))){
 
     # remove VSV which are not located within certain distance to org.SV;
@@ -928,7 +990,8 @@ if (file.exists("bestFittingModel.rds") && !train) {
 
     # iterating over boundMargin to test different threshold on margin distance
     for (kk in seq(along = c(1:length(boundMargin)))){
-      print(paste(kk,"/",length(boundMargin),"and",jj,"/",length(bound)))
+      print(paste0("Testing bound margin: ",kk,"/",length(boundMargin)," and radius threshold: ",jj,"/",length(bound)))
+      
       # remove VSV which are not located in certain distance to desicion function
       # data.frame to store elected VSV within the margin
       SVinvar=setNames(data.frame(matrix(ncol = numFeat+1)), objInfoNames)
@@ -992,7 +1055,7 @@ predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
 accVSVM_SL_rem_extrem_kerneldist = confusionMatrix(predLabelsVSVMsum, validateLabels)
 print(accVSVM_SL_rem_extrem_kerneldist)
 
-print(accVSVM_SL_rem_extrem)
+# print(accVSVM_SL_rem_extrem)
 ##########################################################################################################
 
 #################################  Balanced unlabeled samples ###################################
@@ -1046,7 +1109,7 @@ SVinvarUn_b = rbind(setNames(SVinvar,objInfoNames),
 )
 
 ############## Balanced Unlabeled samples
-
+# train = TRUE
 if (file.exists("bestFittingModelUn_b.rds") && !train) {
   bestFittingModelUn_b <- readRDS("bestFittingModelUn_b.rds")
   actKappa = bestFittingModelUn_b$resample$Kappa
@@ -1054,12 +1117,7 @@ if (file.exists("bestFittingModelUn_b.rds") && !train) {
 } else {
   
   actKappa = 0
-  
-  pb <- progress_bar$new(
-    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-    total = nrow(samp),
-    clear = FALSE
-  )
+
   # iteration over bound to test different bound thresholds determining the radius of acception
   for(jj in seq(along = c(1:length(bound)))){
 
@@ -1091,28 +1149,26 @@ if (file.exists("bestFittingModelUn_b.rds") && !train) {
 
     # iterating over boundMargin to test different threshold on margin distance
     for (kk in seq(along = c(1:length(boundMargin)))){
-
+      print(paste0("Testing bound margin: ",kk,"/",length(boundMargin)," and radius threshold: ",jj,"/",length(bound)))
+      
       # remove VSV which are not located in certain distance to desicion function
       # data.frame to store elected VSV within the margin
       SVinvarUn_b=setNames(data.frame(matrix(ncol = numFeat+1)), objInfoNames)
 
+      pb <- progress_bar$new(
+        format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+        total = nrow(SVinvarRadiUn_b),
+        clear = FALSE
+      )
       # iterate over SVinvarRadi and evaluate distance to hyperplane
       # implementation checks class membership for case that each class should be evaluate on different bound
       for(m in seq(along = c(1:nrow(SVinvarRadiUn_b)))){
         signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn_b[m,-ncol(SVinvarRadiUn_b)]),SVinvarRadiUn_b[m,ncol(SVinvarRadiUn_b)],binaryClassProblem))
 
-        if(SVinvarRadiUn_b[m,ncol(SVinvarRadiUn_b)] == levels(generalDataPool$REF)[1]){
-          if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
-            SVinvarUn_b = rbind(SVinvarUn_b, SVinvarRadiUn_b[m,])
-          }
-        }else{
-          if(SVinvarRadiUn_b[m,ncol(SVinvarRadiUn_b)] == levels(generalDataPool$REF)[2]){
-            if((signa > -boundMargin[kk])&& (signa < boundMargin[kk])){
-              SVinvarUn_b = rbind(SVinvarUn_b, SVinvarRadiUn_b[m,])
-
-            }
-          }
+        if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
+          SVinvarUn_b = rbind(SVinvarUn_b, SVinvarRadiUn_b[m,])
         }
+        pb$tick()
       }
 
       # merge elected VSV with original SV
@@ -1142,19 +1198,14 @@ if (file.exists("bestFittingModelUn_b.rds") && !train) {
         actKappa = tunedVSVMUn_b$resample$Kappa
       }
     }
-    pb$tick()
   }
-
   saveRDS(bestFittingModelUn_b, "bestFittingModelUn_b.rds")
 }
 
-
-
 # run classification and accuracy assessment for the best bound setting
 # predict labels of test data
-# print(nrow(validateFeatsub))
 predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
-
+summary(predLabelsVSVMsumUn_b)
 # accuracy assessment
 accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
 print(accVSVM_SL_Un_b)
@@ -1169,14 +1220,15 @@ predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 
 # Calculate margin distance of the samples using MS
 margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc,binaryClassProblem)
+margin_sampled_data <- compute_margin_distances(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # Extract labels for prediction
-predlabels_vsvm_Slu = alter_labels(margin_sampled_data, validateLabels)
+predlabels_vsvm_margin = alter_labels(margin_sampled_data, validateLabels)
 # ******
 
 # Calculate uncertainty of the samples using MCLU
 mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc,binaryClassProblem)
 # Extract labels for prediction
-predlabels_vsvm_Slu = alter_labels(mclu_sampled_data, validateLabels)
+predlabels_vsvm_mclu = alter_labels(mclu_sampled_data, validateLabels)
 # ******
 
 #calculate uncertainty of the samples by selecting SV's and data set

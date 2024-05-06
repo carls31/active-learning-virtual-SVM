@@ -16,4 +16,6 @@ check the values inside the computed vectors
 check the accuracies
 think how to improve performance
 
-check why multiclass script is implemented differently from binary ones
+check why multiclass script is implemented differently from the binary ones
+
+check how many CPU cores are present on the RSRG server and how to use them
