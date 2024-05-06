@@ -142,7 +142,7 @@ rem_extrem = function(org, VSV1, a){
   
   # save label of sample and the distance between SV and VSV in "distance" for each pair of SV and VSV
   for(l in seq(along = c(1:nrow(org)))){
-    distance[l,1] =as.character( org[l,ncol(org)])
+    distance[l,1] = as.character( org[l,ncol(org)])
     distance[l,2] = euc_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
   }
   distance$X1 = factor(distance$X1)
@@ -219,7 +219,7 @@ rem_extrem = function(org, VSV1, a){
   # Iterate over the distance vector and substitude in VSV1 the samples which overstep the threshold
   
   ### vorkommen von negativen distancen pr?fen und eventuell mit be?tragsfunktionen transformieren! 
-  
+  ### check for the occurrence of negative distances and possibly transform them with loss functions! 
   for(k in seq(along = c(1:nrow(org)))){
     
     if(as.integer(distance[k,1]) == 1){
@@ -274,16 +274,13 @@ rem_extrem = function(org, VSV1, a){
       }
     }
   }
-      
-    
-    
   return(VSV1)
 }
 
 
 
 
-#### kernal distance #####################################################
+#### kernel distance #####################################################
 
 kern_dis = function(a, b, kernelfunc){
   a = unlist(a)
@@ -291,9 +288,6 @@ kern_dis = function(a, b, kernelfunc){
   dk =sqrt( kernelfunc(a,a)+kernelfunc(b,b)-2*kernelfunc(a,b))
   return(dk)
 }
-
-
-
 
 ##########################
 
@@ -648,7 +642,7 @@ colnames(accuSVM_SL_Un) = colheader
 
 #set randomized seed for the random sampling procedure
 seed = 5
-nR = 2 
+nR = 1
 ##loop over nR realizations
 ra = 1:nR
 
@@ -835,7 +829,7 @@ for (i in seq(along=ra)){
     
     ##accuracy assessment
     accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-
+    print(accSVM)
     #get current kappa value
     KSVM = accSVM$overall["Kappa"]
     o_accSVM= accSVM$overall["Accuracy"]
@@ -963,7 +957,6 @@ for (i in seq(along=ra)){
     
     ## records which 2 classes are involved in 2 class problems
     binaryClassProblem = list()
-    # WHAT IS USED FOR? A LIST WITH NAME OF THE CLASS ISN'T ENOUGH?
     
     for(jj in seq(along = c(1:length(tunedVSVM$finalModel@xmatrix)))){
       binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
@@ -1054,7 +1047,7 @@ for (i in seq(along=ra)){
     
     ##accuracy assessment
     accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-    
+    pritn(accVSVM_SL_Un_b)
     #get current kappa value
     KVSVM_SL_Un_b = accVSVM_SL_Un_b$overall["Kappa"]
     o_accVSVM_SL_Un_b= accVSVM_SL_Un_b$overall["Accuracy"]

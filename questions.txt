@@ -9,9 +9,11 @@ row 78  rbf_kernel -> that I added is required, right?
 row 179 abs(pred) -> for the distance we need only positive values, right?
 row 311 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance?
 row 655 binaryClassProblem -> A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
-In svm what is the difference between probability class and distance class? 
+In svm what is the difference between probability class and distance class? see both related paper and script function
 
-descriptive stats
+descriptive stats of the dataset/data visualization
 check the values inside the computed vectors
 check the accuracies
-think how improve performance
+think how to improve performance
+
+check why multiclass script is implemented differently from binary ones
