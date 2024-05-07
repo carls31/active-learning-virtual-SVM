@@ -15,7 +15,10 @@ descriptive stats of the dataset/data visualization
 check the values inside the computed vectors
 check the accuracies
 think how to improve performance
+tune alter_label hyperparameter: how many label need to be relabeled?
 
 check why multiclass script is implemented differently from the binary ones
 
 check how many CPU cores are present on the RSRG server and how to use them
+
+PROBLEM: apply() + predict()
