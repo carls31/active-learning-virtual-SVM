@@ -1216,11 +1216,19 @@ predLabelsVSVMsumUn_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
 
 predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
 #predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1])
+
+#calculate uncertainty of the samples by selecting SV's and data set
+normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
+
+accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
+print(accVSVM_SL_Un_b_ad)
+
 # ******
 
 # Calculate margin distance of the samples using MS
 margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
-margin_sampled_data <- compute_margin_distances(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+# margin_sampled_data <- compute_margin_distances(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # Extract labels for prediction
 predlabels_vsvm_margin = alter_labels(margin_sampled_data, validateLabels)
 # ******
@@ -1231,13 +1239,6 @@ mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc
 predlabels_vsvm_mclu = alter_labels(mclu_sampled_data, validateLabels)
 # ******
 
-#calculate uncertainty of the samples by selecting SV's and data set
-normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModelUn_b, predLabelsVSVMsumUn_unc,binaryClassProblem)
-predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels)
-# ******
-
-accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
-print(accVSVM_SL_Un_b_ad)
 ################################### VSVM-sL + VIRTUAL (Balanced) Unlabeled Samples #################################### 
 
 REF_v = predict(tunedVSVMUn_b, trainDataCurRemainingsub_b)
@@ -1308,12 +1309,12 @@ if (file.exists("bestFittingModelvUn_b.rds") && !train) {
     SVinvarRadivUn = rbind(setNames(rem_extrem_kerneldist(SVtotal, SVL2, bound[jj]),objInfoNames),
                            setNames(rem_extrem_kerneldist(SVtotal, SVL3, bound[jj]),objInfoNames),
                            setNames(rem_extrem_kerneldist(SVtotal, SVL5, bound[jj]),objInfoNames),
-                           setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj] ),objInfoNames),
+                           setNames(rem_extrem_kerneldist(SVtotal, SVL6, bound[jj]),objInfoNames),
                            setNames(rem_extrem_kerneldist(SVtotal, SVL7, bound[jj]),objInfoNames),
-                           setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj] ),objInfoNames),
-                           setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj] ),objInfoNames),
-                           setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj] ),objInfoNames),
-                           setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj] ),objInfoNames),
+                           setNames(rem_extrem_kerneldist(SVtotal, SVL8, bound[jj]),objInfoNames),
+                           setNames(rem_extrem_kerneldist(SVtotal, SVL9, bound[jj]),objInfoNames),
+                           setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj]),objInfoNames),
+                           setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj]),objInfoNames),
                            setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL2vUn_b, bound[jj]),objInfoNames),
                            setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL3vUn_b, bound[jj]),objInfoNames),
                            setNames(rem_extrem_kerneldist(SVtotalvUn_b, SVL5vUn_b, bound[jj]),objInfoNames),
