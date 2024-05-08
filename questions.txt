@@ -5,10 +5,10 @@ row 636 #P: yes but SOME of this data are used before for training/test/validate
 row 738 #P: just for confirmation, the trainFeatVSVM is made only by VSVs?
 roe 770 #P: we should keep the Random, but for the sake of balanced train set we use Balanced
 row 36  trainControl -> how does actually work with the indexTrain
-row 78  rbf_kernel -> that I added is required, right?
-row 179 abs(pred) -> for the distance we need only positive values, right? (I added abs)
-row 311 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance? after norm, the max value 1
-row 655 binaryClassProblem -> A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
+row 197  rbf_kernel -> that I added is required, right?
+row 371 abs(pred) -> for the distance we need only positive values, right? (I added abs)
+row 603 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance? after norm, the max value 1
+row 956 binaryClassProblem -> A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
 In svm what is the difference between probability class and distance class? see both related paper and script function
 
 descriptive stats of the dataset/data visualization
