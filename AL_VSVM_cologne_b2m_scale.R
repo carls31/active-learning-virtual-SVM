@@ -3,11 +3,11 @@ library(kernlab)
 library(sampling)
 library(progress) # for progress bar visualization
 
-# library(foreach)    # for parallel processing
-# library(doParallel) # for multiple CPU core
-# 
-# # Adjust the number of cores as per your system capabilities
-# num_cores <- parallel::detectCores()
+library(foreach)    # for parallel processing
+library(doParallel) # for multiple CPU core
+
+# Adjust the number of cores as per your system capabilities
+num_cores <- parallel::detectCores()
 
 # Define the class sample size 
 sample_size = 2
@@ -434,45 +434,46 @@ margin_sampling <- function(org, samp) {
   return(merged_data)
 }
 
-compute_margin_distances <- function(samp, org) {
-  # Define the function for margin distance calculation
-  # margin_distance_calculation(predLabelsVSVMsumUn_unc[3000,],bestFittingModelUn_b)
-  margin_distance_calculation <- function(samp_row, org) {
-    print(dim(samp_row))
-    print(length(samp_row))
-    # Get prediction probabilities for the current sample
-    probabilities <- predict(org, newdata = samp_row[-length(samp_row)], type = "prob")
-    print(probabilities)
-    # Find the class with the maximal confidence
-    max_confidence_class <- which.max(probabilities)
-    
-    # Initialize vector to store distances
-    distances <- rep(0, length(probabilities))
-    
-    # Iterate over classes
-    for (i in 1:length(probabilities)) {
-      distances[i] <- pred_one(org$finalModel, unlist(samp_row[-length(samp_row)]), factor(names(probabilities))[i])
-    }
-    
-    # Calculate margin distance
-    margin_distance <- distances[max_confidence_class] - max(distances[-max_confidence_class])
-    
-    return(margin_distance)
-  }
-  
-  # Apply margin_distance_calculation function to each row of samp
-  margin_distances <- apply(predLabelsVSVMsumUn_unc, 1, margin_distance_calculation, org = bestFittingModelUn_b)
-  
-  # Combine margin distances with samp
-  merged_data <- cbind(samp, margin_distance = margin_distances)
-  
-  # Normalize margin distance
-  preProc <- preProcess(merged_data[, "margin_distance", drop = FALSE], method = "range")
-  normdistance <- predict(preProc, merged_data[, "margin_distance", drop = FALSE])
-  merged_data <- cbind(merged_data, normdistance)
-  
-  return(merged_data)
-}
+# VECTORIZE LOOP
+# compute_margin_distances <- function(samp, org) {
+#   # Define the function for margin distance calculation
+#   # margin_distance_calculation(predLabelsVSVMsumUn_unc[3000,],bestFittingModelUn_b)
+#   margin_distance_calculation <- function(samp_row, org) {
+#     print(dim(samp_row))
+#     print(length(samp_row))
+#     # Get prediction probabilities for the current sample
+#     probabilities <- predict(org, newdata = samp_row[-length(samp_row)], type = "prob")
+#     print(probabilities)
+#     # Find the class with the maximal confidence
+#     max_confidence_class <- which.max(probabilities)
+#     
+#     # Initialize vector to store distances
+#     distances <- rep(0, length(probabilities))
+#     
+#     # Iterate over classes
+#     for (i in 1:length(probabilities)) {
+#       distances[i] <- pred_one(org$finalModel, unlist(samp_row[-length(samp_row)]), factor(names(probabilities))[i])
+#     }
+#     
+#     # Calculate margin distance
+#     margin_distance <- distances[max_confidence_class] - max(distances[-max_confidence_class])
+#     
+#     return(margin_distance)
+#   }
+#   
+#   # Apply margin_distance_calculation function to each row of samp
+#   margin_distances <- apply(predLabelsVSVMsumUn_unc, 1, margin_distance_calculation, org = bestFittingModelUn_b)
+#   
+#   # Combine margin distances with samp
+#   merged_data <- cbind(samp, margin_distance = margin_distances)
+#   
+#   # Normalize margin distance
+#   preProc <- preProcess(merged_data[, "margin_distance", drop = FALSE], method = "range")
+#   normdistance <- predict(preProc, merged_data[, "margin_distance", drop = FALSE])
+#   merged_data <- cbind(merged_data, normdistance)
+#   
+#   return(merged_data)
+# }
 
 # margin_distance <- data.frame(control_label = as.character(predLabelsVSVMsumUn_unc[1, ncol(predLabelsVSVMsumUn_unc)]), margin_distance = numeric(nrow(predLabelsVSVMsumUn_unc[1,])))
 # probabilities <- predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,-ncol(predLabelsVSVMsumUn_unc)],type="prob")
@@ -484,53 +485,53 @@ compute_margin_distances <- function(samp, org) {
 # 
 # margin_distance[1, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which.max(probabilities)])
 
-# Evaluate Margin Sampling (MS) WITH MULTIPLE CPU CORES
-# margin_sampling_multiCPU <- function(org, samp, binaryClassProblem) {
-#   
-#   # Set up parallel backend
-#   cl <- makeCluster(num_cores)
-#   registerDoParallel(cl)
-#   
-#   # Initialize data frame to store margin distance for each sample
-#   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
-#   
-#   # Progress bar for tracking computation
-#   pb <- progress_bar$new(
-#     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-#     total = nrow(samp),
-#     clear = FALSE
-#   )
-#   
-#   # Define the function to calculate margin distance for a single sample
-#   calculate_margin_distance <- function(k) {
-#     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
-#     max_confidence_class <- which.max(probabilities)
-#     
-#     distances <- rep(0, length(probabilities))
-#     for (i in 1:length(probabilities)) {
-#       distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i], binaryClassProblem)
-#     }
-#     
-#     return(distances[max_confidence_class] - max(distances[-which.max(probabilities)]))
-#   }
-#   
-#   # Use foreach for parallel processing
-#   margin_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
-#     pb$tick()
-#     calculate_margin_distance(k)
-#   }
-#   
-#   margin_distance$margin_distance <- margin_distances
-#   
-#   preProc <- preProcess(margin_distance, method = "range")
-#   normdistance <- predict(preProc, margin_distance)
-#   
-#   merged_data <- cbind(samp, normdistance)
-#   
-#   stopCluster(cl)
-#   
-#   return(merged_data)
-# }
+# Evaluate Margin Sampling (MS) WITH MULTICORES CPU - PARALLELIZED LOOP
+margin_sampling_multicore <- function(org, samp) {
+
+  # Set up parallel backend
+  # cl <- makeCluster(num_cores)
+  registerDoParallel(num_cores)
+
+  # Initialize data frame to store margin distance for each sample
+  margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
+
+  # Progress bar for tracking computation
+  pb <- progress_bar$new(
+    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+    total = nrow(samp),
+    clear = FALSE
+  )
+
+  # Define the function to calculate margin distance for a single sample
+  calculate_margin_distance <- function(k) {
+    probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
+    max_confidence_class <- which.max(probabilities)
+
+    distances <- rep(0, length(probabilities))
+    for (i in 1:length(probabilities)) {
+      distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i])
+    }
+
+    return(distances[max_confidence_class] - max(distances[-which.max(probabilities)]))
+  }
+  
+  # Use foreach for parallel processing
+  margin_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+    pb$tick()
+    calculate_margin_distance(k)
+  }
+
+  margin_distance$margin_distance <- margin_distances
+
+  preProc <- preProcess(margin_distance, method = "range")
+  normdistance <- predict(preProc, margin_distance)
+
+  merged_data <- cbind(samp, normdistance)
+
+  # stopCluster(cl)
+
+  return(merged_data)
+}
 
 # Evaluate Multiclass Level Uncertainty (MCLU)
 mclu_sampling <- function(org, samp) {
@@ -1240,6 +1241,7 @@ print(accVSVM_SL_Un_b_ad)
 
 # Calculate margin distance of the samples using MS
 margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+margin_sampled_data_multicore <- margin_sampling_multicore(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # margin_sampled_data <- compute_margin_distances(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # Extract labels for prediction
 predlabels_vsvm_margin = alter_labels(margin_sampled_data, validateLabels)

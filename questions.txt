@@ -23,3 +23,30 @@ check why multiclass script is implemented differently from the binary ones
 how to improve performance 
  - check how many CPU cores are present on the RSRG server and how to use them
  - vectorize: apply() {R function} + predict() {kernlab function} 
+
+
+> library(foreach)
+> library(doParallel)
+> x <- iris[which(iris[,5] != "setosa"), c(1,5)]
+> trials <- 10000
+> registerDoParallel(cores=2)
+> ptime <- system.time({
++ r <- foreach(icount(trials), .combine=cbind) %dopar% {
++ ind <- sample(100, 100, replace=TRUE)
++ result1 <- glm(x[ind,2]~x[ind,1], family=binomial(logit))
++ coefficients(result1)
++ }
++ })[3]
+> ptime
+elapsed 
+ 11.954 
+> stime <- system.time({
++ r <- foreach(icount(trials), .combine=cbind) %do% {
++ ind <- sample(100, 100, replace=TRUE)
++ result1 <- glm(x[ind,2]~x[ind,1], family=binomial(logit))
++ coefficients(result1)
++ }
++ })[3]
+> stime
+elapsed 
+ 22.524 
