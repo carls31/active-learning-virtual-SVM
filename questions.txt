@@ -6,8 +6,8 @@ row 738 #P: just for confirmation, the trainFeatVSVM is made only by VSVs?
 roe 770 #P: we should keep the Random, but for the sake of balanced train set we use Balanced
 row 36  trainControl -> how does actually work with the indexTrain
 row 78  rbf_kernel -> that I added is required, right?
-row 179 abs(pred) -> for the distance we need only positive values, right?
-row 311 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance?
+row 179 abs(pred) -> for the distance we need only positive values, right? (I added abs)
+row 311 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance? after norm, the max value 1
 row 655 binaryClassProblem -> A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
 In svm what is the difference between probability class and distance class? see both related paper and script function
 
@@ -16,10 +16,10 @@ check the values inside the computed vectors
 check the accuracies
 
 tune alter_label hyperparameter: how many label need to be relabeled?
-TO DO: more hyperparameters optimization in general 
+overall hyperparameters optimization 
 
 check why multiclass script is implemented differently from the binary ones
 
-think how to improve performance 
+how to improve performance 
  - check how many CPU cores are present on the RSRG server and how to use them
- - PROBLEM: apply() {R function} + predict() {kernlab function} 
+ - vectorize: apply() {R function} + predict() {kernlab function} 

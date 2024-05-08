@@ -213,28 +213,28 @@ kern_dis = function(a, b){
 }
 
 # rem_extrem_kerneldist(SVtotal, SVL7, bound[jj])
-rem_extrem_kerneldist = function(org, VSV1, a){      
-  
+rem_extrem_kerneldist = function(org, VSV1, a){
+
   distance = data.frame(matrix(nrow=nrow(org),ncol=2))
   distanceSVC1 = c()
   distanceSVC2 = c()
-  
+
   numClass = nlevels(org$REF)
   SVClass = list()
-  
+
   # split SV according to its classes
   for(f in seq(along = c(1:numClass))){
     SVClass[[f]]=org[which(org$REF==levels(org$"REF")[[f]]),]
   }
-  
+
   # save label of sample and the distance between SV and VSV in distance for each pair of SV and VSV
   for(l in seq(along = c(1:nrow(org)))){
     distance[l,1] = as.character( org[l,ncol(org)])
     distance[l,2] = kern_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
   }
-  
+
   boundClass = list()
-  
+
   # Compute the distance threshold boundClass for each class
   for(f in seq(along = c(1:length(SVClass)))){
     distanceSVC1 = c()
@@ -248,62 +248,74 @@ rem_extrem_kerneldist = function(org, VSV1, a){
       boundClass[[f]] = disClass1mean*a
     }
   }
-  
+
   distance$X1 = factor(distance$X1)
-  
+
   for(k in seq(along = c(1:nrow(org)))){
-    
-    if(as.integer(distance[k,1]) == 1){
-      if(!is.na(boundClass[1])){
-        if(distance[k,2] != 0 && distance[k,2] > (boundClass[[1]])){
-          VSV1[k,]=NA
-        }
-      }
-    }else{
-      if(as.integer(distance[k,1]) == 2){
-        if(!is.na(boundClass[[2]])){
-          if(distance[k,2] != 0 && distance[k,2] > (boundClass[[2]])){
+    tmp_cond <- FALSE
+    for(class in seq(along = c(1:length(SVClass)))){
+      if(as.integer(distance[k,1]) == class){
+        if(!is.null(boundClass[[class]]) && !is.na(boundClass[[class]])){
+          if(distance[k,2] != 0 && distance[k,2] > (boundClass[[class]])){
             VSV1[k,]=NA
-          }
-        }
-      }else{
-        if(as.integer(distance[k,1]) == 3){
-          if(!is.na(boundClass[[3]])){
-            if(distance[k,2] != 0 && distance[k,2] > (boundClass[[3]])){
-              VSV1[k,]=NA
-            }
-          }
-        }else{
-          if(as.integer(distance[k,1]) == 4){
-            if(!is.null(boundClass[[4]]) && !is.na(boundClass[[4]])){
-              if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
-                VSV1[k,]=NA
-              }
-            }
-          }else{
-            if(as.integer(distance[k,1]) == 5){
-              if(!is.na(boundClass[[5]])){
-                if(distance[k,2] != 0 && distance[k,2] > (boundClass[[5]])){
-                  VSV1[k,]=NA
-                }
-              }
-            }else{
-              if(as.integer(distance[k,1]) == 6){
-                if(!is.na(boundClass[[6]])){
-                  if(distance[k,2] != 0 && distance[k,2] > (boundClass[[6]])){
-                    VSV1[k,]=NA
-                  }
-                }
-              }else{
-                if(is.na(distance[k,1])){
-                  VSV1[k,]=NA
-                }
-              }
-            }
+            tmp_cond <- TRUE
           }
         }
       }
     }
+    # # if(!tmp_cond){VSV1[k,]=NA}
+
+    # if(as.integer(distance[k,1]) == 1){
+    #   if(!is.na(boundClass[1])){
+    #     if(distance[k,2] != 0 && distance[k,2] > (boundClass[[1]])){
+    #       VSV1[k,]=NA
+    #     }
+    #   }
+    # }else{
+    #   if(as.integer(distance[k,1]) == 2){
+    #     if(!is.na(boundClass[[2]])){
+    #       if(distance[k,2] != 0 && distance[k,2] > (boundClass[[2]])){
+    #         VSV1[k,]=NA
+    #       }
+    #     }
+    #   }else{
+    #     if(as.integer(distance[k,1]) == 3){
+    #       if(!is.na(boundClass[[3]])){
+    #         if(distance[k,2] != 0 && distance[k,2] > (boundClass[[3]])){
+    #           VSV1[k,]=NA
+    #         }
+    #       }
+    #     }else{
+    #       if(as.integer(distance[k,1]) == 4){
+    #         if(!is.null(boundClass[[4]]) && !is.na(boundClass[[4]])){
+    #           if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
+    #             VSV1[k,]=NA
+    #           }
+    #         }
+    #       }else{
+    #         if(as.integer(distance[k,1]) == 5){
+    #           if(!is.na(boundClass[[5]])){
+    #             if(distance[k,2] != 0 && distance[k,2] > (boundClass[[5]])){
+    #               VSV1[k,]=NA
+    #             }
+    #           }
+    #         }else{
+    #           if(as.integer(distance[k,1]) == 6){
+    #             if(!is.na(boundClass[[6]])){
+    #               if(distance[k,2] != 0 && distance[k,2] > (boundClass[[6]])){
+    #                 VSV1[k,]=NA
+    #               }
+    #             }
+    #           }else{
+    #             if(is.na(distance[k,1])){
+    #               VSV1[k,]=NA
+    #             }
+    #           }
+    #         }
+    #       }
+    #     }
+    #   }
+    # }
   }
   return(VSV1)
 }
