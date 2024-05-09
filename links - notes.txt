@@ -26,6 +26,9 @@ http://topepo.github.io/caret/visualizations.html
 https://rpubs.com/uky994/593668
 https://www.geeksforgeeks.org/support-vector-machine-classifier-implementation-in-r-with-caret-package/
 
+***************************************************************************************
 https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html
+https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf
+***************************************************************************************
 
 https://ademos.people.uic.edu/Chapter4.html

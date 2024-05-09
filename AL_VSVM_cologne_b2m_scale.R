@@ -2,7 +2,6 @@ library(caret)
 library(kernlab)
 library(sampling)
 library(progress) # for progress bar visualization
-
 library(foreach)    # for parallel processing
 library(doParallel) # for multiple CPU core
 
@@ -263,7 +262,7 @@ rem_extrem_kerneldist = function(org, VSV1, a){
         }
       }
     }
-    # # if(!tmp_cond){VSV1[k,]=NA}
+    # if(!tmp_cond){VSV1[k,]=NA}
 
     # if(as.integer(distance[k,1]) == 1){
     #   if(!is.na(boundClass[1])){
@@ -319,7 +318,7 @@ rem_extrem_kerneldist = function(org, VSV1, a){
   }
   return(VSV1)
 }
-
+# # FOR DEBUGGING SAKE
 # distance = data.frame(matrix(nrow=nrow(SVtotalUn_b),ncol=2))
 # distanceSVC1 = c()
 # distanceSVC2 = c()
@@ -376,7 +375,7 @@ pred_one = function(modelfin, dataPoint, dataPointLabels){
 
   return(smallestDistance)   
 }
-
+# # FOR DEBUGGING SAKE
 # probabilities <- predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1],type="prob")
 # 
 # smallestDistance = 9999
@@ -394,47 +393,47 @@ pred_one = function(modelfin, dataPoint, dataPointLabels){
 #   }
 # smallestDistance
 
-# Evaluate Margin Sampling (MS)
-margin_sampling <- function(org, samp) {
-  # Initialize data frame to store margin distance for each sample
-  margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
+# # Evaluate Margin Sampling (MS)
+# margin_sampling <- function(org, samp) {
+#   # Initialize data frame to store margin distance for each sample
+#   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
+# 
+#   # Progress bar for tracking computation
+#   pb <- progress_bar$new(
+#     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+#     total = nrow(samp),
+#     clear = FALSE
+#   )
+# 
+#   for (k in seq_along(1:nrow(samp))) {
+#     # Get prediction probabilities for the current sample
+#     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
+# 
+#     # Find the class with the maximal confidence
+#     max_confidence_class <- which.max(probabilities)
+# 
+#     # Get the distance to the hyperplane for each class
+#     distances <- rep(0, length(probabilities))
+#     for (i in 1:length(probabilities)) {
+#       distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i])
+#     }
+# 
+#     # Calculate the margin distance as the difference between the distance to the hyperplane of the max confidence class and the distance to the hyperplane of the other classes
+#     margin_distance[k, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which.max(probabilities)])
+# 
+#     pb$tick()
+#   }
+# 
+#   preProc <- preProcess(margin_distance, method = "range")
+#   normdistance <- predict(preProc, margin_distance)
+# 
+#   merged_data <- cbind(samp, normdistance)
+# 
+#   #return(margin_distance)
+#   return(merged_data)
+# }
 
-  # Progress bar for tracking computation
-  pb <- progress_bar$new(
-    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-    total = nrow(samp),
-    clear = FALSE
-  )
-
-  for (k in seq_along(1:nrow(samp))) {
-    # Get prediction probabilities for the current sample
-    probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
-
-    # Find the class with the maximal confidence
-    max_confidence_class <- which.max(probabilities)
-
-    # Get the distance to the hyperplane for each class
-    distances <- rep(0, length(probabilities))
-    for (i in 1:length(probabilities)) {
-      distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i])
-    }
-
-    # Calculate the margin distance as the difference between the distance to the hyperplane of the max confidence class and the distance to the hyperplane of the other classes
-    margin_distance[k, "margin_distance"] <- distances[max_confidence_class] - max(distances[-which.max(probabilities)])
-
-    pb$tick()
-  }
-
-  preProc <- preProcess(margin_distance, method = "range")
-  normdistance <- predict(preProc, margin_distance)
-
-  merged_data <- cbind(samp, normdistance)
-
-  #return(margin_distance)
-  return(merged_data)
-}
-
-# VECTORIZE LOOP
+# VECTORIZE LOOP -> still doen't work, using multicore intead
 # compute_margin_distances <- function(samp, org) {
 #   # Define the function for margin distance calculation
 #   # margin_distance_calculation(predLabelsVSVMsumUn_unc[3000,],bestFittingModelUn_b)
@@ -493,14 +492,7 @@ margin_sampling_multicore <- function(org, samp) {
   registerDoParallel(num_cores)
 
   # Initialize data frame to store margin distance for each sample
-  margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), margin_distance = numeric(nrow(samp)))
-
-  # Progress bar for tracking computation
-  pb <- progress_bar$new(
-    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-    total = nrow(samp),
-    clear = FALSE
-  )
+  margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
 
   # Define the function to calculate margin distance for a single sample
   calculate_margin_distance <- function(k) {
@@ -511,42 +503,34 @@ margin_sampling_multicore <- function(org, samp) {
     for (i in 1:length(probabilities)) {
       distances[factor(names(probabilities))[i]] <- pred_one(org$finalModel, unlist(samp[k,-ncol(samp)]),factor(names(probabilities))[i])
     }
-
     return(distances[max_confidence_class] - max(distances[-which.max(probabilities)]))
   }
   
   # Use foreach for parallel processing
   margin_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
-    pb$tick()
     calculate_margin_distance(k)
   }
-
-  margin_distance$margin_distance <- margin_distances
+  # stopCluster(cl)
+  margin_distance$distance <- margin_distances
 
   preProc <- preProcess(margin_distance, method = "range")
   normdistance <- predict(preProc, margin_distance)
 
   merged_data <- cbind(samp, normdistance)
 
-  # stopCluster(cl)
-
   return(merged_data)
 }
 
 # Evaluate Multiclass Level Uncertainty (MCLU)
 mclu_sampling <- function(org, samp) {
+  
+  registerDoParallel(num_cores)
+  
   # Initialize data frame to store uncertainty for each sample
-  uncertainty <- data.frame(control_label = as.character(samp[, ncol(samp)]), uncertainty = numeric(nrow(samp)))
+  uncertainty <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
   
-  # Progress bar for tracking computation
-  pb <- progress_bar$new(
-    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-    total = nrow(samp),
-    clear = FALSE
-  )
-  
-  for (k in seq_along(1:nrow(samp))) {
-    # Get prediction probabilities for the current sample
+  # Define the function to calculate margin distance for a single sample
+  calculate_mclu_distance <- function(k) {
     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
     
     # Get the two most probable classes
@@ -555,10 +539,17 @@ mclu_sampling <- function(org, samp) {
     # Calculate the difference between the distances to the margin for the two most probable classes
     distance_top1 <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), top_classes[1])
     distance_top2 <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), top_classes[2])
-    uncertainty[k, "uncertainty"] <- abs(distance_top1 - distance_top2)
     
-    pb$tick()
+    return(abs(distance_top1 - distance_top2))
   }
+  
+  # Use foreach for parallel processing
+  mclu_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+    calculate_mclu_distance(k)
+  }
+  
+  uncertainty$distance <- mclu_distances
+
   
   preProc <- preProcess(uncertainty, method = "range")
   normdistance <- predict(preProc, uncertainty)
@@ -573,19 +564,19 @@ uncertainty_dist_v2_2 = function(org, samp) {
   
   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
   
-  pb <- progress_bar$new(
-    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-    total = nrow(samp),
-    clear = FALSE
-  )
+
   
-  for (k in seq_along(1:nrow(samp))) {
+  # for (k in seq_along(1:nrow(samp))) {
+  #   
+  #   distance[k, "distance"] <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
+  #   
+  #   
+  #   
+  # }
+  registerDoParallel(num_cores)
+  distance$distance <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])}
     
-    distance[k, "distance"] <- pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
     
-    pb$tick()
-    
-  }
   preProc <- preProcess(distance, method = "range")
   normdistance <- predict(preProc, distance)
   
@@ -599,10 +590,10 @@ alter_labels = function(distance_data, ref){
   #merge features and original labels
   ref_added = cbind(distance_data,ref)
   #order by most uncertain samples
-  ref_added_or = ref_added[order(ref_added$distance),]
+  ref_added_or = ref_added[order(ref_added$margin_distance),]
   #re-label most uncertain n number of samples
   ref_added_or[1:250,]$label = ref_added_or[1:250,]$ref
-  ref_added_or[1:250,]$distance = 1.0000000000
+  ref_added_or[1:250,]$margin_distance = 1.0000000000
   #re-order data set by its index
   ref_added_or$index = as.numeric(row.names(ref_added_or))
   ref_added_reor = ref_added_or [order(ref_added_or$index),]
@@ -692,8 +683,6 @@ REF = generalDataPool[,ncol(generalDataPool)-1]
 
 data = cbind(data, REF)
 data_label = data[,ncol(data)]
-
-# IS IT OKAY TO CHANGE THE IMPORT ORDER IN THIS WAY?
 
 ########################################  Scaling  ########################################
 
@@ -952,7 +941,6 @@ print(accVSVM)
 ## records which 2 classes are involved in 2 class problems
 binaryClassProblem = list()
 # WHAT IS USED FOR? A LIST WITH THE CLASSES NAME ISN'T ENOUGH?
-
 for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){
   binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]] ,ncol(trainDataCur)]))
 }
@@ -984,7 +972,6 @@ if (file.exists("bestFittingModel.rds") && !train) {
                         setNames(rem_extrem_kerneldist(SVtotal, SVL10, bound[jj]),objInfoNames),
                         setNames(rem_extrem_kerneldist(SVtotal, SVL11, bound[jj]),objInfoNames)
     )
-    
     # SVinvarRadi = rbind(setNames(rem_extrem(SVtotal, SVL2, bound[jj]),objInfoNames),
     #                     setNames(rem_extrem(SVtotal, SVL3, bound[jj]),objInfoNames),
     #                     setNames(rem_extrem(SVtotal, SVL5, bound[jj]),objInfoNames),
@@ -997,7 +984,6 @@ if (file.exists("bestFittingModel.rds") && !train) {
     #                     #setNames(rem_extrem(SVtotal, SVL12, bound[jj]),objInfoNames)
     #                     #setNames(rem_extrem(SVtotal, SVL13, bound[jj]),objInfoNames)
     # )
-
     # remove NAs
     SVinvarRadi = na.omit(SVinvarRadi)
 
@@ -1068,7 +1054,6 @@ predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
 accVSVM_SL_rem_extrem_kerneldist = confusionMatrix(predLabelsVSVMsum, validateLabels)
 print(accVSVM_SL_rem_extrem_kerneldist)
 
-# print(accVSVM_SL_rem_extrem)
 ##########################################################################################################
 
 #################################  Balanced unlabeled samples ###################################
@@ -1081,8 +1066,6 @@ stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,
 samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining_b)
 
 trainDataCurRemaining_b = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
-# trainFeatRemaining_b = trainDataCurRemaining_b[,1:(ncol(trainDataPoolAllLev)-1)]
-# trainLabelsRemaining_b = trainDataCurRemaining_b[,ncol(trainDataPoolAllLev)]
 trainDataCurRemainingsub_b = trainDataCurRemaining_b[sindexSVMDATA:eindexSVMDATA]
 
 REF_b = predict(tunedVSVM, trainDataCurRemainingsub_b)
@@ -1240,11 +1223,14 @@ print(accVSVM_SL_Un_b_ad)
 # ******
 
 # Calculate margin distance of the samples using MS
-margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+#margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 margin_sampled_data_multicore <- margin_sampling_multicore(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # margin_sampled_data <- compute_margin_distances(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
 # Extract labels for prediction
-predlabels_vsvm_margin = alter_labels(margin_sampled_data, validateLabels)
+predlabels_vsvm_margin = alter_labels(margin_sampled_data_multicore, validateLabels)
+
+accVSVM_SL_Un_b_ad = confusionMatrix(predlabels_vsvm_margin, validateLabels)
+print(accVSVM_SL_Un_b_ad)
 # ******
 
 # Calculate uncertainty of the samples using MCLU
@@ -1304,12 +1290,6 @@ if (file.exists("bestFittingModelvUn_b.rds") && !train) {
   print("Model already exists!")
 } else {
   
-  pb <- progress_bar$new(
-    format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-    total = nrow(samp),
-    clear = FALSE
-  )
-  
   # Lu et al.(2016): A Novel Synergetic Classification Approach for Hyperspectral and Panchromatic Images Based on Self-Learning
   
   actKappa = 0
@@ -1345,28 +1325,41 @@ if (file.exists("bestFittingModelvUn_b.rds") && !train) {
     
     # iterating over boundMargin to test different threshold on margin distance
     for (kk in seq(along = c(1:length(boundMargin)))){
+      print(paste0("Testing bound margin: ",kk,"/",length(boundMargin)," and radius threshold: ",jj,"/",length(bound)))
       
       # remove VSV which are not located in certain distance to decision function
       # data.frame to store elected VSV within the margin
       SVinvarvUn_b=setNames(data.frame(matrix(ncol = numFeat+1)), objInfoNames)
       
+      pb <- progress_bar$new(
+        format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+        total = nrow(SVinvarRadiUn_b),
+        clear = FALSE
+      )
       # iterate over SVinvarRadi and evaluate distance to hyperplane
       # implementation checks class membership for case that each class should be evaluate on different bound
-      for(m in seq(along = c(1:nrow(SVinvarRadivUn)))){
+      for(m in seq(along = c(1:nrow(SVinvarRadiUn_b)))){
+
         signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadivUn[m,-ncol(SVinvarRadivUn)]), SVinvarRadivUn[m, ncol(SVinvarRadivUn)]))
-        
-        if(SVinvarRadivUn[m,ncol(SVinvarRadivUn)] == levels(generalDataPool$REF)[1]){
-          if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
-            SVinvarvUn_b = rbind(SVinvarvUn_b, SVinvarRadivUn[m,])
-          }
-        }else{
-          if(SVinvarRadivUn[m,ncol(SVinvarRadivUn)] == levels(generalDataPool$REF)[2]){
-            if((signa > -boundMargin[kk])&& (signa < boundMargin[kk])){
-              SVinvarvUn_b = rbind(SVinvarvUn_b, SVinvarRadivUn[m,])
-            }
-          }
+
+        if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
+          SVinvarvUn_b = rbind(SVinvarvUn_b, SVinvarRadivUn[m,])
         }
+        pb$tick()
       }
+      
+      # # Register parallel backend
+      # registerDoParallel(cores = 8)
+      # # Define the foreach loop
+      # foreach(m = seq_along(c(1:nrow(SVinvarRadiUn_b)))) %dopar% {
+      # 
+      #   signa <- as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadivUn[m, -ncol(SVinvarRadivUn)]), SVinvarRadivUn[m, ncol(SVinvarRadivUn)]))
+      #   if ((signa < boundMargin[kk]) && (signa > -boundMargin[kk])) {
+      #     SVinvarvUn_b <- rbind(SVinvarvUn_b, SVinvarRadivUn[m, ])
+      #   }
+      # }
+      # # Stop the parallel backend
+      # stopImplicitCluster()
       
       # merge elected VSV with original SV
       SVinvar_orgvUn_b = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvarvUn_b,objInfoNames))
@@ -1395,7 +1388,6 @@ if (file.exists("bestFittingModelvUn_b.rds") && !train) {
         actKappa = tunedVSVMvUn_b$resample$Kappa
       }
     }
-    pb$tick()
   }
   saveRDS(bestFittingModelvUn_b, "bestFittingModelvUn_b.rds")
 }
@@ -1406,7 +1398,7 @@ predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
 
 ##accuracy assessment
 accVSVM_SL_vUn_b1 = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
-
+print(accVSVM_SL_vUn_b1)
 #########################################################################################################
 #                                                                                                       #
 #                                       VSVM-SL-Unl + Virtual Unl                                       #

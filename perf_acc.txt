@@ -31,6 +31,10 @@ Kappa : 0.7737
 
 *** MULTICLASS ***
 
+accVSVM_SL_vUn_b1
+Accuracy : 0.707 
+Kappa : 0.5962 
+
 accVSVM_SL_Un_b
 Accuracy : 0.7105
 Kappa : 0.6047
