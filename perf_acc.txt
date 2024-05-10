@@ -35,31 +35,23 @@ accVSVM_SL_vUn_b1
 Accuracy : 0.707 
 Kappa : 0.5962 
 
+accVSVM_SL_Un_b_ad
+Accuracy : 0.7462
+Kappa : 0.6473   
+
 accVSVM_SL_Un_b
-Accuracy : 0.7105
-Kappa : 0.6047
-
-accVSVM_SL_rem_extrem_kerneldist
-Accuracy : 0.7368
-Kappa : 0.6353
-
-accVSVM_SL_kern2eucl
-Accuracy : 0.7324
-Kappa : 0.6338
-
-accVSVM_SL_rem_extrem
-Accuracy : 0.6723 
-Kappa : 0.4067
+Accuracy : 0.7458
+Kappa : 0.6467  
 
 accVSVM_SL
-Accuracy : 0.6238
-Kappa : 0.5053
+Accuracy : 0.7193 
+Kappa : 0.6131     
 
 accVSVM
-Accuracy : 0.6238 
-Kappa : 0.5053
+Accuracy : 0.7432  
+Kappa : 0.6455  
 
 accSVM
-Accuracy : 0.7054
-Kappa : 0.5996
+Accuracy : 0.7182
+Kappa : 0.6112       
 

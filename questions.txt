@@ -48,8 +48,11 @@ oefficients(result1)
 stime
 
 
- 1. try without indexTrain
- 2. covariance for correlation
- 3. split altering samples in iteration
+ 1. try without indexTrain: BETTER WITH IT
+ 2.a covariance for features correlation
+ 2.b perform PCA / t-SNE
+ 3. split alter_samples in multiple iterations
  4. check if in the multiclas setting the random / balanced unlabeled samples actually change
  5. implement only_probability_distance + check the two different possible implementation of mclu (see paper)
+ 6. compare RANDOM and BALANCED unlabeled samples performance/class distribution
+ 7. focus on meadow and other_impervious_surface classes
