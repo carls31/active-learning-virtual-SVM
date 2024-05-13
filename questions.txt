@@ -24,7 +24,7 @@ how to improve performance
  - check how many CPU cores are present on the RSRG server and how to use them
  - vectorize: apply() {R function} + predict() {kernlab function} 
 
-
+****************************************************************
 library(foreach)
 library(doParallel)
 x <- iris[which(iris[,5] != "setosa"), c(1,5)]
@@ -46,7 +46,7 @@ oefficients(result1)
 }
 })
 stime
-
+****************************************************************
 
  1. try without indexTrain: BETTER WITH IT
  2.a covariance for features correlation

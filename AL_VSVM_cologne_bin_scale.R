@@ -207,28 +207,57 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernelfunc){
   
   distance$X1 = factor(distance$X1)
   
-  # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
-  for(k in seq(along = c(1:nrow(org)))){
-    if(is.na(distance[k,2])){
-      VSV1[k,]=NA
-    }
-    else{
-      if(!is.na(boundClass1)){
-        if(distance[k,1] == levels(distance[[1]])[1]){
-          if(distance[k,2] > (boundClass1)){
-            VSV1[k,]=NA
-          }
-        }
-      }else{
-        if(!is.na(boundClass2)) {
-          if(distance[k,1]== levels(distance[[1]])[2]){
-            if(distance[k,2] > (boundClass2)){
-              VSV1[k,]=NA
-            }
-          }
-        }
-      }
-    }
+  # if(as.integer(distance[k,1]) == 1){
+  #   if(!is.na(boundClass[1])){
+  #     if(distance[k,2] != 0 && distance[k,2] > (boundClass[[1]])){
+  #       VSV1[k,]=NA
+  #     }
+  #   }
+  # }else{
+  #   if(as.integer(distance[k,1]) == 2){
+  #     if(!is.na(boundClass[[2]])){
+  #       if(distance[k,2] != 0 && distance[k,2] > (boundClass[[2]])){
+  #         VSV1[k,]=NA
+  #       }
+  #     }
+  #   }else{
+  #     if(as.integer(distance[k,1]) == 3){
+  #       if(!is.na(boundClass[[3]])){
+  #         if(distance[k,2] != 0 && distance[k,2] > (boundClass[[3]])){
+  #           VSV1[k,]=NA
+  #         }
+  #       }
+  #     }else{
+  #       if(as.integer(distance[k,1]) == 4){
+  #         if(!is.null(boundClass[[4]]) && !is.na(boundClass[[4]])){
+  #           if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
+  #             VSV1[k,]=NA
+  #           }
+  #         }
+  #       }else{
+  #         if(as.integer(distance[k,1]) == 5){
+  #           if(!is.na(boundClass[[5]])){
+  #             if(distance[k,2] != 0 && distance[k,2] > (boundClass[[5]])){
+  #               VSV1[k,]=NA
+  #             }
+  #           }
+  #         }else{
+  #           if(as.integer(distance[k,1]) == 6){
+  #             if(!is.na(boundClass[[6]])){
+  #               if(distance[k,2] != 0 && distance[k,2] > (boundClass[[6]])){
+  #                 VSV1[k,]=NA
+  #               }
+  #             }
+  #           }else{
+  #             if(is.na(distance[k,1])){
+  #               VSV1[k,]=NA
+  #             }
+  #           }
+  #         }
+  #       }
+  #     }
+  #   }
+  # }
   }
   return(VSV1)
 }
