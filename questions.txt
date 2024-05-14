@@ -59,5 +59,6 @@ stime
  11. descriptive stats of the dataset/data visualization
  12. k score value definition: what happens if we use acc instead?
  13. check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doen't work
+ 14. one vs all VSM Classification instead of binarymulticlass
 
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
