@@ -258,7 +258,7 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernelfunc){
   #     }
   #   }
   # }
-  }
+  
   return(VSV1)
 }
 

@@ -9,17 +9,20 @@ library(doParallel) # for multiple CPU core
 num_cores <- parallel::detectCores()
 
 # Define the class sample size 
-sample_size = 2
+sample_size = 2 # 41 label per class
 
 # Decide if train the SVM or load from dir the saved ones if present, default it tries to load them
 train = TRUE
 
+# Binary classification or Multiclass
+binary = FALSE
+
 # Define the size of unlabeled samples in each class
-b = 30 # balanced_unlabeled_samples
+b = 20 # balanced_unlabeled_samples
 
 #path = "D:/tunc_oz/apply_model"
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
-
+model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 ########################################  Utils  ########################################
 
 # Coarse and Narrow grid search for SVM parameters tuning
@@ -697,6 +700,15 @@ generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnCl
 generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
 
+if(binary){
+  # transform to 2-Class-Case "Bushes Trees" VS rest
+  print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
+  f=levels(generalDataPool$REF)[1]
+  generalDataPool$REF = as.character(generalDataPool$REF)
+  generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
+  generalDataPool$REF = as.factor(generalDataPool$REF)
+}
+
 data = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
 
 REF = generalDataPool[,ncol(generalDataPool)-1]
@@ -870,7 +882,6 @@ tuneFeat = rbind(trainFeat, testFeatsub)
 tuneLabel = unlist(list(trainLabels, testLabels))
 
 ########################################  SVM parameter tuning  #########################################
-model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 setwd(paste0(model_path, "saved_models"))
 
 if (file.exists("tunedSVM.rds") && !train) {
@@ -878,7 +889,7 @@ if (file.exists("tunedSVM.rds") && !train) {
   print("Model already exists!")
 } else {
   tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-  saveRDS(tunedSVM, "tunedSVM.rds")
+  #saveRDS(tunedSVM, "tunedSVM.rds")
 }
 
 # run classification and accuracy assessment for unmodified SV
@@ -941,7 +952,7 @@ if (file.exists("tunedVSVM.rds") && !train) {
   print("Model already exists!")
 } else {
   tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-  saveRDS(tunedVSVM, "tunedVSVM.rds")
+  #saveRDS(tunedVSVM, "tunedVSVM.rds")
 }
 
 tunedVSVM_apply = tunedVSVM
@@ -1006,7 +1017,7 @@ if (file.exists("bestFittingModel.rds") && !train) {
   #   # remove NAs
   #   SVinvarRadi = na.omit(SVinvarRadi)
   # 
-  #   # iterating over boundMargin to test different threshold on margin distance
+  #   # iterating over 
   #   for (kk in seq(along = c(1:length(boundMargin)))){
   #     print(paste0("Testing bound margin: ",kk,"/",length(boundMargin)," and radius threshold: ",jj,"/",length(bound)))
   #     
@@ -1082,28 +1093,19 @@ if (file.exists("bestFittingModel.rds") && !train) {
       # Initialize SVinvar
       SVinvar <- setNames(data.frame(matrix(ncol = numFeat + 1)), objInfoNames)
       
-      # Iterate over SVinvarRadi and evaluate distance to hyperplane
-      pb <- progress_bar$new(
-        format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-        total = nrow(SVinvarRadi),
-        clear = FALSE
-      )
-      
       foreach(m = seq_along(nrow(SVinvarRadi)), .combine = rbind) %do% {
         signa <- as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m, -ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
         if ((signa < boundMargin[[kk]]) && (signa > -boundMargin[[kk]])) {
           SVinvarRadi[m, ]
         } else {
           NULL
-          }
-        pb$tick()
+        }
       }
     }
-  saveRDS(bestFittingModel, "bestFittingModel.rds")
+  #saveRDS(bestFittingModel, "bestFittingModel.rds")
 }
 
 # ***********************************************************************************************************************
-
 
 # ***********************************************************************************************************************
 
