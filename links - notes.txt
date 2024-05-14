@@ -29,6 +29,7 @@ https://www.geeksforgeeks.org/support-vector-machine-classifier-implementation-i
 ***************************************************************************************
 https://cran.r-project.org/web/packages/foreach/vignettes/foreach.html
 https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf
+https://cran.r-project.org/web/packages/foreach/vignettes/nested.html
 ***************************************************************************************
 
 https://ademos.people.uic.edu/Chapter4.html
