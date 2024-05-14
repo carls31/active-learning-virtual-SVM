@@ -11,10 +11,8 @@ row 603 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the
 row 956 binaryClassProblem 
 In svm what is the difference between probability class and distance class? see both related paper and script function
 
-
 check the values inside the computed vectors
 check the accuracies
-check why multiclass script is implemented differently from the binary ones
 
 how to improve performance 
  - check how many CPU cores are present on the RSRG server and how to use them
@@ -44,21 +42,38 @@ oefficients(result1)
 stime
 ****************************************************************
 
- 1.  try without indexTrain DONE 
- 2.a covariance for features correlation
- 2.b perform PCA / t-SNE
- 3.  split alter_samples in multiple iterations WIP
- 4.  check if in the multiclas setting the random / balanced unlabeled samples actually change
- 5.  implement only_probability_distance + check different implementation of mclu (see paper) DONE
- 6.  compare RANDOM and BALANCED unlabeled samples performance/class distribution
- 7.  focus on meadow and other_impervious_surface classes
- 8.  implement binary + multiclass in the same script
+ 1.  DONE try without indexTrain  
+ 2.  perform PCA / t-SNE
+ 3.  WIP split alter_samples in multiple iterations 
+ 4.  DONE check if in the multiclas setting the random / balanced unlabeled samples actually change
+ 5.  DONE implement only_probability_distance + check different implementation of mclu (see paper) 
+ 6.  DONE check if NDVI feature is actually useful
+ 7.  focus on meadow and other_impervious_surface classes (they have less labels)
+ 8.  DONE implement binary + multiclass in the same script
  9.  tune alter_label hyperparameter: how many label need to be relabeled?
- 10.a overall hyperparameters optimization e.g. "boundMargin" and "bound"
- 10.b parallelize EVALUATION of all Level VSV to increase "boundMargin" and "bound"
- 11. descriptive stats of the dataset/data visualization
- 12. k score value definition: what happens if we use acc instead?
- 13. check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doen't work
+ 10.a overall hyperparameters optimization e.g. "boundMargin" and "bound" 
+ 10.b how to parallelize EVALUATION of all Level VSV to increase "boundMargin" and "bound"
+ 11. DONE descriptive stats of the dataset/data visualization
+ 12. k score value definition: see what happens if we use acc instead
+ 13. check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doesn't work
  14. one vs all VSM Classification instead of binarymulticlass
+ 15. why multiclass script is implemented differently from the binary ones and got different accuracies
 
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
+
+library(AppliedPredictiveModeling)
+transparentTheme(trans = .9)
+featurePlot(x = tuneFeat[, 8:10], 
+             y = tuneLabel, 
+             plot = "ellipse",
+             ## Add a key at the top
+             auto.key = list(columns = 3))
+featurePlot(x = tuneFeat[, 7:10], 
+             y = tuneLabel,
+             plot = "density", 
+             scales = list(x = list(relation="free"), 
+                           y = list(relation="free")), 
+             adjust = 1.5, 
+             pch = "|", 
+             layout = c(4, 1), 
+             auto.key = list(columns = 3))
