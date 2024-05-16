@@ -458,7 +458,7 @@ alter_labels = function(distance_data, ref, newSize){
 #                 new_trainLabelsVSVM, 
 #                 1 ) 
 
-add_new_samples = function(distance_data, features, ref, new_trainFeatVSVM, new_trainLabelsVSVM, newSize){
+add_new_samples = function(distance_data, features, ref, new_trainFeatVSVM, new_trainLabelsVSVM, newSize,cluster){
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
   
@@ -466,7 +466,7 @@ add_new_samples = function(distance_data, features, ref, new_trainFeatVSVM, new_
   ref_added_or = ref_added[order(ref_added$distance),]
   
   # Perform k-means clustering
-  km_data <- kmeans(ref_added_or[, 1:18], centers = 120, iter.max = 20, nstart = 200)
+  km_data <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 20, nstart = 200)
   
   # Add cluster information to the data
   ref_added_or$cluster <- km_data$cluster
@@ -496,9 +496,9 @@ add_new_samples = function(distance_data, features, ref, new_trainFeatVSVM, new_
   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
   
   # Remove relabeled samples from validateLabels
-  reor_idx <- -(which(rownames(ref_added_reor) %in% selected_indices))
+  reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
   features <- features[!(rownames(features) %in% selected_indices), ]
-  ref <- ref[reor_idx]
+  ref <- ref[-reor_idx]
   # reor_idx <- match(selected_indices, rownames(ref_added_reor))
   # ref <- data.frame(index = as.numeric(rownames(ref_added_reor)), refLabels = as.character(ref))
   # ref <- as.factor(ref[!(ref$index %in% rownames(ref_added_reor[reor_idx,])), ncol(ref)])
@@ -1237,7 +1237,7 @@ print(accVSVM_SL_Un_b_mclp)
 
 # ****** ITERATIVE
 #sampled_data_list <- list()
-bb = 500
+bb = 250
 # definition of sampling configuration (strata:random sampling without replacement)
 stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = c(bb,bb,bb,bb,bb,bb), method = "srswor")
 # get samples of trainDataCurRemaining and set trainDataCurRemaining new
@@ -1253,7 +1253,7 @@ new_trainLabelsVSVM <- best_trainLabelsVSVM
 
 new_tunedVSVM <- bestFittingModel
 
-num_iters = 5
+num_iters = 10
 classProb = FALSE
 # runPrg = FALSE
 # pb <- progress_bar$new(
@@ -1278,7 +1278,8 @@ for (iter in 1:num_iters){
                            upd_trainDataCurLabels, 
                            new_trainFeatVSVM, 
                            new_trainLabelsVSVM, 
-                           20 )
+                           newSize=10,
+                           cluster=60)
   # CHECK IF THE NEW DISTANCE SET TO 1.000000 IS ACTUALLY USEFUL IN THE NEXT ITERATIONS -> DON'T THINK SO
   # Extract new datasets
   upd_trainDataCurFeatsub <- result$features

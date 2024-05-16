@@ -65,6 +65,9 @@ stime
  21. pick one new sample at time OR pick multiple from different regions/classes
  22. change kernel 
  23. change from svm to ksvm
+ 24. implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
+
+USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
 
