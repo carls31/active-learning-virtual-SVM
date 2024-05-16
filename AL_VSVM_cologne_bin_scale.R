@@ -80,6 +80,118 @@ svmFit = function(x, y, indexTrain){{ #x = training descriptors, y = class label
   return(svmFitNarrow)  
 }
 
+# euc_dis = function(a, b){
+#   temp = 0
+#   for(ii in seq(along = c(1:length(a)))){
+#     temp = temp +((a[[ii]]-b[[ii]])^2)
+#   }
+#   return(sqrt(temp))
+# }
+# 
+# rem_extrem = function(org, VSV1, a){      
+#   
+#   distance = data.frame(matrix(nrow=nrow(org),ncol=2))
+#   distanceSVC1 = c()
+#   distanceSVC2 = c()
+#   
+#   numClass = nlevels(org$REF)
+#   SVClass = list()
+#   
+#   # split SV according to its classes
+#   for(f in seq(along = c(1:numClass))){
+#     SVClass[[f]]=org[which(org$REF==levels(org$"REF")[[f]]),]
+#   }
+#   
+#   
+#   # save label of sample and the distance between SV and VSV in "distance" for each pair of SV and VSV
+#   for(l in seq(along = c(1:nrow(org)))){
+#     distance[l,1] = as.character( org[l,ncol(org)])
+#     distance[l,2] = euc_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
+#   }
+#   distance$X1 = factor(distance$X1)
+#   
+#   # **********************
+#   
+#   boundClass = list()
+#   
+#   # calculate the distance for each SV in ClassX to all the SV in  classX, 
+#   # get the mean of the distances and multiply it with a to get the final threshold
+#   for(f in seq(along = c(1:length(SVClass)))){
+#     distanceSVC1 = c()
+#     if(nrow(SVClass[[f]])>0){
+#       for(n in seq(along = 1:(nrow(SVClass[[f]])-1))){
+#         for(nn in seq(along = c(n:(nrow(SVClass[[f]])-1)))){
+#           distanceSVC1[length(distanceSVC1)+1] = euc_dis(SVClass[[f]][n,-ncol(SVClass[[f]])], SVClass[[f]][(n+nn),-ncol(SVClass[[f]])])
+#         }
+#       }
+#       disClass1mean = mean(distanceSVC1)
+#       boundClass[[f]] = disClass1mean*a
+#     }
+#   }
+#   
+#   distance$X1 = factor(distance$X1)
+#   
+#   # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
+#   
+#   ### vorkommen von negativen distancen pr?fen und eventuell mit be?tragsfunktionen transformieren! 
+#   ### check for the occurrence of negative distances and possibly transform them with loss functions! 
+#   for(k in seq(along = c(1:nrow(org)))){
+#     
+#     if(as.integer(distance[k,1]) == 1){
+#       if(!is.na(boundClass[1])){
+#         if(distance[k,2] != 0 && distance[k,2] > (boundClass[[1]])){
+#           VSV1[k,]=NA
+#         }
+#       }
+#     }else{
+#       if(as.integer(distance[k,1]) == 2){
+#         if(!is.na(boundClass[[2]])){
+#           if(distance[k,2] != 0 && distance[k,2] > (boundClass[[2]])){
+#             VSV1[k,]=NA
+#           }
+#         }
+#       }else{
+#         if(as.integer(distance[k,1]) == 3){
+#           if(!is.na(boundClass[[3]])){
+#             if(distance[k,2] != 0 && distance[k,2] > (boundClass[[3]])){
+#               VSV1[k,]=NA
+#             }
+#           }
+#         }else{
+#           if(as.integer(distance[k,1]) == 4){
+#             if(!is.na(boundClass[[4]])){
+#               if(distance[k,2] != 0 && distance[k,2] > (boundClass[[4]])){
+#                 VSV1[k,]=NA
+#               }
+#             }
+#           }else{
+#             if(as.integer(distance[k,1]) == 5){
+#               if(!is.na(boundClass[[5]])){
+#                 if(distance[k,2] != 0 && distance[k,2] > (boundClass[[5]])){
+#                   VSV1[k,]=NA
+#                 }
+#               }
+#             }else{
+#               if(as.integer(distance[k,1]) == 6){
+#                 if(!is.na(boundClass[[6]])){
+#                   if(distance[k,2] != 0 && distance[k,2] > (boundClass[[6]])){
+#                     VSV1[k,]=NA
+#                   }
+#                 }
+#               }else{
+#                 if(is.na(distance[k,1])){
+#                   VSV1[k,]=NA
+#                 }
+#               }
+#             }
+#           }
+#         }
+#       }
+#     }
+#   }
+#   return(VSV1)
+# }
+
 # Euclidean Distance between two points lying in the input space
 euc_dis = function(a, b){
   temp = 0
