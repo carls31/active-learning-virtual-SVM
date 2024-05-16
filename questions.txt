@@ -44,20 +44,27 @@ stime
 
  1.  DONE try without indexTrain  
  2.  perform PCA / t-SNE
- 3.  WIP split alter_samples in multiple iterations 
+ 3.  DONE split alter_samples in multiple iterations 
  4.  DONE check if in the multiclas setting the random / balanced unlabeled samples actually change
  5.  DONE implement only_probability_distance + check different implementation of mclu (see paper) 
  6.  DONE check if NDVI feature is actually useful
  7.  focus on meadow and other_impervious_surface classes (they have less labels)
  8.  DONE implement binary + multiclass in the same script
  9.  tune alter_label hyperparameter: how many label need to be relabeled?
- 10.a overall hyperparameters optimization e.g. "boundMargin" and "bound" 
- 10.b how to parallelize EVALUATION of all Level VSV to increase "boundMargin" and "bound"
+ 10. overall hyperparameters optimization e.g. "boundMargin" and "bound" + parallelize EVALUATION
  11. DONE descriptive stats of the dataset/data visualization
- 12. k score value definition: see what happens if we use acc instead
+ 12. K-score coefficient definition: see what happens if we use acc instead
  13. check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doesn't work
  14. one vs all VSM Classification instead of binarymulticlass
  15. why multiclass script is implemented differently from the binary ones and got different accuracies
+ 16. how to add new sample from/for the worse performing class
+ 17. add a flag to see if the label was actually changed?
+ 18. add hadagera and shape scripts
+ 19. check if it is sufficient to run registerDoParallel(num_cores) just once inside the script
+ 20. BALANCE THE TRAINING DATASET
+ 21. pick one new sample at time OR pick multiple from different regions/classes
+ 22. change kernel 
+ 23. change from svm to ksvm
 
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
 
