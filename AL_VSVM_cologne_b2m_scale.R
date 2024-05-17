@@ -544,12 +544,12 @@ ExCsvMSD = function (datadase, filename = NA){{
 inputPath ="cologne_res_100_L2-L13.csv"                             
 sMax = 1000                                               # maximum sample size
 bound = c(0.3,0.6,0.9)                                    # radius around SV threshold
-bound_dense = c(0.23,0.26,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95)
-bound_dense = c(0.26,0.3,0.35,0.55,0.6,0.65,0.85,0.9,0.95)
+# bound_dense = c(0.23,0.26,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95)
+bound_dense = c(0.65,0.8,0.825,0.85,0.875,0.9)
 
 boundMargin  = c(1.5,1.0,0.5)                             # distance on positive side of hyperplane threshold 
-boundMargin_dense = c(0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5)
-boundMargin_dense = c(0.4,0.5,0.6,0.9,1,1.1,1.4,1.5)
+# boundMargin_dense = c(0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5)
+boundMargin_dense = c(0.4,0.55,0.575,0.6,0.625,0.675,0.7,0.8)
 sampleSizePor = c(40,25,16,12,10,8,6,4,3,2,1)                    # vector with % of max
 colheader = c("40","25","16","12","10","8","6","4","3","2","1")   # corresponding column names
 sindexSVMDATA = 37                                                # start of baseline model with one segmentation scale data
@@ -1027,7 +1027,7 @@ print(accVSVM_SL)
 # 
 # REF_b = predict(tunedVSVM, trainDataCurRemainingsub_b)
 # 
-# # get SV of unlabeled samples 
+# # get SV of unlabeled samples
 # SVindexUn_b = 1:nrow(trainDataCurRemainingsub_b)
 # SVtotalUn_b = trainDataCurRemaining_b[SVindexUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
 # SVtotalUn_b = cbind(SVtotalUn_b, REF_b)
@@ -1048,7 +1048,7 @@ print(accVSVM_SL)
 # SVinvarUn_b = rbind(setNames(SVtotalUn_b,objInfoNames),
 #                     setNames(SVL2Un_b,objInfoNames),
 #                     setNames(SVL3Un_b,objInfoNames),
-#                     setNames(SVL5Un_b,objInfoNames), 
+#                     setNames(SVL5Un_b,objInfoNames),
 #                     setNames(SVL6Un_b,objInfoNames),
 #                     setNames(SVL7Un_b,objInfoNames),
 #                     setNames(SVL8Un_b,objInfoNames),
@@ -1068,9 +1068,9 @@ print(accVSVM_SL)
 #   actKappa = bestFittingModelUn_b$resample$Kappa
 #   print("Model already exists!")
 # } else {
-#   
-#   actKappa = 0
 # 
+#   actKappa = 0
+#   classProb = TRUE
 #   # iteration over bound to test different bound thresholds determining the radius of acception
 #   for(jj in seq(along = c(1:length(bound)))){
 # 
@@ -1096,7 +1096,7 @@ print(accVSVM_SL)
 #     #                         setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL10Un_b, bound[jj]),objInfoNames),
 #     #                         setNames(rem_extrem_kerneldist(SVtotalUn_b, SVL11Un_b, bound[jj]),objInfoNames)
 #     # )
-#     
+# 
 #     # Define the SVL variables
 #     SVL_variables <- list(
 #       list(SVtotal, SVL2),
@@ -1118,7 +1118,7 @@ print(accVSVM_SL)
 #       list(SVtotalUn_b, SVL10Un_b),
 #       list(SVtotalUn_b, SVL11Un_b)
 #     )
-#     
+# 
 #     registerDoParallel(num_cores)
 #     # Apply foreach loop to process each SVL variable and bind the results
 #     SVinvarRadiUn_b <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
@@ -1130,7 +1130,7 @@ print(accVSVM_SL)
 #     # iterating over boundMargin to test different threshold on margin distance
 #     for (kk in seq(along = c(1:length(boundMargin)))){
 #       print(paste0("Testing bound margin: ",kk,"/",length(boundMargin)," and radius threshold: ",jj,"/",length(bound)))
-#       
+# 
 #       # remove VSV which are not located in certain distance to desicion function
 #       # data.frame to store elected VSV within the margin
 #       SVinvarUn_b=setNames(data.frame(matrix(ncol = numFeat+1)), objInfoNames)
@@ -1170,7 +1170,7 @@ print(accVSVM_SL)
 #       tuneLabelsVSVMUn_b = unlist(list(trainLabelsVSVMUn_b, testLabels))
 # 
 #       ######################################## VSVM control parameter tuning ########################################
-#       tunedVSVMUn_b = svmFit(tuneFeatVSVMUn_b, tuneLabelsVSVMUn_b, indexTrainDataUn_b)
+#       tunedVSVMUn_b = svmFit(tuneFeatVSVMUn_b, tuneLabelsVSVMUn_b, indexTrainDataUn_b, classProb)
 # 
 #       # of all Different bound settings get the one with best Kappa ans save its model
 #       if(actKappa < tunedVSVMUn_b$resample$Kappa){
@@ -1178,6 +1178,8 @@ print(accVSVM_SL)
 #         actKappa = tunedVSVMUn_b$resample$Kappa
 #         best_trainFeatVSVMUn_b = trainFeatVSVMUn_b
 #         best_trainLabelsVSVMUn_b = trainLabelsVSVMUn_b
+# best_bound_b = bound[jj]
+# best_boundMargin_b = boundMargin[kk]
 #       }
 #     }
 #   }
@@ -1195,7 +1197,7 @@ print(accVSVM_SL)
 resampledSize=150
 
 # ****** ITERATIVE #sampled_data_list <- list()
-classSize = 1200 # number of samples for each class
+classSize = 1200 # number of samples for each class # 250, 500, 750, 1000, 1500, 4000
 stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
 # Definition of sampling configuration (strata:random sampling without replacement)
 stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -1211,8 +1213,8 @@ new_trainLabelsVSVM <- best_trainLabelsVSVM
 new_tunedVSVM <- bestFittingModel
 
 classProb = FALSE
-newSize_for_iter = 6
-num_iters = round(resampledSize/newSize_for_iter)
+newSize_for_iter = 6 # 3, 8, 10, 20, 60
+num_iters = round(resampledSize/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
 # runPrg = FALSE
 # pb <- progress_bar$new(
 #   format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
@@ -1235,7 +1237,7 @@ for (iter in 1:num_iters){
                             new_trainFeatVSVM, 
                             new_trainLabelsVSVM, 
                             newSize=newSize_for_iter,
-                            cluster=90)
+                            cluster=90 ) # always greater than newSize_for_iter, # 60, 80, 100, 120
   # CHECK IF THE NEW DISTANCE SET TO 1.000000 IS ACTUALLY USEFUL IN THE NEXT ITERATIONS -> DON'T THINK SO
   # Extract new datasets
   upd_trainDataCurFeatsub <- result$features
@@ -1489,7 +1491,7 @@ if (file.exists("bestFittingModelvUn.rds") && !train) {
   
   # iteration over bound to test different bound thresholds determining the radius of acception
   for(jj in seq(along = c(1:length(bound)))){
-    print("Removing VSVs out of bound...")
+    print("Removing VSVs out of boundaries...")
     # # remove VSV which are not located within certain distance to org.SV;
     # # done by "rem_extrem_kerneldist()" which evaluates the kernel distance (in hyperspace) under consideration of the kernelfunction used in baseSVM
     # # to use euclidian distance (in inputspace) instead of kernel distance use "rem_extrem()"
@@ -1696,7 +1698,7 @@ predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
 ##accuracy assessment
 accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
 print(accSVM_M)
-########################################################################################################
+#####################################################################################################################
 
 ############### SVM_MS - evaluation of SL with L4 AND BALANCED UNLABELED SAMPLE (SVM-SL + Unl Samples)  #############
 
@@ -1746,18 +1748,8 @@ for(jj in seq(along = c(1:length(bound)))){
     # implementation checks class membership for case that each class should be evaluate on different bound
     for(m in seq(along = c(1:nrow(SVinvarRadiUn)))){
       signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadiUn[m,])))
-      
-      if(SVinvarRadiUn[m,ncol(SVinvarRadiUn)] == levels(generalDataPool$REF)[1]){
-        if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
-          SVinvarUn = rbind(SVinvarUn, SVinvarRadiUn[m,])
-        }
-      }else{
-        if(SVinvarRadiUn[m,ncol(SVinvarRadiUn)] == levels(generalDataPool$REF)[2]){
-          if((signa > -boundMargin[kk])&& (signa < boundMargin[kk])){
-            SVinvarUn = rbind(SVinvarUn, SVinvarRadiUn[m,])
-            
-          }
-        }
+      if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
+        SVinvarUn = rbind(SVinvarUn, SVinvarRadiUn[m,])
       }
     }
     
