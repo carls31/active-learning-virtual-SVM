@@ -43,6 +43,7 @@ stime
 ****************************************************************
 AAA  prepare some graphs/figures for different model accuracies with different training data size and unlabeled samples
 AAA  implement MS-cSV
+AAA  fix SVM_MS accuracy
  1.  DONE try without indexTrain  
  2.  perform PCA / t-SNE
  3.  DONE split alter_samples in multiple iterations 
@@ -68,6 +69,7 @@ AAA  implement MS-cSV
  23. change from svm to ksvm
  24. implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. use the kernel_function from the base_svm 
+ 26. check why it does not work with sampleSizePor = 1 or 2 (actually it worked with 2 once)
 USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 seed = 72
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
