@@ -71,7 +71,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   svmFitNarrow = train(x, 
                        y, 
                        method = "svmRadial",
-                       metric = "Kappa",
+                       metric = "Kappa", # "ROC"
                        maximize = TRUE,
                        tuneGrid = narrowGrid,
                        trControl = trainControl ( method = "cv",
