@@ -33,3 +33,6 @@ https://cran.r-project.org/web/packages/foreach/vignettes/nested.html
 ***************************************************************************************
 
 https://ademos.people.uic.edu/Chapter4.html
+
+
+https://dragoshmocrii.com/solution-kernlab-class-probability-calculations-failed-returning-nas/
