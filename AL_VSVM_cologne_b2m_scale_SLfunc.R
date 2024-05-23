@@ -162,7 +162,7 @@ rem_extrem_kerneldist = function(org, VSV1, a){
 }
 
 
-pred_one = function(modelfin, dataPoint, dataPointLabels, binaryClassProblem=binaryClassProblem){
+pred_one = function(modelfin, dataPoint, dataPointLabels){
   
   smallestDistance = 9999
   
@@ -332,12 +332,12 @@ alter_labels = function(distance_data, ref, newSize){
   return(labels)
 }
 
-add_new_samples = function(distance_data=sampled_data,
-                           features=upd_trainDataCurFeatsub,
-                           ref=upd_trainDataCurLabels,
-                           new_trainFeatVSVM=new_trainFeatVSVM,
-                           new_trainLabelsVSVM=new_trainLabelsVSVM,
-                           newSize=newSize_for_iter,
+add_new_samples = function(distance_data,
+                           features,
+                           ref,
+                           new_trainFeatVSVM,
+                           new_trainLabelsVSVM,
+                           newSize=4,
                            cluster=120){
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
@@ -410,20 +410,18 @@ ExCsvMSD = function (datadase, filename = NA){{
   return(MSDdata)
 }
 
-SL = function(model_name=model_name,
-              SVL_variables=SVL_variables, 
-              train=TRUE, 
-              rem_extrem_kerneldist=rem_extrem_kerneldist, 
-              pred_one=pred_one,
-              tunedSVM=tunedSVM,
-              num_cores=num_cores,
-              boundMargin=boundMargin, 
-              bound=bound,
-              objInfoNames=objInfoNames,
-              numFeat=numFeat,
-              countTrainData=countTrainData,
-              SVtotal=SVtotal,
-              indexTrainData=indexTrainData
+SL = function(train=TRUE, 
+              # model_name.=model_name,
+              SVL_variables.=SVL_variables
+              # rem_extrem_kerneldist.=rem_extrem_kerneldist, 
+              # pred_one.=pred_one,
+              # tunedSVM.=tunedSVM,
+              # num_cores.=num_cores,
+              # boundMargin.=boundMargin, 
+              # bound.=bound,
+              # objInfoNames.=objInfoNames,
+              # numFeat.=numFeat,
+              # SVtotal.=SVtotal
 ){
   
   if (file.exists(model_name) && !train) {
@@ -440,7 +438,7 @@ SL = function(model_name=model_name,
       
       registerDoParallel(num_cores)
       # Apply foreach loop to process each SVL variable and bind the results
-      SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
+      SVinvarRadi <- foreach(variable = SVL_variables., .combine = rbind) %dopar% {
         setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj]), objInfoNames)
       }
       registerDoSEQ()
@@ -462,7 +460,7 @@ SL = function(model_name=model_name,
         )
         # iterate over SVinvarRadi and evaluate distance to hyperplane
         # implementation checks class membership for case that each class should be evaluate on different bound
-        for(m in seq(along = c(1:nrow(SVinvarRadiUn_b)))){
+        for(m in seq(along = c(1:nrow(SVinvarRadi)))){
           signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m,-ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
           
           if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
@@ -503,7 +501,7 @@ SL = function(model_name=model_name,
         }
       }
     }
-    # saveRDS(bestFittingModelvUn_b, "bestFittingModelvUn_b.rds")
+    # saveRDS(bestFittingModelvUn_b, model_name)
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
                 best_trainFeatVSVM = best_trainFeatVSVM, 
@@ -834,8 +832,8 @@ for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){
   binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
 }
 # **********************
-
-SLresult <- SL(model_name = "bestFittingModel.rds", 
+model_name = "bestFittingModel.rds"
+SLresult <- SL(#model_name = "bestFittingModel.rds",
                SVL_variables = list(
                                   list(SVtotal, SVL2),
                                   list(SVtotal, SVL3),
