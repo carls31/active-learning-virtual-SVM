@@ -544,14 +544,13 @@ ExCsvMSD = function (datadase, filename = NA){{
 inputPath ="cologne_res_100_L2-L13.csv"                             
 sMax = 1000                                               # maximum sample size
 bound = c(0.3,0.6,0.9)                                    # radius around SV threshold
-# bound_dense = c(0.23,0.26,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95)
-bound_dense = c(0.65,0.8,0.825,0.85,0.875,0.9)
+bound = c(0.65,0.8,0.825,0.85,0.875,0.9)
 
-boundMargin  = c(1.5,1.0,0.5)                             # distance on positive side of hyperplane threshold 
-# boundMargin_dense = c(0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5)
-boundMargin_dense = c(0.4,0.55,0.575,0.6,0.625,0.675,0.7,0.8)
-sampleSizePor = c(40,25,16,12,10,8,6,4,3,2,1)                    # vector with % of max
-colheader = c("40","25","16","12","10","8","6","4","3","2","1")   # corresponding column names
+boundMargin  = c(1.5,1.0,0.5)                                     # distance on positive side of hyperplane threshold 
+boundMargin = c(0.4,0.55,0.575,0.6,0.625,0.675,0.7,0.8)
+
+sampleSizePor = c(40,25,16,12,10,8,6,4,3,2,1)                     # vector with % of max
+colheader = as.character(sampleSizePor)                           # corresponding column names
 sindexSVMDATA = 37                                                # start of baseline model with one segmentation scale data
 numFeat = 18                                                      # number of features per level (dimensionality)
 eindexSVMDATA = sindexSVMDATA + numFeat -1                        # end of base data
@@ -863,8 +862,6 @@ for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){
   binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
 }
 # **********************
-bound = bound_dense
-boundMargin = boundMargin_dense
 if (file.exists("bestFittingModel.rds") && !train) {
   bestFittingModel <- readRDS("bestFittingModel.rds")
   actKappa = bestFittingModel$resample$Kappa
