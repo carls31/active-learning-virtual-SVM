@@ -36,3 +36,5 @@ https://ademos.people.uic.edu/Chapter4.html
 
 
 https://dragoshmocrii.com/solution-kernlab-class-probability-calculations-failed-returning-nas/
+https://stackoverflow.com/questions/63749263/different-results-for-svm-using-caret-in-r-when-classprobs-true
+https://github.com/topepo/caret/issues/386

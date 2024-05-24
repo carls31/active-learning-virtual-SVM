@@ -12,7 +12,6 @@ row 956 binaryClassProblem
 In svm what is the difference between probability class and distance class? see both related paper and script function
 
 check the values inside the computed vectors
-check the accuracies
 
 how to improve performance 
  - check how many CPU cores are present on the RSRG server and how to use them
@@ -44,12 +43,12 @@ stime
 AAA  prepare some graphs/figures for different model accuracies with different training data size and unlabeled samples
 AAA  implement MS-cSV
  1.  DONE try without indexTrain  
- 2.  perform PCA / t-SNE
+ 2.  perform PCA / t-SNE for visualization and clustering
  3.  DONE split alter_samples in multiple iterations 
  4.  DONE check if in the multiclas setting the random / balanced unlabeled samples actually change
  5.  DONE implement only_probability_distance + check different implementation of mclu (see paper) 
  6.  DONE check if NDVI feature is actually useful
- 7.  focus on meadow and other_impervious_surface classes (they have less labels)
+ 7.  focus on meadow and other_impervious_surface classes (the classes that ends up with less labels)
  8.  DONE implement binary + multiclass in the same script
  9.  tune alter_label hyperparameter: how many label need to be relabeled?
  10. DONE overall hyperparameters optimization e.g. "boundMargin" and "bound" 
@@ -68,6 +67,7 @@ AAA  implement MS-cSV
  23. change from svm to ksvm
  24. implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. use the kernel_function from the base_svm 
+ 26. change the metric from "kappa" to "ROC" (and maybe also to "accuracy")
 USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 seed = 72
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
