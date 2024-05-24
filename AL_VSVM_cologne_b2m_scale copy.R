@@ -323,12 +323,12 @@ alter_labels = function(distance_data, ref, newSize){
   return(labels)
 }
 
-add_new_samples = function(distance_data=sampled_data,
-                           features=upd_trainDataCurFeatsub,
-                           ref=upd_trainDataCurLabels,
-                           new_trainFeatVSVM=new_trainFeatVSVM,
-                           new_trainLabelsVSVM=new_trainLabelsVSVM,
-                           newSize=newSize_for_iter,
+add_new_samples = function(distance_data,
+                           features,
+                           ref,
+                           new_trainFeatVSVM,
+                           new_trainLabelsVSVM,
+                           newSize=4,
                            cluster=120){
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
@@ -823,7 +823,8 @@ SLresult <- SL( SVL_variables = list(
                 classProbability=TRUE
 )
 bestFittingModel <- SLresult$bestFittingModel
-
+best_trainFeatVSVM <- SLresult$best_trainFeatVSVM
+best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM 
 # run classification and accuracy assessment for the best bound setting
 # predict labels of test data
 predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
@@ -944,11 +945,11 @@ for (iter in 1:num_iters){
   sampled_data <- mclu_sampling(tunedVSVM, predLabelsVSVM_unc)
   # print(paste0("Relabeling samples..."))
   # Get new labels and updated datasets
-  result <- add_new_samples(# sampled_data,
-                            # upd_trainDataCurFeatsub,
-                            # upd_trainDataCurLabels,
-                            # new_trainFeatVSVM,
-                            # new_trainLabelsVSVM,
+  result <- add_new_samples(sampled_data,
+                            upd_trainDataCurFeatsub,
+                            upd_trainDataCurLabels,
+                            new_trainFeatVSVM,
+                            new_trainLabelsVSVM,
                             newSize=newSize_for_iter,
                             cluster=120 ) # always greater than newSize_for_iter, # 60, 80, 90, 100
   # CHECK IF THE NEW DISTANCE SET TO 1.000000 IS ACTUALLY USEFUL IN THE NEXT ITERATIONS -> DON'T THINK SO
@@ -973,38 +974,38 @@ model_name = paste0("bestFittingModel_Un_mclp_it_",model_class,"_",invariance,"_
 # saveRDS(new_tunedVSVM, model_name)
 # ************************************************************************************************
 
-# predLabelsVSVMsumUn_b = predict(bestFittingModel, validateFeatsub)
-# # Add predicted labels to the features data set
-# predLabelsVSVMsumUn_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
-# predLabelsVSVMsumUn_unc = setNames(predLabelsVSVMsumUn_unc, objInfoNames)
-# # predict(bestFittingModelUn_b, predLabelsVSVMsumUn_unc[1,1:ncol(predLabelsVSVMsumUn_unc) - 1])
-# 
+predLabelsVSVM_Un = predict(bestFittingModel, validateFeatsub)
+# Add predicted labels to the features data set
+predLabelsVSVM_Un_unc = cbind(validateFeatsub, predLabelsVSVM_Un)
+predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
+# predict(bestFittingModelUn_b, predLabelsVSVM_Un_unc[1,1:ncol(predLabelsVSVM_Un_unc) - 1])
+
 # # # ******
 # # print("Computing samples margin distance using Uncertainty distance...")
 # # #calculate uncertainty of the samples by selecting SV's and data set
-# # normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModel, predLabelsVSVMsumUn_unc)
+# # normdistvsvm_sl_un = uncertainty_dist_v2_2(bestFittingModel, predLabelsVSVM_Un_unc)
 # # predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
 # # accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
 # # print(accVSVM_SL_Un_b_ud)
 # 
 # # ****** # 
 # print("Computing samples margin distance using Marging Samples MS...")
-# # margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
-# ms_data_multicore <- margin_sampling_multicore(bestFittingModel, predLabelsVSVMsumUn_unc)
+# # margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVM_Un_unc)
+# ms_data_multicore <- margin_sampling_multicore(bestFittingModel, predLabelsVSVM_Un_unc)
 # predlabels_vsvm_ms = alter_labels(ms_data_multicore, validateLabels, resampledSize)
 # accVSVM_SL_Un_b_ms = confusionMatrix(predlabels_vsvm_ms, validateLabels)
 # print(accVSVM_SL_Un_b_ms)
 # 
 # # # ****** # 
 # # print("Computing samples margin distance using Multiclass Level Uncertainty...")
-# # mclu_sampled_data <- mclu_sampling(bestFittingModel, predLabelsVSVMsumUn_unc)
+# # mclu_sampled_data <- mclu_sampling(bestFittingModel, predLabelsVSVM_Un_unc)
 # # predlabels_vsvm_mclu = alter_labels(mclu_sampled_data, validateLabels, resampledSize)
 # # accVSVM_SL_Un_b_mclu = confusionMatrix(predlabels_vsvm_mclu, validateLabels)
 # # print(accVSVM_SL_Un_b_mclu)
 
 # ****** #
 print("Computing samples margin distance using Multiclass Level Probability...")
-mclp_sampled_data <- mclp_sampling(bestFittingModel, predLabelsVSVMsumUn_unc)
+mclp_sampled_data <- mclp_sampling(bestFittingModel, predLabelsVSVM_Un_unc)
 predlabels_vsvm_mclp <- alter_labels(mclp_sampled_data, validateLabels, resampledSize)
 accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
 print(accVSVM_SL_Un_b_mclp)
