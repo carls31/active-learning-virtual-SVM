@@ -9,7 +9,7 @@ library(stats)      # k-means clustering
 
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 
-sampleSize = 40 # Class sample size: round(250/6) label per class i.e. 42
+sample_size = 3 # Class sample size: round(250/6) label per class i.e. 42
 b = 20 # Size of balanced_unlabeled_samples in each class
 
 train  = TRUE  # Decide if train the models or, if present, load them from dir 
@@ -153,11 +153,9 @@ pred_one = function(modelfin, dataPoint, dataPointLabels){
   smallestDistance = 9999
   
   for(ll in seq(along = dataPointLabels)){
-    
     #print(dataPointLabels[ll])
     for(l in seq(along = binaryClassProblem)){
       #print(binaryClassProblem[[l]])
-
       if(as.integer(dataPointLabels[ll]) %in% as.integer(binaryClassProblem[[l]])){
         #print(paste("vero", pred))
         pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
@@ -632,7 +630,7 @@ trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(
 
 # set randomized seed for the random sampling procedure
 # seed = 72 # is an unlucky choice, it works well only with 41 sample per class in the train set
-seed = 3
+seed = 5
 
 nR=1 # Number of Realizations
 
@@ -832,10 +830,8 @@ if (file.exists(model_name) && !train) {
   tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
   if(save_models){saveRDS(tunedVSVM, model_name)}
 }
-tunedVSVM_apply = tunedVSVM
 
-# run classification and accuracy assessment for modified SV
-# predict labels of test data
+# predict labels of test data i.e. run classification and accuracy assessment for modified SV
 predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
 
 print("VSVM Accuracy assessment...")
@@ -852,7 +848,7 @@ for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){ # CHECK WHY DO
 # **********************
 print("Evaluation of VSVM SL...")
 model_name = paste0("bestFittingModel_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
-SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, classProb=TRUE,
+SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, #classProb=TRUE,
                        SVL_variables = list(
                           list(SVtotal, SVL2),
                           list(SVtotal, SVL3),
@@ -907,7 +903,7 @@ SVL11Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 7*numFe
 
 print("Evaluation of VSVM SL with Unlabeled Samples...")
 model_name = paste0("bestFittingModelUn_b_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
-SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, classProb=TRUE,
+SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, #classProb=TRUE,
                        SVL_variables=list(
                          list(SVtotal, SVL2),
                          list(SVtotal, SVL3),
@@ -1031,12 +1027,12 @@ print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 # accVSVM_SL_Un_b_mclu = confusionMatrix(predlabels_vsvm_mclu, validateLabels)
 # print(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
 
-# ****** #
-print("Computing samples margin distance using Multiclass Level Probability...")
-mclp_sampled_data <- mclp_sampling(bestFittingModel, predLabelsVSVM_Un_unc)
-predlabels_vsvm_mclp <- alter_labels(mclp_sampled_data, validateLabels, resampledSize)
-accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
-print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
+# # ****** #
+# print("Computing samples margin distance using Multiclass Level Probability...")
+# mclp_sampled_data <- mclp_sampling(bestFittingModel, predLabelsVSVM_Un_unc)
+# predlabels_vsvm_mclp <- alter_labels(mclp_sampled_data, validateLabels, resampledSize)
+# accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
+# print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
 
 # ################################## VSVM-SL + VIRTUAL (Balanced) Unlabeled Samples ####################################
 # REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_b)
@@ -1184,7 +1180,7 @@ AccuracyVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overa
 AccuracyVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 # AccuracyVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
 # AccuracyVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
-AccuracyVSVM_SL_Un_b_mclp[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
+# AccuracyVSVM_SL_Un_b_mclp[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
 AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
 
 # AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
@@ -1195,7 +1191,7 @@ AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$ove
 print("Accuracy results: acquired.")
 setwd(paste0(model_path,"results"))
 save(AccuracySVM,AccuracySVM_M,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_Un_b_ud,AccuracyVSVM_SL_Un_b_mclp,AccuracyVSVM_SL_Un_it,
-     file=paste0("TRY5_Col_",invariance,"_",model_class,"_accuracy_",b,"UnlSamples.RData"))
+     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_accuracy_",b,"UnlSamples.RData"))
 #######################################################################################################################
 
 # 
