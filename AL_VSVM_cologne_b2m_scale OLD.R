@@ -27,7 +27,7 @@ model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 
 # Coarse and Narrow grid search for SVM parameters tuning
 runPrg = TRUE
-classProb = TRUE
+classProb = FALSE
 svmFit = function(x, y, indexTrain, classProb){ #x = training descriptors, y = class labels
   
   #expand coarse grid
@@ -1225,7 +1225,7 @@ for (iter in 1:num_iters){
   predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
   predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
   # print(paste0("Computing distances..."))
-  sampled_data <- mclu_sampling(tunedVSVM, predLabelsVSVM_unc)
+  sampled_data <- uncertainty_dist_v2_2(tunedVSVM, predLabelsVSVM_unc)
   # print(paste0("Relabeling samples..."))
   # Get new labels and updated datasets
   result <- add_new_samples(sampled_data, 
@@ -1271,27 +1271,27 @@ predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampled
 accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
 print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 
-# ****** # Calculate margin distance of the samples using MS
-
-# margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
-ms_data_multicore <- margin_sampling_multicore(bestFittingModel, predLabelsVSVMsumUn_unc)
-predlabels_vsvm_ms = alter_labels(ms_data_multicore, validateLabels, resampledSize)
-accVSVM_SL_Un_b_ms = confusionMatrix(predlabels_vsvm_ms, validateLabels)
-print(accVSVM_SL_Un_b_ms$overall["Accuracy"])
-
-# ****** # Calculate uncertainty of the samples using MCLU
-
-mclu_sampled_data <- mclu_sampling(bestFittingModel, predLabelsVSVMsumUn_unc)
-predlabels_vsvm_mclu = alter_labels(mclu_sampled_data, validateLabels, resampledSize)
-accVSVM_SL_Un_b_mclu = confusionMatrix(predlabels_vsvm_mclu, validateLabels)
-print(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
-
-# ****** # Calculate uncertainty of the samples using MCLP
-
-mclp_sampled_data <- mclp_sampling(bestFittingModel, predLabelsVSVMsumUn_unc)
-predlabels_vsvm_mclp <- alter_labels(mclp_sampled_data, validateLabels, resampledSize)
-accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
-print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
+# # ****** # Calculate margin distance of the samples using MS
+# 
+# # margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVMsumUn_unc)
+# ms_data_multicore <- margin_sampling_multicore(bestFittingModel, predLabelsVSVMsumUn_unc)
+# predlabels_vsvm_ms = alter_labels(ms_data_multicore, validateLabels, resampledSize)
+# accVSVM_SL_Un_b_ms = confusionMatrix(predlabels_vsvm_ms, validateLabels)
+# print(accVSVM_SL_Un_b_ms$overall["Accuracy"])
+# 
+# # ****** # Calculate uncertainty of the samples using MCLU
+# 
+# mclu_sampled_data <- mclu_sampling(bestFittingModel, predLabelsVSVMsumUn_unc)
+# predlabels_vsvm_mclu = alter_labels(mclu_sampled_data, validateLabels, resampledSize)
+# accVSVM_SL_Un_b_mclu = confusionMatrix(predlabels_vsvm_mclu, validateLabels)
+# print(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
+# 
+# # ****** # Calculate uncertainty of the samples using MCLP
+# 
+# mclp_sampled_data <- mclp_sampling(bestFittingModel, predLabelsVSVMsumUn_unc)
+# predlabels_vsvm_mclp <- alter_labels(mclp_sampled_data, validateLabels, resampledSize)
+# accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
+# print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
 
 ################################### VSVM-SL + VIRTUAL (Balanced) Unlabeled Samples #################################### 
 # 
