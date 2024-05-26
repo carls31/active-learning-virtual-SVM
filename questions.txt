@@ -68,6 +68,7 @@ AAA  implement MS-cSV
  24. implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. use the kernel_function from the base_svm 
  26. change the metric from "kappa" to "ROC" (and maybe also to "accuracy")
+ 27. try to predict normalized_data
 USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 seed = 72
  Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
