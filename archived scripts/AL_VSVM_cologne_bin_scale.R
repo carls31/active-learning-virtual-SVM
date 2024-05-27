@@ -19,8 +19,8 @@ sample_size = 2
 b = 30 # balanced_unlabeled_samples
 r = 60 # random_unlabeled_samples
 
-#path = "D:/tunc_oz/apply_model"
 path = '/home/rsrg9/Documents/tunc_oz/apply_model'
+if(!dir.exists(path)){path = "D:/tunc_oz/apply_model"}
 
 ########################################  Utils  ########################################
 
@@ -41,7 +41,7 @@ svmFit = function(x, y, indexTrain){{ #x = training descriptors, y = class label
                        maximize = TRUE,
                        tuneGrid = coarseGrid,
                        trControl = trainControl ( method = "cv",
-                                                  verboseIter=T,
+                                                  #verboseIter=T,
                                                   index = indexTrain,
                                                   indexFinal= indexTrain[[1]]),
                        scaled = FALSE)
@@ -72,7 +72,7 @@ svmFit = function(x, y, indexTrain){{ #x = training descriptors, y = class label
                        maximize = TRUE,
                        tuneGrid = narrowGrid,
                        trControl = trainControl ( method = "cv",
-                                                  verboseIter=T,
+                                                  #verboseIter=T,
                                                   index = indexTrain,
                                                   indexFinal= indexTrain[[1]]),
                        scaled = FALSE)
@@ -202,35 +202,35 @@ euc_dis = function(a, b){
 }
 
 # Evaluate the distance between Virtual Support Vectors and Support Vectors lying in the input space
-rem_extrem = function(org, VSV1, a){      
-  
+rem_extrem = function(org, VSV1, a){
+
   distance = data.frame(matrix(nrow=nrow(org),ncol=2))
   distanceSVC1 = c()
   distanceSVC2 = c()
-  
+
   # save label of sample and the distance between SV and VSV for each pair of SV and VSV
   for(l in seq(along = c(1:nrow(org)))){
     distance[l,1] = as.character( org[l,ncol(org)])
     distance[l,2] = euc_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
   }
-  
+
   # split SV according to its classes
   SVClass1=org[which(org$REF==levels(org$"REF")[[1]]),]
   SVClass2=org[which(org$REF==levels(org$"REF")[[2]]),]
-  
-  # compute the distance for each SV in Class1 to all the SV in class1, 
+
+  # compute the distance for each SV in Class1 to all the SV in class1,
   # get the mean of the distances and multiply it with a to get the final threshold
   if(nrow(SVClass1)>0){
     for(n in seq(along = 1:(nrow(SVClass1)-1))){
       for(nn in seq(along = c(n:(nrow(SVClass1)-1))))
         distanceSVC1[length(distanceSVC1)+1] = euc_dis(SVClass1[n,-ncol(SVClass1)], SVClass1[(n+nn),-ncol(SVClass1)])
     }
-    
+
     disClass1median = mean(distanceSVC1)
     boundClass1 = disClass1median*a
   }
-  
-  # calculate the distance for each SV in Class2 to all the SV in  class2, 
+
+  # calculate the distance for each SV in Class2 to all the SV in  class2,
   # get the mean of the distances and multiply it with a to get the final threshold
   if(nrow(SVClass2)>0){
     for(n in seq(along = 1:(nrow(SVClass2)-1))){
@@ -239,10 +239,10 @@ rem_extrem = function(org, VSV1, a){
     }
     disClass2median = mean(distanceSVC2)
     boundClass2 = disClass2median*a
-  }  
-  
+  }
+
   distance$X1 = factor(distance$X1)
-  
+
   # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
   for(k in seq(along = c(1:nrow(org)))){
     if(is.na(distance[k,2])){
@@ -268,6 +268,47 @@ rem_extrem = function(org, VSV1, a){
   }
   return(VSV1)
 }
+
+# rem_extrem <- function(org, VSV1, a) {   
+#   # Euclidean Distance between two points lying in the input space
+#   euc_dis <- function(a, b) sqrt(sum((a - b) ^ 2))
+#   
+#   # Initialize distance dataframe
+#   distance <- data.frame(label = org[[ncol(org)]], dist = numeric(nrow(org)))
+#   
+#   # Calculate distances between SV and VSV
+#   for (l in seq_len(nrow(org))) {
+#     distance$dist[l] <- euc_dis(org[l, -ncol(org)], VSV1[l, -ncol(VSV1)])
+#   }
+#   
+#   # Split SV according to its classes
+#   SVClass1 <- subset(org, REF == levels(org$REF)[1])
+#   SVClass2 <- subset(org, REF == levels(org$REF)[2])
+#   
+#   # Calculate threshold for Class1
+#   boundClass1 <- if (nrow(SVClass1) > 1) {
+#     disClass1 <- dist(as.matrix(SVClass1[, -ncol(SVClass1)]))
+#     mean(disClass1) * a
+#   } else NA
+#   
+#   # Calculate threshold for Class2
+#   boundClass2 <- if (nrow(SVClass2) > 1) {
+#     disClass2 <- dist(as.matrix(SVClass2[, -ncol(SVClass2)]))
+#     mean(disClass2) * a
+#   } else NA
+#   
+#   # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
+#   for (k in seq_len(nrow(org))) {
+#     if (is.na(distance$dist[k]) || 
+#         (!is.na(boundClass1) && distance$label[k] == levels(distance$label)[1] && distance$dist[k] > boundClass1) ||
+#         (!is.na(boundClass2) && distance$label[k] == levels(distance$label)[2] && distance$dist[k] > boundClass2)) {
+#       VSV1[k, ] <- NA
+#     }
+#   }
+#   
+#   return(VSV1)
+# }
+
 
 # Kernel distance between two point lying in the hyperspace
 kern_dis = function(a, b, kernelfunc){
