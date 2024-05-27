@@ -201,14 +201,6 @@ euc_dis = function(a, b){
   return(sqrt(temp))
 }
 
-# Kernel distance between two point lying in the hyperspace
-kern_dis = function(a, b, kernelfunc){
-  a = unlist(a)
-  b = unlist(b)
-  dk =sqrt( kernelfunc(a,a)+kernelfunc(b,b)-2*kernelfunc(a,b))
-  return(dk)
-}
-
 # Evaluate the distance between Virtual Support Vectors and Support Vectors lying in the input space
 rem_extrem = function(org, VSV1, a){      
   
@@ -275,6 +267,14 @@ rem_extrem = function(org, VSV1, a){
     }
   }
   return(VSV1)
+}
+
+# Kernel distance between two point lying in the hyperspace
+kern_dis = function(a, b, kernelfunc){
+  a = unlist(a)
+  b = unlist(b)
+  dk =sqrt( kernelfunc(a,a)+kernelfunc(b,b)-2*kernelfunc(a,b))
+  return(dk)
 }
 
 # Evaluate the distance between Virtual Support Vectors and Support Vectors lying in the hyperspace
