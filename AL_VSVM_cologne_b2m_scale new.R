@@ -156,7 +156,6 @@ rem_extrem = function(org, VSV1, a){
   }
   return(VSV1)
 }
-
 # rem_extrem <- function(org, VSV1, a) {   
 #   # Euclidean Distance between two points lying in the input space
 #   euc_dis <- function(a, b) sqrt(sum((a - b) ^ 2))
@@ -450,7 +449,7 @@ add_new_samples = function(distance_data,
   ref <- ref[-reor_idx]
   
   # Add relabeled samples to new_trainFeatVSVM and new_trainLabelsVSVM
-  if(!features=NA){
+  if(!is.na(features)){
     features <- features[!(rownames(features) %in% selected_indices), ]
     new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
     new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
@@ -594,6 +593,7 @@ generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnCl
 # exclude unclassified and delete level of factor
 generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
+generalDataPool <- na.omit(generalDataPool) # *********************************************************************************************************************************************************** ISSUE
 
 if(binary){
   # transform to 2-Class-Case "Bushes Trees" VS rest
