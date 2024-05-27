@@ -9,7 +9,16 @@ library(stats)      # k-means clustering
 
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 
-sample_size = 3 # Class sample size: round(250/6) label per class i.e. 42
+nR = 5 # Number of Realizations
+
+bound = c(0.3,0.6,0.9)           # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
+boundMargin  = c(1.5,1.0,0.5)    # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
+newSizes=c(5,10)               # number of samples picked at each AL iteration
+clusterSizes=c(90,120)         # size of each cluster which is used to picked samples from different group regions
+# sampleSizePor = c(3,4,6,8,10,12,16,25,40,60)            # vector with % of max          # c(40,25,16,12,10,8,6,4,3,2,1) 
+sampleSizePor = c(10,20,40,70,110,150,200)  
+# sample_size = 3 # Class sample size: round(250/6) label per class i.e. 42
+
 b = 20 # Size of balanced_unlabeled_samples in each class
 
 train  = TRUE  # Decide if train the models or, if present, load them from dir 
@@ -79,6 +88,115 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   return(svmFitNarrow)  
 }
 # ***********************************
+
+# Evaluate the distance between Virtual Support Vectors and Support Vectors lying in the input space
+rem_extrem = function(org, VSV1, a){   
+  # Euclidean Distance between two points lying in the input space
+  euc_dis = function(a, b){
+    temp = 0
+    for(ii in seq(along = c(1:length(a)))){
+      temp = temp +((a[[ii]]-b[[ii]])^2)
+    }
+    return(sqrt(temp))
+  }
+  distance = data.frame(matrix(nrow=nrow(org),ncol=2))
+  distanceSVC1 = c()
+  distanceSVC2 = c()
+  # save label of sample and the distance between SV and VSV for each pair of SV and VSV
+  for(l in seq(along = c(1:nrow(org)))){
+    distance[l,1] = as.character( org[l,ncol(org)])
+    distance[l,2] = euc_dis(org[l,-ncol(org)],VSV1[l,-ncol(VSV1)])
+  }
+  # split SV according to its classes
+  SVClass1=org[which(org$REF==levels(org$"REF")[[1]]),]
+  SVClass2=org[which(org$REF==levels(org$"REF")[[2]]),]
+  # compute the distance for each SV in Class1 to all the SV in class1, 
+  # get the mean of the distances and multiply it with a to get the final threshold
+  if(nrow(SVClass1)>0){
+    for(n in seq(along = 1:(nrow(SVClass1)-1))){
+      for(nn in seq(along = c(n:(nrow(SVClass1)-1))))
+        distanceSVC1[length(distanceSVC1)+1] = euc_dis(SVClass1[n,-ncol(SVClass1)], SVClass1[(n+nn),-ncol(SVClass1)])
+    }
+    disClass1median = mean(distanceSVC1)
+    boundClass1 = disClass1median*a
+  }
+  # calculate the distance for each SV in Class2 to all the SV in  class2, 
+  # get the mean of the distances and multiply it with a to get the final threshold
+  if(nrow(SVClass2)>0){
+    for(n in seq(along = 1:(nrow(SVClass2)-1))){
+      for(nn in seq(along = c(n:(nrow(SVClass2)-1))))
+        distanceSVC2[length(distanceSVC2)+1] = euc_dis(SVClass2[n,-ncol(SVClass2)], SVClass2[(n+nn),-ncol(SVClass2)])
+    }
+    disClass2median = mean(distanceSVC2)
+    boundClass2 = disClass2median*a
+  }  
+  distance$X1 = factor(distance$X1)
+  # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
+  for(k in seq(along = c(1:nrow(org)))){
+    if(is.na(distance[k,2])){
+      VSV1[k,]=NA
+    }
+    else{
+      if(!is.na(boundClass1)){
+        if(distance[k,1] == levels(distance[[1]])[1]){
+          if(distance[k,2] > (boundClass1)){
+            VSV1[k,]=NA
+          }
+        }
+      }else{
+        if(!is.na(boundClass2)) {
+          if(distance[k,1]== levels(distance[[1]])[2]){
+            if(distance[k,2] > (boundClass2)){
+              VSV1[k,]=NA
+            }
+          }
+        }
+      }
+    }
+  }
+  return(VSV1)
+}
+
+rem_extrem <- function(org, VSV1, a) {   
+  # Euclidean Distance between two points lying in the input space
+  euc_dis <- function(a, b) sqrt(sum((a - b) ^ 2))
+  
+  # Initialize distance dataframe
+  distance <- data.frame(label = org[[ncol(org)]], dist = numeric(nrow(org)))
+  
+  # Calculate distances between SV and VSV
+  for (l in seq_len(nrow(org))) {
+    distance$dist[l] <- euc_dis(org[l, -ncol(org)], VSV1[l, -ncol(VSV1)])
+  }
+  
+  # Split SV according to its classes
+  SVClass1 <- subset(org, REF == levels(org$REF)[1])
+  SVClass2 <- subset(org, REF == levels(org$REF)[2])
+  
+  # Calculate threshold for Class1
+  boundClass1 <- if (nrow(SVClass1) > 1) {
+    disClass1 <- dist(as.matrix(SVClass1[, -ncol(SVClass1)]))
+    mean(disClass1) * a
+  } else NA
+  
+  # Calculate threshold for Class2
+  boundClass2 <- if (nrow(SVClass2) > 1) {
+    disClass2 <- dist(as.matrix(SVClass2[, -ncol(SVClass2)]))
+    mean(disClass2) * a
+  } else NA
+  
+  # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
+  for (k in seq_len(nrow(org))) {
+    if (is.na(distance$dist[k]) || 
+        (!is.na(boundClass1) && distance$label[k] == levels(distance$label)[1] && distance$dist[k] > boundClass1) ||
+        (!is.na(boundClass2) && distance$label[k] == levels(distance$label)[2] && distance$dist[k] > boundClass2)) {
+      VSV1[k, ] <- NA
+    }
+  }
+  
+  return(VSV1)
+}
+
 
 # Kernel distance between two point lying in the hyperspace
 kern_dis = function(a, b, kernel_func){
@@ -298,8 +416,8 @@ alter_labels = function(distance_data, ref, newSize){
 }
 
 add_new_samples = function(distance_data,
-                           features, ref,
-                           new_trainFeatVSVM, new_trainLabelsVSVM,
+                           ref, features=NA,
+                           new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
                            newSize=4, cluster=120){
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
@@ -332,13 +450,14 @@ add_new_samples = function(distance_data,
   
   # Remove relabeled samples from validateLabels
   reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
-  features <- features[!(rownames(features) %in% selected_indices), ]
   ref <- ref[-reor_idx]
   
   # Add relabeled samples to new_trainFeatVSVM and new_trainLabelsVSVM
-  new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
-  new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
-  
+  if(!features=NA){
+    features <- features[!(rownames(features) %in% selected_indices), ]
+    new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
+    new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
+    }
   return(list(features = features, 
               labels = ref, 
               new_trainFeatVSVM = new_trainFeatVSVM, 
@@ -362,8 +481,14 @@ Self_Learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       
       registerDoParallel(num_cores)
       # Apply foreach loop to process each SVL variable and bind the results
-      SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
+      if(binary){
+        SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
+        setNames(rem_extrem(variable[[1]], variable[[2]], bound[jj]), objInfoNames)
+        }
+      }else{     
+        SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
         setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj], SVMfinModel@kernelf), objInfoNames)
+        }
       }
       registerDoSEQ()
       # remove NAs 
@@ -437,11 +562,6 @@ Self_Learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
 ########################################  Input  ########################################
 inputPath ="cologne_res_100_L2-L13.csv"
 
-bound = c(0.3,0.6,0.9)           # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
-boundMargin  = c(1.5,1.0,0.5)    # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
-
-sampleSizePor = c(3,4,6,8,10,12,16,25,40,60)            # vector with % of max          # c(40,25,16,12,10,8,6,4,3,2,1) 
-sampleSizePor = c(10,20,40,70,110,150,200)  
 colheader = as.character(sampleSizePor)                 # corresponding column names    
 sindexSVMDATA = 37                                      # start of baseline model with one segmentation scale data
 numFeat = 18                                            # number of features per level (dimensionality)
@@ -626,8 +746,6 @@ trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(
 # AccuracyVSVM_SL_vUn_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
 # colnames(AccuracyVSVM_SL_vUn_it) = colheader   
 
-nR=10 # Number of Realizations
-
 # List of all matrix names
 matrix_names <- c(
   "AccuracySVM", 
@@ -646,10 +764,10 @@ for (name in matrix_names) {
 
 # set randomized seed for the random sampling procedure
 # seed = 72 # is an unlucky choice, it works well only with 41 sample per class in the train set 
-seed = 20 # 5, 73, 20
+seed = 20 # 5, 73, 20 # ************************************************************************************************************************************************************************** ISSUE
 
 for(realization in seq(along = c(1:nR))){#}
-  print(paste0("Realization: ",nR[realization]," -> ",realization,"/",length(nR)))  
+  print(paste0("Realization: ",realization,"/",nR))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
   
@@ -678,7 +796,8 @@ shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
 set.seed(seed)
 
 # definition of sampling configuration (strata:random sampling without replacement)
-stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
+#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
 
 # get samples of trainDataCur and set trainDataCur new
 samples = getdata(trainDataCurBeg, stratSamp)
@@ -695,7 +814,7 @@ trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
 trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
 trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
 
-stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
 
 samples = getdata(testDataCurBeg, stratSamp)
 
@@ -736,6 +855,11 @@ predLabelsSVM = predict(tunedSVM, validateFeatsub)
 print("SVM Accuracy assessment...")
 accSVM = confusionMatrix(predLabelsSVM, validateLabels)
 print(accSVM$overall["Accuracy"])
+
+best_acc <- accSVM$overall["Accuracy"]
+new_bestTunedVSVM <- tunedSVM
+new_bestTrainFeatVSVM <- trainFeat 
+new_bestTrainLabelsVSVM <- trainLabels 
 
 ######################################### VSVM on all Level SV #########################################
 
@@ -798,6 +922,12 @@ print("VSVM Accuracy assessment...")
 accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
 print(accVSVM$overall["Accuracy"])
 
+if(accVSVM$overall["Accuracy"]>best_acc){
+  best_acc <- accVSVM$overall["Accuracy"]
+  new_bestTunedVSVM <- tunedVSVM
+  new_bestTrainFeatVSVM <- trainFeatVSVM
+  new_bestTrainLabelsVSVM <- trainLabelsVSVM} 
+
 ##################################### VSVM - EVALUATION (SL) of all Level ################################
 # **********************
 # records which 2 classes are involved in 2 class problems
@@ -830,12 +960,18 @@ predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
 print("VSVM_SL Accuracy assessment...")
 accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
 print(accVSVM_SL$overall["Accuracy"])
+
+if(accVSVM_SL$overall["Accuracy"]>best_acc){
+  best_acc <- accVSVM_SL$overall["Accuracy"]
+  new_bestTunedVSVM <- bestFittingModel
+  new_bestTrainFeatVSVM <- best_trainFeatVSVM
+  new_bestTrainLabelsVSVM <- best_trainLabelsVSVM} 
+
 ########################################### unlabeled samples ############################################
 
 # Definition of sampling configuration (strata:random sampling without replacement)
 stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
 #stratSampRemaining = strata(trainDataCurRemaining, size = 6*b, method = "srswor") # if trainDataCur is balanced apriori
-#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
 
 # get samples of trainDataCurRemaining and set trainDataCurRemaining new
 samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining)
@@ -846,14 +982,14 @@ trainDataCurRemainingsub_b = trainDataCurRemaining_b[sindexSVMDATA:eindexSVMDATA
 
 REF_b = predict(tunedVSVM, trainDataCurRemainingsub_b)
 # get SV of unlabeled samples
-SVindexUn_b = 1:nrow(trainDataCurRemainingsub_b)
+SVindexUn_b = 1:nrow(trainDataCurRemainingsub_b) # ******************************************************************************************************************************************** ISSUE
 SVtotalUn_b = trainDataCurRemaining_b[SVindexUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
 SVtotalUn_b = cbind(SVtotalUn_b, REF_b)
 # get VSs, means rows of SV but with subset on different level
-SVL2Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_b)
-SVL3Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_b)
+SVL2Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_b) # ****************************************************************** ISSUE
+SVL3Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_b) # *******************************************************************************
 
-SVL5Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_b)
+SVL5Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_b) # ****************************************************************** ISSUE
 SVL6Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_b)
 SVL7Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_b)
 SVL8Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_b)
@@ -863,7 +999,7 @@ SVL11Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 7*numFe
 
 print("Evaluation of VSVM SL with Unlabeled Samples...")
 model_name = paste0("bestFittingModelUn_b_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
-SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, #classProb=TRUE,
+SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, #classProb=TRUE, # ********************************************************************** ISSUE
                        SVL_variables=list(
                          list(SVtotal, SVL2),
                          list(SVtotal, SVL3),
@@ -885,14 +1021,20 @@ SLresult <- Self_Learn(testFeatsub, testLabels, bound, boundMargin, model_name, 
                          list(SVtotalUn_b, SVL11Un_b)
                         )
 )
-bestFittingModel <- SLresult$bestFittingModel
-best_trainFeatVSVM <- SLresult$best_trainFeatVSVM
-best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
+bestFittingModelUn_b <- SLresult$bestFittingModel
+best_trainFeatVSVMUn_b <- SLresult$best_trainFeatVSVM
+best_trainLabelsVSVMUn_b <- SLresult$best_trainLabelsVSVM
 # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
 predLabelsVSVMsumUn_b = predict(bestFittingModel, validateFeatsub)
 print("VSVM_SL_Un Accuracy assessment...")
 accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
 print(accVSVM_SL_Un_b$overall["Accuracy"])
+
+if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
+  best_acc <- accVSVM_SL_Un_b$overall["Accuracy"]
+  new_bestTunedVSVM <- bestFittingModelUn_b
+  new_bestTrainFeatVSVM <- best_trainFeatVSVMUn_b
+  new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn_b} 
 
 ######################################## UNCERTAINTY function on VSVM-SL  #########################################
 resampledSize=100 #sampleSize*2.5 # or just 100
@@ -904,53 +1046,63 @@ stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
 stratSampRemaining = strata(trainDataCurRemaining_it, c("REF"), size = stratSampSize, method = "srswor")
 # Get new samples from trainDataCurRemaining_it
 samplesRemaining = getdata(trainDataCurRemaining_it, stratSampRemaining)
-trainDataCurRemaining_it <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-
-new_tunedVSVM <- bestFittingModel
-new_trainFeatVSVM <- best_trainFeatVSVM
-new_trainLabelsVSVM <- best_trainLabelsVSVM
-upd_trainDataCurFeatsub = samplesRemaining[sindexSVMDATA:eindexSVMDATA]
-upd_trainDataCurLabels = samplesRemaining$REF
-
-newSize_for_iter = 5 #sampleSize/10 # or just 4
-num_iters = round(resampledSize/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
-
-pb <- progress_bar$new(
-  format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-  total = num_iters,
-  clear = FALSE
-)
-for (iter in 1:num_iters){
-  # print(paste0("Iteration ",iter,"/",num_iters,"..."))
-  predLabelsVSVM = predict(new_tunedVSVM, upd_trainDataCurFeatsub)
-  # Add predicted labels to the features data set
-  predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
-  predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
-  # print(paste0("Computing distances..."))
-  sampled_data <- uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_unc)
-  # print(paste0("Relabeling samples..."))
-  # Get new labels and updated datasets
-  result <- add_new_samples(sampled_data,
-                            upd_trainDataCurFeatsub,
-                            upd_trainDataCurLabels,
-                            new_trainFeatVSVM,
-                            new_trainLabelsVSVM,
-                            newSize=newSize_for_iter,
-                            cluster=120 ) # always greater than newSize_for_iter, # 60, 80, 100, 120
-  # Extract new datasets
-  upd_trainDataCurFeatsub <- result$features
-  upd_trainDataCurLabels <- result$labels
-  new_trainFeatVSVM <- result$new_trainFeatVSVM
-  new_trainLabelsVSVM <- result$new_trainLabelsVSVM
-  # Get list with index of trainData to split between train and test in svmFit
-  countTrainDataUn = nrow(new_trainFeatVSVM)
-  indexTrainDataUn_it = list(c(1:countTrainDataUn))
-  # Join of train and test data (seperable in svmFit through indexes)
-  tuneFeatVSVMUn_it = rbind(new_trainFeatVSVM, setNames(testFeatsub, names))
-  tuneLabelsVSVMUn_it = unlist(list(new_trainLabelsVSVM, testLabels))
-  new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
-  pb$tick()
-}
+# trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
+for(nS4iter in 1:length(newSizes)){
+  for(cS in 1:length(clusterSizes)){
+    print(paste0("Samples for iteration: ",newSizes[nS4iter]," - ",nS4iter,"/",length(newSizes)," and cluster size: ",cluster=clusterSizes[cS], " - ",cS,"/",length(clusterSizes)))
+    actKappa = 0
+    
+    new_tunedVSVM <- new_bestTunedVSVM
+    new_trainFeatVSVM <- new_bestTrainFeatVSVM
+    new_trainLabelsVSVM <- new_bestTrainLabelsVSVM
+    
+    upd_trainDataCurFeatsub = samplesRemaining[sindexSVMDATA:eindexSVMDATA]
+    upd_trainDataCurLabels = samplesRemaining$REF
+    
+    newSize_for_iter = newSizes[nS4iter] #sampleSize/10 # or just 4
+    num_iters = round(resampledSize/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
+    
+    pb <- progress_bar$new(
+      format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+      total = num_iters,
+      clear = FALSE
+    )
+    for (iter in 1:num_iters){
+      # print(paste0("Iteration ",iter,"/",num_iters,"..."))
+      predLabelsVSVM = predict(new_tunedVSVM, upd_trainDataCurFeatsub)
+      # Add predicted labels to the features data set
+      predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
+      predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
+      # print(paste0("Computing distances..."))
+      sampled_data <- uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_unc)
+      # print(paste0("Relabeling samples..."))
+      # Get new labels and updated datasets
+      result <- add_new_samples(sampled_data,
+                                upd_trainDataCurLabels, upd_trainDataCurFeatsub,
+                                new_trainFeatVSVM, new_trainLabelsVSVM,
+                                newSize=newSize_for_iter,
+                                cluster=clusterSizes[cS] ) # always greater than newSize_for_iter, # 60, 80, 100, 120
+      # Extract new datasets
+      upd_trainDataCurFeatsub <- result$features
+      upd_trainDataCurLabels <- result$labels
+      new_trainFeatVSVM <- result$new_trainFeatVSVM
+      new_trainLabelsVSVM <- result$new_trainLabelsVSVM
+      # Get list with index of trainData to split between train and test in svmFit
+      countTrainDataUn = nrow(new_trainFeatVSVM)
+      indexTrainDataUn_it = list(c(1:countTrainDataUn))
+      # Join of train and test data (seperable in svmFit through indexes)
+      tuneFeatVSVMUn_it = rbind(new_trainFeatVSVM, setNames(testFeatsub, names))
+      tuneLabelsVSVMUn_it = unlist(list(new_trainLabelsVSVM, testLabels))
+      tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
+      pb$tick()
+    }
+    if(actKappa < tmp_new_tunedVSVM$resample$Kappa){
+      new_tunedVSVM = tmp_new_tunedVSVM
+      actKappa = tmp_new_tunedVSVM$resample$Kappa
+      best_newSize4iter= newSizes[nS4iter]
+      best_cluster = clusterSizes[cS]
+    }
+  }}
 fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
 accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
 print(accVSVM_SL_Un_it$overall["Accuracy"])
@@ -968,8 +1120,9 @@ predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
 print("Computing samples margin distance using Uncertainty distance...")
 #calculate uncertainty of the samples by selecting SV's and data set
 normdistvsvm_sl_un = uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_Un_unc)
-predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
-accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
+# predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
+predlabels_vsvm_Slu = add_new_samples(normdistvsvm_sl_un, validateLabels, newSize=resampledSize, cluster=round(resampledSize*1.2))
+accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu$labels, validateLabels)
 print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 
 # # ****** #
@@ -995,7 +1148,7 @@ print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 # print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
 
 # ################################## VSVM-SL + VIRTUAL (Balanced) Unlabeled Samples ####################################
-# REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_b)
+# REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_b) # ******************************************************************************************************************************* ISSUE
 # 
 # # get SV of unlabeled samples
 # SVindexvUn_b = 1:nrow(trainDataCurRemainingsub_b)
@@ -1092,7 +1245,7 @@ if (file.exists(model_name) && !train) {
   tunedSVM_MS <- readRDS(model_name)
   print("Model already exists!")
 } else {
-  stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+  stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
   samples = getdata(trainDataCurBegMS, stratSamp)
   # if(sample_size>1){trainDataCurMS = rbind(trainDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
   # }else{            trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
@@ -1100,7 +1253,7 @@ if (file.exists(model_name) && !train) {
   trainFeatMS = trainDataCurMS[,1:(ncol(trainDataPoolAllLevMS)-1)]
   trainLabelsMS = trainDataCurMS[,ncol(trainDataPoolAllLevMS)]
   
-  stratSamp = strata(testDataCurBegMS, c("REF"), size = shares, method = "srswor")#size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+  stratSamp = strata(testDataCurBegMS, c("REF"), size = shares, method = "srswor")
   samples = getdata(testDataCurBegMS, stratSamp)
   
   # if(sample_size>1){testDataCurMS = rbind(testDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
