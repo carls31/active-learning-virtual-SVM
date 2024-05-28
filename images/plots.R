@@ -3,11 +3,11 @@ library(scales)
 
 setwd("D:/GitHub/active-learning-virtual-SVM/results")
 
-file_name = "20240528_0826_Col_scale_binary_accuracy_20UnlSamples"
-# load("D:/GitHub/active-learning-virtual-SVM/results/FIRST_TRY_ColScaleMulticlass_accuracy_20UnlSamples.RData")
-# load("20240527_1813_Col_scale_binary_accuracy_20UnlSamples.RData")
-load(paste0(file_name,".RData"))
+file_name = "20240527_1813_Col_scale_binary_accuracy_20UnlSamples"
+# file_name = "20240528_0826_Col_scale_binary_accuracy_20UnlSamples"
 
+# load("D:/GitHub/active-learning-virtual-SVM/results/FIRST_TRY_ColScaleMulticlass_accuracy_20UnlSamples.RData")
+load(paste0(file_name,".RData"))
 setwd("D:/GitHub/active-learning-virtual-SVM/images")
 
 ExCsvMSD = function (datadase, filename = NA){{
@@ -44,8 +44,8 @@ x <- as.integer(column_names)
 maxi = 0
 mini = 1000
 
-yUpperBound = max(c(0.88,maxi))
-ylowerBound = min(c(0.94,mini))
+yUpperBound = max(c(0.85,maxi))
+ylowerBound = min(c(0.95,mini))
 
 ###plot basemodel
 png(filename=paste0(file_name,".png"),
@@ -60,7 +60,7 @@ png(filename=paste0(file_name,".png"),
 msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
                   pch=20, type="l", col = 1, lwd=2, 
-                  xlab="Number of Samples", 
+                  xlab="Number of Train Samples per class", 
                   ylab="Accuracy",
                   main = "Cologne Scale Binary"
 )
@@ -117,7 +117,7 @@ avgVSVM_SL_Un_b_ud=ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,]
 sdVSVM_SL_Un_b_ud=ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[2,]
 
 ###plot basemodel
-png(filename=paste0(file_name,".png"),
+png(filename=paste0(file_name,"_sd.png"),
     units="in", 
     width=20, 
     height=16, 
@@ -129,8 +129,8 @@ png(filename=paste0(file_name,".png"),
 msdSVMPlot = plot(x, avgSVM,log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
                   pch=20, type="l", col = 1, lwd=2, 
-                  xlab="Number of Samples", 
-                  ylab="Accuracy",
+                  xlab="Number of Train Samples per class", 
+                  ylab="Accuracy +/- Std Dev",
                   main = "Cologne Scale Binary"
 )
 lines(x, avgSVM_M, type="l" , col = 1, lwd=2,lty=2)
