@@ -1112,7 +1112,7 @@ print("Computing samples margin distance using Uncertainty distance...")
 #calculate uncertainty of the samples by selecting SV's and data set
 normdistvsvm_sl_un = uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_Un_unc)
 # predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
-predlabels_vsvm_Slu = add_new_samples(normdistvsvm_sl_un, validateLabels, newSize=resampledSize, cluster=round(resampledSize*1.2))
+predlabels_vsvm_Slu = add_new_samples(normdistvsvm_sl_un, validateLabels, newSize=resampledSize[rS], cluster=round(resampledSize[rS]*1.2))
 accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
 print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 
