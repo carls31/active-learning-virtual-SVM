@@ -13,11 +13,10 @@ nR = 5 # Number of Realizations
 
 bound = c(0.3,0.6,0.9)           # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin  = c(1.5,1.0,0.5)    # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
-newSizes=c(5,10)               # number of samples picked at each AL iteration
-clusterSizes=c(90,120)         # size of each cluster which is used to picked samples from different group regions
+newSizes=c(10)               # number of samples picked at each AL iteration
+clusterSizes=c(120)         # size of each cluster which is used to picked samples from different group regions
 # sampleSizePor = c(3,4,6,8,10,12,16,25,40,60)            # vector with % of max          # c(40,25,16,12,10,8,6,4,3,2,1) 
-sampleSizePor = c(10,20,40,70,110,150,200)  
-# sample_size = 3 # Class sample size: round(250/6) label per class i.e. 42
+sampleSizePor = c(10,20,40,70,110,150,200)     # Class sample size: round(250/6) label per class i.e. 42
 
 b = 20 # Size of balanced_unlabeled_samples in each class
 
@@ -411,6 +410,16 @@ alter_labels = function(distance_data, ref, newSize){
   return(labels)
 }
 
+# add_new_samples(sampled_data,
+#                 upd_trainDataCurLabels, upd_trainDataCurFeatsub,
+#                 new_trainFeatVSVM, new_trainLabelsVSVM,
+#                 newSize=newSize_for_iter,
+#                 cluster=clusterSizes[cS] )
+# distance_data = sampled_data
+# ref=upd_trainDataCurLabels
+# features=upd_trainDataCurFeatsub
+# new_trainFeatVSVM=new_trainFeatVSVM
+# new_trainLabelsVSVM=new_trainLabelsVSVM
 add_new_samples = function(distance_data,
                            ref, features=NA,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
@@ -444,20 +453,23 @@ add_new_samples = function(distance_data,
   }
   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
   
-  # Remove relabeled samples from validateLabels
-  reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
-  ref <- ref[-reor_idx]
+
   
   # Add relabeled samples to new_trainFeatVSVM and new_trainLabelsVSVM
-  if(!is.na(features)){
+  if(length(features)>1){
+    # Remove relabeled samples from validateLabels
     features <- features[!(rownames(features) %in% selected_indices), ]
+    reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
+    ref <- ref[-reor_idx]
     new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
     new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
-    }
-  return(list(features = features, 
-              labels = ref, 
-              new_trainFeatVSVM = new_trainFeatVSVM, 
-              new_trainLabelsVSVM = new_trainLabelsVSVM))
+    return(list(features = features, 
+                labels = ref, 
+                new_trainFeatVSVM = new_trainFeatVSVM, 
+                new_trainLabelsVSVM = new_trainLabelsVSVM))
+    } else{
+      return(ref_added_reor[, (ncol(ref_added_reor)-4)])
+      } 
 }   
      
 
@@ -713,51 +725,50 @@ trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(
 
 # KappasSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
 # colnames(KappasSVM) = colheader     
-# AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracySVM) = colheader   
-# AccuracySVM_M = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracySVM_M) = colheader   
-# 
-# AccuracyVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL) = colheader   
-# AccuracyVSVM_SL_Un_b = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_Un_b) = colheader   
-# 
-# AccuracyVSVM_SL_Un_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_Un_b_ud) = colheader   
-# AccuracyVSVM_SL_Un_b_ms = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_Un_b_ms) = colheader   
-# AccuracyVSVM_SL_Un_b_mclu = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_Un_b_mclu) = colheader   
-# AccuracyVSVM_SL_Un_b_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_Un_b_mclp) = colheader  
-# AccuracyVSVM_SL_Un_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_Un_it) = colheader   
-# 
-# AccuracyVSVM_SL_vUn_b = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_vUn_b) = colheader 
-# AccuracyVSVM_SL_vUn_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_vUn_b_ud) = colheader  
-# AccuracyVSVM_SL_vUn_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_vUn_mclp) = colheader   
-# AccuracyVSVM_SL_vUn_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(AccuracyVSVM_SL_vUn_it) = colheader   
+AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracySVM) = colheader
+AccuracySVM_M = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracySVM_M) = colheader
 
-# List of all matrix names
-matrix_names <- c(
-  "AccuracySVM", 
-  "AccuracyVSVM_SL", "AccuracyVSVM_SL_Un_b",
-  "AccuracyVSVM_SL_Un_b_ud", "AccuracyVSVM_SL_Un_it",
-  # "AccuracyVSVM_SL_Un_b_ms","AccuracyVSVM_SL_Un_b_mclu","AccuracyVSVM_SL_Un_b_mclp",
-  # "AccuracyVSVM_SL_vUn_b", "AccuracyVSVM_SL_vUn_b_ud", "AccuracyVSVM_SL_vUn_mclp", "AccuracyVSVM_SL_vUn_it",
-  "AccuracySVM_M"
-)
-# Loop through the matrix names and create each matrix
-matrices <- list()
-for (name in matrix_names) {
-  matrices[[name]] <- matrix(data = NA, nrow = nR, ncol = length(colheader))
-  colnames(matrices[[name]]) <- colheader
-}
+AccuracyVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL) = colheader
+AccuracyVSVM_SL_Un_b = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_Un_b) = colheader
+
+AccuracyVSVM_SL_Un_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_Un_b_ud) = colheader
+AccuracyVSVM_SL_Un_b_ms = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_Un_b_ms) = colheader
+AccuracyVSVM_SL_Un_b_mclu = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_Un_b_mclu) = colheader
+AccuracyVSVM_SL_Un_b_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_Un_b_mclp) = colheader
+AccuracyVSVM_SL_Un_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_Un_it) = colheader
+
+AccuracyVSVM_SL_vUn_b = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_vUn_b) = colheader
+AccuracyVSVM_SL_vUn_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_vUn_b_ud) = colheader
+AccuracyVSVM_SL_vUn_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_vUn_mclp) = colheader
+AccuracyVSVM_SL_vUn_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyVSVM_SL_vUn_it) = colheader
+
+# # List of all matrix names
+# matrix_names <- c(
+#   "AccuracySVM", 
+#   "AccuracyVSVM_SL", "AccuracyVSVM_SL_Un_b",
+#   "AccuracyVSVM_SL_Un_b_ud", "AccuracyVSVM_SL_Un_it",
+#   # "AccuracyVSVM_SL_Un_b_ms","AccuracyVSVM_SL_Un_b_mclu","AccuracyVSVM_SL_Un_b_mclp",
+#   # "AccuracyVSVM_SL_vUn_b", "AccuracyVSVM_SL_vUn_b_ud", "AccuracyVSVM_SL_vUn_mclp", "AccuracyVSVM_SL_vUn_it",
+#   "AccuracySVM_M"
+# )
+# # Loop through the matrix names and create each matrix
+# for (name in matrix_names) {
+#   name <- matrix(data = NA, nrow = nR, ncol = length(colheader))
+#   colnames(name) <- colheader
+# }
 
 # set randomized seed for the random sampling procedure
 # seed = 72 # is an unlucky choice, it works well only with 41 sample per class in the train set 
@@ -784,9 +795,9 @@ for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
 print(paste0("Sample size: ",sampleSizePor[sample_size]," -> ",sample_size,"/",length(sampleSizePor)))
 
 # definition of sample shares
-# if(sample_size>1){sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
-# }else{          sampleSize = sampleSizePor[sample_size] }
-sampleSize = sampleSizePor[sample_size]
+if(sample_size>1){sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
+}else{          sampleSize = sampleSizePor[sample_size] }
+# sampleSize = sampleSizePor[sample_size]
 shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
 
 # set randomized seed for the random sampling procedure
@@ -801,12 +812,12 @@ samples = getdata(trainDataCurBeg, stratSamp)
 
 samplesID = samples$ID_unit
 
-# if(sample_size>1){trainDataCur = rbind(trainDataCur, samples[,1:ncol(trainDataPoolAllLev)])
-#                   trainDataCurRemaining <- trainDataCurRemaining[-c(samplesID), ]
-#   }else{          trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
-#                   trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]}
-trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
-trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
+if(sample_size>1){trainDataCur = rbind(trainDataCur, samples[,1:ncol(trainDataPoolAllLev)])
+                  trainDataCurRemaining <- trainDataCurRemaining[-c(samplesID), ]
+  }else{          trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
+                  trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]}
+# trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
+# trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
 
 trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
 trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
@@ -815,9 +826,9 @@ stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
 
 samples = getdata(testDataCurBeg, stratSamp)
 
-# if(sample_size>1){testDataCur = rbind(testDataCur,samples[,1:ncol(testDataAllLev)])
-# }else{            testDataCur = samples[,1:ncol(testDataAllLev)]}
-testDataCur = samples[,1:ncol(testDataAllLev)]
+if(sample_size>1){testDataCur = rbind(testDataCur,samples[,1:ncol(testDataAllLev)])
+}else{            testDataCur = samples[,1:ncol(testDataAllLev)]}
+# testDataCur = samples[,1:ncol(testDataAllLev)]
 
 # split test feat from test label for later join with trainData
 testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
@@ -1035,7 +1046,7 @@ if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
 
 ######################################## UNCERTAINTY function on VSVM-SL  #########################################
 resampledSize=100 #sampleSize*2.5 # or just 100
-# ****** #
+# ****** # 
 print("Computing margin distance using Iterative Active Learning Procedure...")
 classSize = 3000 # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803
 stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
@@ -1050,7 +1061,7 @@ for(nS4iter in 1:length(newSizes)){
     actKappa = 0
     
     new_tunedVSVM <- new_bestTunedVSVM
-    new_trainFeatVSVM <- new_bestTrainFeatVSVM
+    new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
     new_trainLabelsVSVM <- new_bestTrainLabelsVSVM
     
     upd_trainDataCurFeatsub = samplesRemaining[sindexSVMDATA:eindexSVMDATA]
@@ -1119,7 +1130,7 @@ print("Computing samples margin distance using Uncertainty distance...")
 normdistvsvm_sl_un = uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_Un_unc)
 # predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
 predlabels_vsvm_Slu = add_new_samples(normdistvsvm_sl_un, validateLabels, newSize=resampledSize, cluster=round(resampledSize*1.2))
-accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu$labels, validateLabels)
+accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
 print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
 
 # # ****** #
@@ -1244,18 +1255,18 @@ if (file.exists(model_name) && !train) {
 } else {
   stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
   samples = getdata(trainDataCurBegMS, stratSamp)
-  # if(sample_size>1){trainDataCurMS = rbind(trainDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
-  # }else{            trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
-  trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
+  if(sample_size>1){trainDataCurMS = rbind(trainDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
+  }else{            trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
+  # trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
   trainFeatMS = trainDataCurMS[,1:(ncol(trainDataPoolAllLevMS)-1)]
   trainLabelsMS = trainDataCurMS[,ncol(trainDataPoolAllLevMS)]
   
   stratSamp = strata(testDataCurBegMS, c("REF"), size = shares, method = "srswor")
   samples = getdata(testDataCurBegMS, stratSamp)
   
-  # if(sample_size>1){testDataCurMS = rbind(testDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
-  # }else{            testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
-  testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
+  if(sample_size>1){testDataCurMS = rbind(testDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
+  }else{            testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
+  # testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
   # split test feat from test label for later join with trainData MS
   testFeatMS = testDataCurMS[,1:(ncol(testDataCurMS)-1)]
   testLabelsMS = testDataCurMS[,ncol(testDataCurMS)]
@@ -1281,46 +1292,48 @@ print(accSVM_M$overall["Accuracy"])
 
 # write current kappa and accuracy value in Kappas matrix
 # KappaSVM[i,u] = as.numeric(accSVM$overall["Kappa"])
-# AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
-# AccuracySVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Accuracy"])
-# 
-# AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
-# AccuracyVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Accuracy"])
-# 
-# AccuracyVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
-# # AccuracyVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
-# # AccuracyVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
-# # AccuracyVSVM_SL_Un_b_mclp[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
-# AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
-# 
-# # AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
-# # AccuracyVSVM_SL_vUn_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b_ms$overall["Accuracy"])
-# # AccuracyVSVM_SL_vUn_it[realization,sample_size] = as.numeric(accVSVM_SL_vUn_it$overall["Accuracy"])
-# # AccuracyVSVM_SL_vUn_mclp[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b_mclp$overall["Accuracy"])
+AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
+AccuracySVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Accuracy"])
+
+AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
+AccuracyVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Accuracy"])
+
+AccuracyVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
+# AccuracyVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
+# AccuracyVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
+# AccuracyVSVM_SL_Un_b_mclp[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
+AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
+
+# AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
+# AccuracyVSVM_SL_vUn_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b_ms$overall["Accuracy"])
+# AccuracyVSVM_SL_vUn_it[realization,sample_size] = as.numeric(accVSVM_SL_vUn_it$overall["Accuracy"])
+# AccuracyVSVM_SL_vUn_mclp[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b_mclp$overall["Accuracy"])
 
 
-# Update the matrices with accuracy values
-matrices[["AccuracySVM"]][realization, sample_size] <- as.numeric(accSVM$overall["Accuracy"])
-matrices[["AccuracySVM_M"]][realization, sample_size] <- as.numeric(accSVM_M$overall["Accuracy"])
-matrices[["AccuracyVSVM_SL"]][realization, sample_size] <- as.numeric(accVSVM_SL$overall["Accuracy"])
-matrices[["AccuracyVSVM_SL_Un_b"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b$overall["Accuracy"])
-matrices[["AccuracyVSVM_SL_Un_b_ud"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_Un_b_ms"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_Un_b_mclu"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_Un_b_mclp"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
-matrices[["AccuracyVSVM_SL_Un_it"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_vUn_b"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_vUn_b_ms"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_b_ms$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_vUn_it"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_it$overall["Accuracy"])
-# matrices[["AccuracyVSVM_SL_vUn_mclp"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_mclp$overall["Accuracy"])
+# # Update the matrices with accuracy values
+# matrices[["AccuracySVM"]][realization, sample_size] <- as.numeric(accSVM$overall["Accuracy"])
+# matrices[["AccuracySVM_M"]][realization, sample_size] <- as.numeric(accSVM_M$overall["Accuracy"])
+# matrices[["AccuracyVSVM_SL"]][realization, sample_size] <- as.numeric(accVSVM_SL$overall["Accuracy"])
+# matrices[["AccuracyVSVM_SL_Un_b"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b$overall["Accuracy"])
+# matrices[["AccuracyVSVM_SL_Un_b_ud"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_Un_b_ms"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_Un_b_mclu"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_Un_b_mclp"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
+# matrices[["AccuracyVSVM_SL_Un_it"]][realization, sample_size] <- as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_vUn_b"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_vUn_b_ms"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_b_ms$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_vUn_it"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_it$overall["Accuracy"])
+# # matrices[["AccuracyVSVM_SL_vUn_mclp"]][realization, sample_size] <- as.numeric(accVSVM_SL_vUn_mclp$overall["Accuracy"])
 
 }}
 print("Accuracy results: acquired.")
 setwd(paste0(model_path,"results"))
-# save(AccuracySVM,AccuracySVM_M,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_Un_b_ud,AccuracyVSVM_SL_Un_b_mclp,AccuracyVSVM_SL_Un_it,
-#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_accuracy_",b,"UnlSamples.RData"))
-save(list = lapply(matrix_names, function(x) matrices[[x]]), file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_accuracy_",b,"UnlSamples.RData"))
+save(AccuracySVM,AccuracySVM_M,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_Un_b_ud,AccuracyVSVM_SL_Un_it,
+     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_accuracy_",b,"UnlSamples.RData"))
+# save(lapply(matrix_names, function(x) matrices[[x]]), file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_accuracy_",b,"UnlSamples.RData"))
 #######################################################################################################################
+
+
 
 
 
