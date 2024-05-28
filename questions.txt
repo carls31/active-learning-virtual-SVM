@@ -10,15 +10,16 @@ row 371 abs(pred) -> for the distance we need only positive values, right? (I ad
 row 603 ref_added_or[1:250,]$distance = 1 -> which are the actual values for the distance? after norm, the max value 1
 row 956 binaryClassProblem 
 
-In svm what is the difference between probability class and distance class, see both related paper and script function
+Inside svm package, the difference between probability class and distance class -> see both related papers and script function
 
 how to improve performance 
- - check how many CPU cores are present on the RSRG server and how to use them
- - vectorize: apply() {R function} + predict() {kernlab function} 
+DONE check how many CPU cores are present on the RSRG server and how to use them
+DONE vectorize: apply() {R function} + predict() {kernlab function} 
 
 ********************************************************
-DONE  prepare some graphs/figures for different model accuracies with different training data size and unlabeled samples
 AAA  implement MS-cSV
+DONE plots for different model accuracies with different training data size and unlabeled samples
+
  1.  DONE try without indexTrain  
  2.  perform PCA / t-SNE for visualization and clustering
  3.  DONE split alter_samples in multiple iterations 
@@ -50,9 +51,7 @@ AAA  implement MS-cSV
 USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
-seed = 72
-
- Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
+Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
 
 
 SVM as an Accuracy of 90% just with 10 samples
