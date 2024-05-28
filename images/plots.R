@@ -44,7 +44,7 @@ x <- as.integer(column_names)
 maxi = 0
 mini = 1000
 
-yUpperBound = max(c(0.85,maxi))
+yUpperBound = max(c(0.79,maxi))
 ylowerBound = min(c(0.95,mini))
 
 ###plot basemodel
@@ -118,18 +118,18 @@ sdVSVM_SL_Un_b_ud=ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[2,]
 
 ###plot basemodel
 png(filename=paste0(file_name,"_sd.png"),
-    units="in", 
-    width=20, 
-    height=16, 
+    units="in",
+    width=20,
+    height=16,
     pointsize=12,
     res=96)
 
 #par(mar=c(4.2,4,1,1) )
 
 msdSVMPlot = plot(x, avgSVM,log = "x",
-                  ylim=range(c(ylowerBound,yUpperBound)), 
-                  pch=20, type="l", col = 1, lwd=2, 
-                  xlab="Number of Train Samples per class", 
+                  ylim=range(c(ylowerBound,yUpperBound)),
+                  pch=20, type="l", col = 1, lwd=2,
+                  xlab="Number of Train Samples per class",
                   ylab="Accuracy +/- Std Dev",
                   main = "Cologne Scale Binary"
 )
@@ -137,7 +137,7 @@ lines(x, avgSVM_M, type="l" , col = 1, lwd=2,lty=2)
 lines(x, avgVSVM_SL, type="l" , col = 1, lwd=2,lty=3)
 
 
-#pseudo line for highlighting 
+#pseudo line for highlighting
 lines(x, avgVSVM_SL_Un_b, type="l" , col = 3, lwd = 2)
 
 # lines(x, AccuracyVSVM_SL_Un_b_mclp, type="l" , col = 4, lwd=2,lty=2)
@@ -151,21 +151,21 @@ lines(x, avgVSVM_SL_Un_b_ud, type="l" , col = 4, lwd=2)
 # lines(x, AccuracyVSVM_SL_vUn_b, type="l" , col = 7, lwd=2)
 # lines(x, AccuracyVSVM_SL_vUn_mclp, type="l" , col = 8, lwd=2)
 
-arrows(x, avgSVM-sdSVM, x, avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
-arrows(x, avgSVM_M-sdSVM_M, x, avgSVM_M+sdSVM_M, length=0.075, angle=90, code=3 ,col = 1,lty=2)
-arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 1,lty=3)
+# arrows(x, avgSVM-sdSVM, x, avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
+# arrows(x, avgSVM_M-sdSVM_M, x, avgSVM_M+sdSVM_M, length=0.075, angle=90, code=3 ,col = 1,lty=2)
+# arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 1,lty=3)
 arrows(x, avgVSVM_SL_Un_b-sdVSVM_SL_Un_b, x, avgVSVM_SL_Un_b+sdVSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 3)
 arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 8)
-arrows(x, avgVSVM_SL_Un_b_ud-sdVSVM_SL_Un_b_ud, x, avgVSVM_SL_Un_b_ud+sdVSVM_SL_Un_b_ud, length=0.075, angle=90, code=3 ,col = 4)
+# arrows(x, avgVSVM_SL_Un_b_ud-sdVSVM_SL_Un_b_ud, x, avgVSVM_SL_Un_b_ud+sdVSVM_SL_Un_b_ud, length=0.075, angle=90, code=3 ,col = 4)
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
-legend(x[1],ylowerBound, # places a legend at the appropriate place 
+legend(x[1],ylowerBound, # places a legend at the appropriate place
        c("SVM L4","SVM MS","VSVM SL",
          "VSVM SL 20_Unl",
          "VSVM SL Iterative Uncertainty Distance","VSVM SL 20 Unl Uncertainty Distance"), # puts text in the legend
        lty=c(1,2,3,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,1,1,3,4,8)  # gives the legend lines the correct color and width
-) 
+)
 
 dev.off()
 
