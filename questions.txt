@@ -26,32 +26,30 @@ DONE plots for different model accuracies with different training data size and 
  4.  DONE check if in the multiclas setting the random / balanced unlabeled samples actually change
  5.  DONE implement only_probability_distance + check different implementation of mclu (see paper) 
  6.  DONE check if NDVI feature is actually useful
- 7.  focus on meadow and other_impervious_surface classes (the classes that ends up with less labels)
+ 7.  focus on meadow and other_impervious_surface classes (the classes that ends up with less labels) add new sample from/for the worse performing class
  8.  DONE implement binary + multiclass in the same script
  9.  DONE tune alter_label hyperparameter: how many label need to be relabeled?
  10. DONE overall hyperparameters optimization e.g. "boundMargin" and "bound" 
  11. DONE descriptive stats of the dataset/data visualization
- 12. Kappa-score coefficient definition: see what happens if we use acc instead
+ 12. Kappa-score coefficient definition: change the metric from "kappa" to "ROC" (and maybe also to "accuracy") 
  13. check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doesn't work
  14. one vs all VSM Classification instead of binarymulticlass
  15. DONE why multiclass script is implemented differently from the binary ones and got different accuracies
- 16. how to add new sample from/for the worse performing class
- 17. add a flag to see if the label was actually changed?
- 18. add hadagera and shape scripts
+ 16. add a flag to see which label actually changed
+ 17. DONE add shape scripts
+ 18. add hadagera scripts
  19. DONE check if it is sufficient to run registerDoParallel(num_cores) just once inside the script
- 20. BALANCE THE TRAINING DATASET
+ 20. DONE either balanced the datapool at the beginning or the each train/test/validate/unlabeled set
  21. DONE pick one new sample at time OR pick multiple from different regions/classes
  22. change svm method 
  23. change from svm to ksvm
- 24. implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
+ 24. DONE implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. DONE use the kernel_function from the base_svm 
- 26. -> 12. change the metric from "kappa" to "ROC" (and maybe also to "accuracy") 
- 27. try to predict normalized_data
+ 26. try to predict normalized_data -> onlz for visualiyation purposes (thematic map?)
 
 USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
 Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
-
 
 SVM as an Accuracy of 90% just with 10 samples
