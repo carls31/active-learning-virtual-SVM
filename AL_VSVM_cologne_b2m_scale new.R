@@ -687,10 +687,10 @@ colnames(AccuracyVSVM_SL_Un_b) = colheader
 
 AccuracyVSVM_SL_vUn_b = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyVSVM_SL_vUn_b) = colheader
-AccuracyVSVM_SL_vUn_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(AccuracyVSVM_SL_vUn_b_ud) = colheader
-AccuracyVSVM_SL_vUn_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(AccuracyVSVM_SL_vUn_it) = colheader
+# AccuracyVSVM_SL_vUn_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
+# colnames(AccuracyVSVM_SL_vUn_b_ud) = colheader
+# AccuracyVSVM_SL_vUn_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
+# colnames(AccuracyVSVM_SL_vUn_it) = colheader
 
 AccuracyVSVM_SL_Un_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyVSVM_SL_Un_it) = colheader
@@ -1030,7 +1030,7 @@ for(realization in seq(along = c(1:nR))){#}
 
     print("Evaluation of VSVM Self Learning...")
     model_name = paste0("bestFittingModel_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
-    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal,#classProb=TRUE,
+    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables = list(
                               list(SVtotal, SVL2),
                               list(SVtotal, SVL3),
