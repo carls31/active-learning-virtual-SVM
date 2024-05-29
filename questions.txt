@@ -46,7 +46,8 @@ DONE plots for different model accuracies with different training data size and 
  24. DONE implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. DONE use the kernel_function from the base_svm 
  26. try to predict normalized_data -> onlz for visualiyation purposes (thematic map?)
-
+ 27. compare ud accuracies with and without clustering
+ 
 USE BINARY CLASIFFICATION TO TEST THE SCRIPT
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
