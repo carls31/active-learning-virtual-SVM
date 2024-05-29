@@ -20,9 +20,9 @@ b = 20   # Size of balanced_unlabeled_samples in each class
 bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 0.75)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
 
-newSizes = c(20)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+newSizes = c(20,25)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
 clusterSizes = c(80)          # number of clusters used to picked samples from different group regions # 60, 80, 90, 100, 300
-resampledSize = c(140)        # sampleSize*2.5 # or just 100, 150, 200, 250
+resampledSize = c(100,200)        # sampleSize*2.5 # or just 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
@@ -766,7 +766,7 @@ for(realization in seq(along = c(1:nR))){#}
   testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
-    print(paste0("Sample size: ",sampleSizePor[sample_size]," -> ",sample_size,"/",length(sampleSizePor)))
+    print(paste0("Sample size: ",sampleSizePor[sample_size]," -> ",sample_size,"/",length(sampleSizePor)," | realization: ",realization,"/",nR))
     
     # if(length(sampleSizePor)>1){}else{}
     # definition of sample shares
@@ -1208,9 +1208,9 @@ for(realization in seq(along = c(1:nR))){#}
     
     if(accVSVM_SL_vUn_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_vUn_b$overall["Accuracy"]
-      new_bestTunedVSVM <- bestFittingModelvUn_b
-      new_bestTrainFeatVSVM <- best_trainFeatVSVMvUn_b
-      new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn_b
+      # new_bestTunedVSVM <- bestFittingModelvUn_b
+      # new_bestTrainFeatVSVM <- best_trainFeatVSVMvUn_b
+      # new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn_b
       } 
     ######################################## UNCERTAINTY DISTANCE FUNCTIONS  #########################################
     # ****** # 
