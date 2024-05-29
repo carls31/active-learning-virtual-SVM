@@ -13,7 +13,7 @@ binary = TRUE   # Choose between Binary classification or Multiclass
 nR = 8   # Number of Realizations
 
 # sampleSizePor = c(10,20,40,60,90,120,160,200)    # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
-sampleSizePor = c(3,5,10,20,40,60,90,120,160)      # Class sample size: round(250/6) label per class i.e. 42
+sampleSizePor = c(2,3,5,10,20,40,70,110,160)      # Class sample size: round(250/6) label per class i.e. 42
 
 b = 20   # Size of balanced_unlabeled_samples in each class
 
