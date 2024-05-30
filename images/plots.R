@@ -85,9 +85,9 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,], type="l" , col = 4, lwd=2)
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend(x[1],ylowerBound, # places a legend at the appropriate place 
-       c("SVM L4","SVM Multilevel","VSVM-SL",
-         "VSVM-SL + 20 semi-label samples",
-         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-label samples + uncertainty distance"),
+       c("SVM single-level L4","SVM multi-level","VSVM-SL",
+         "VSVM-SL + 20 semi-labeled",
+         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-labeled + uncertainty distance"),
        lty=c(1,2,3,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,1,1,3,4,8)  # gives the legend lines the correct color and width
        ) 
@@ -160,9 +160,9 @@ arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it,
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend(x[1],ylowerBound, # places a legend at the appropriate place
-       c("SVM L4","SVM Multilevel","VSVM-SL",
-         "VSVM-SL + 20 semi-label samples",
-         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-label samples + uncertainty distance"), # puts text in the legend
+       c("SVM single-level L4","SVM multi-level","VSVM-SL",
+         "VSVM-SL + 20 semi-labeled",
+         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-labeled + uncertainty distance"),
        lty=c(1,2,3,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,1,1,3,4,8)  # gives the legend lines the correct color and width
 )
