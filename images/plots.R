@@ -38,7 +38,7 @@ ExCsvMSD = function (datadase, filename = NA){{
 
 column_names <- colnames(AccuracySVM)
 
-x <- as.integer(column_names)
+x <- 6*as.integer(column_names)
 
 #get maximum and minimum values for plotting
 maxi = 0
@@ -60,7 +60,7 @@ png(filename=paste0(file_name,".png"),
 msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
                   pch=20, type="l", col = 1, lwd=2, 
-                  xlab="Number of Train Samples per class", 
+                  xlab="Number of Training Samples", 
                   ylab="Accuracy",
                   main = "Cologne Scale Binary"
 )
@@ -85,9 +85,9 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,], type="l" , col = 4, lwd=2)
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend(x[1],ylowerBound, # places a legend at the appropriate place 
-       c("SVM L4","SVM MS","VSVM SL",
-         "VSVM SL 20_Unl",
-          "VSVM SL Iterative Uncertainty Distance","VSVM SL 20 Unl Uncertainty Distance"), # puts text in the legend
+       c("SVM L4","SVM Multilevel","VSVM-SL",
+         "VSVM-SL + 20 semi-label samples",
+         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-label samples + uncertainty distance"),
        lty=c(1,2,3,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,1,1,3,4,8)  # gives the legend lines the correct color and width
        ) 
@@ -129,7 +129,7 @@ png(filename=paste0(file_name,"_sd.png"),
 msdSVMPlot = plot(x, avgSVM,log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)),
                   pch=20, type="l", col = 1, lwd=2,
-                  xlab="Number of Train Samples per class",
+                  xlab="Number of Training Samples",
                   ylab="Accuracy +/- Std Dev",
                   main = "Cologne Scale Binary"
 )
@@ -160,9 +160,9 @@ arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it,
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend(x[1],ylowerBound, # places a legend at the appropriate place
-       c("SVM L4","SVM MS","VSVM SL",
-         "VSVM SL 20_Unl",
-         "VSVM SL Iterative Uncertainty Distance","VSVM SL 20 Unl Uncertainty Distance"), # puts text in the legend
+       c("SVM L4","SVM Multilevel","VSVM-SL",
+         "VSVM-SL + 20 semi-label samples",
+         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-label samples + uncertainty distance"), # puts text in the legend
        lty=c(1,2,3,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,1,1,3,4,8)  # gives the legend lines the correct color and width
 )
