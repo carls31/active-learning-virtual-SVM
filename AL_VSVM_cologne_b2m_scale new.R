@@ -13,12 +13,12 @@ binary = TRUE   # Choose between Binary or Multiclass classification
 nR = 7   # Number of Realizations
 
 # sampleSizePor = c(2,3,5,10,20,40,70,110,160,220)    # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
-sampleSizePor = c(2,3,5,10,20,40,70,100)      # Class sample size: round(250/6) label per class i.e. 42
+sampleSizePor = c(2,3,5,10,20,40,70)      # Class sample size: round(250/6) label per class i.e. 42
 
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
-boundMargin = c(1.5, 0.75)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
+boundMargin = c(1.5, 1, 0.5)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
 
 newSizes = c(10,12)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
 clusterSizes = c(60,80)          # number of clusters used to picked samples from different group regions # 60, 80, 90, 100, 300
