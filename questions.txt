@@ -53,6 +53,6 @@ DONE plots for different model accuracies with different training data size and 
  26. try to predict normalized_data -> onlz for visualiyation purposes (thematic map?)
  27. compare ud accuracies with and without clustering
  28. with few initial samples, check how many samples actuallz are present when we train each model
- 29. compare VSVM / VSVM_SL / VSVM_SL Unl / VSVM_SL V Unl as base model for ITerative AL
- 
+ 29. compare VSVM / VSVM_SL / VSVM_SL Unl / VSVM_SL V Unl as base model for ITerative AL and especially VSVM_SL Unl
+
 SVM as an Accuracy of 90% just with 10 samples

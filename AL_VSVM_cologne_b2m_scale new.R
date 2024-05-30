@@ -8,20 +8,20 @@ library(doParallel) # multiple CPU core
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 
 invariance = "scale"
-binary = TRUE   # Choose between Binary classification or Multiclass 
+binary = TRUE   # Choose between Binary or Multiclass classification
 
 nR = 7   # Number of Realizations
 
-# sampleSizePor = c(10,20,40,60,90,120,160,200)    # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
-sampleSizePor = c(2,3,5,10,20,40,70,110,160)      # Class sample size: round(250/6) label per class i.e. 42
+# sampleSizePor = c(2,3,5,10,20,40,70,110,160,220)    # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+sampleSizePor = c(2,3,5,10,20,40,70,100)      # Class sample size: round(250/6) label per class i.e. 42
 
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 0.75)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
 
-newSizes = c(20)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(80)          # number of clusters used to picked samples from different group regions # 60, 80, 90, 100, 300
+newSizes = c(10,12)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(60,80)          # number of clusters used to picked samples from different group regions # 60, 80, 90, 100, 300
 resampledSize = c(100,120)        # sampleSize*2.5 # or just 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
@@ -30,6 +30,8 @@ if(binary){model_class="binary"}else{model_class="multiclass"}
 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
+if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
+model_path = "D:/GitHub/active-learning-virtual-SVM/"}
 
 ########################################  Utils  ########################################
 
@@ -37,7 +39,7 @@ model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = training descriptors, y = class labels
   
   #expand coarse grid
-  coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
+  coarseGrid = expand.grid(sigma = 2^seq(-6,4,by=2), C = 2^seq(-5,13,by=2))
   
   #set seed
   set.seed(13)
@@ -45,7 +47,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
-                       metric = "Kappa",
+                       metric = "Kappa", # "ROC"
                        maximize = TRUE,
                        tuneGrid = coarseGrid,
                        trControl = trainControl ( method = "cv",
@@ -68,7 +70,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   bC = log2(cCoarse) + 2
   
   #expand narrow grid
-  narrowGrid = expand.grid(sigma = 2^seq(aS,bS,by=0.5), C = 2^seq(aC,bC,by=0.5))
+  narrowGrid = expand.grid(sigma = 2^seq(aS,bS,by=0.25), C = 2^seq(aC,bC,by=0.25))
   
   set.seed(31)
   
@@ -81,8 +83,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
                        trControl = trainControl ( method = "cv",
                                                   #verboseIter=T,
                                                   index = indexTrain,
-                                                  indexFinal= indexTrain[[1]],
-                                                  classProbs =  classProb
+                                                  indexFinal= indexTrain[[1]], classProbs =  classProb
                                                   ),
                        scaled = FALSE)
   
@@ -354,22 +355,6 @@ mclp_sampling <- function(org, samp) {
   return(merged_data)
 }
 
-# alter_labels = function(distance_data, ref, newSize=100){
-#   
-#   #merge features and original labels
-#   ref_added = cbind(distance_data,ref)
-#   #order by most uncertain samples
-#   ref_added_or = ref_added[order(ref_added$distance),]
-#   #re-label most uncertain n number of samples
-#   ref_added_or[1:newSize,]$label = ref_added_or[1:newSize,]$ref
-#   # ref_added_or[1:newSize,]$distance = 1.0000000000
-#   #re-order data set by its index
-#   ref_added_or$index = as.numeric(row.names(ref_added_or))
-#   ref_added_reor = ref_added_or [order(ref_added_or$index),]
-#   
-#   # extract labels for prediction
-#   return(ref_added_reor[,(ncol(ref_added_reor)-4)])
-# }
 add_new_samples = function(distance_data,
                            ref, features=NA,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
@@ -1090,7 +1075,7 @@ for(realization in seq(along = c(1:nR))){#}
     SVL10Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_b)
     SVL11Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_b)
     
-    ################################ EVALUATION ofVSVM-SL + semi-labeled samples ##############################
+    ################################ EVALUATION of VSVM-SL + semi-labeled samples ##############################
     print("Evaluation of VSVM Self Learning with semi-labeled samples...")
     model_name = paste0("bestFittingModelUn_b_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, classProb=TRUE, 
@@ -1157,21 +1142,21 @@ for(realization in seq(along = c(1:nR))){#}
     SVL10vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)
     SVL11vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v)
 
-    # bind original SV with modified to new train data set
-    SVinvarvUn_b = rbind(setNames(SVtotalvUn_b,objInfoNames),
-                         setNames(SVL2vUn_b,objInfoNames),
-                         setNames(SVL3vUn_b,objInfoNames),
-                         setNames(SVL5vUn_b,objInfoNames),
-                         setNames(SVL6vUn_b,objInfoNames),
-                         setNames(SVL7vUn_b,objInfoNames),
-                         setNames(SVL8vUn_b,objInfoNames),
-                         setNames(SVL9vUn_b,objInfoNames),
-                         setNames(SVL10vUn_b,objInfoNames),
-                         setNames(SVL11vUn_b,objInfoNames)
-    )
-    SVinvarvUn_b = rbind(setNames(SVinvar,objInfoNames),
-                         setNames(SVinvarvUn_b,objInfoNames)
-    )
+    # # bind original SV with modified to new train data set
+    # SVinvarvUn_b = rbind(setNames(SVtotalvUn_b,objInfoNames),
+    #                      setNames(SVL2vUn_b,objInfoNames),
+    #                      setNames(SVL3vUn_b,objInfoNames),
+    #                      setNames(SVL5vUn_b,objInfoNames),
+    #                      setNames(SVL6vUn_b,objInfoNames),
+    #                      setNames(SVL7vUn_b,objInfoNames),
+    #                      setNames(SVL8vUn_b,objInfoNames),
+    #                      setNames(SVL9vUn_b,objInfoNames),
+    #                      setNames(SVL10vUn_b,objInfoNames),
+    #                      setNames(SVL11vUn_b,objInfoNames)
+    # )
+    # SVinvarvUn_b = rbind(setNames(SVinvar,objInfoNames),
+    #                      setNames(SVinvarvUn_b,objInfoNames)
+    # )
     ############################## EVALUATION of VSVM-SL + Virtual semi-labeled samples ############################
     print("Evaluation of VSVM Self Learning with Virtual semi-labeled samples...")
     model_name = paste0("bestFittingModelvUn_b_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
@@ -1295,7 +1280,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predLabelsVSVM_Un_unc = cbind(validateFeatsub, fin_predLabelsVSVM)
     # predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
     # 
-    # print("Computing samples margin distance using Uncertainty distance...")
+    # print("Computing uncertainty samples distance...")
     # #calculate uncertainty of the samples by selecting SV's and data set
     # uncertain_sampled_data = uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_Un_unc)
     # # predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
@@ -1307,7 +1292,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predLabelsVSVM_Un_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
     # predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
     #
-    # print("Computing samples margin distance using Marging Samples MS...")
+    # print("Computing margin samples distance...")
     # # margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVM_Un_unc)
     # ms_sampled_data <- margin_sampling_multicore(bestFittingModel, predLabelsVSVM_Un_unc)
     # predlabels_vsvm_ms = add_new_samples(ms_sampled_data, validateLabels, newSize=resampledSize[1], cluster=round(resampledSize[1]*1.2))
@@ -1315,14 +1300,14 @@ for(realization in seq(along = c(1:nR))){#}
     # print(accVSVM_SL_Un_b_ms$overall["Accuracy"])
     # 
     # # ****** #
-    # print("Computing samples margin distance using Multiclass Level Uncertainty...")
+    # print("Computing Multiclass Level Uncertainty samples distance...")
     # mclu_sampled_data <- mclu_sampling(bestFittingModelUn_b, predLabelsVSVM_Un_unc)
     # predlabels_vsvm_mclu = add_new_samples(mclu_sampled_data, validateLabels, newSize=resampledSize[1], cluster=round(resampledSize[1]*1.2))
     # accVSVM_SL_Un_b_mclu = confusionMatrix(predlabels_vsvm_mclu, validateLabels)
     # print(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
     # 
     # # ****** #
-    # print("Computing samples margin distance using Multiclass Level Probability...")
+    # print("Computing Multiclass Level Probability samples distance...")
     # mclp_sampled_data <- mclp_sampling(bestFittingModelUn_b, predLabelsVSVM_Un_unc)
     # predlabels_vsvm_mclp <- add_new_samples(mclp_sampled_data, validateLabels, newSize=resampledSize[1], cluster=round(resampledSize[1]*1.2))
     # accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
@@ -1381,7 +1366,7 @@ for(realization in seq(along = c(1:nR))){#}
 }
 setwd(paste0(model_path,"results"))
 save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_b_ud,
-     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_accuracy_",b,"Unl_",nR,"nR.RData"))
+     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
 save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_b_ud,
      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
 print("Accuracy results: acquired.")
