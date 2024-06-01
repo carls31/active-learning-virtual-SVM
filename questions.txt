@@ -55,4 +55,6 @@ DONE plots for different model accuracies with different training data size and 
  28. with few initial samples, check how many samples actuallz are present when we train each model
  29. compare VSVM / VSVM_SL / VSVM_SL Unl / VSVM_SL V Unl as base model for ITerative AL and especially VSVM_SL Unl
  30. check why SVM as an Accuracy of 90% just with 3 samples
- 
+ 31. check sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
+ 32. compare VSVM_SL_Un_it trained on SVM/VSVM with VSVM_SL_Un_b/VSVM_SL_vUn_b
+ 33. compare acc from VSVM_SL_Un_it trained before and after VSVM_SL_vUn_b vs VSVM_SL_vUn_b trained before and after VSVM_SL_Un_it
