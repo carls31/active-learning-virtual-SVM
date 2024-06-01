@@ -3,8 +3,9 @@ library(scales)
 
 setwd("D:/GitHub/active-learning-virtual-SVM/results")
 
-file_name = "20240527_1813_Col_scale_binary_accuracy_20UnlSamples"
+# file_name = "20240527_1813_Col_scale_binary_accuracy_20UnlSamples"
 # file_name = "20240528_0826_Col_scale_binary_accuracy_20UnlSamples"
+file_name = "20240530_1759_Col_scale_binary_accuracy_20Unl_9nR"
 
 # load("D:/GitHub/active-learning-virtual-SVM/results/FIRST_TRY_ColScaleMulticlass_accuracy_20UnlSamples.RData")
 load(paste0(file_name,".RData"))
@@ -40,12 +41,15 @@ column_names <- colnames(AccuracySVM)
 
 x <- 6*as.integer(column_names)
 
+
 #get maximum and minimum values for plotting
 maxi = 0
 mini = 1000
 
 yUpperBound = max(c(0.79,maxi))
 ylowerBound = min(c(0.95,mini))
+
+######################################## acc ##########################################
 
 ###plot basemodel
 png(filename=paste0(file_name,".png"),
@@ -71,6 +75,8 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type="l" , col = 1, lwd=2,lty=3)
 #pseudo line for highlighting 
 lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,], type="l" , col = 3, lwd = 2)
 
+lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type="l" , col = 7, lwd=2)
+
 # lines(x, AccuracyVSVM_SL_Un_b_mclp, type="l" , col = 4, lwd=2,lty=2)
 # lines(x, AccuracyVSVM_SL_Un_b_mclu, type="l" , col = 5, lwd=2)
 # lines(x, AccuracyVSVM_SL_Un_b_ms, type="l" , col = 6, lwd=2)
@@ -79,24 +85,21 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type="l" , col = 8, lwd=2)
 
 lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,], type="l" , col = 4, lwd=2)
 
-# lines(x, AccuracyVSVM_SL_vUn_b, type="l" , col = 7, lwd=2)
-
 # lines(x, AccuracyVSVM_SL_vUn_mclp, type="l" , col = 8, lwd=2)
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend(x[1],ylowerBound, # places a legend at the appropriate place 
        c("SVM single-level L4","SVM multi-level","VSVM-SL",
-         "VSVM-SL + 20 semi-labeled",
-         "VSVM-SL ITerative AL","VSVM-SL + 20 semi-labeled + uncertainty distance"),
-       lty=c(1,2,3,1,1,1), # gives the legend appropriate symbols (lines)
-       col=c(1,1,1,3,4,8)  # gives the legend lines the correct color and width
+         "VSVM-SL + semi-labeled", "VSVM-SL + virtual semi-salabeled",
+         "VSVM-SL ITerative AL","VSVM-SL + semi-labeled + uncertainty distance"),
+       lty=c(1,2,3,1,1,1,1), # gives the legend appropriate symbols (lines)
+       col=c(1,1,1,3,7,8,4)  # gives the legend lines the correct color and width
        ) 
 
 dev.off()
 
 
-##########################################################################
-
+######################################## acc +/- std dev ##########################################
 
 avgSVM=ExCsvMSD(AccuracySVM)[1,]
 sdSVM=ExCsvMSD(AccuracySVM)[2,]
@@ -109,6 +112,9 @@ sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
 
 avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,]
 sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[2,]
+
+avgVSVM_SL_vUn_it = ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,]
+sdVSVM_SL_vUn_it = ExCsvMSD(AccuracyVSVM_SL_vUn_b)[2,]
 
 avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
 sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]
@@ -139,6 +145,7 @@ lines(x, avgVSVM_SL, type="l" , col = 1, lwd=2,lty=3)
 
 #pseudo line for highlighting
 lines(x, avgVSVM_SL_Un_b, type="l" , col = 3, lwd = 2)
+lines(x, avgVSVM_SL_vUn_b, type="l" , col = 5, lwd = 2)
 
 # lines(x, AccuracyVSVM_SL_Un_b_mclp, type="l" , col = 4, lwd=2,lty=2)
 # lines(x, AccuracyVSVM_SL_Un_b_mclu, type="l" , col = 5, lwd=2)
@@ -169,3 +176,59 @@ legend(x[1],ylowerBound, # places a legend at the appropriate place
 
 dev.off()
 
+
+
+##########################################################################
+# KAPPA
+##########################################################################
+
+setwd("D:/GitHub/active-learning-virtual-SVM/results")
+
+file_name = "20240530_1759_Col_scale_binary_kappa_20Unl_9nR"
+
+# load("D:/GitHub/active-learning-virtual-SVM/results/FIRST_TRY_ColScaleMulticlass_accuracy_20UnlSamples.RData")
+load(paste0(file_name,".RData"))
+setwd("D:/GitHub/active-learning-virtual-SVM/images")
+
+yUpperBound = 0.5
+ylowerBound = 0.82
+
+###plot basemodel
+png(filename=paste0(file_name,".png"),
+    units="in", 
+    width=20, 
+    height=16, 
+    pointsize=12,
+    res=96)
+
+msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
+                  ylim=range(c(ylowerBound,yUpperBound)), 
+                  pch=20, type="l", col = 1, lwd=2, 
+                  xlab="Number of Training Samples", 
+                  ylab="Kappa-score",
+                  main = "Cologne Scale Binary"
+)
+lines(x, ExCsvMSD(KappaSVM_M)[1,], type="l" , col = 1, lwd=2,lty=2)
+lines(x, ExCsvMSD(KappaVSVM_SL)[1,], type="l" , col = 1, lwd=2,lty=3)
+
+
+#pseudo line for highlighting 
+lines(x, ExCsvMSD(KappaVSVM_SL_Un_b)[1,], type="l" , col = 3, lwd = 2)
+
+lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type="l" , col = 7, lwd=2)
+
+
+lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type="l" , col = 8, lwd=2)
+
+lines(x, ExCsvMSD(KappaVSVM_SL_Un_b_ud)[1,], type="l" , col = 4, lwd=2)
+
+# "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
+legend(x[1],ylowerBound, # places a legend at the appropriate place 
+       c("SVM single-level L4","SVM multi-level","VSVM-SL",
+         "VSVM-SL + semi-labeled", "VSVM-SL + virtual semi-salabeled",
+         "VSVM-SL ITerative AL","VSVM-SL + semi-labeled + uncertainty distance"),
+       lty=c(1,2,3,1,1,1,1), # gives the legend appropriate symbols (lines)
+       col=c(1,1,1,3,7,8,4)  # gives the legend lines the correct color and width
+) 
+
+dev.off()
