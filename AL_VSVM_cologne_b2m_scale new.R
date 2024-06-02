@@ -12,8 +12,6 @@ binary = FALSE   # Choose between Binary or Multiclass classification
 
 nR = 10   # Number of Realizations
 
-b = 20   # Size of balanced_unlabeled_samples in each class
-
 bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
 
@@ -25,11 +23,13 @@ train  = TRUE         # if TRUE, train the models otherwise load them from dir
 save_models = FALSE   # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(1,2,3,5,10,15,20,30) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+  sampleSizePor = c(2,3,5,10,17,27,42,67,83,100) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+  b = 10   # Size of balanced_unlabeled_samples in each class
 }else{
   model_class="multiclass"
-  sampleSizePor = c(2,3,5,10,20,30,40,60)} # Class sample size: round(250/6) label per class i.e. 42
-
+  sampleSizePor = c(5,10,17,27,42,67,83,100) # Class sample size: round(250/6) label per class i.e. 42
+  b = 20   # Size of balanced_unlabeled_samples in each class
+} 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
