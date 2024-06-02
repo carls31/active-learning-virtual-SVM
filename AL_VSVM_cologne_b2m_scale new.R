@@ -43,7 +43,6 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   #expand coarse grid
   coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
   
-  #set seed
   set.seed(13)
   if(showPrg){print("Running coarse grid search...")}
   
