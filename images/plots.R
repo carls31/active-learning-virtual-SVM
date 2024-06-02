@@ -41,7 +41,7 @@ ExCsvMSD = function (datadase, filename = NA){{
 
 
 column_names <- colnames(AccuracySVM)
-x <- 6*as.integer(column_names)
+x <- 2*as.integer(column_names)
 
 col = TRUE
 scale = TRUE
@@ -74,7 +74,7 @@ png(filename=paste0(file_name_acc,".png"),
 msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
                   pch=20, type="l",                      col = 1, lwd = 2,lty = 1,
-                  xlab= "number of training samples", 
+                  xlab= "number of labeled samples per class", 
                   ylab= "accuracy (%)",
                   main = paste(location,"-", class,"classification problem -", invariance,"invariance")
 )
@@ -145,7 +145,7 @@ png(filename=paste0(file_name_acc,"_sd.png"),
 msdSVMPlot = plot(x, avgSVM,log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)),
                   pch=20, type="l",   col = 1, lwd = 2,lty = 1,
-                  xlab="number of training samples",
+                  xlab= "number of labeled samples per class", 
                   ylab="accuracy (%) +/- std dev",
                   main = paste(location,"-", class,"classification problem -", invariance,"invariance")
 )
@@ -208,7 +208,7 @@ png(filename=paste0(file_name_kappa,".png"),
 msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
                   pch=20, type="l",                   col = 1, lwd=2,lty = 1,
-                  xlab="number of training samples", 
+                  xlab= "number of labeled samples per class", 
                   ylab="Kappa-score",
                   main = paste(location,"-", class,"classification problem -", invariance,"invariance")
 )
