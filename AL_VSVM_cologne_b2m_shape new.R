@@ -16,8 +16,8 @@ bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                  
 boundMargin = c(1.5, 1, 0.5)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
 
 newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(60)          # number of clusters used to picked samples from different group regions # 60, 80, 90, 100, 300
-resampledSize = c(100)        # sampleSize*2.5 # or just 100, 150, 200, 250
+clusterSizes = c(60)          # number of clusters used to picked samples from different groups in the space # 60, 80, 90, 100, 300
+resampledSize = c(100)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
