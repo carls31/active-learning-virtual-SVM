@@ -12,9 +12,6 @@ binary = FALSE   # Choose between Binary or Multiclass classification
 
 nR = 10   # Number of Realizations
 
-# sampleSizePor = c(2,3,5,10,20,40,70,110,160,220)    # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
-sampleSizePor = c(2,3,5,10,20,40,65)      # Class sample size: round(250/6) label per class i.e. 42
-
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
@@ -26,7 +23,12 @@ resampledSize = c(100)        # sampleSize*2.5 # or just 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
-if(binary){model_class="binary"}else{model_class="multiclass"}
+if(binary){
+  model_class="binary"
+  sampleSizePor = c(1,2,3,5,10,15,20,30) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+}else{
+  model_class="multiclass"
+  sampleSizePor = c(2,3,5,10,20,30,40,60)} # Class sample size: round(250/6) label per class i.e. 42
 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
@@ -282,13 +284,6 @@ margin_sampling <- function(org, samp, classes=NA) {
   # Initialize data frame to store margin distance for each sample
   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
   
-  # Define the function to calculate margin distance for a single sample
-  # calculate_margin_distance <- function(k) {
-  #   
-  #   distances <- pred_all(org$finalModel, unlist(samp[k, -ncol(samp)]), classes)
-  #   
-  #   return(min(distances))
-  # }
   # Set up parallel backend
   registerDoParallel(num_cores)
   
@@ -420,56 +415,56 @@ add_new_samples = function(distance_data,
     } 
 }   
 
-add_new_samples_cSV = function(distance_data,
-                           ref, features=NA,
-                           new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
-                           newSize=4, modelfin=tunedSVM$finalModel){
-  # merge features and original labels
-  ref_added = cbind(distance_data, ref)
-  
-  # order by most uncertain samples
-  ref_added_or = ref_added[order(ref_added$distance),]
-  
-  for(l in seq(along = binaryClassProblem)){
-    pred = sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) {
-      abs(modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)]))
-    })
-    if(pred < smallestDistance)
-      smallestDistance = pred
-  }
-  
-  # Initialize a vector to store selected sample indices
-  selected_indices <- c()
-  cluster_samples <- c()
-  tmpSize = 0
-  # Iterate over clusters and select one sample from each cluster
-  for (sample in seq_len(nrow(ref_added_or))) {
-    if (!( ref_added_or[sample,]$cluster  %in% cluster_samples) && tmpSize < newSize){
-      cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
-      tmpSize = tmpSize+1
-      
-      ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
-      
-      selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
-    }
-  }
-  ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
-  
-  # Add relabeled samples to new_trainFeatVSVM and new_trainLabelsVSVM
-  if(length(features)>1){
-    # Remove relabeled samples from validateLabels
-    features <- features[!(rownames(features) %in% selected_indices), ]
-    reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
-    ref <- ref[-reor_idx]
-    new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
-    new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
-    return(list(features = features, labels = ref, 
-                new_trainFeatVSVM = new_trainFeatVSVM, 
-                new_trainLabelsVSVM = new_trainLabelsVSVM))
-  } else{
-    return(ref_added_reor[, (ncol(ref_added_reor)-4)])
-  } 
-}   
+# add_new_samples_cSV = function(distance_data,
+#                            ref, features=NA,
+#                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
+#                            newSize=4, modelfin=tunedSVM$finalModel){
+#   # merge features and original labels
+#   ref_added = cbind(distance_data, ref)
+#   
+#   # order by most uncertain samples
+#   ref_added_or = ref_added[order(ref_added$distance),]
+#   
+#   for(l in seq(along = binaryClassProblem)){
+#     pred = sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) {
+#       abs(modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)]))
+#     })
+#     if(pred < smallestDistance)
+#       smallestDistance = pred
+#   }
+#   
+#   # Initialize a vector to store selected sample indices
+#   selected_indices <- c()
+#   cluster_samples <- c()
+#   tmpSize = 0
+#   # Iterate over clusters and select one sample from each cluster
+#   for (sample in seq_len(nrow(ref_added_or))) {
+#     if (!( ref_added_or[sample,]$cluster  %in% cluster_samples) && tmpSize < newSize){
+#       cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
+#       tmpSize = tmpSize+1
+#       
+#       ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
+#       
+#       selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
+#     }
+#   }
+#   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
+#   
+#   # Add relabeled samples to new_trainFeatVSVM and new_trainLabelsVSVM
+#   if(length(features)>1){
+#     # Remove relabeled samples from validateLabels
+#     features <- features[!(rownames(features) %in% selected_indices), ]
+#     reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
+#     ref <- ref[-reor_idx]
+#     new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
+#     new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
+#     return(list(features = features, labels = ref, 
+#                 new_trainFeatVSVM = new_trainFeatVSVM, 
+#                 new_trainLabelsVSVM = new_trainLabelsVSVM))
+#   } else{
+#     return(ref_added_reor[, (ncol(ref_added_reor)-4)])
+#   } 
+# }   
 
 self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVMfinModel, SVtotal, SVL_variables, train=TRUE, classProb = FALSE)
   {
@@ -605,7 +600,7 @@ generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnCl
 # exclude unclassified and delete level of factor
 generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
-generalDataPool <- na.omit(generalDataPool) # ****************************************************************************************************************************************************** ISSUE
+generalDataPool <- na.omit(generalDataPool) 
 
 if(binary){
   # transform to 2-Class-Case "Bushes Trees" VS rest
