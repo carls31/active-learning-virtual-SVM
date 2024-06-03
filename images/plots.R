@@ -6,10 +6,11 @@ file_name_acc = "20240527_1813_Col_scale_binary_accuracy_20UnlSamples"
 file_name_acc = "20240528_0826_Col_scale_binary_accuracy_20UnlSamples"
 file_name_acc = "20240530_1759_Col_scale_binary_accuracy_20Unl_9nR"
 file_name_acc = "20240601_0826_Col_scale_multiclass_acc_20Unl_3nR"
-
+file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
 
 file_name_kappa = "20240530_1759_Col_scale_binary_kappa_20Unl_9nR"
 file_name_kappa = "20240601_0826_Col_scale_multiclass_kappa_20Unl_3nR"
+file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
