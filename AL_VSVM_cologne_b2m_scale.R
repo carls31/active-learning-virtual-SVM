@@ -1333,7 +1333,7 @@ for(realization in seq(along = c(1:nR))){#}
     }
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-    print(paste0("[",sample_size,"/",length(sampleSizePor),"] | [",realization,"/",nR,"] | VSVM_SL_Un IT-AL Accuracy assessment..."))
+    print(paste0("VSVM_SL_Un IT-AL Accuracy assessment..."))
     print(accVSVM_SL_Un_it$overall["Accuracy"])
     model_name = paste0("bestFittingModel_Un_mclp_it_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
     if(save_models){saveRDS(new_tunedVSVM, model_name)}
