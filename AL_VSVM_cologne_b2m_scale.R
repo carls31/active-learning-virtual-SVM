@@ -23,11 +23,11 @@ train  = TRUE         # if TRUE, train the models otherwise load them from dir
 save_models = FALSE   # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(3,5,10,17,27,40,64,80) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+  sampleSizePor = c(1,2,5,10,20,32,46,62,80) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
   b = 10   # Size of balanced_unlabeled_samples in each class
 }else{
   model_class="multiclass"
-  sampleSizePor = c(5,10,17,27,40,64,80,100) # Class sample size: round(250/6) label per class i.e. 42
+  sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42
   b = 20   # Size of balanced_unlabeled_samples in each class
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
