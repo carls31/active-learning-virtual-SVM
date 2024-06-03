@@ -263,9 +263,8 @@ uncertainty_dist_v2_2 = function(org, samp) {
   
   registerDoParallel(num_cores)
   distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
-    
+    # calculate_margin_distance(k)
     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
-    
   }
   registerDoSEQ()
   
@@ -285,17 +284,14 @@ margin_sampling <- function(org, samp, classes=NA) {
   
   # Set up parallel backend
   registerDoParallel(num_cores)
-  
-  # Use foreach for parallel processing
   margin_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
     # calculate_margin_distance(k)
-    min(pred_all(org$finalModel, unlist(samp[k, -ncol(samp)]), classes))
+    pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), classes)
   }
   registerDoSEQ()
   
   # Apply "range" normalization to mclp_distances
   scaled_distances <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
-  
   # Assign scaled distances to probability dataframe
   margin_distance$distance <- scaled_distances
   merged_data <- cbind(samp, margin_distance)
@@ -514,7 +510,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         for(m in seq(along = c(1:nrow(SVinvarRadi)))){
           signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m,-ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
           
-          if((signa < boundMargin[kk]) && (signa > -boundMargin[kk])){
+          if(signa < boundMargin[kk]){
             SVinvar = rbind(SVinvar, SVinvarRadi[m,])
           }
           pb$tick()
