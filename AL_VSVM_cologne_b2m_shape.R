@@ -8,7 +8,7 @@ library(stats)      # k-means clustering
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 
 invariance = "shape"
-binary = TRUE   # Choose between Binary or Multiclass classification
+binary = FALSE   # Choose between Binary or Multiclass classification
 
 nR = 10   # Number of Realizations
 
