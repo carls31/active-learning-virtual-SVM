@@ -1,1 +1,1 @@
-# Virtual Support Vector Machines with Active Learning Algorithm for Remote Sensing Image Classification
+# Active Learning Method with Semi-supervised Costrained Virtual Support Vector Machines for Hyperspectral Satellite Image Classification
