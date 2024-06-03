@@ -868,7 +868,7 @@ for(realization in seq(along = c(1:nR))){#}
     tuneFeat = rbind(trainFeat, testFeatsub)
     tuneLabel = unlist(list(trainLabels, testLabels))
     #########################################  SVM parameter tuning  #########################################
-    setwd(paste0(model_path, "saved_models/"))
+    setwd(paste0(model_path, "saved_models/cologne"))
     model_name = paste0("tunedSVM_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM <- readRDS(model_name)
@@ -1428,7 +1428,7 @@ for(realization in seq(along = c(1:nR))){#}
   # best_resample_oa=c(best_resample_oa, best_resample)
   best_model_oa=c(best_model_oa, best_model)
 }
-setwd(paste0(model_path,"results"))
+setwd(paste0(model_path,"results/cologne"))
 # save(AccuracySVM,AccuracyVSVM,AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_b_ud,
 #      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
 # save(KappaSVM,KappaVSVM,KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_b_ud,
