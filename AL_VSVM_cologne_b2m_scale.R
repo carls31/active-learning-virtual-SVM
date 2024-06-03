@@ -595,7 +595,7 @@ generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnCl
 # exclude unclassified and delete level of factor
 generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
-generalDataPool <- na.omit(generalDataPool) 
+# generalDataPool <- na.omit(generalDataPool) 
 
 if(binary){
   # transform to 2-Class-Case "Bushes Trees" VS rest
