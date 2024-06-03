@@ -1,5 +1,9 @@
 library(scales)
 
+col = TRUE
+scale = TRUE
+multiclass = TRUE
+
 setwd("D:/GitHub/active-learning-virtual-SVM/results")
 
 file_name_acc = "20240527_1813_Col_scale_binary_accuracy_20UnlSamples"
@@ -14,7 +18,7 @@ file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
-setwd("D:/GitHub/active-learning-virtual-SVM/images")
+
 
 ExCsvMSD = function (datadase, filename = NA){{
   
@@ -44,11 +48,13 @@ ExCsvMSD = function (datadase, filename = NA){{
 column_names <- colnames(AccuracySVM)
 x <- 2*as.integer(column_names)
 
-col = TRUE
-scale = TRUE
-multiclass = TRUE
-
-if(col){location = "Cologne"}else{location = "Hadagera"}
+if(col){
+  setwd("D:/GitHub/active-learning-virtual-SVM/images/cologne")
+  location = "Cologne"
+}else{
+  setwd("D:/GitHub/active-learning-virtual-SVM/images/hadagera")
+  location = "Hadagera"
+  }
 if(scale){invariance = "scale"}else{invariance = "shape"}
 if(multiclass){
   class = "multiclass"
