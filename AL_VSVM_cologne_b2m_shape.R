@@ -470,12 +470,11 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
 {
   if (file.exists(model_name) && !train) {
     bestFittingModel <- readRDS(model_name)
-    actKappa = bestFittingModel$resample$Kappa
     print("Luckily, model already exists!")
     return(list(bestFittingModel = bestFittingModel, 
-                actKappa = actKappa))
+                actKappa = bestFittingModel$resample$Kappa))
   } else {
-    actKappa = 0
+    actKappa = -0.001
     print("Applying constraints to VSVs candidates...")
     # iteration over bound to test different bound thresholds determining the radius of acception
     for(jj in seq(along = c(1:length(bound)))){
@@ -546,7 +545,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         print(paste("tunedVSVM$resample$Kappa:",tunedVSVM$resample$Kappa))
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa <= tunedVSVM$resample$Kappa){
+        if(actKappa < tunedVSVM$resample$Kappa){
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa # print(paste("actKappa:", actKappa))
           best_trainFeatVSVM = trainFeatVSVM
@@ -1360,7 +1359,7 @@ for(realization in c(1:nR)){#}
     # Get new samples from trainDataCurRemaining_it
     samplesRemaining = getdata(trainDataCurRemaining_it, stratSampRemaining)
     # trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-    actKappa = 0
+    actKappa = -0.001
     for(rS in 1:length(resampledSize)){
       for(nS4it in 1:length(newSizes)){
         for(cS in 1:length(clusterSizes)){

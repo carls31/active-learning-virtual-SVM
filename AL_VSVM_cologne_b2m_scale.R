@@ -470,7 +470,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa))
   } else {
-    actKappa = 0
+    actKappa = -0.001
     print("Applying constraints to VSVs candidates...")
     # iteration over bound to test different bound thresholds determining the radius of acception
     for(jj in seq(along = c(1:length(bound)))){
@@ -1269,7 +1269,7 @@ for(realization in seq(along = c(1:nR))){#}
     # Get new samples from trainDataCurRemaining_it
     samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
     # trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-    actKappa = 0
+    actKappa = -0.001
     for(rS in 1:length(resampledSize)){
       for(nS4it in 1:length(newSizes)){
         for(cS in 1:length(clusterSizes)){
