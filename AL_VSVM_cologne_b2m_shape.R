@@ -2,9 +2,9 @@ library(caret)
 library(kernlab)
 library(sampling)
 library(progress)   # progress bar visualization
+library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU core
-library(stats)      # k-means clustering
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 
 invariance = "shape"
@@ -12,12 +12,12 @@ binary = FALSE   # Choose between Binary or Multiclass classification
 
 nR = 10   # Number of Realizations
 
-bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
-boundMargin = c(1.5, 1, 0.5)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
+bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
+boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 
 newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(50)          # number of clusters used to picked samples from different groups in the space # 60, 80, 90, 100, 300
-resampledSize = c(100)        # total number of relabeled samples # 100, 150, 200, 250
+clusterSizes = c(60)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+resampledSize = c(100)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
@@ -43,12 +43,11 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   #expand coarse grid
   coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
   
-  #set seed
   set.seed(13)
   # if(showPrg){print("running coarse grid search...")}
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
-                       metric = "Kappa",
+                       metric = "Kappa", # "ROC",
                        maximize = TRUE,
                        tuneGrid = coarseGrid,
                        trControl = trainControl ( method = "cv",

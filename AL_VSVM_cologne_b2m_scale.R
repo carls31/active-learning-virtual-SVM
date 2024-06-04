@@ -12,11 +12,11 @@ binary = FALSE   # Choose between Binary or Multiclass classification
 
 nR = 10   # Number of Realizations
 
-bound = c(0.3, 0.6, 0.9)          # radius around SV threshold                           # c(0.3,0.45,0.6,0.75,0.9)
-boundMargin = c(1.5, 1, 0.5)        # distance on positive side of hyperplane threshold    # c(0.5,0.75,1,1.25,1.5)
+bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
+boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 
 newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(60)          # number of clusters used to picked samples from different groups in the space # 60, 80, 90, 100, 300
+clusterSizes = c(60)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
 resampledSize = c(100)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
@@ -45,17 +45,16 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   
   set.seed(13)
   # if(showPrg){print("Running coarse grid search...")}
-  
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
-                       metric = "Kappa", # "ROC"
+                       metric = "Kappa", # "ROC",
                        maximize = TRUE,
                        tuneGrid = coarseGrid,
                        trControl = trainControl ( method = "cv",
                                                   #verboseIter=T,
                                                   index = indexTrain,
                                                   indexFinal= indexTrain[[1]], # classProbs =  classProb
-                                                  ),
+                       ),
                        scaled = FALSE)
   
   #get best coarse grid sigma,C pair
