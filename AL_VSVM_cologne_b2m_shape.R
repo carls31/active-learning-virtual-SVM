@@ -481,20 +481,17 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       
       registerDoParallel(num_cores)
       
-      # Apply foreach loop to process each SVL variable and bind the results
+      # Apply foreach loop to process each SVL variable: bind the results and remove NAs 
       if(binary){ # print("step 1")
         SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
           setNames(rem_extrem(variable[[1]], variable[[2]], bound[jj]), objInfoNames)
         }
       }else{ # print("step 1.5")
         SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
-          setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj], SVMfinModel@kernelf), objInfoNames)
+          na.omit(setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj], SVMfinModel@kernelf), objInfoNames))
         }
       } # print("step 2")
       registerDoSEQ() # print("step 3")
-      
-      # remove NAs 
-      SVinvarRadi = na.omit(SVinvarRadi)
       
       # iterating over boundMargin to test different threshold on margin distance
       for (kk in seq(along = c(1:length(boundMargin)))){
@@ -509,8 +506,6 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
           total = nrow(SVinvarRadi),
           clear = FALSE
         )
-        
-        
         # iterate over SVinvarRadi and evaluate distance to hyperplane
         # implementation checks class membership for case that each class should be evaluate on different bound
         for(m in seq(along = c(1:nrow(SVinvarRadi)))){ # print(paste("step 1:",length(unlist(SVinvarRadi[m,-ncol(SVinvarRadi)]))))
@@ -522,12 +517,9 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
           }
           pb$tick()
         }
-        
-        # merge elected VSV with original SV
-        SVinvar_org = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvar,objInfoNames))
-        
-        SVinvar_org=na.omit(SVinvar_org)
-        
+        # merge elected VSV with original SV and remove NA
+        SVinvar_org = na.omit(rbind(setNames(SVtotal,objInfoNames), setNames(SVinvar,objInfoNames)))
+
         # split for training to feature and label
         trainFeatVSVM = SVinvar_org[,1:(ncol(SVinvar_org)-1)]
         trainLabelsVSVM = SVinvar_org[,ncol(SVinvar_org)]
@@ -544,7 +536,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("tunedVSVM Kappa:",tunedVSVM$resample$Kappa))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("best tunedVSVM Kappa:",tunedVSVM$resample$Kappa))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa # print(paste("actKappa:", actKappa))
           best_trainFeatVSVM = trainFeatVSVM
