@@ -44,7 +44,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
   
   set.seed(13)
-  if(showPrg){print("Running coarse grid search...")}
+  # if(showPrg){print("Running coarse grid search...")}
   
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
@@ -75,7 +75,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   
   set.seed(31)
   
-  if(showPrg){print("Running narrow grid search...")}
+  if(showPrg){print("Coarse grid search completed | Narrow grid search running...")}
   svmFitNarrow = train(x, y, 
                        method = "svmRadial",
                        metric = "Kappa", # "ROC"
