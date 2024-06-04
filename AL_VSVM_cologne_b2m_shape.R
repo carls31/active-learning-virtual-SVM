@@ -45,7 +45,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   
   #set seed
   set.seed(13)
-  # if(showPrg){print("Running coarse grid search...")}
+  # if(showPrg){print("running coarse grid search...")}
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
                        metric = "Kappa",
@@ -75,7 +75,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   
   set.seed(31)
   
-  if(showPrg){print("Coarse grid search completed | Narrow grid search running...")}
+  if(showPrg){print("coarse grid search completed | running narrow grid search...")}
   svmFitNarrow = train(x, y, 
                        method = "svmRadial",
                        metric = "Kappa", # "ROC"
@@ -535,7 +535,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         # ********************* VSVM control parameter tuning *********************
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("new best Kappa:",tunedVSVM$resample$Kappa))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("new best kappa:",tunedVSVM$resample$Kappa))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa # print(paste("actKappa:", actKappa))
           best_trainFeatVSVM = trainFeatVSVM
@@ -655,17 +655,12 @@ generalDataPool_shape = rbind(setNames(generalDataPool_scale[,1:20],c(objInfoNam
                               setNames(generalDataPoolOrg_S05C07[,3:22],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
                               setNames(generalDataPoolOrg_S07C03[,3:22],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
                               setNames(generalDataPoolOrg_S09C01[,3:22],c(objInfoNames[-length(objInfoNames)],"REF","use" )))
-
 # generalDataPool_shape <- na.omit(generalDataPool_shape)
-
 # for(run in seq(along = c(1:(ncol(generalDataPool_shape)-2)))){
 #   generalDataPool_shape[,run] = as.numeric(as.character(generalDataPool_shape[,run]))
 # }
-
-if(binary){
+if(binary){ #transform to 2-Class-Case "Bushes Trees" VS rest 
   print(levels(generalDataPool_shape$REF)[1]) # note that the first record is of class "bushes trees"
-  #transform to 2-Class-Case "Bushes Trees" VS rest
-  #uses the fact, that first record is of class "bushes trees"
   f=levels(generalDataPool_shape$REF)[1]
   generalDataPool_shape$REF = as.character(generalDataPool_shape$REF)
   generalDataPool_shape$REF[generalDataPool_shape$REF != as.character(f)] = "other"
@@ -882,8 +877,7 @@ best_cluster_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
 
-for(realization in c(1:nR)){#}
-  # print(paste0("realization: ",realization,"/",nR))  
+for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
   
@@ -900,7 +894,7 @@ for(realization in c(1:nR)){#}
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
     
-    print(paste0("realization: ",realization,"/",nR,"] | sample size: ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0("realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # if(sample_size>1){sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
@@ -957,13 +951,14 @@ for(realization in c(1:nR)){#}
     # join of train and test test data (separable through indexTrainData in svmFit)
     tuneFeat = rbind(trainFeat, testFeatsub)
     tuneLabel = unlist(list(trainLabels, testLabels))
-
-    print("computing SVM...")
+    
     setwd(paste0(model_path, "saved_models/cologne"))
+    
+    print("computing SVM...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM <- readRDS(model_name)
-      print("Model already exists!")
+      print("Luckily, model already exists!")
     } else {
       tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
       if(save_models){saveRDS(tunedSVM, model_name)}
@@ -971,7 +966,7 @@ for(realization in c(1:nR)){#}
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
     accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-    print(paste0("SVM accuracy assessment: "),accSVM$overall["Accuracy"])
+    print(paste0("SVM accuracy assessment result: "),accSVM$overall["Accuracy"])
     
     best_acc <- accSVM$overall["Accuracy"]
     new_bestTunedVSVM <- tunedSVM
@@ -992,11 +987,10 @@ for(realization in c(1:nR)){#}
     # **********************
     
     ################################################ SVM MS  #############################################
-
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_MS_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM_MS <- readRDS(model_name)
-      print("Model already exists!")
+      print("Luckily, model already exists!")
     } else {
       stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
       samples = getdata(trainDataCurBegMS, stratSamp)  
@@ -1026,14 +1020,14 @@ for(realization in c(1:nR)){#}
       tuneFeat_MS = rbind(trainFeatMS, testFeatMS)
       tuneLabel_MS = unlist(list(trainLabelsMS, testLabelsMS))
       
-      print("computing Multilevel SVM...")
+      print("computing multilevel SVM...")
       tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
       if(save_models){saveRDS(tunedSVM_MS, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
     accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-    print(paste0("SVM_M accuracy assessment: ",accSVM_M$overall["Accuracy"]))
+    print(paste0("SVM_M accuracy assessment result: ",accSVM_M$overall["Accuracy"]))
     
     ####################################### SVM-SL + semi-labeled samples #####################################
     
@@ -1087,7 +1081,7 @@ for(realization in c(1:nR)){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsSVMsumUn_b = predict(bestFittingModelSVMUn_b, validateFeatsub)
     accSVM_SL_Un_b = confusionMatrix(predLabelsSVMsumUn_b, validateLabels)
-    print(paste0("SVM_SL_Un accuracy assessment: ",accSVM_SL_Un_b$overall["Accuracy"]))
+    print(paste0("SVM_SL_Un accuracy assessment result: ",accSVM_SL_Un_b$overall["Accuracy"]))
     
     if(accSVM_SL_Un_b$overall["Accuracy"]>best_acc){
       best_acc <- accSVM_SL_Un_b$overall["Accuracy"]
@@ -1138,7 +1132,7 @@ for(realization in c(1:nR)){#}
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedVSVM <- readRDS(model_name)
-      print("Model already exists!")
+      print("Luckily, model already exists!")
     } else {
       tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
       if(save_models){saveRDS(tunedVSVM, model_name)}
@@ -1148,7 +1142,7 @@ for(realization in c(1:nR)){#}
     predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
     
     accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-    print(paste0("VSVM accuracy assessment: ",accVSVM$overall["Accuracy"]))
+    print(paste0("VSVM accuracy assessment result: ",accVSVM$overall["Accuracy"]))
     
     if(accVSVM$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM$overall["Accuracy"]
@@ -1180,7 +1174,7 @@ for(realization in c(1:nR)){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
     accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-    print(paste0("VSVM_SL accuracy assessment: ",accVSVM_SL$overall["Accuracy"]))
+    print(paste0("VSVM_SL accuracy assessment result: ",accVSVM_SL$overall["Accuracy"]))
     
     if(accVSVM_SL$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL$overall["Accuracy"]
@@ -1248,7 +1242,7 @@ for(realization in c(1:nR)){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
     accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-    print(paste0("VSVM_SL_Un accuracy assessment: ",accVSVM_SL_Un_b$overall["Accuracy"]))
+    print(paste0("VSVM_SL_Un accuracy assessment result: ",accVSVM_SL_Un_b$overall["Accuracy"]))
     
     if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_Un_b$overall["Accuracy"]
@@ -1311,7 +1305,7 @@ for(realization in c(1:nR)){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
     accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
-    print(paste0("VSVM_SL_vUn accuracy assessment: ",accVSVM_SL_vUn_b$overall["Accuracy"]))
+    print(paste0("VSVM_SL_vUn accuracy assessment result: ",accVSVM_SL_vUn_b$overall["Accuracy"]))
     
     if(accVSVM_SL_vUn_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_vUn_b$overall["Accuracy"]
@@ -1321,7 +1315,7 @@ for(realization in c(1:nR)){#}
       best_model <- model_name
     } 
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    print("computing uncertainty distance with iterative active learning procedure...")
+    print(paste0("computing uncertainty distance with iterative active learning procedure... | [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
     classSize = 3000 # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
@@ -1396,7 +1390,7 @@ for(realization in c(1:nR)){#}
     }
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-    print(paste0("VSVM_SL_Un IT-AL accuracy assessment: ",accVSVM_SL_Un_it$overall["Accuracy"]))
+    print(paste0("VSVM_SL - AL accuracy assessment result: ",accVSVM_SL_Un_it$overall["Accuracy"]))
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_Un_ITAL_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if(save_models){saveRDS(new_tunedVSVM, model_name)}
     # ************************************************************************************************
