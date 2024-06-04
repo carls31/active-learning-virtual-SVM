@@ -546,7 +546,6 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         }
       }
     } 
- 
     if(save_models){saveRDS(bestFittingModel, model_name)}
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
