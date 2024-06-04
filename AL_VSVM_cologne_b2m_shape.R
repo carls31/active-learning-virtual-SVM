@@ -544,11 +544,11 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
-        
+        print(paste("tunedVSVM$resample$Kappa:",tunedVSVM$resample$Kappa))
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){
+        if(actKappa <= tunedVSVM$resample$Kappa){
           bestFittingModel = tunedVSVM
-          actKappa = tunedVSVM$resample$Kappa
+          actKappa = tunedVSVM$resample$Kappa # print(paste("actKappa:", actKappa))
           best_trainFeatVSVM = trainFeatVSVM
           best_trainLabelsVSVM = trainLabelsVSVM
           best_bound= bound[jj]
@@ -556,6 +556,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         }
       }
     } 
+ 
     if(save_models){saveRDS(bestFittingModel, model_name)}
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
@@ -903,7 +904,7 @@ best_cluster_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
 
-for(realization in seq(along = c(1:nR))){#}
+for(realization in c(1:nR)){#}
   print(paste0("Realization: ",realization,"/",nR))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
@@ -1200,6 +1201,8 @@ for(realization in seq(along = c(1:nR))){#}
     bestFittingModel <- SLresult$bestFittingModel
     best_trainFeatVSVM <- SLresult$best_trainFeatVSVM
     best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
+    best_bound_SL = SLresult$best_bound
+    best_boundMargin_SL = SLresult$best_boundMargin
     
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
