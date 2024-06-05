@@ -476,7 +476,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = bestFittingModel$resample$Kappa))
   } else {
-    actKappa = -0.001
+    actKappa = -1e-6
     print("applying constraints to VSVs candidates...")
     # iteration over bound to test different bound thresholds determining the radius of acception
     for(jj in seq(along = c(1:length(bound)))){
@@ -497,7 +497,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       
       # iterating over boundMargin to test different threshold on margin distance
       for (kk in seq(along = c(1:length(boundMargin)))){
-        print(paste0("testing similarity threshold -> ",bound[jj]," [",jj,"/",length(bound),"] | margin bound -> ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
+        print(paste0("testing similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | margin bound: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
         
         # remove VSV which are not located in certain distance to decision function
         # data.frame to store elected VSV within the margin
@@ -1313,7 +1313,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       best_model <- model_name
     } 
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    print(paste0("computing uncertainty distance with iterative active learning procedure...  [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0("computing uncertainty distance with iterative active learning procedure... [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
     classSize = 3000 # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
@@ -1321,7 +1321,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     # Get new samples from trainDataCurRemaining_it
     samplesRemaining = getdata(trainDataCurRemaining_it, stratSampRemaining)
     # trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-    actKappa = -0.001
+    actKappa = -1e-6
     for(rS in 1:length(resampledSize)){
       for(nS4it in 1:length(newSizes)){
         for(cS in 1:length(clusterSizes)){

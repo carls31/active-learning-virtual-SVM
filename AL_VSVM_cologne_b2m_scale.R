@@ -473,7 +473,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa))
   } else {
-    actKappa = -0.001
+    actKappa = -1e-6
     print("applying constraints to VSVs candidates...")
     # iteration over bound to test different bound thresholds determining the radius of acception
     for(jj in seq(along = c(1:length(bound)))){
@@ -497,7 +497,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       
       # iterating over boundMargin to test different threshold on margin distance
       for (kk in seq(along = c(1:length(boundMargin)))){
-        print(paste0("Testing similarity threshold: ",bound[jj]," -> ",jj,"/",length(bound)," | bound margin: ",boundMargin[kk]," -> ",kk,"/",length(boundMargin)))
+        print(paste0("testing similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
         
         # remove VSV which are not located in certain distance to decision function
         # data.frame to store elected VSV within the margin
@@ -1269,11 +1269,11 @@ for(realization in seq(along = c(1:nR))){#}
     # Get new samples from trainDataCurRemaining_it
     samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
     # trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-    actKappa = -0.001
+    actKappa = -1e-6
     for(rS in 1:length(resampledSize)){
       for(nS4it in 1:length(newSizes)){
         for(cS in 1:length(clusterSizes)){
-          print(paste0("Total resampled size: ",resampledSize[rS]," -> ",rS,"/",length(resampledSize)," | ","samples for iteration: ",newSizes[nS4it]," -> ",nS4it,"/",length(newSizes)," | ","number of clusters: ",cluster=clusterSizes[cS]," -> ",cS,"/",length(clusterSizes)))
+          print(paste0("total resampled size: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples for iteration: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | ","number of clusters: ",cluster=clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
           
           # new_tunedVSVM <- new_bestTunedVSVM
           # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
