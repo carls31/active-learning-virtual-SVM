@@ -112,6 +112,10 @@ rem_extrem = function(org, VSV1, a){
   # split SV according to its classes
   SVClass1=org[which(org$REF==levels(org$"REF")[[1]]),]
   SVClass2=org[which(org$REF==levels(org$"REF")[[2]]),]
+  
+  boundClass1 = NA
+  boundClass2 = NA
+  
   # compute the distance for each SV in Class1 to all the SV in class1,
   # get the mean of the distances and multiply it with a to get the final threshold
   if(nrow(SVClass1)>0){
@@ -881,7 +885,7 @@ for(realization in seq(along = c(1:nR))){#}
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
     accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-    print(paste0("SVM accuracy assessment result: "),accSVM$overall["Accuracy"])
+    print(paste0("SVM accuracy assessment result: 0",accSVM$overall["Accuracy"]))
     
     best_acc <- accSVM$overall["Accuracy"]
     new_bestTunedVSVM <- tunedSVM
@@ -1064,7 +1068,8 @@ for(realization in seq(along = c(1:nR))){#}
       new_bestTrainFeatVSVM <- trainFeatVSVM
       new_bestTrainLabelsVSVM <- trainLabelsVSVM
       best_model <- model_name
-      } 
+    } 
+    ################################################ VSVM-SL ################################################
     print("evaluation of VSVM SL...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
@@ -1099,16 +1104,20 @@ for(realization in seq(along = c(1:nR))){#}
       }
     ################################### VSVM-SL + semi-labeled samples #####################################
     # Definition of sampling configuration (strata:random sampling without replacement)
-    stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
+    stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
+    stratSampRemaining_v = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
     #stratSampRemaining = strata(trainDataCurRemaining, size = 6*b, method = "srswor") # if trainDataCur is balanced apriori
-
+    
     # get samples of trainDataCurRemaining and set trainDataCurRemaining new
-    samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining)
+    samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining_b)
+    samplesRemaining_v = getdata(trainDataCurRemaining, stratSampRemaining_v)
+    
     trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_b$ID_unit), ]
-
+    trainDataCurRemaining_it <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
+    
     trainDataCurRemaining_b = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
     trainDataCurRemainingsub_b = trainDataCurRemaining_b[sindexSVMDATA:eindexSVMDATA]
-
+    
     REF_b = predict(tunedVSVM, trainDataCurRemainingsub_b)
     # get SV of unlabeled samples
     SVindexUn_b = 1:nrow(trainDataCurRemainingsub_b)
@@ -1168,32 +1177,35 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name
       }
     ################################ VSVM-SL + Virtual semi-labeled Samples ##################################
-    REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_b)
-
+    trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
+    trainDataCurRemainingsub_v = trainDataCurRemaining_v[sindexSVMDATA:eindexSVMDATA]
+    
+    REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_v) 
+    
     # get SV of unlabeled samples
-    SVindexvUn_b = 1:nrow(trainDataCurRemainingsub_b) #bestFittingModelUn_b$finalModel@SVindex
-    SVtotalvUn_b = trainDataCurRemaining_b[SVindexvUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
-    SVtotalvUn_b = cbind(SVtotalUn_b, REF_v)
-
+    SVindexvUn_v = 1:nrow(trainDataCurRemainingsub_v) #bestFittingModelUn_b$finalModel@SVindex 
+    SVtotalvUn_v = trainDataCurRemaining_v[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA)]
+    SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
+    
     # extracting previously assigned reference column
-    SVtotalvUn_bFeat = SVtotalvUn_b[,1:(ncol(SVtotalvUn_b)-2)]
-    REF_v = SVtotalvUn_b[,(ncol(SVtotalvUn_b))]
-    SVtotalvUn_b = cbind(SVtotalvUn_bFeat,REF_v)
+    SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-2)]
+    REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
+    SVtotalvUn_v = cbind(SVtotalvUn_vFeat,REF_v)
 
     # get VSs, means rows of SV but with subset on different level
-    SVL2vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)
-    SVL3vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)
+    SVL2vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)
+    SVL3vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)
 
-    SVL5vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)
-    SVL6vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)
-    SVL7vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)
-    SVL8vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)
-    SVL9vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v)
-    SVL10vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)
-    SVL11vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_b,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v)
+    SVL5vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)
+    SVL6vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)
+    SVL7vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)
+    SVL8vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)
+    SVL9vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v)
+    SVL10vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)
+    SVL11vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v)
 
     # # bind original SV with modified to new train data set
-    # SVinvarvUn_b = rbind(setNames(SVtotalvUn_b,objInfoNames),
+    # SVinvarvUn_b = rbind(setNames(SVtotalvUn_v,objInfoNames),
     #                      setNames(SVL2vUn_b,objInfoNames),
     #                      setNames(SVL3vUn_b,objInfoNames),
     #                      setNames(SVL5vUn_b,objInfoNames),
@@ -1220,15 +1232,15 @@ for(realization in seq(along = c(1:nR))){#}
                              list(SVtotal, SVL9),
                              list(SVtotal, SVL10),
                              list(SVtotal, SVL11),
-                             list(SVtotalvUn_b, SVL2Un_b),
-                             list(SVtotalvUn_b, SVL3Un_b),
-                             list(SVtotalvUn_b, SVL5Un_b),
-                             list(SVtotalvUn_b, SVL6Un_b),
-                             list(SVtotalvUn_b, SVL7Un_b),
-                             list(SVtotalvUn_b, SVL8Un_b),
-                             list(SVtotalvUn_b, SVL9Un_b),
-                             list(SVtotalvUn_b, SVL10Un_b),
-                             list(SVtotalvUn_b, SVL11Un_b)
+                             list(SVtotalvUn_v, SVL2Un_b),
+                             list(SVtotalvUn_v, SVL3Un_b),
+                             list(SVtotalvUn_v, SVL5Un_b),
+                             list(SVtotalvUn_v, SVL6Un_b),
+                             list(SVtotalvUn_v, SVL7Un_b),
+                             list(SVtotalvUn_v, SVL8Un_b),
+                             list(SVtotalvUn_v, SVL9Un_b),
+                             list(SVtotalvUn_v, SVL10Un_b),
+                             list(SVtotalvUn_v, SVL11Un_b)
                             )
     )
     bestFittingModelvUn_b <- SLresult$bestFittingModel
