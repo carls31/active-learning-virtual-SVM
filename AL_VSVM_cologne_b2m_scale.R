@@ -540,7 +540,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("new best kappa:",tunedVSVM$resample$Kappa))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",tunedVSVM$resample$Kappa))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -622,10 +622,9 @@ normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDat
 
 preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
 normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-# ********************************************************************************************
+# **************************************** data for map visualization ****************************************
 normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNames)]))
-rm(data) # WHY DO WE USE THIS DATA AT THE END? IS IT CORRECT TO USE THEM INSTEAD OF THE TRAIN TEST VALID SETS?
-# ********************************************************************************************
+# ************************************************************************************************************
 # apply range of basemodel to all level
 normalizedFeat2 = predict(preProc, setNames(normalizedFeat[,1:numFeat],objInfoNames[-length(objInfoNames)]))
 normalizedFeat3 = predict(preProc, setNames(normalizedFeat[,(numFeat+1):(2*numFeat)],objInfoNames[-length(objInfoNames)]))
@@ -645,7 +644,7 @@ normalizedDataPoolAllLev = cbind(normalizedFeat2, normalizedFeat3, normalizedFea
                                  normalizedFeat11, normalizedLabelUSE
 )
 # remove used temporary variables
-rm(normalizedFeat, normalizedFeat2, normalizedFeat3, normalizedFeatBase,
+rm(data, normalizedFeat, normalizedFeat2, normalizedFeat3, normalizedFeatBase,
    normalizedFeat5,  normalizedFeat6, normalizedFeat7, normalizedFeat8, normalizedFeat9, normalizedFeat10, normalizedFeat11
 )
 ############################################  Splitting & Sampling  ###########################################
@@ -885,7 +884,7 @@ for(realization in seq(along = c(1:nR))){#}
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
     accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-    print(paste0("SVM accuracy assessment result: 0",accSVM$overall["Accuracy"]))
+    print(paste0("SVM accuracy assessment result: 0",round(accSVM$overall["Accuracy"],4)))
     
     best_acc <- accSVM$overall["Accuracy"]
     new_bestTunedVSVM <- tunedSVM
@@ -943,7 +942,7 @@ for(realization in seq(along = c(1:nR))){#}
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
     accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-    print(paste0("SVM_M accuracy assessment result: ",accSVM_M$overall["Accuracy"]))
+    print(paste0("SVM_M accuracy assessment result: ",round(accSVM_M$overall["Accuracy"],4)))
     
     ####################################### SVM-SL + semi-labeled samples #####################################
     
@@ -998,7 +997,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsSVMsumUn_b = predict(bestFittingModelSVMUn_b, validateFeatsub)
     accSVM_SL_Un_b = confusionMatrix(predLabelsSVMsumUn_b, validateLabels)
-    print(paste0("SVM_SL_Un accuracy assessment result: ",accSVM_SL_Un_b$overall["Accuracy"]))
+    print(paste0("SVM_SL_Un accuracy assessment result: ",round(accSVM_SL_Un_b$overall["Accuracy"],4)))
     
     if(accSVM_SL_Un_b$overall["Accuracy"]>best_acc){
       best_acc <- accSVM_SL_Un_b$overall["Accuracy"]
@@ -1060,7 +1059,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for modified SV
     predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
     accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-    print(paste0("VSVM accuracy assessment result: ",accVSVM$overall["Accuracy"]))
+    print(paste0("VSVM accuracy assessment result: ",round(accVSVM$overall["Accuracy"],4)))
     
     if(accVSVM$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM$overall["Accuracy"]
@@ -1093,7 +1092,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
     accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-    print(paste0("VSVM_SL accuracy assessment result: ",accVSVM_SL$overall["Accuracy"]))
+    print(paste0("VSVM_SL accuracy assessment result: ",round(accVSVM_SL$overall["Accuracy"],4)))
     
     if(accVSVM_SL$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL$overall["Accuracy"]
@@ -1167,7 +1166,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
     accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-    print(paste0("VSVM_SL_Un accuracy assessment result: ",accVSVM_SL_Un_b$overall["Accuracy"]))
+    print(paste0("VSVM_SL_Un accuracy assessment result: ",round(accVSVM_SL_Un_b$overall["Accuracy"],4)))
     
     if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_Un_b$overall["Accuracy"]
@@ -1178,31 +1177,31 @@ for(realization in seq(along = c(1:nR))){#}
       }
     ################################ VSVM-SL + Virtual semi-labeled Samples ##################################
     trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
-    trainDataCurRemainingsub_v = trainDataCurRemaining_v[sindexSVMDATA:eindexSVMDATA]
-    
-    REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_v) 
-    
+    # trainDataCurRemainingsub_v = trainDataCurRemaining_v[sindexSVMDATA:eindexSVMDATA]
+    # 
+    # REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_v) 
+    # 
     # get SV of unlabeled samples
-    SVindexvUn_v = 1:nrow(trainDataCurRemainingsub_v) #bestFittingModelUn_b$finalModel@SVindex 
-    SVtotalvUn_v = trainDataCurRemaining_v[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA)]
-    SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
-    
-    # extracting previously assigned reference column
-    SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-2)]
-    REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
-    SVtotalvUn_v = cbind(SVtotalvUn_vFeat,REF_v)
+    SVindexvUn_v = bestFittingModelUn_b$finalModel@SVindex # 1:nrow(trainDataCurRemainingsub_v) 
+    SVtotalvUn_v = trainDataCurRemaining_v[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_v))]
+    # SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
+    # 
+    # # extracting previously assigned reference column
+    # SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-1)]
+    # REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
+    # SVtotalvUn_v = cbind(SVtotalvUn_vFeat,REF_v)
 
     # get VSs, means rows of SV but with subset on different level
-    SVL2vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)
-    SVL3vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)
+    SVL2vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL3vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1),ncol(trainDataCurRemaining))]) #)], REF_v)
 
-    SVL5vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)
-    SVL6vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)
-    SVL7vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)
-    SVL8vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)
-    SVL9vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v)
-    SVL10vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)
-    SVL11vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v)
+    SVL5vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL6vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL7vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL8vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL9vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL10vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+    SVL11vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
 
     # # bind original SV with modified to new train data set
     # SVinvarvUn_b = rbind(setNames(SVtotalvUn_v,objInfoNames),
@@ -1252,7 +1251,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
     accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
-    print(paste0("VSVM_SL_vUn accuracy assessment result: ",accVSVM_SL_vUn_b$overall["Accuracy"]))
+    print(paste0("VSVM_SL_vUn accuracy assessment result: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],4)))
     
     if(accVSVM_SL_vUn_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_vUn_b$overall["Accuracy"]
@@ -1338,7 +1337,7 @@ for(realization in seq(along = c(1:nR))){#}
     }
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-    print(paste0("VSVM_SL - AL accuracy assessment result: ",accVSVM_SL_Un_it$overall["Accuracy"]))
+    print(paste0("VSVM_SL - AL accuracy assessment result: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_Un_ITAL_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if(save_models){saveRDS(new_tunedVSVM, model_name)}
     # ************************************************************************************************
