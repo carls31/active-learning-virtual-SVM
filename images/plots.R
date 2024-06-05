@@ -2,23 +2,29 @@ library(scales)
 
 col = TRUE
 scale = TRUE
-multiclass = TRUE
+multiclass = FALSE
 
-setwd("D:/GitHub/active-learning-virtual-SVM/results")
+if(col){location = "cologne"}else{location = "hadagera"}
+
+path="D:/GitHub/active-learning-virtual-SVM/"
+
+setwd(paste0(path,"results/",location))
 
 file_name_acc = "20240527_1813_Col_scale_binary_accuracy_20UnlSamples"
 file_name_acc = "20240528_0826_Col_scale_binary_accuracy_20UnlSamples"
 file_name_acc = "20240530_1759_Col_scale_binary_accuracy_20Unl_9nR"
 file_name_acc = "20240601_0826_Col_scale_multiclass_acc_20Unl_3nR"
 file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
+file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
+
 
 file_name_kappa = "20240530_1759_Col_scale_binary_kappa_20Unl_9nR"
 file_name_kappa = "20240601_0826_Col_scale_multiclass_kappa_20Unl_3nR"
 file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
+file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
-
 
 ExCsvMSD = function (datadase, filename = NA){{
   
@@ -44,17 +50,11 @@ ExCsvMSD = function (datadase, filename = NA){{
   return(MSDdata)
 }
 
-
 column_names <- colnames(AccuracySVM)
 x <- 2*as.integer(column_names)
 
-if(col){
-  setwd("D:/GitHub/active-learning-virtual-SVM/images/cologne")
-  location = "Cologne"
-}else{
-  setwd("D:/GitHub/active-learning-virtual-SVM/images/hadagera")
-  location = "Hadagera"
-  }
+setwd(paste0(path,"images/",location))
+
 if(scale){invariance = "scale"}else{invariance = "shape"}
 if(multiclass){
   class = "multiclass"
@@ -62,21 +62,18 @@ if(multiclass){
   ylowerBound = 0.445
   }else{
   class = "binary"
-  yUpperBound = 0.95
-  ylowerBound = 0.75
+  yUpperBound = 0.94
+  ylowerBound = 0.73
   }
 
 ######################################## Accuracy ##########################################
 
-###plot basemodel
 png(filename=paste0(file_name_acc,".png"),
     units="in", 
     width=20, 
     height=16, 
     pointsize=12,
     res=96)
-
-#par(mar=c(4.2,4,1,1) )
 
 msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
@@ -113,7 +110,6 @@ legend(x[1],yUpperBound, # places a legend at the appropriate place
        ) 
 
 dev.off()
-
 
 ######################################## Accuracy +/- std dev ##########################################
 
@@ -200,8 +196,8 @@ if(multiclass){
   yUpperBound = 0.66
   ylowerBound = 0.33
 }else{
-  yUpperBound = 0.85
-  ylowerBound = 0.45
+  yUpperBound = 0.83
+  ylowerBound = 0.43
 }
 
 # *********************************************
