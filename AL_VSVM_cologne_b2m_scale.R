@@ -17,9 +17,9 @@ boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # 
 
 b = 20   # Size of balanced_unlabeled_samples in each class
 
-newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(60)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(100)        # total number of relabeld samples # 100, 150, 200, 250
+newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(5)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
@@ -386,7 +386,8 @@ mclp_sampling <- function(org, samp) {
 add_new_samples = function(distance_data,
                            ref, features=NA,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
-                           newSize=4, cluster=120){
+                           newSize=4, cluster=5){
+  if(cluster<newSize){cluster=newSize+1}
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
   

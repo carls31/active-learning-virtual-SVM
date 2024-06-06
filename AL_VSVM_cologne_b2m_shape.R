@@ -18,9 +18,9 @@ boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # 
 
 b = 20   # Size of balanced_unlabeled_samples in each class
 
-newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(60)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(100)        # total number of relabeld samples # 100, 150, 200, 250
+newSizes = c(5)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(120)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+resampledSize = c(50)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
@@ -372,6 +372,7 @@ add_new_samples = function(distance_data,
                            ref, features=NA,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
                            newSize=4, cluster=120){
+  if(cluster<newSize){cluster=newSize+1}
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
   
@@ -584,7 +585,7 @@ columnClass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                "factor","integer")
+                "factor","factor")
 
 setwd(paste0(path, "csv_data_r_import/cologne/scale"))
 inputPath ="cologne_res_100_L2-L13.csv"   
@@ -944,7 +945,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     
     setwd(paste0(model_path, "saved_models/cologne"))
     
-    print("computing SVM...")
+    print("training SVM...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM <- readRDS(model_name)
@@ -1010,7 +1011,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       tuneFeat_MS = rbind(trainFeatMS, testFeatMS)
       tuneLabel_MS = unlist(list(trainLabelsMS, testLabelsMS))
       
-      print("computing multilevel SVM...")
+      print("training multilevel SVM...")
       tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
       if(save_models){saveRDS(tunedSVM_MS, model_name)}
     }
@@ -1118,7 +1119,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
-    print("computing VSVM...")
+    print("training VSVM...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedVSVM <- readRDS(model_name)
@@ -1142,7 +1143,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       best_model <- model_name
     } 
     ################################################ VSVM-SL ################################################
-    print("evaluation of VSVM SL...")
+    print("evaluation of VSVM self learning...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables = list(
@@ -1207,7 +1208,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S07C03Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((7*numFeat)+1):(8*numFeat))], REF_b)
     S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
     
-    print("evaluation of VSVM SL with semi-labeled samples...")
+    print("evaluation of VSVM self learning with semi-labeled samples...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelUn_b_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables=list(
@@ -1254,7 +1255,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     # 
     # get SV of unlabeled samples
     SVindexvUn_v = bestFittingModelUn_b$finalModel@SVindex # 1:nrow(trainDataCurRemainingsub_v) 
-    SVtotalvUn_v = trainDataCurRemaining_v[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_v))]
+    SVtotalvUn_v = na.omit(trainDataCurRemaining_v[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_v))])
     # SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
     # 
     # # extracting previously assigned reference column
@@ -1263,14 +1264,14 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     # SVtotalvUn_v = cbind(SVtotalvUn_vFeat,REF_v)
     
     #get VSs, means rows of SV but with subset on different level
-    S01C09vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c((numFeat+1):(2*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S03C05vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S03C07vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S05C03vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S05C05vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S05C07vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S07C03vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-    S09C01vUn_b = cbind(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S01C09vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((numFeat+1):(2*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S03C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S03C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S05C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S05C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S05C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+    S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
     
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
