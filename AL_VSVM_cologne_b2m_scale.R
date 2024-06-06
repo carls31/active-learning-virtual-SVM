@@ -25,7 +25,7 @@ train  = TRUE         # if TRUE, train the models otherwise load them from dir
 save_models = FALSE   # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(1,2,5,10,20,32,46,62,80) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+  sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(2,5,10,20,35,53,75,100)
 }else{
   model_class="multiclass"
   sampleSizePor = c(35,40,45) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
@@ -849,7 +849,7 @@ for(realization in seq(along = c(1:nR))){#}
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
 
-    print(paste0("realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0(multiclass ," - ",invariance," invariance |","realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # definition of sample shares
@@ -1284,7 +1284,7 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    print(paste0("computing uncertainty distance with iterative active learning procedure... | [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0("computing uncertainty distance for iterative active learning procedure... | [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
     classSize = 3000 # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)

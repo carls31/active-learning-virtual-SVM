@@ -879,7 +879,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
     
-    print(paste0("realization [",realization,"/",nR,"] | sample size: ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0(multiclass ," - ",invariance," invariance |","realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # if(sample_size>1){sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
@@ -1308,7 +1308,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       best_model <- model_name
     } 
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    print(paste0("computing uncertainty distance with iterative active learning procedure... [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0("computing uncertainty distance for iterative active learning procedure... [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
     classSize = 3000 # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
