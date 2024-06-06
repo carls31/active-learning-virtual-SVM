@@ -37,15 +37,12 @@ if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"}
 
 ########################################  Utils  ########################################
-
-# Coarse and Narrow grid search for SVM parameters tuning
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = training descriptors, y = class labels
   
-  #expand coarse grid
   coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
   
   set.seed(13)
-  # if(showPrg){print("running coarse grid search...")}
+  if(showPrg){print("running coarse and narrow grid search for parameters tuning...")}
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
                        metric = "Kappa", # "ROC",
@@ -70,13 +67,10 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
   aC = log2(cCoarse) - 2
   bC = log2(cCoarse) + 2
   
-  #expand narrow grid
   narrowGrid = expand.grid(sigma = 2^seq(aS,bS,by=0.5), C = 2^seq(aC,bC,by=0.5))
   
   set.seed(31)
-  
-  if(showPrg){print("coarse grid search completed | running narrow grid search...")}
-  svmFitNarrow = train(x, y, 
+    svmFitNarrow = train(x, y, 
                        method = "svmRadial",
                        metric = "Kappa", # "ROC"
                        maximize = TRUE,
@@ -86,9 +80,9 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = tra
                                                   index = indexTrain,
                                                   indexFinal= indexTrain[[1]],
                                                   classProbs =  classProb
-                       ),
-                       scaled = FALSE)
-  
+                                                 ),
+                       scaled = FALSE
+                       )
   return(svmFitNarrow)  
 }
 # ***********************************

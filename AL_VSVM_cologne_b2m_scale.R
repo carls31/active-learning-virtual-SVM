@@ -10,7 +10,7 @@ num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 invariance = "scale"
 binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 1   # Number of Realizations
+nR = 3   # Number of Realizations
 
 bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
@@ -28,7 +28,7 @@ if(binary){
   sampleSizePor = c(1,2,5,10,20,32,46,62,80) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
 }else{
   model_class="multiclass"
-  sampleSizePor = c(40) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+  sampleSizePor = c(35,40,45) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
@@ -37,14 +37,12 @@ model_path = "D:/GitHub/active-learning-virtual-SVM/"}
 
 ########################################  Utils  ########################################
 
-# Coarse and Narrow grid search for SVM parameters tuning
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = "Kappa"){ #x = training descriptors, y = class labels
   
-  #expand coarse grid
   coarseGrid = expand.grid(sigma = 2^seq(-5,3,by=2), C = 2^seq(-4,12,by=2))
   
   set.seed(13)
-  # if(showPrg){print("Running coarse grid search...")}
+  if(showPrg){print("running coarse grid search and narrow grid search...")}
   svmFitCoarse = train(x, y, 
                        method = "svmRadial",
                        metric = metric, 
@@ -54,8 +52,9 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = 
                                                   #verboseIter=T,
                                                   index = indexTrain,
                                                   indexFinal= indexTrain[[1]]#, classProbs =  classProb
-                       ),
-                       scaled = FALSE)
+                          ),
+                       scaled = FALSE
+                       )
   
   #get best coarse grid sigma,C pair
   sigmaCoarse = svmFitCoarse$finalModel@kernelf@kpar$sigma
@@ -69,12 +68,9 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = 
   aC = log2(cCoarse) - 2
   bC = log2(cCoarse) + 2
   
-  #expand narrow grid
   narrowGrid = expand.grid(sigma = 2^seq(aS,bS,by=0.5), C = 2^seq(aC,bC,by=0.5))
   
   set.seed(31)
-  
-  if(showPrg){print("coarse grid search completed | running narrow grid search...")}
   svmFitNarrow = train(x, y, 
                        method = "svmRadial",
                        metric = metric, 
@@ -85,8 +81,8 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = 
                                                   index = indexTrain,
                                                   indexFinal= indexTrain[[1]], classProbs =  classProb
                                                   ),
-                       scaled = FALSE)
-  
+                       scaled = FALSE
+                       )
   return(svmFitNarrow)  
 }
 # ***********************************
