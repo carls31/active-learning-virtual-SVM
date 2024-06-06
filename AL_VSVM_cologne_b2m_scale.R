@@ -578,7 +578,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",tunedVSVM$resample$Kappa))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tunedVSVM$resample$Kappa,4)))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -1285,7 +1285,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     print(paste0("computing uncertainty distance for iterative active learning procedure... | [",realization,"/",nR,"] | [",sample_size,"/",length(sampleSizePor),"]"))
-    classSize = 3000 # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+    classSize = min(table(trainDataCurRemaining_it$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
     stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -1348,12 +1348,18 @@ for(realization in seq(along = c(1:nR))){#}
             tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
             pb$tick()
           }
-          if(actKappa < tmp_new_tunedVSVM$resample$Kappa){
+          if(actKappa < tmp_new_tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
             new_tunedVSVM = tmp_new_tunedVSVM
             actKappa = tmp_new_tunedVSVM$resample$Kappa
             best_newSize4iter= newSizes[nS4it]
             best_cluster = clusterSizes[cS]
             best_resample = resampledSize[rS]
+            
+            # *******************************
+            tmp_pred = predict(new_tunedVSVM, validateFeatsub)
+            tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+            print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
+            
           }
         }
       }
