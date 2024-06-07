@@ -23,7 +23,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  4.  DONE check if in the multiclas setting the random / balanced unlabeled samples actually change
  5.  DONE implement only_probability_distance + check different implementation of mclu (see paper) 
  6.  DONE check if NDVI feature is actually useful
- 7. DONE boundClass1 PROBLEM related to sample_size = 1 or to implementation error -> check values inside variables
+ 7.  DONE boundClass1 PROBLEM related to sample_size = 1 or to implementation error -> check values inside variables
  8.  DONE implement binary + multiclass in the same script
  9.  DONE tune alter_label hyperparameter: how many label need to be relabeled?
  10. DONE overall hyperparameters optimization e.g. "boundMargin" and "bound" 
@@ -55,3 +55,5 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  36. try MS with one sample per iteration
  37. implement MS-cSV
  38. collect accuracy results from different realization but same hyperparameters setup
+ 39. consider all the levels for the uncertainty distance 
+ 40. check which VSVM_SL_vUn_b work better 
