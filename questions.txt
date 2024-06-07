@@ -54,3 +54,4 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  35. check the VSVM / VSVM_SL / VSVM_SL_Un performance on the orginal
  36. try MS with one sample per iteration
  37. implement MS-cSV
+ 38. collect accuracy results from different realization but same hyperparameters setup
