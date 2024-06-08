@@ -10,26 +10,25 @@ num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 invariance = "shape"
 binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 10   # Number of Realizations
+nR = 3   # Number of Realizations # 10
 
-bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
-bound = c(0.5, 0.7, 0.9)
+bound = c(0.5, 0.7, 0.9)            # radius around SV - threshold        # c(0.3, 0.6, 0.9)     # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 
 b = 20   # Size of balanced_unlabeled_samples in each class
 
-newSizes = c(5)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
 clusterSizes = c(120)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(50)        # total number of relabeld samples # 100, 150, 200, 250
+resampledSize = c(60)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = FALSE   # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
+  sampleSizePor = c(10,20,30) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) # c(2,5,10,20,35,53,75,100)
 }else{
   model_class="multiclass"
-  sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42
+  sampleSizePor = c(35,40,45) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"

@@ -34,7 +34,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  15. DONE why multiclass script is implemented differently from the binary ones and got different accuracies
  16. add a flag to see which label actually changed
  17. DONE add shape scripts
- 18. add hadagera scripts
+ 18. DONE add hadagera scripts
  19. DONE check if it is sufficient to run registerDoParallel(num_cores) just once inside the script
  20. DONE either balanced the datapool at the beginning or the each train/test/validate/unlabeled set
  21. DONE pick one new sample at time OR pick multiple from different regions/classes
