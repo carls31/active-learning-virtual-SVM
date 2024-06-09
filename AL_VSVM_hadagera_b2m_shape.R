@@ -722,7 +722,7 @@ generalDataPoolOrg_S01C09$REF <- factor(generalDataPoolOrg_S01C09$REF)
 
 recordCount_shape = nrow(generalDataPoolOrg_S01C09)
 
-generalDataPool_shape = rbind(setNames(generalDataPool_scale[,1:28],c(objInfoNames,"use" )),
+generalDataPool = rbind(setNames(generalDataPool_scale[,1:28],c(objInfoNames,"use" )),
                               setNames(generalDataPoolOrg_S01C09[,3:30],c(objInfoNames,"use" )), 
                               setNames(generalDataPoolOrg_S03C05[,3:30],c(objInfoNames,"use" )),
                               setNames(generalDataPoolOrg_S03C07[,3:30],c(objInfoNames,"use" )),
@@ -731,24 +731,27 @@ generalDataPool_shape = rbind(setNames(generalDataPool_scale[,1:28],c(objInfoNam
                               setNames(generalDataPoolOrg_S05C07[,3:30],c(objInfoNames,"use" )),
                               setNames(generalDataPoolOrg_S07C03[,3:30],c(objInfoNames,"use" )),
                               setNames(generalDataPoolOrg_S09C01[,3:30],c(objInfoNames,"use" )))
-# generalDataPool_shape <- na.omit(generalDataPool_shape)
-# for(run in seq(along = c(1:(ncol(generalDataPool_shape)-2)))){
-#   generalDataPool_shape[,run] = as.numeric(as.character(generalDataPool_shape[,run]))
+# generalDataPool <- na.omit(generalDataPool)
+# for(run in seq(along = c(1:(ncol(generalDataPool)-2)))){
+#   generalDataPool[,run] = as.numeric(as.character(generalDataPool[,run]))
 # }
+char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
+generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
+unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
 
 if(binary){ #transform to 2-Class-Case "Bushes Trees" VS rest
-print(levels(generalDataPool_shape$label)[1]) # note that the first record is of class "bushes trees"
-f=levels(generalDataPool_shape$label)[1]
-generalDataPool_shape$label = as.character(generalDataPool_shape$label)
-generalDataPool_shape$label[generalDataPool_shape$label != as.character(f)] = "other"
-generalDataPool_shape$label = as.factor(generalDataPool_shape$label)
+print(levels(generalDataPool$label)[1]) # note that the first record is of class "bushes trees"
+f=levels(generalDataPool$label)[1]
+generalDataPool$label = as.character(generalDataPool$label)
+generalDataPool$label[generalDataPool$label != as.character(f)] = "other"
+generalDataPool$label = as.factor(generalDataPool$label)
 }
-use_label_scale = generalDataPool_shape[1:nrow(generalDataPoolOrg_S09C01),19:20]
+use_label_scale = generalDataPool[1:nrow(generalDataPoolOrg_S09C01),19:20]
 
 ########################################  Scaling  ########################################
 
-normalizedFeat = generalDataPool_shape[,1:(ncol(generalDataPool_shape)-2)]
-normalizedLabelUSE = generalDataPool_shape[1:nrow(generalDataPoolOrg_S09C01),19:20]
+normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
+normalizedLabelUSE = generalDataPool[1:nrow(generalDataPoolOrg_S09C01),19:20]
 
 normalizedFeat = cbind(normalizedFeat[1:recordCount_shape,],
                        normalizedFeat[(recordCount_shape+1):(2*recordCount_shape),],
@@ -759,16 +762,16 @@ normalizedFeat = cbind(normalizedFeat[1:recordCount_shape,],
                        normalizedFeat[((6*recordCount_shape)+1):(7*recordCount_shape),],
                        normalizedFeat[((7*recordCount_shape)+1):(8*recordCount_shape),],
                        normalizedFeat[((8*recordCount_shape)+1):(9*recordCount_shape),])
+nomalizedFeatMS = normalizedFeat
 
 #normalization of  data ("range" scales the data to the interval [0, 1]; c("center", "scale") centers and scales the input data)
 preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
-normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-
-nomalizedFeatMS = normalizedFeat
 
 # **************************************** data for map visualization ****************************************
 normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNames)]))
 # ************************************************************************************************************
+
+normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
 
 normalizedFeatS09C01 = predict(preProc, setNames(normalizedFeat[,(numFeat+1):(2*numFeat)],objInfoNames[-length(objInfoNames)]))
 normalizedFeatS07C03 = predict(preProc, setNames(normalizedFeat[,(2*numFeat+1):(3*numFeat)],objInfoNames[-length(objInfoNames)]))
@@ -783,7 +786,7 @@ normalizedFeat = cbind(normalizedFeatBase,
                        normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
                        normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
 )
-rm(generalDataPool_shape, normalizedFeatBase, 
+rm(generalDataPool, normalizedFeatBase, 
    normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
    normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
 )
