@@ -22,7 +22,7 @@ clusterSizes = c(120)          # number of clusters used to pick samples from di
 resampledSize = c(60)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
-save_models = FALSE   # if TRUE, save the models into dir after training
+save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
   sampleSizePor = c(10,20,30) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) # c(2,5,10,20,35,53,75,100)
@@ -542,7 +542,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         }
       }
     } 
-    if(save_models){saveRDS(bestFittingModel, model_name)}
+    if(save_models && sample_size==5){saveRDS(bestFittingModel, model_name)}
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
                 best_trainFeatVSVM = best_trainFeatVSVM, 
@@ -1079,13 +1079,13 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     setwd(paste0(model_path, "saved_models/hadagera"))
     
     print("training SVM...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM <- readRDS(model_name)
       print("Luckily, model already exists!")
     } else {
       tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-      if(save_models){saveRDS(tunedSVM, model_name)}
+      if(save_models && sample_size==5){saveRDS(tunedSVM, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
@@ -1111,7 +1111,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     # **********************
     
     ################################################ SVM MS  #############################################
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_MS_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_MS_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM_MS <- readRDS(model_name)
       print("Luckily, model already exists!")
@@ -1146,7 +1146,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       
       print("training multilevel SVM...")
       tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
-      if(save_models){saveRDS(tunedSVM_MS, model_name)}
+      if(save_models && sample_size==5){saveRDS(tunedSVM_MS, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
@@ -1184,7 +1184,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
     
     print("evaluation of SVM self learning with semi-labeled samples...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelSVMUn_b_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelSVMUn_b_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE, 
                            SVL_variables = list(
                              list(SVtotalSVMUn_b, S01C09SVMUn_b),
@@ -1253,13 +1253,13 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
     print("training VSVM...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedVSVM <- readRDS(model_name)
       print("Luckily, model already exists!")
     } else {
       tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-      if(save_models){saveRDS(tunedVSVM, model_name)}
+      if(save_models && sample_size==5){saveRDS(tunedVSVM, model_name)}
     }
     
     # predict labels of test data i.e. run classification and accuracy assessment for modified SV
@@ -1277,7 +1277,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     } 
     ################################################ VSVM-SL ################################################
     print("evaluation of VSVM self learning...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables = list(
                              list(SVtotal, S01C09),
@@ -1342,7 +1342,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
     
     print("evaluation of VSVM self learning with semi-labeled samples...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelUn_b_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelUn_b_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables=list(
                              list(SVtotal, S09C01),
@@ -1407,7 +1407,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
     
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, # classProb=TRUE,
                            SVL_variables=list(
                              list(SVtotal, S09C01),
@@ -1523,8 +1523,8 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
     print(paste0("VSVM_SL - AL accuracy assessment result: ",round(accVSVM_SL_Un_it$overall["Accuracy"],5)))
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_Un_ITAL_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    if(save_models){saveRDS(new_tunedVSVM, model_name)}
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_ITAL_Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
+    if(save_models && sample_size==5){saveRDS(new_tunedVSVM, model_name)}
     # ************************************************************************************************
     # 
     # # Add predicted labels to the features data set
@@ -1618,13 +1618,13 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
 }
 setwd(paste0(model_path,"results/hadagera"))
 # save(AccuracySVM,AccuracyVSVM,AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_b_ud,
-#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
+#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
 # save(KappaSVM,KappaVSVM,KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_b_ud,
-#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
+#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
 save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
-     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
+     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
 save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
-     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Col_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
+     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
 print("accuracy results: acquired.")
 print(best_bound_oa_SL)
 print(best_boundMargine_oa_SL)

@@ -22,7 +22,7 @@ clusterSizes = c(120)          # number of clusters used to pick samples from di
 resampledSize = c(50)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
-save_models = FALSE   # if TRUE, save the models into dir after training
+save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
   sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) 
@@ -542,7 +542,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         }
       }
     } 
-    if(save_models){saveRDS(bestFittingModel, model_name)}
+   if(save_models && sample_size==5){saveRDS(bestFittingModel, model_name)}
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
                 best_trainFeatVSVM = best_trainFeatVSVM, 
@@ -945,7 +945,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       print("Luckily, model already exists!")
     } else {
       tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-      if(save_models){saveRDS(tunedSVM, model_name)}
+     if(save_models && sample_size==5){saveRDS(tunedSVM, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
@@ -1006,7 +1006,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       
       print("training multilevel SVM...")
       tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
-      if(save_models){saveRDS(tunedSVM_MS, model_name)}
+     if(save_models && sample_size==5){saveRDS(tunedSVM_MS, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
@@ -1119,7 +1119,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
       print("Luckily, model already exists!")
     } else {
       tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-      if(save_models){saveRDS(tunedVSVM, model_name)}
+     if(save_models && sample_size==5){saveRDS(tunedVSVM, model_name)}
     }
     
     # predict labels of test data i.e. run classification and accuracy assessment for modified SV
@@ -1383,8 +1383,8 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
     print(paste0("VSVM_SL - AL accuracy assessment result: ",round(accVSVM_SL_Un_it$overall["Accuracy"],5)))
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_Un_ITAL_","Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    if(save_models){saveRDS(new_tunedVSVM, model_name)}
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_ITAL_Col_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
+   if(save_models && sample_size==5){saveRDS(new_tunedVSVM, model_name)}
     # ************************************************************************************************
     # 
     # # Add predicted labels to the features data set
