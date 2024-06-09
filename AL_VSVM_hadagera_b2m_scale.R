@@ -34,7 +34,7 @@ path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-num_cores = 2
+# num_cores = 2
 }
 ########################################  Utils  ########################################
 
@@ -570,6 +570,10 @@ if(binary){
   generalDataPool$REF = as.factor(generalDataPool$REF)
 }
 
+char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
+generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
+# unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
+
 data = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
 
 REF = generalDataPool[,ncol(generalDataPool)-1]
@@ -583,18 +587,18 @@ normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
 normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
 
 preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
+
+# *************************************** data for map visualization *****************************************
+normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNames)]))
+# ************************************************************************************************************
 normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
 
-#normalizedFeat[,((4*numFeat)-1)] = as.numeric(levels(normalizedFeat[,((4*numFeat)-1)])[normalizedFeat[,((4*numFeat)-1)]])
-normalizedFeat[,((4*numFeat)-1)] = as.numeric(normalizedFeat[,((4*numFeat)-1)])
-#normalizedFeat[,((4*numFeat)-2)] = as.numeric(levels(normalizedFeat[,((4*numFeat)-2)])[normalizedFeat[,((4*numFeat)-2)]])
-normalizedFeat[,((4*numFeat)-2)] = as.numeric(normalizedFeat[,((4*numFeat)-2)])
-#normalizedFeat[,(4*numFeat)] = as.numeric(levels(normalizedFeat[,(4*numFeat)])[normalizedFeat[,(4*numFeat)]])
-normalizedFeat[,(4*numFeat)] = as.numeric(normalizedFeat[,(4*numFeat)])
-
-#apply range of basemodell to all level
-##preprocess data for visualisation
-normalized_data_modell_apply = predict(preProc, setNames(data_modell_apply,objInfoNames[-length(objInfoNames)]))
+# #normalizedFeat[,((4*numFeat)-1)] = as.numeric(levels(normalizedFeat[,((4*numFeat)-1)])[normalizedFeat[,((4*numFeat)-1)]])
+# normalizedFeat = as.numeric(normalizedFeat)
+# #normalizedFeat[,((4*numFeat)-2)] = as.numeric(levels(normalizedFeat[,((4*numFeat)-2)])[normalizedFeat[,((4*numFeat)-2)]])
+# normalizedFeat[,((4*numFeat)-2)] = as.numeric(normalizedFeat[,((4*numFeat)-2)])
+# #normalizedFeat[,(4*numFeat)] = as.numeric(levels(normalizedFeat[,(4*numFeat)])[normalizedFeat[,(4*numFeat)]])
+# normalizedFeat[,(4*numFeat)] = as.numeric(normalizedFeat[,(4*numFeat)])
 
 normalizedFeat2 = predict(preProc, setNames(normalizedFeat[,1:numFeat],objInfoNames[-length(objInfoNames)]))
 normalizedFeat3 = predict(preProc, setNames(normalizedFeat[,(numFeat+1):(2*numFeat)],objInfoNames[-length(objInfoNames)]))
