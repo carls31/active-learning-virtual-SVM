@@ -6,11 +6,11 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU core
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
-
+city = "Hag"
 invariance = "shape"
 binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 3   # Number of Realizations # 10
+nR = 1   # Number of Realizations # 10
 
 bound = c(0.5, 0.7, 0.9)            # radius around SV - threshold        # c(0.3, 0.6, 0.9)     # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
@@ -590,7 +590,7 @@ generalDataPool_scale = read.csv2(inputPath,header = T, sep =";",colClasses =col
 data = generalDataPool_scale[,sindexSVMDATA:eindexSVMDATA]
 
 
-setwd(paste0(path, "csv_data_r_import/hadagera/shape"))
+setwd(paste0(path, "csv_data_r_import/hagadera/shape"))
 
 # import data
 
@@ -1076,10 +1076,10 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     tuneFeat = rbind(trainFeat, testFeatsub)
     tuneLabel = unlist(list(trainLabels, testLabels))
     
-    setwd(paste0(model_path, "saved_models/hadagera"))
+    setwd(paste0(model_path, "saved_models/hagadera"))
     
     print("training SVM...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM <- readRDS(model_name)
       print("Luckily, model already exists!")
@@ -1111,7 +1111,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     # **********************
     
     ################################################ SVM MS  #############################################
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_MS_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_MS_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedSVM_MS <- readRDS(model_name)
       print("Luckily, model already exists!")
@@ -1184,7 +1184,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
     
     print("evaluation of SVM self learning with semi-labeled samples...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelSVMUn_b_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelSVMUn_b_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE, 
                            SVL_variables = list(
                              list(SVtotalSVMUn_b, S01C09SVMUn_b),
@@ -1253,7 +1253,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
     print("training VSVM...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedVSVM <- readRDS(model_name)
       print("Luckily, model already exists!")
@@ -1277,7 +1277,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     } 
     ################################################ VSVM-SL ################################################
     print("evaluation of VSVM self learning...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables = list(
                              list(SVtotal, S01C09),
@@ -1342,7 +1342,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
     
     print("evaluation of VSVM self learning with semi-labeled samples...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelUn_b_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelUn_b_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
                            SVL_variables=list(
                              list(SVtotal, S09C01),
@@ -1407,7 +1407,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
     
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_","Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, # classProb=TRUE,
                            SVL_variables=list(
                              list(SVtotal, S09C01),
@@ -1523,7 +1523,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
     print(paste0("VSVM_SL - AL accuracy assessment result: ",round(accVSVM_SL_Un_it$overall["Accuracy"],5)))
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_ITAL_Had_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_ITAL_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
     if(save_models && sample_size==5){saveRDS(new_tunedVSVM, model_name)}
     # ************************************************************************************************
     # 
@@ -1602,7 +1602,6 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
     # KappaVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Kappa"])
     # KappaVSVM_SL_Un_b_mclp[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclp$overall["Kappa"])
     KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Kappa"])
-    
   }
   # Find the best hyperparameters overall
   best_bound_oa_SL = c(best_bound_oa_SL, best_bound_SL)
@@ -1616,16 +1615,18 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
   # best_resample_oa=c(best_resample_oa, best_resample)
   best_model_oa=c(best_model_oa, best_model)
 }
-setwd(paste0(model_path,"results/hadagera"))
-# save(AccuracySVM,AccuracyVSVM,AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_b_ud,
-#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
-# save(KappaSVM,KappaVSVM,KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_b_ud,
-#      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
-save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
-     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
-save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
-     file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_Had_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
-print("accuracy results: acquired.")
+if(length(sampleSizePor)>=8){
+  setwd(paste0(model_path,"results/hagadera"))
+  # save(AccuracySVM,AccuracyVSVM,AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_b_ud,
+  #      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
+  # save(KappaSVM,KappaVSVM,KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_b_ud,
+  #      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
+  save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
+       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
+       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  print("accuracy results: acquired.")
+}
 print(best_bound_oa_SL)
 print(best_boundMargine_oa_SL)
 print(best_bound_oa_SL_Un)
