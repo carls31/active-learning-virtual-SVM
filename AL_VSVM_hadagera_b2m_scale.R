@@ -34,7 +34,7 @@ path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-num_cores = 1
+num_cores = 2
 }
 ########################################  Utils  ########################################
 
