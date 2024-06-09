@@ -14,26 +14,26 @@ nR = 1  # Number of Realizations # 10
 
 bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
-b = 20   # Size of balanced_unlabeled_samples in each class
+b = 20                              # Size of balanced_unlabeled_samples in each class
 
 newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(120)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(60)        # total number of relabeld samples # 100, 150, 200, 250
+clusterSizes = c(120)         # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+resampledSize = c(60)         # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(10,20,30) # vector with % of max  # c(2,5,10,20,35,53,75,100) 
+  sampleSizePor = c(5,10,20) # vector with % of max  # c(2,5,10,20,35,53,75,100) 
 }else{
   model_class="multiclass"
-  sampleSizePor = c(35,40,45) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+  sampleSizePor = c(35,40,50) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-# num_cores = 2
+num_cores = 2
 }
 ########################################  Utils  ########################################
 
@@ -429,7 +429,7 @@ add_new_samples = function(distance_data,
   } 
 }   
 
-self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVMfinModel, SVtotal, SVL_variables, train=TRUE, classProb = FALSE)
+self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVMfinModel, SVtotal, SVL_variables,objInfoNames,rem_extrem,rem_extrem_kerneldist, train=TRUE, classProb = FALSE)
 {
   if (file.exists(model_name) && !train) {
     bestFittingModel <- readRDS(model_name)
@@ -560,6 +560,10 @@ generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
 generalDataPool <- na.omit(generalDataPool) 
 
+char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
+generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
+unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
+
 if(binary){
   # transform to 2-Class-Case "Bushes Trees" VS rest
   print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
@@ -568,10 +572,6 @@ if(binary){
   generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
   generalDataPool$REF = as.factor(generalDataPool$REF)
 }
-
-char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
-generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
-# unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
 
 data = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
 
@@ -592,13 +592,6 @@ normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNam
 # ************************************************************************************************************
 normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
 
-# #normalizedFeat[,((4*numFeat)-1)] = as.numeric(levels(normalizedFeat[,((4*numFeat)-1)])[normalizedFeat[,((4*numFeat)-1)]])
-# normalizedFeat = as.numeric(normalizedFeat)
-# #normalizedFeat[,((4*numFeat)-2)] = as.numeric(levels(normalizedFeat[,((4*numFeat)-2)])[normalizedFeat[,((4*numFeat)-2)]])
-# normalizedFeat[,((4*numFeat)-2)] = as.numeric(normalizedFeat[,((4*numFeat)-2)])
-# #normalizedFeat[,(4*numFeat)] = as.numeric(levels(normalizedFeat[,(4*numFeat)])[normalizedFeat[,(4*numFeat)]])
-# normalizedFeat[,(4*numFeat)] = as.numeric(normalizedFeat[,(4*numFeat)])
-
 normalizedFeat2 = predict(preProc, setNames(normalizedFeat[,1:numFeat],objInfoNames[-length(objInfoNames)]))
 normalizedFeat3 = predict(preProc, setNames(normalizedFeat[,(numFeat+1):(2*numFeat)],objInfoNames[-length(objInfoNames)]))
 
@@ -612,8 +605,8 @@ normalizedDataPoolAllLev = cbind(normalizedFeat2, normalizedFeat3, normalizedFea
                                  normalizedFeat5,  normalizedFeat6, normalizedFeat7,  
                                  normalizedFeat8, normalizedFeat9, normalizedLabelUSE
 )
-rm(normalizedFeat2, normalizedFeat3, normalizedFeat5, normalizedFeat6, 
-   normalizedFeat7, normalizedFeat8, normalizedFeat9, normalizedFeatBase
+rm(normalizedFeatBase, normalizedFeat2, normalizedFeat3, normalizedFeat5, 
+   normalizedFeat6, normalizedFeat7, normalizedFeat8, normalizedFeat9
    )
 ############################################  Splitting & Sampling  ###########################################
 
@@ -675,11 +668,11 @@ validateDataAllLevMS = validateDataAllLevMS[,1:ncol(validateDataAllLevMS)-1]
 validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-1)]
 validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
 
-# remove used temporary variables
-rm(validateDataAllLevMS)
-
 # order train datapool by class label in alphabetical order:
 trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
+
+# remove used temporary variables
+rm(validateDataAllLevMS)
 ###############################################################################################################
 
 AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -777,7 +770,7 @@ for(realization in seq(along = c(1:nR))){#}
   testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
-    print(paste0(multiclass ," - ",invariance," invariance |","realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0(model_class ," - ",invariance," invariance |","realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # definition of sample shares
@@ -941,7 +934,7 @@ for(realization in seq(along = c(1:nR))){#}
     ############################## EVALUATION of SVM-SL + semi-labeled samples ##############################
     print("Evaluation of SVM Self Learning with semi-labeled samples...")
     model_name = paste0("bestFittingModelSVMUn_b_",city,"_",model_class,"_",invariance,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
-    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
+    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                            SVL_variables = list(
                              list(SVtotalSVMUn_b, SVL2SVMUn_b),
                              list(SVtotalSVMUn_b, SVL3SVMUn_b),
@@ -1006,7 +999,7 @@ for(realization in seq(along = c(1:nR))){#}
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
     print("computing VSVM...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_",city,"_"invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedVSVM_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedVSVM <- readRDS(model_name)
       print("Luckily, model already exists!")
@@ -1030,7 +1023,7 @@ for(realization in seq(along = c(1:nR))){#}
     ########################################### EVALUATION of VSVM_SL #######################################
     print("evaluation of VSVM SL...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, #classProb=TRUE,
+    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal,objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                            SVL_variables = list(
                               list(SVtotal, SVL2),
                               list(SVtotal, SVL3),
@@ -1086,7 +1079,7 @@ for(realization in seq(along = c(1:nR))){#}
     ################################ EVALUATION of VSVM-SL + semi-labeled samples ##############################
     print("Evaluation of VSVM Self Learning with semi-labeled samples...")
     model_name = paste0("bestFittingModelUn_b_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size] ,"_unl",b,".rds")
-    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, # classProb=TRUE,
+    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal,objInfoNames,rem_extrem,rem_extrem_kerneldist, # classProb=TRUE,
                            SVL_variables = list(
                                list(SVtotal, SVL2),
                                list(SVtotal, SVL3),
@@ -1155,7 +1148,7 @@ for(realization in seq(along = c(1:nR))){#}
 
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_",city,"_",invariance,"_",model_class,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, # classProb=TRUE,
+    SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal,objInfoNames,rem_extrem,rem_extrem_kerneldist, # classProb=TRUE,
                            SVL_variables = list(
                              list(SVtotal, SVL2),
                              list(SVtotal, SVL3),
@@ -1164,15 +1157,13 @@ for(realization in seq(along = c(1:nR))){#}
                              list(SVtotal, SVL7),
                              list(SVtotal, SVL8),
                              list(SVtotal, SVL9),
-                             list(SVtotal, SVL10),
-                             list(SVtotal, SVL11),
-                             list(SVtotalvUn_v, SVL2Un_b),
-                             list(SVtotalvUn_v, SVL3Un_b),
-                             list(SVtotalvUn_v, SVL5Un_b),
-                             list(SVtotalvUn_v, SVL6Un_b),
-                             list(SVtotalvUn_v, SVL7Un_b),
-                             list(SVtotalvUn_v, SVL8Un_b),
-                             list(SVtotalvUn_v, SVL9Un_b)
+                             list(SVtotalvUn_v, SVL2vUn_b),
+                             list(SVtotalvUn_v, SVL3vUn_b),
+                             list(SVtotalvUn_v, SVL5vUn_b),
+                             list(SVtotalvUn_v, SVL6vUn_b),
+                             list(SVtotalvUn_v, SVL7vUn_b),
+                             list(SVtotalvUn_v, SVL8vUn_b),
+                             list(SVtotalvUn_v, SVL9vUn_b)
                            )
     )
     bestFittingModelvUn_b <- SLresult$bestFittingModel
