@@ -4,7 +4,7 @@ col = TRUE
 scale = FALSE
 multiclass = TRUE
 
-if(col){location = "cologne"}else{location = "hadagera"}
+if(col){location = "cologne"}else{location = "hagadera"}
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
