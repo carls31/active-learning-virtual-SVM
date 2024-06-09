@@ -8,7 +8,7 @@ library(doParallel) # multiple CPU core
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 city = "Hag"
 invariance = "scale"
-binary = FALSE   # Choose between Binary or Multiclass classification
+binary = TRUE   # Choose between Binary or Multiclass classification
 
 nR = 1  # Number of Realizations # 10
 
@@ -33,8 +33,9 @@ if(binary){
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
-model_path = "D:/GitHub/active-learning-virtual-SVM/"}
-
+model_path = "D:/GitHub/active-learning-virtual-SVM/"
+num_cores = 1
+}
 ########################################  Utils  ########################################
 
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = "Kappa"){ #x = training descriptors, y = class labels
