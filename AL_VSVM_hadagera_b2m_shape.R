@@ -8,7 +8,7 @@ library(doParallel) # multiple CPU core
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 city = "Hag"
 invariance = "shape"
-binary = FALSE   # Choose between Binary or Multiclass classification
+binary = TRUE   # Choose between Binary or Multiclass classification
 
 nR = 1   # Number of Realizations # 10
 
@@ -33,7 +33,7 @@ path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-# num_cores=2
+# num_cores=3
 }
 ########################################  Utils  ########################################
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = training descriptors, y = class labels
@@ -1616,14 +1616,17 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
 }
 if(length(sampleSizePor)>=8){
   setwd(paste0(model_path,"results/hagadera"))
-  # save(AccuracySVM,AccuracyVSVM,AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_b_ud,
-  #      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR.RData"))
-  # save(KappaSVM,KappaVSVM,KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_b_ud,
-  #      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR.RData"))
-  save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-  save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  if(num_cores>4){
+    save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+    save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  }else{
+    save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+    save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  }
   print("accuracy results: acquired.")
 }
 print(best_bound_oa_SL)
