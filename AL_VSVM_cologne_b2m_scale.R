@@ -27,7 +27,7 @@ if(binary){
   sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(2,5,10,20,35,53,75,100)
 }else{
   model_class="multiclass"
-  sampleSizePor = c(35,40,45) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+  sampleSizePor = c(35,40,50) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
