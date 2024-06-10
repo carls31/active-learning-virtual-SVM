@@ -849,7 +849,7 @@ for(realization in seq(along = c(1:nR))){#}
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
 
-    print(paste0(model_class ," - ",invariance," invariance |","realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0(model_class ," - ",invariance," invariance | realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # definition of sample shares
