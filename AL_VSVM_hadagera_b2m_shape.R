@@ -24,16 +24,18 @@ train  = TRUE         # if TRUE, train the models otherwise load them from dir
 save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(5,10,20) # vector with % of max  # c(40,25,16,12,10,8,6,4,3,2,1) # c(2,5,10,20,35,53,75,100)
+  sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(2,5,10,20,35,53,75,100)
 }else{
   model_class="multiclass"
-  sampleSizePor = c(35,40,50) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+  sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-# num_cores=3
+nR = 1
+num_cores = 3
+# sampleSizePor = c(40)
 }
 ########################################  Utils  ########################################
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE){ #x = training descriptors, y = class labels
