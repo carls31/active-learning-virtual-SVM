@@ -10,7 +10,7 @@ city = "Hag"
 invariance = "scale"
 binary = TRUE   # Choose between Binary or Multiclass classification
 
-nR = 1  # Number of Realizations # 10
+nR = 10  # Number of Realizations # 10
 
 bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
@@ -24,7 +24,7 @@ train  = TRUE         # if TRUE, train the models otherwise load them from dir
 save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(5,10,20) # vector with % of max  # c(2,5,10,20,35,53,75,100) 
+  sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(2,5,10,20,35,53,75,100) c(5,10,20)
 }else{
   model_class="multiclass"
   sampleSizePor = c(35,40,50) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
@@ -1337,8 +1337,8 @@ for(realization in seq(along = c(1:nR))){#}
       # accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
       # print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
       # 
-      # AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
-      # KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Kappa"])
+      AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
+      KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Kappa"])
     }
     ############################################ Save Accuracies ###########################################
 
@@ -1374,11 +1374,18 @@ for(realization in seq(along = c(1:nR))){#}
 }
 if(length(sampleSizePor)>=8){
   setwd(paste0(model_path,"results/hagadera"))
-  save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-  save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-  print("accuracy results: acquired.")
+  if(num_cores>4){
+    save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+    save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  }else{
+    save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+    save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,
+         file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  }
+print("accuracy results: acquired.")
 }
 print(best_bound_oa_SL)
 print(best_boundMargine_oa_SL)
