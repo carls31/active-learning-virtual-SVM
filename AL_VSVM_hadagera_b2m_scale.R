@@ -33,7 +33,7 @@ path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-num_cores = 2
+num_cores = 3
 }
 ########################################  Utils  ########################################
 
@@ -573,12 +573,7 @@ if(binary){
   generalDataPool$REF = as.factor(generalDataPool$REF)
 }
 
-data = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
-
 REF = generalDataPool[,ncol(generalDataPool)-1]
-
-data = cbind(data, REF)
-data_label = data[,ncol(data)]
 
 ###################################################  Scaling  ################################################
 
@@ -587,9 +582,10 @@ normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDat
 
 preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
 
-# *************************************** data for map visualization *****************************************
-normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNames)]))
-# ************************************************************************************************************
+# # *************************************** data for map visualization *****************************************
+# normalized_data = predict(preProc, setNames(cbind(generalDataPool[,sindexSVMDATA:eindexSVMDATA], REF),objInfoNames[-length(objInfoNames)]))
+# # ************************************************************************************************************
+
 normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
 
 normalizedFeat2 = predict(preProc, setNames(normalizedFeat[,1:numFeat],objInfoNames[-length(objInfoNames)]))
@@ -635,8 +631,6 @@ rm(validateDataAllLev, validateFeatAllLev
    )
 ################################################ MultiScale ###################################################
 
-data_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
-
 # normalize feature for MultiScale
 nomalizedFeat_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
 
@@ -644,10 +638,10 @@ preProc = preProcess(nomalizedFeat_MS, method = "range")
 nomalizedFeat_MS = predict(preProc, nomalizedFeat_MS)
 normalizedDataPoolAllLev_MS = cbind( nomalizedFeat_MS[1:((sindexSVMDATA + 8*numFeat)-1)], normalizedLabelUSE)
 
-# *************************************** data for map visualization *****************************************
-normalized_data_MS = predict(preProc, data_MS)
-normalized_data_MS = cbind( normalized_data_MS[1:((sindexSVMDATA + 8*numFeat)-1)])
-# ************************************************************************************************************
+# # *************************************** data for map visualization *****************************************
+# normalized_data_MS = predict(preProc, generalDataPool[,1:(ncol(generalDataPool)-2)])
+# normalized_data_MS = cbind( normalized_data_MS[1:((sindexSVMDATA + 8*numFeat)-1)])
+# # ************************************************************************************************************
 
 #Split data in test, train and validate data Multiscale
 splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$USE)
@@ -668,7 +662,7 @@ validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
 trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
 
 # remove used temporary variables
-rm(nomalizedFeat_MS,data_MS, validateDataAllLevMS, splitdf, normalizedDataPoolAllLev_MS
+rm(nomalizedFeat_MS, validateDataAllLevMS, splitdf, normalizedDataPoolAllLev_MS
    )
 ###############################################################################################################
 
