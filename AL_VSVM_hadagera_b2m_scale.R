@@ -10,21 +10,21 @@ city = "Hag"
 invariance = "scale"
 binary = TRUE   # Choose between Binary or Multiclass classification
 
-nR = 10  # Number of Realizations # 10
+nR = 2  # Number of Realizations # 10
 
 bound = c(0.3, 0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20                              # Size of balanced_unlabeled_samples in each class
 
-newSizes = c(10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(120)         # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(60)         # total number of relabeld samples # 100, 150, 200, 250
+newSizes = c(2)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(40,120)         # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+resampledSize = c(b)         # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
   model_class="binary"
-  sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(2,5,10,20,35,53,75,100) c(5,10,20)
+  sampleSizePor = c(2,5,10,20) # vector with % of max  # c(2,5,10,20,35,53,75,100) c(5,10,20)
 }else{
   model_class="multiclass"
   sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
