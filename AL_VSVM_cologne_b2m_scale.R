@@ -849,7 +849,7 @@ for(realization in seq(along = c(1:nR))){#}
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
 
-    print(paste0(model_class ," - ",invariance," invariance | realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0(model_class ," - ",invariance," invariance | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # definition of sample shares
@@ -1254,15 +1254,15 @@ for(realization in seq(along = c(1:nR))){#}
                              list(SVtotal, SVL9),
                              list(SVtotal, SVL10),
                              list(SVtotal, SVL11),
-                             list(SVtotalvUn_v, SVL2Un_b),
-                             list(SVtotalvUn_v, SVL3Un_b),
-                             list(SVtotalvUn_v, SVL5Un_b),
-                             list(SVtotalvUn_v, SVL6Un_b),
-                             list(SVtotalvUn_v, SVL7Un_b),
-                             list(SVtotalvUn_v, SVL8Un_b),
-                             list(SVtotalvUn_v, SVL9Un_b),
-                             list(SVtotalvUn_v, SVL10Un_b),
-                             list(SVtotalvUn_v, SVL11Un_b)
+                             list(SVtotalvUn_v, SVL2vUn_b),
+                             list(SVtotalvUn_v, SVL3vUn_b),
+                             list(SVtotalvUn_v, SVL5vUn_b),
+                             list(SVtotalvUn_v, SVL6vUn_b),
+                             list(SVtotalvUn_v, SVL7vUn_b),
+                             list(SVtotalvUn_v, SVL8vUn_b),
+                             list(SVtotalvUn_v, SVL9vUn_b),
+                             list(SVtotalvUn_v, SVL10vUn_b),
+                             list(SVtotalvUn_v, SVL11vUn_b)
                             )
     )
     bestFittingModelvUn_b <- SLresult$bestFittingModel

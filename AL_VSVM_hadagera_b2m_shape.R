@@ -1016,7 +1016,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
   
   for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
     
-    print(paste0(model_class ," - ",invariance," invariance | realization [",realization,"/",nR,"] | sample size ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
+    print(paste0(model_class ," - ",invariance," invariance | realization [",realization,"/",nR,"] | labeled sample: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     
     # if(length(sampleSizePor)>1){}else{}
     # if(sample_size>1){sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
