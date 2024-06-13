@@ -17,6 +17,8 @@ file_name_acc = "20240601_0826_Col_scale_multiclass_acc_20Unl_3nR"
 file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
 file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
+file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
+
 
 # ********************************************************************
 
@@ -25,9 +27,49 @@ file_name_kappa = "20240601_0826_Col_scale_multiclass_kappa_20Unl_3nR"
 file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
 file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
 file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
+file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
+
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
+
+# AccuracySVM=AccuracySVM[2:10,]
+# AccuracySVM_M=AccuracySVM_M[2:10,]
+# AccuracySVM_SL_Un_b=AccuracySVM_SL_Un_b[2:10,]
+# AccuracyVSVM=AccuracyVSVM[2:10,]
+# AccuracyVSVM_SL=AccuracyVSVM_SL[2:10,]
+# AccuracyVSVM_SL_Un_b=AccuracyVSVM_SL_Un_b[2:10,]
+# AccuracyVSVM_SL_vUn_b=AccuracyVSVM_SL_vUn_b[2:10,]
+# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[2:10,] 
+# 
+# KappaSVM=KappaSVM[2:10,]
+# KappaSVM_M=KappaSVM_M[2:10,]
+# KappaSVM_SL_Un_b=KappaSVM_SL_Un_b[2:10,]
+# KappaVSVM=KappaVSVM[2:10,]
+# KappaVSVM_SL=KappaVSVM_SL[2:10,]
+# KappaVSVM_SL_Un_b=KappaVSVM_SL_Un_b[2:10,]
+# KappaVSVM_SL_vUn_b=KappaVSVM_SL_vUn_b[2:10,]
+# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[2:10,]
+
+
+# save(AccuracySVM,
+#      AccuracySVM_M,
+#      AccuracySVM_SL_Un_b,
+#      AccuracyVSVM,
+#      AccuracyVSVM_SL,
+#      AccuracyVSVM_SL_Un_b,
+#      AccuracyVSVM_SL_vUn_b,
+#      AccuracyVSVM_SL_Un_it,
+#      file=paste0(file_name_acc,".RData"))
+# save(KappaSVM,
+#      KappaSVM_M,
+#      KappaSVM_SL_Un_b,
+#      KappaVSVM,
+#      KappaVSVM_SL,
+#      KappaVSVM_SL_Un_b,
+#      KappaVSVM_SL_vUn_b,
+#      KappaVSVM_SL_Un_it,
+#      file=paste0(file_name_kappa,".RData"))
 
 ExCsvMSD = function (datadase, filename = NA){{
   
@@ -69,28 +111,9 @@ if(multiclass){
   ylowerBound = 0.73
   }
 
-type = "o"
+type = "l"
 
-# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[nrow(KappaVSVM_SL_Un_it),]
-# 
-# save(AccuracySVM,
-#      AccuracySVM_M,
-#      AccuracySVM_SL_Un_b,
-#      AccuracyVSVM,
-#      AccuracyVSVM_SL,
-#      AccuracyVSVM_SL_Un_b,
-#      AccuracyVSVM_SL_vUn_b,
-#      AccuracyVSVM_SL_Un_it,
-#      file=paste0(file_name_acc,".RData"))
-# save(KappaSVM,
-#      KappaSVM_M,
-#      KappaSVM_SL_Un_b,
-#      KappaVSVM,
-#      KappaVSVM_SL,
-#      KappaVSVM_SL_Un_b,
-#      KappaVSVM_SL_vUn_b,
-#      KappaVSVM_SL_Un_it,
-#      file=paste0(file_name_kappa,".RData"))
+
 ######################################## Accuracy ##########################################
 
 png(filename=paste0(file_name_acc,".png"),
@@ -149,7 +172,7 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty 
 legend(x[1],yUpperBound, # places a legend at the appropriate place 
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL ITerative AL"),
+         "VSVM-SL + ITerative AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
        ) 
@@ -224,7 +247,7 @@ arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it,
 legend(x[1],yUpperBound, # places a legend at the appropriate place
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL ITerative AL"),
+         "VSVM-SL + ITerative AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
 )
@@ -238,8 +261,8 @@ dev.off()
 ##########################################################################
 
 if(multiclass){
-  yUpperBound = 0.66
-  ylowerBound = 0.33
+  yUpperBound = 0.715
+  ylowerBound = 0.405
 }else{
   yUpperBound = 0.83
   ylowerBound = 0.43
@@ -276,7 +299,7 @@ lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
 legend(x[1],yUpperBound, # places a legend at the appropriate place 
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL ITerative AL"),
+         "VSVM-SL + ITerative AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
 ) 
