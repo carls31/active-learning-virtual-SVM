@@ -124,6 +124,7 @@ png(filename=paste0(file_name_acc,".png"),
     res=96)
 
 # # ******************************************************************************************************
+# type = "o"
 # x <- 2*as.integer(names(AccuracySVM))
 # msdSVMPlot = plot(x, (AccuracySVM),log = "x",
 #                   ylim=range(c(ylowerBound,yUpperBound)), 
