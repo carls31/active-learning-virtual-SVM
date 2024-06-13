@@ -1476,7 +1476,7 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
   best_model_oa=c(best_model_oa, best_model)
 }
 if(length(sampleSizePor)>=8){
-  setwd(paste0(model_path,"results/hadagera"))
+  setwd(paste0(model_path,"results/cologne"))
   save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
