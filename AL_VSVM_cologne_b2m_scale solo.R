@@ -760,7 +760,7 @@ best_resample_oa=c()
 best_model_oa=c()
 
 for(realization in seq(along = c(1:nR))){#}
-  print(paste0("Number of cores: "num_cores))  
+  print(paste0("Number of cores: ",num_cores))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
   
