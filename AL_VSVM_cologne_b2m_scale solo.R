@@ -17,7 +17,7 @@ boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(40,60,80,100,120,240,300)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+clusterSizes = c(80,100,120,160,220,300)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
 resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
@@ -760,7 +760,7 @@ best_resample_oa=c()
 best_model_oa=c()
 
 for(realization in seq(along = c(1:nR))){#}
-  # print(paste0("Realization: ",realization,"/",nR))  
+  print(paste0("Number of cores: "num_cores))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
   
