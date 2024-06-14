@@ -1212,8 +1212,8 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    print(paste0("computing uncertainty distance for iterative active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     classSize = round(min(table(trainDataCurRemaining$REF))/10)# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
     stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -1318,7 +1318,7 @@ for(realization in seq(along = c(1:nR))){#}
             tmp_pred = predict(new_tunedVSVM, validateFeatsub)
             tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
             print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
-            
+
           }
         }
       }
