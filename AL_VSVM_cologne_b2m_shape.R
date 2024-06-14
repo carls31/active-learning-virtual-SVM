@@ -1329,8 +1329,37 @@ for(realization in c(1:nR)){#} # print(paste0("realization: ",realization,"/",nR
           new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
           new_trainLabelsVSVM <- best_trainLabelsVSVM
           
-          upd_trainDataCurFeatsub = samplesRemaining[sindexSVMDATA:eindexSVMDATA]
-          upd_trainDataCurLabels = samplesRemaining$REF
+          # upd_trainDataCurFeatsub = samplesRemaining[sindexSVMDATA:eindexSVMDATA]
+          # upd_trainDataCurLabels = samplesRemaining$REF
+          
+          # get VSs, means rows of SV but with subset on different level
+          SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
+          
+          SVL2 = samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
+          SVL3 = samplesRemaining[c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]
+          
+          SVL5 = samplesRemaining[c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))]
+          SVL6 = samplesRemaining[c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))]
+          SVL7 = samplesRemaining[c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]
+          SVL8 = samplesRemaining[c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]
+          SVL9 = samplesRemaining[c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]
+          
+          # bind original SV with modified to new train data set
+          upd_trainDataCur = rbind(setNames(SVtotal,objInfoNames),
+                                   setNames(SVL2,objInfoNames),
+                                   setNames(SVL3,objInfoNames),
+                                   setNames(SVL5,objInfoNames), 
+                                   setNames(SVL6,objInfoNames),
+                                   setNames(SVL7,objInfoNames),
+                                   setNames(SVL8,objInfoNames),
+                                   setNames(SVL9,objInfoNames),
+                                   setNames(SVL10,objInfoNames),
+                                   setNames(SVL11,objInfoNames)
+          )
+          
+          # split for training to feature and label
+          upd_trainDataCurFeatsub = upd_trainDataCur[,1:(ncol(upd_trainDataCur)-1)]
+          upd_trainDataCurLabels = upd_trainDataCur[,ncol(upd_trainDataCur)]
           
           newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
           num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100

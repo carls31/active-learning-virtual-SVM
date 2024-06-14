@@ -1213,7 +1213,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     print(paste0("computing uncertainty distance for iterative active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-    classSize = min(table(trainDataCurRemaining$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+    classSize = 3000 #min(table(trainDataCurRemaining$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
     stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -1238,16 +1238,18 @@ for(realization in seq(along = c(1:nR))){#}
           # upd_trainDataCurLabels = samplesRemaining$REF
           
           # get VSs, means rows of SV but with subset on different level
-          SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(samplesRemaining))]
-          SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(samplesRemaining))]
+          SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
           
-          SVL5 = samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(samplesRemaining))]
-          SVL6 = samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(samplesRemaining))]
-          SVL7 = samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(samplesRemaining))]
-          SVL8 = samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(samplesRemaining))]
-          SVL9 = samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(samplesRemaining))]
-          SVL10 = samplesRemaining[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(samplesRemaining))]
-          SVL11 = samplesRemaining[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(samplesRemaining))]
+          SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
+          SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
+          
+          SVL5 = samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
+          SVL6 = samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
+          SVL7 = samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
+          SVL8 = samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
+          SVL9 = samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
+          SVL10 = samplesRemaining[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
+          SVL11 = samplesRemaining[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
           
           # bind original SV with modified to new train data set
           upd_trainDataCur = rbind(setNames(SVtotal,objInfoNames),

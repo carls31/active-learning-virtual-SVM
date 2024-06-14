@@ -559,7 +559,7 @@ colnames(generalDataPool)[209] = "REF"
 # exclude unclassified and delete level of factor
 generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
-generalDataPool <- na.omit(generalDataPool) 
+generalDataPool <- na.omit(generalDataPool)
 
 char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
 generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
@@ -1190,7 +1190,7 @@ for(realization in seq(along = c(1:nR))){#}
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     if(num_cores>4){
       print(paste0("computing uncertainty distance for iterative active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-      classSize = min(table(trainDataCurRemaining$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+      classSize = 3000 #min(table(trainDataCurRemaining$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
       stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
       # Definition of sampling configuration (strata:random sampling without replacement)
       stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -1215,6 +1215,8 @@ for(realization in seq(along = c(1:nR))){#}
             # upd_trainDataCurLabels = samplesRemaining$REF
             
             # get VSs, means rows of SV but with subset on different level
+            SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
+            
             SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(samplesRemaining))]
             SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(samplesRemaining))]
             

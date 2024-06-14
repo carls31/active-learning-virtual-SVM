@@ -1310,16 +1310,18 @@ for(realization in seq(along = c(1:nR))){#}
           # upd_trainDataCurLabels = samplesRemaining$REF
           
           # get VSs, means rows of SV but with subset on different level
-          SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(samplesRemaining))]
-          SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(samplesRemaining))]
+          SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
           
-          SVL5 = samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(samplesRemaining))]
-          SVL6 = samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(samplesRemaining))]
-          SVL7 = samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(samplesRemaining))]
-          SVL8 = samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(samplesRemaining))]
-          SVL9 = samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(samplesRemaining))]
-          SVL10 = samplesRemaining[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(samplesRemaining))]
-          SVL11 = samplesRemaining[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(samplesRemaining))]
+          SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
+          SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
+          
+          SVL5 = samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
+          SVL6 = samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
+          SVL7 = samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
+          SVL8 = samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
+          SVL9 = samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
+          SVL10 = samplesRemaining[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
+          SVL11 = samplesRemaining[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
           
           # bind original SV with modified to new train data set
           upd_trainDataCur = rbind(setNames(SVtotal,objInfoNames),
