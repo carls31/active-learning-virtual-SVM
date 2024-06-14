@@ -1220,7 +1220,7 @@ for(realization in seq(along = c(1:nR))){#}
     # Get new samples from trainDataCurRemaining_it
     samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
     # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-    actKappa = -1e-6
+    actAcc = -1e-6
     for(cS in 1:length(clusterSizes)){
       for(rS in 1:length(resampledSize)){
         for(nS4it in 1:length(newSizes)){
@@ -1307,18 +1307,18 @@ for(realization in seq(along = c(1:nR))){#}
             tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
             pb$tick()
           }
-          if(actKappa < tmp_new_tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
+          
+          # *******************************
+          tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
+          tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+          
+          if(actAcc < tmp_acc){ print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
             new_tunedVSVM = tmp_new_tunedVSVM
-            actKappa = tmp_new_tunedVSVM$resample$Kappa
+            actAcc = tmp_acc
             best_newSize4iter= newSizes[nS4it]
             best_cluster = clusterSizes[cS]
             best_resample = resampledSize[rS]
-            
-            # *******************************
-            tmp_pred = predict(new_tunedVSVM, validateFeatsub)
-            tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-            print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
-
+            print(paste("related kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
           }
         }
       }
