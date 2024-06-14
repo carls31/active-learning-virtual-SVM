@@ -12,8 +12,8 @@ binary = TRUE   # Choose between Binary or Multiclass classification
 
 nR = 1   # Number of Realizations
 
-bound = c(0.6, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
-boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
+bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
+boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
