@@ -1190,7 +1190,7 @@ for(realization in seq(along = c(1:nR))){#}
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     if(num_cores>4){
       print(paste0("computing uncertainty distance for iterative active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-      classSize = 3000 #min(table(trainDataCurRemaining$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+      classSize = round(min(table(trainDataCurRemaining$REF))/10 )# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
       stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
       # Definition of sampling configuration (strata:random sampling without replacement)
       stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")

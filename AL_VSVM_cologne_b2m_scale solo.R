@@ -17,7 +17,7 @@ boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(80,100,120,160,220,300)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+clusterSizes = c(4,5,10,20,40,60,80,100,120,160,220,300)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
 resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
@@ -1213,7 +1213,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     print(paste0("computing uncertainty distance for iterative active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-    classSize = 3000 #min(table(trainDataCurRemaining$REF)) # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+    classSize = round(min(table(trainDataCurRemaining$REF))/10)# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
     stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
     # Definition of sampling configuration (strata:random sampling without replacement)
     stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
