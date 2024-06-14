@@ -1315,7 +1315,7 @@ for(realization in seq(along = c(1:nR))){#}
         tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
         tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
         
-        if(actAcc < tmp_acc){ print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
+        if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
           new_tunedVSVM = tmp_new_tunedVSVM
           actAcc = tmp_acc
           best_newSize4iter= newSizes[nS4it]
