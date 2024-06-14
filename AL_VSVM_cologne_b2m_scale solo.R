@@ -1317,7 +1317,7 @@ for(realization in seq(along = c(1:nR))){#}
         
         if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
           new_tunedVSVM = tmp_new_tunedVSVM
-          actAcc = tmp_acc
+          actAcc = tmp_acc$overall["Accuracy"]
           best_newSize4iter= newSizes[nS4it]
           best_cluster = clusterSizes[cS]
           best_resample = resampledSize[rS]
@@ -1326,7 +1326,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
       fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
       accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-      print(paste0("VSVM_SL - AL", " | clusters: ",cluster=clusterSizes[cS]," [",cS,"/",length(clusterSizes),"] | ","accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
+      print(paste0("VSVM_SL - AL", " | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"] | ","accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
       
       ############################################ Save Accuracies ###########################################
       
