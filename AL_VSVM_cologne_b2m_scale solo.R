@@ -1213,7 +1213,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     classSize = c(25,50,75, 100, 150, 300,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
-    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
+    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | "))
     for(cS in 1:length(clusterSizes)){
       actAcc = -1e-6
       for(clS in 1:length(classSize)){
