@@ -1430,5 +1430,6 @@ if(length(clusterSizes)>=5){
 # print(best_bound_oa_SL_vUn)
 # print(best_boundMargine_oa_SL_vUn)
 # print(best_newSize_oa)
+print(best_classSize_oa)
 print(best_cluster_oa)
 # print(best_resample_oa)
