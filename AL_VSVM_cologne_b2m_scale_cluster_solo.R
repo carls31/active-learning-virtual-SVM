@@ -1,3 +1,4 @@
+start.time_oa <- Sys.time()
 library(caret)
 library(kernlab)
 library(sampling)
@@ -760,8 +761,10 @@ best_classSize_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
 
+start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}
 for(cS in 1:length(clusterSizes)){
+  start.time <- Sys.time()
   print(paste0("Number of cores: ",num_cores))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
@@ -1400,7 +1403,7 @@ for(cS in 1:length(clusterSizes)){
     # accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
     # print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
     # 
-
+    time.taken_iter = c(time.taken_iter, round(Sys.time() - start.time,2))
   }
   # Find the best hyperparameters overall
   # best_bound_oa_SL = c(best_bound_oa_SL, best_bound_SL)
@@ -1414,14 +1417,18 @@ for(cS in 1:length(clusterSizes)){
   best_cluster_oa=c(best_cluster_oa, best_cluster)
   # best_resample_oa=c(best_resample_oa, best_resample)
   best_model_oa=c(best_model_oa, best_model)
+
 }
+time.taken_oa_postPreproc <- round(Sys.time() - start.time_oa_postPreproc,2)
+time.taken_oa <- round(Sys.time() - start.time_oa,2)
 if(length(clusterSizes)>=5){
   setwd(paste0(model_path,"results/cologne"))
   save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-  cat(best_classSize_oa, best_cluster_oay, file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_metadata_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"), sep = "\n")
+  cat(time.taken_oa, time.taken_oa_postPreproc,  time.taken_iter,best_classSize_oa, best_cluster_oay, 
+      file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_metadata_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"), sep = "\n")
   print("accuracy results: acquired.")
 }
 # print(best_bound_oa_SL)
