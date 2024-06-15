@@ -8,16 +8,16 @@ library(doParallel) # multiple CPU core
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 city = "Col"
 invariance = "scale"
-binary = TRUE   # Choose between Binary or Multiclass classification
+binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 1   # Number of Realizations
+nR = 2   # Number of Realizations
 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
 
 newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(4,5,10,20,40,60,80,100)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+clusterSizes = c(4,10,20,40,60,100)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
 resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
@@ -756,10 +756,12 @@ best_bound_oa_SL_vUn = c()
 best_boundMargine_oa_SL_vUn = c()
 best_newSize_oa=c()
 best_cluster_oa=c()
+best_classSize_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
 
 for(realization in seq(along = c(1:nR))){#}
+for(cS in 1:length(clusterSizes)){
   print(paste0("Number of cores: ",num_cores))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
@@ -1212,9 +1214,9 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    classSize = c(25,50,75, 100, 150, 300,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+    classSize = c(25,50,75,100,150,300)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
     print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | "))
-    for(cS in 1:length(clusterSizes)){
+    
       actAcc = -1e-6
       for(clS in 1:length(classSize)){
         stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -1320,6 +1322,7 @@ for(realization in seq(along = c(1:nR))){#}
           actAcc = tmp_acc$overall["Accuracy"]
           best_newSize4iter= newSizes[nS4it]
           best_cluster = clusterSizes[cS]
+          best_classSize= classSize[clS]
           best_resample = resampledSize[rS]
           print(paste("related kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
         }
@@ -1407,6 +1410,7 @@ for(realization in seq(along = c(1:nR))){#}
   # best_bound_oa_SL_vUn = c(best_bound_oa_SL_vUn, best_bound_SLvUn_b)
   # best_boundMargine_oa_SL_vUn = c(best_boundMargine_oa_SL_vUn, best_boundMargin_SLvUn_b)
   # best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
+  best_classSize_oa = c(best_classSize_oa, best_classSize)
   best_cluster_oa=c(best_cluster_oa, best_cluster)
   # best_resample_oa=c(best_resample_oa, best_resample)
   best_model_oa=c(best_model_oa, best_model)
