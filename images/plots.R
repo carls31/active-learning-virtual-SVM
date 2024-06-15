@@ -16,7 +16,7 @@ file_name_acc = "20240530_1759_Col_scale_binary_acc_20Unl_9nR"
 file_name_acc = "20240601_0826_Col_scale_multiclass_acc_20Unl_3nR"
 file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
-file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
+# file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
 
 
@@ -26,7 +26,7 @@ file_name_kappa = "20240530_1759_Col_scale_binary_kappa_20Unl_9nR"
 file_name_kappa = "20240601_0826_Col_scale_multiclass_kappa_20Unl_3nR"
 file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
 file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
-file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
+# file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
 file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
 
 
@@ -96,6 +96,7 @@ ExCsvMSD = function (datadase, filename = NA){{
 }
 
 column_names <- colnames(AccuracySVM)
+# column_names <- names(AccuracySVM)
 x <- 2*as.integer(column_names)
 
 setwd(paste0(path,"images/",location))
