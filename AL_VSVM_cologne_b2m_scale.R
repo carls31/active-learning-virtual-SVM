@@ -1,3 +1,4 @@
+start.time_oa <- Sys.time()
 library(caret)
 library(kernlab)
 library(sampling)
@@ -831,11 +832,12 @@ best_cluster_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
 
+start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}
-  # print(paste0("Realization: ",realization,"/",nR))  
+  start.time <- Sys.time()
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
-  
+  print(paste("seed:",seed))
   trainDataCurBeg = trainDataPoolAllLev
   testDataCurBeg = testDataAllLev
   # subset for each outer iteration test data to speed up computing
@@ -1491,13 +1493,18 @@ for(realization in seq(along = c(1:nR))){#}
   # best_cluster_oa=c(best_cluster_oa, best_cluster)
   # best_resample_oa=c(best_resample_oa, best_resample)
   best_model_oa=c(best_model_oa, best_model)
+  time.taken_iter = c(time.taken_iter, round(Sys.time() - start.time,2))
 }
-if(length(sampleSizePor)>=8){
+time.taken_oa_postPreproc <- round(Sys.time() - start.time_oa_postPreproc,2)
+time.taken_oa <- round(Sys.time() - start.time_oa,2)
+if(length(sampleSizePor)>=5){
   setwd(paste0(model_path,"results/cologne"))
   save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  cat(time.taken_oa, time.taken_oa_postPreproc,  time.taken_iter,best_bound_oa_SL, best_boundMargine_oa_SL, best_bound_oa_SL_Un, best_boundMargine_oa_SL_Un, best_bound_oa_SL_vUn, best_boundMargine_oa_SL_vUn, best_model_oa, 
+       file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_metadata_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"), sep = "\n")
   print("accuracy results: acquired.")
 }
 print(best_bound_oa_SL)

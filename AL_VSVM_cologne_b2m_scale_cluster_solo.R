@@ -1421,6 +1421,7 @@ if(length(clusterSizes)>=5){
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+  cat(best_classSize_oa, best_cluster_oay, file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_metadata_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"), sep = "\n")
   print("accuracy results: acquired.")
 }
 # print(best_bound_oa_SL)
