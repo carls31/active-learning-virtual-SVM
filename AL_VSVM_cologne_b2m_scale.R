@@ -216,17 +216,17 @@ rem_extrem_kerneldist = function(org, VSV1, a, kernel_func){
     }#if(!tmp_cond){VSV1[k,]=NA}
   }
   
-  for(k in c(1:nrow(org))){
-    print("step1")
+  for(k in c(1:nrow(org))){ #print("step1")
+    
     tmp_cond <- FALSE
-    for(class in c(1:length(SVClass))){
-      print("step2")
-      if(as.integer(distance[k,1]) == class){
-        print("step3")
-        if(!is.null(boundClass[[class]]) && !is.na(boundClass[[class]])){
-          print("step4")
-          if(distance[k,2] != 0 && distance[k,2] > (boundClass[[class]])){
-            print("step5")
+    for(class in c(1:length(SVClass))){ # print("step2")
+      
+      if(as.integer(distance[k,1]) == class){ # print("step3")
+        
+        if(!is.null(boundClass[[class]]) && !is.na(boundClass[[class]])){ # print("step4")
+          
+          if(distance[k,2] != 0 && distance[k,2] > (boundClass[[class]])){ # print("step5")
+            
             VSV1[k,]=NA
             tmp_cond <- TRUE
           }
