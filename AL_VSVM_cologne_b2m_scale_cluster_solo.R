@@ -11,7 +11,7 @@ city = "Col"
 invariance = "scale"
 binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 2   # Number of Realizations
+nR = 3   # Number of Realizations
 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
@@ -26,10 +26,10 @@ if(binary){
   model_class="multiclass"
   sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
-newSizes = c(5,10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = newSizes*10          # number of clusters used to pick samples from different groups # c(4,10,20,40,60,100)
+newSizes = c(b/5,b)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(40,120)        # number of clusters used to pick samples from different groups # c(4,10,20,40,60,100)
 resampledSize = c(b,b*5)        # total number of relabeled samples # 100, 150, 200, 250 #c(b)
-classSize = c(75,100,300,600)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+classSize = c(75,100,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
@@ -753,10 +753,10 @@ best_bound_oa_SL_Un = c()
 best_boundMargine_oa_SL_Un = c()
 best_bound_oa_SL_vUn = c()
 best_boundMargine_oa_SL_vUn = c()
-best_newSize_oa=c()
-best_cluster_oa=c()
-best_classSize_oa=c()
 best_resample_oa=c()
+best_newSize_oa=c()
+best_classSize_oa=c()
+best_cluster_oa=c()
 best_model_oa=c()
 time.taken_iter = c()
 
@@ -1234,7 +1234,7 @@ for(realization in seq(along = c(1:nR))){#}
         
         for(rS in 1:length(resampledSize)){
           for(nS4it in 1:length(newSizes)){
-            print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples for iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | ","clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"] | ","class: ",classSize[clS]," [",clS,"/",length(classSize),"]"))
+            print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | class size: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
             
             # new_tunedVSVM <- new_bestTunedVSVM
             # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
@@ -1323,19 +1323,18 @@ for(realization in seq(along = c(1:nR))){#}
         tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
         tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
         
-        if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
+        if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],4)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
           new_tunedVSVM = tmp_new_tunedVSVM
           actAcc = tmp_acc$overall["Accuracy"]
-          best_newSize4iter= newSizes[nS4it]
-          best_cluster = clusterSizes[cS]
-          best_classSize= classSize[clS]
           best_resample = resampledSize[rS]
-          print(paste("related kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
+          best_newSize4iter= newSizes[nS4it]
+          best_classSize= classSize[clS]
+          best_cluster = clusterSizes[cS]
         }
       }
       fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
       accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-      print(paste0("VSVM_SL_AL", " | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"] | class: ",best_classSize," | accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
+      print(paste0("VSVM_SL_AL", "resampled: ", best_resample," | samples/iter: ",best_newSize4iter," | class size: ",best_classSize," | clusters: ",clusterSizes[cS]," | accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
       
       ############################################ Save Accuracies ###########################################
       
@@ -1415,22 +1414,21 @@ for(realization in seq(along = c(1:nR))){#}
   # best_boundMargine_oa_SL_Un = c(best_boundMargine_oa_SL_Un, best_boundMargin_SL_Un)
   # best_bound_oa_SL_vUn = c(best_bound_oa_SL_vUn, best_bound_SLvUn_b)
   # best_boundMargine_oa_SL_vUn = c(best_boundMargine_oa_SL_vUn, best_boundMargin_SLvUn_b)
-  # best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
+  best_resample_oa=c(best_resample_oa, best_resample)
+  best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
   best_classSize_oa = c(best_classSize_oa, best_classSize)
   best_cluster_oa=c(best_cluster_oa, best_cluster)
-  # best_resample_oa=c(best_resample_oa, best_resample)
   best_model_oa=c(best_model_oa, best_model)
-
 }
 time.taken_oa_postPreproc <- round(Sys.time() - start.time_oa_postPreproc,2)
 time.taken_oa <- round(Sys.time() - start.time_oa,2)
-if(length(clusterSizes)>=5){
+if(length(clusterSizes)>=2){
   setwd(paste0(model_path,"results/cologne"))
   save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-  cat(time.taken_oa, time.taken_oa_postPreproc,  time.taken_iter,best_classSize_oa, best_cluster_oay, 
+  cat(time.taken_oa, time.taken_oa_postPreproc, time.taken_iter, best_resample_oa, best_newSize_oa, best_classSize_oa, best_cluster_oa,
       file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_class,"_metadata_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"), sep = "\n")
   print("accuracy results: acquired.")
 }
@@ -1440,7 +1438,7 @@ if(length(clusterSizes)>=5){
 # print(best_boundMargine_oa_SL_Un)
 # print(best_bound_oa_SL_vUn)
 # print(best_boundMargine_oa_SL_vUn)
-# print(best_newSize_oa)
+print(best_resample_oa)
+print(best_newSize_oa)
 print(best_classSize_oa)
 print(best_cluster_oa)
-# print(best_resample_oa)
