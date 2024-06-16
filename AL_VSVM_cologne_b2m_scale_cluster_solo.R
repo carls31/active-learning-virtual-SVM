@@ -746,9 +746,6 @@ colnames(KappaVSVM_SL_Un_b_mclu) = colheader
 KappaVSVM_SL_Un_b_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaVSVM_SL_Un_b_mclp) = colheader
 
-# set randomized seed for the random sampling procedure
-seed = 20 # 5, 73, 20 
-
 best_bound_oa_SL = c()
 best_boundMargine_oa_SL = c()
 best_bound_oa_SL_Un = c()
@@ -760,6 +757,10 @@ best_cluster_oa=c()
 best_classSize_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
+time.taken_iter = c()
+
+# set randomized seed for the random sampling procedure
+seed = 20 # 5, 73, 20 
 
 start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}

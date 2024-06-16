@@ -995,6 +995,7 @@ best_newSize_oa=c()
 best_cluster_oa=c()
 best_resample_oa=c()
 best_model_oa=c()
+time.taken_iter = c()
 
 # set randomized seed for the random sampling procedure
 seed = 20 # 5, 73, 20
