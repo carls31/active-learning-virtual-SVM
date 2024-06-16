@@ -764,7 +764,6 @@ seed = 20 # 5, 73, 20
 
 start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}
-for(cS in 1:length(clusterSizes)){
   start.time <- Sys.time()
   print(paste0("Number of cores: ",num_cores))  
   # initial seed value for randomized sampling
@@ -1218,11 +1217,14 @@ for(cS in 1:length(clusterSizes)){
       best_model <- model_name
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    classSize = c(25,50,75,100,150,300)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
-    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-    
+    for(cS in 1:length(clusterSizes)){
+      print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
+      classSize = c(25,50,75,100,150,300)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+      new_tunedVSVM <- bestFittingModel
+      
       actAcc = -1e-6
       for(clS in 1:length(classSize)){
+
         stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
         # Definition of sampling configuration (strata:random sampling without replacement)
         stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -1238,7 +1240,7 @@ for(cS in 1:length(clusterSizes)){
             # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
             # new_trainLabelsVSVM <- new_bestTrainLabelsVSVM
             
-            new_tunedVSVM <- bestFittingModel
+            
             new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
             new_trainLabelsVSVM <- best_trainLabelsVSVM
             
