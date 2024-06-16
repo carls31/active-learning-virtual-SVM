@@ -17,10 +17,6 @@ bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
 
-newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(4,10,20,40,60,100)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(b)        # total number of relabeled samples # 100, 150, 200, 250
-
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = TRUE    # if TRUE, save the models into dir after training
 if(binary){
@@ -30,6 +26,11 @@ if(binary){
   model_class="multiclass"
   sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
+newSizes = c(5,10)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = newSizes*10          # number of clusters used to pick samples from different groups # c(4,10,20,40,60,100)
+resampledSize = c(b,b*5)        # total number of relabeled samples # 100, 150, 200, 250 #c(b)
+classSize = c(75,100,300,600)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
@@ -1219,7 +1220,6 @@ for(realization in seq(along = c(1:nR))){#}
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     for(cS in 1:length(clusterSizes)){
       print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-      classSize = c(25,50,75,100,150,300)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
       new_tunedVSVM <- bestFittingModel
       
       actAcc = -1e-6
