@@ -11,7 +11,7 @@ city = "Col"
 invariance = "scale"
 binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 3   # Number of Realizations
+nR = 4   # Number of Realizations
 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
@@ -29,7 +29,7 @@ if(binary){
 newSizes = c(b/5,b)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
 clusterSizes = c(40,120)        # number of clusters used to pick samples from different groups # c(4,10,20,40,60,100)
 resampledSize = c(b,b*5)        # total number of relabeled samples # 100, 150, 200, 250 #c(b)
-classSize = c(75,100,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
+classSize = c(100,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
