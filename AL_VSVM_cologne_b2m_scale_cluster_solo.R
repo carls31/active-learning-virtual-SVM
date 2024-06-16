@@ -1333,7 +1333,7 @@ for(cS in 1:length(clusterSizes)){
       }
       fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
       accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-      print(paste0("VSVM_SL - AL", " | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"] | ","accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
+      print(paste0("VSVM_SL_AL", " | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"] | class: ",best_classSize," | accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],4)))
       
       ############################################ Save Accuracies ###########################################
       
