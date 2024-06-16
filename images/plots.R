@@ -40,7 +40,7 @@ load(paste0(file_name_kappa,".RData"))
 # AccuracyVSVM_SL=AccuracyVSVM_SL[2:10,]
 # AccuracyVSVM_SL_Un_b=AccuracyVSVM_SL_Un_b[2:10,]
 # AccuracyVSVM_SL_vUn_b=AccuracyVSVM_SL_vUn_b[2:10,]
-# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[2:10,] 
+# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[2:10,]
 # 
 # KappaSVM=KappaSVM[2:10,]
 # KappaSVM_M=KappaSVM_M[2:10,]
@@ -50,8 +50,8 @@ load(paste0(file_name_kappa,".RData"))
 # KappaVSVM_SL_Un_b=KappaVSVM_SL_Un_b[2:10,]
 # KappaVSVM_SL_vUn_b=KappaVSVM_SL_vUn_b[2:10,]
 # KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[2:10,]
-
-
+# 
+# 
 # save(AccuracySVM,
 #      AccuracySVM_M,
 #      AccuracySVM_SL_Un_b,
