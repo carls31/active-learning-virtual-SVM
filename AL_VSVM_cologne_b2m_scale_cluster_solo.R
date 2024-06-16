@@ -19,7 +19,7 @@ b = 20   # Size of balanced_unlabeled_samples in each class
 
 newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
 clusterSizes = c(4,10,20,40,60,100)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
+resampledSize = c(b)        # total number of relabeled samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = TRUE    # if TRUE, save the models into dir after training
@@ -28,7 +28,7 @@ if(binary){
   sampleSizePor = c(20) # vector with % of max  # c(2,5,10,20,35,53,75,100)
 }else{
   model_class="multiclass"
-  sampleSizePor = c(40) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+  sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
@@ -1219,7 +1219,7 @@ for(cS in 1:length(clusterSizes)){
       }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     classSize = c(25,50,75,100,150,300)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
-    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | "))
+    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     
       actAcc = -1e-6
       for(clS in 1:length(classSize)){
