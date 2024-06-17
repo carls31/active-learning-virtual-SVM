@@ -7,20 +7,19 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU core
 
-nR = 10                    # realizations
+nR = 3                    # realizations
 city = "cologne"               # cologne or hagadera 
 invariance = "scale"       # scale or shape invariance
-model_prob = "binary"  # binary or multiclass problem
+model_prob = "multiclass"  # binary or multiclass problem
 
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
-if(model_prob == "binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
-} 
+
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
 
-resampledSize = c(b)        # total number of relabeld samples # b, b*2, b*6
-newSizes = c(4,b)           # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+resampledSize = c(b,2*b)        # total number of relabeld samples # b, b*2, b*6
+newSizes = c(2,4)           # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 classSize = c(8*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
 clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
