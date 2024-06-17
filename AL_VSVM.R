@@ -291,7 +291,7 @@ uncertainty_dist_v2_2 = function(org, samp) {
 }
 
 # Evaluate Margin Sampling (MS) WITH MULTICORES CPU - PARALLEL COMPUTING new_tunedVSVM, predLabelsVSVM_unc
-margin_sampling <- function(org, samp, classes=NA) {
+margin_sampling <- function(org, samp, pred_one, classes=NA) {
   if(is.na(classes)){classes=as.factor(levels(samp[, ncol(samp)]))}
   
   # Initialize data frame to store margin distance for each sample
@@ -2104,7 +2104,7 @@ for(realization in seq(along = c(1:nR))){#}
                   predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
                   predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                   # print(paste0("Computing distances..."))
-                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc)
+                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc,pred_one)
                   }else{sampled_data <- mclu_sampling(new_tunedVSVM, predLabelsVSVM_unc)}
                   # print(paste0("Relabeling samples..."))
                   # Get new labels and updated datasets
@@ -2558,7 +2558,7 @@ for(realization in seq(along = c(1:nR))){#}
                   predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
                   predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                   # print(paste0("Computing distances..."))
-                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc)
+                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc,pred_one)
                   }else{sampled_data <- mclu_sampling(new_tunedVSVM, predLabelsVSVM_unc)}
                   # print(paste0("Relabeling samples..."))
                   # Get new labels and updated train/test sets
@@ -3001,7 +3001,7 @@ for(realization in seq(along = c(1:nR))){#}
                   predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
                   predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                   # print(paste0("Computing distances..."))
-                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc)
+                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc,pred_one)
                   }else{sampled_data <- mclu_sampling(new_tunedVSVM, predLabelsVSVM_unc)}
                   # print(paste0("Relabeling samples..."))
                   # Get new labels and updated datasets
@@ -3510,7 +3510,7 @@ for(realization in seq(along = c(1:nR))){#}
                   predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
                   predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                   # print(paste0("Computing distances..."))
-                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc)
+                  if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc,pred_one)
                   }else{sampled_data <- mclu_sampling(new_tunedVSVM, predLabelsVSVM_unc)}
                   # print(paste0("Relabeling samples..."))
                   # Get new labels and updated datasets
