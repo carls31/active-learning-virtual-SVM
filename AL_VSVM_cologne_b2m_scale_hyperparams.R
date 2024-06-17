@@ -1224,7 +1224,7 @@ for(realization in seq(along = c(1:nR))){#}
         
         for(rS in 1:length(resampledSize)){
           for(nS4it in 1:length(newSizes)){
-            print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | class size: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+            print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | class size: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
             
             # new_tunedVSVM <- new_bestTunedVSVM
             # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)

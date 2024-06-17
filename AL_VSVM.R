@@ -592,7 +592,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
                 best_boundMargin = best_boundMargin))
   }
 }
-########################################  Input  ########################################
+########################################  Preprocess  ########################################
 if(city=="cologne"){
   if(invariance=="scale"){
     ########################################  Input  ########################################
@@ -2036,18 +2036,18 @@ for(realization in seq(along = c(1:nR))){#}
           }
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
+          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | class size",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
           stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
-          # Get new samples from trainDataCurRemaining_it
+          # Get new samples from trainDataCurRemaining
           samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
           # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-          actKappa = -1e-6
+          actAcc = -1e-6
           for(rS in 1:length(resampledSize)){
             for(nS4it in 1:length(newSizes)){
               for(cS in 1:length(clusterSizes)){
-                print(paste0("total resampled size: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples for iteration: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | ","number of clusters: ",cluster=clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                 
                 # new_tunedVSVM <- new_bestTunedVSVM
                 # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
@@ -2139,7 +2139,7 @@ for(realization in seq(along = c(1:nR))){#}
                   actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
                   best_newSize4iter= newSizes[nS4it]
-                  best_classSize= classSize[clS]
+                  # best_classSize= classSize[clS]
                   best_cluster = clusterSizes[cS]
                 }
               }
@@ -2301,7 +2301,7 @@ for(realization in seq(along = c(1:nR))){#}
         samplesRemaining_v = getdata(trainDataCurRemaining, stratSampRemaining_v)
         
         trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_b$ID_unit), ]
-        trainDataCurRemaining_it <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
+        trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
         
         trainDataCurRemaining_b = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
         trainDataCurRemainingsub_b = trainDataCurRemaining_b[sindexSVMDATA:eindexSVMDATA]
@@ -2430,18 +2430,18 @@ for(realization in seq(along = c(1:nR))){#}
         } 
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
+          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | class size",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
-          stratSampRemaining = strata(trainDataCurRemaining_it, c("REF"), size = stratSampSize, method = "srswor")
-          # Get new samples from trainDataCurRemaining_it
-          samplesRemaining = getdata(trainDataCurRemaining_it, stratSampRemaining)
-          # trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-          actKappa = -1e-6
+          stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
+          # Get new samples from trainDataCurRemaining
+          samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
+          # trainDataCurRemaininger <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
+          actAcc = -1e-6
           for(rS in 1:length(resampledSize)){
             for(nS4it in 1:length(newSizes)){
               for(cS in 1:length(clusterSizes)){
-                # print(paste0("total resampled size: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples for iteration: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | ","number of clusters: ",cluster=clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                 
                 # new_tunedVSVM <- new_bestTunedVSVM
                 # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
@@ -2530,7 +2530,7 @@ for(realization in seq(along = c(1:nR))){#}
                   actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
                   best_newSize4iter= newSizes[nS4it]
-                  best_classSize= classSize[clS]
+                  # best_classSize= classSize[clS]
                   best_cluster = clusterSizes[cS]
                 }
               }
@@ -2586,8 +2586,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsSVM <- best_trainLabelsSVMUn_b
           best_model <- model_name
         }
-        AccuracySVM_SL_Un_b[realization,sample_size] = as.numeric(accSVM_SL_Un_b$overall["Accuracy"])
-        KappaSVM_SL_Un_b[realization,sample_size] = as.numeric(accSVM_SL_Un_b$overall["Kappa"])
         ################################################# VSVM ################################################# 
         
         # get VSs, means rows of SV but with subset on different level
@@ -2646,8 +2644,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- trainLabelsVSVM
           best_model <- model_name
         } 
-        AccuracyVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Accuracy"])
-        KappaVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Kappa"])
         
         print("evaluation of VSVM SL...")
         model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModel_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
@@ -2679,8 +2675,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- best_trainLabelsVSVM
           best_model <- model_name
         }
-        AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
-        KappaVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
         ################################### VSVM-SL + semi-labeled samples #####################################
         # Definition of sampling configuration (strata:random sampling without replacement)
         stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
@@ -2743,8 +2737,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn_b
           best_model <- model_name
         }
-        AccuracyVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Accuracy"])
-        KappaVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Kappa"])
         ################################ VSVM-SL + Virtual semi-labeled Samples ##################################
         # Definition of sampling configuration (strata:random sampling without replacement)
         stratSampRemaining_v = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
@@ -2815,22 +2807,20 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn_b
           best_model <- model_name
         }
-        AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
-        KappaVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Kappa"])
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
+          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | class size",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
           stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
-          # Get new samples from trainDataCurRemaining_it
+          # Get new samples from trainDataCurRemaining
           samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
           # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-          actKappa = -1e-6
+          actAcc = -1e-6
           for(rS in 1:length(resampledSize)){
             for(nS4it in 1:length(newSizes)){
               for(cS in 1:length(clusterSizes)){
-                print(paste0("total resampled size: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples for iteration: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | ","number of clusters: ",cluster=clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                 
                 # new_tunedVSVM <- new_bestTunedVSVM
                 # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
@@ -2918,7 +2908,7 @@ for(realization in seq(along = c(1:nR))){#}
                   actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
                   best_newSize4iter= newSizes[nS4it]
-                  best_classSize= classSize[clS]
+                  # best_classSize= classSize[clS]
                   best_cluster = clusterSizes[cS]
                 }
               }
@@ -2975,9 +2965,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsSVM <- best_trainLabelsSVMUn_b
           best_model <- model_name
         } 
-        AccuracySVM_SL_Un_b[realization,sample_size] = as.numeric(accSVM_SL_Un_b$overall["Accuracy"])
-        KappaSVM_SL_Un_b[realization,sample_size] = as.numeric(accSVM_SL_Un_b$overall["Kappa"])
-        
         ################################################# VSVM ################################################# 
         #get VSV, means rows of SV but with subset on diferent level
         S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
@@ -3037,8 +3024,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- trainLabelsVSVM
           best_model <- model_name
         } 
-        AccuracyVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Accuracy"])
-        KappaVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Kappa"])
         
         ################################################ VSVM-SL ################################################
         print("evaluation of VSVM self learning...")
@@ -3073,9 +3058,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- best_trainLabelsVSVM
           best_model <- model_name
         } 
-        AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
-        KappaVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
-        
         ################################### VSVM-SL + semi-labeled samples #####################################
         # Definition of sampling configuration (strata:random sampling without replacement)
         stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
@@ -3087,7 +3069,7 @@ for(realization in seq(along = c(1:nR))){#}
         samplesRemaining_v = getdata(trainDataCurRemaining, stratSampRemaining_v)
         
         trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_b$ID_unit), ]
-        trainDataCurRemaining_it <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
+        trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
         
         trainDataCurRemaining_b = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
         trainDataCurRemainingsub_b = trainDataCurRemaining_b[sindexSVMDATA:eindexSVMDATA]
@@ -3148,9 +3130,6 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn_b
           best_model <- model_name
         } 
-        AccuracyVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Accuracy"])
-        KappaVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Kappa"])
-        
         ################################ VSVM-SL + Virtual semi-labeled Samples ##################################
         trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
         # trainDataCurRemainingsub_v = trainDataCurRemaining_v[sindexSVMDATA:eindexSVMDATA]
@@ -3217,22 +3196,20 @@ for(realization in seq(along = c(1:nR))){#}
           new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn_b
           best_model <- model_name
         } 
-        AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
-        KappaVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Kappa"])
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
+          print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | class size",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
-          stratSampRemaining = strata(trainDataCurRemaining_it, c("REF"), size = stratSampSize, method = "srswor")
-          # Get new samples from trainDataCurRemaining_it
-          samplesRemaining = getdata(trainDataCurRemaining_it, stratSampRemaining)
-          # trainDataCurRemaining_iter <- trainDataCurRemaining_it[-c(samplesRemaining$ID_unit), ]
-          actKappa = -1e-6
+          stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
+          # Get new samples from trainDataCurRemaining
+          samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
+          # trainDataCurRemaininger <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
+          actAcc = -1e-6
           for(rS in 1:length(resampledSize)){
             for(nS4it in 1:length(newSizes)){
               for(cS in 1:length(clusterSizes)){
-                # print(paste0("total resampled size: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | ","samples for iteration: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | ","number of clusters: ",cluster=clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                 
                 # new_tunedVSVM <- new_bestTunedVSVM
                 # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
@@ -3321,7 +3298,7 @@ for(realization in seq(along = c(1:nR))){#}
                   actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
                   best_newSize4iter= newSizes[nS4it]
-                  best_classSize= classSize[clS]
+                  # best_classSize= classSize[clS]
                   best_cluster = clusterSizes[cS]
                 }
               }
