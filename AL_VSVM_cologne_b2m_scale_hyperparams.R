@@ -12,7 +12,7 @@ city = "cologne"               # cologne or hagadera
 invariance = "scale"       # scale or shape invariance
 model_prob = "binary"  # binary or multiclass problem
 
-sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+sampleSizePor = c(10) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)

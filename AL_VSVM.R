@@ -5,9 +5,9 @@ library(sampling)
 library(progress)   # progress bar visualization
 library(stats)      # k-means clustering
 library(foreach)    # parallel processing
-library(doParallel) # multiple CPU core
+library(doParallel) # multiple CPU cores
 
-nR = 10                 # realizations
+nR = 16                 # realizations
 city = "hagadera"       # cologne or hagadera 
 invariance = "scale"    # scale or shape invariance
 model_prob = "binary"   # binary or multiclass problem
@@ -24,9 +24,9 @@ newSizes = c(4)             # number of samples picked in each Active Learning i
 classSize = c(8*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
 clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
-train  = TRUE         # if TRUE, train the models otherwise load them from dir 
-save_models = TRUE    # if TRUE, save the models into dir after training
-num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
+train  = TRUE           # if TRUE, train the models otherwise load them from dir 
+save_models = TRUE      # if TRUE, save the models into dir after training
+num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
 path = '/home/rsrg9/Documents/'
 if(!dir.exists(path)){path = "D:/"
 }
