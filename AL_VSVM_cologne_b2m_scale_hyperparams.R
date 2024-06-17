@@ -6,37 +6,29 @@ library(progress)   # progress bar visualization
 library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU core
-num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
-city = "Col"
-invariance = "scale"
-binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 4   # Number of Realizations
+nR = 10                    # realizations
+city = "cologne"               # cologne or hagadera 
+invariance = "scale"       # scale or shape invariance
+model_prob = "binary"  # binary or multiclass problem
 
+sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+if(model_prob == "binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
+} 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
 
+resampledSize = c(b)        # total number of relabeld samples # b, b*2, b*6
+newSizes = c(4,b)           # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+classSize = c(8*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
+clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = TRUE    # if TRUE, save the models into dir after training
-if(binary){
-  model_prob="binary"
-  sampleSizePor = c(20) # vector with % of max  # c(2,5,10,20,35,53,75,100)
-}else{
-  model_prob="multiclass"
-  sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
-} 
-newSizes = c(b,b/2)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(40,120)        # number of clusters used to pick samples from different groups # c(4,10,20,40,60,100)
-resampledSize = c(b,b*5)        # total number of relabeled samples # 100, 150, 200, 250 #c(b)
-classSize = c(100,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
-
-path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
-model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
-if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
-model_path = "D:/GitHub/active-learning-virtual-SVM/"
-# num_cores=2
-binary = TRUE
+num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
+path = '/home/rsrg9/Documents/'
+if(!dir.exists(path)){path = "D:/"
 }
 ########################################  Utils  ########################################
 
@@ -449,7 +441,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       registerDoParallel(num_cores)
       
       # Apply foreach loop to process each SVL variable and bind the results
-      if(binary){ # print("step 1")
+      if(model_prob=="binary"){ # print("step 1")
         SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
         setNames(rem_extrem(variable[[1]], variable[[2]], bound[jj]), objInfoNames)
         }
@@ -508,7 +500,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current new best kappa:",round(tunedVSVM$resample$Kappa,4)))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4)))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -557,7 +549,7 @@ columnClass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                 "factor","integer")
 
-setwd(paste0(path, "csv_data_r_import/cologne/scale"))
+setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
 
 # import data
 generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnClass)
@@ -567,7 +559,7 @@ generalDataPool = subset(generalDataPool, REF != "unclassified")
 generalDataPool$REF <- factor(generalDataPool$REF)
 # generalDataPool <- na.omit(generalDataPool) 
 
-if(binary){
+if(model_prob=="binary"){
   # transform to 2-Class-Case "Bushes Trees" VS rest
   print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
   f=levels(generalDataPool$REF)[1]
@@ -766,7 +758,7 @@ seed = 20 # 5, 73, 20
 start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}
   start.time <- Sys.time()
-  print(paste0("Number of cores: ",num_cores))  
+  print(paste0("number of cores: ",num_cores))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
   
@@ -842,7 +834,7 @@ for(realization in seq(along = c(1:nR))){#}
     tuneFeat = rbind(trainFeat, testFeatsub)
     tuneLabel = unlist(list(trainLabels, testLabels))
     
-    setwd(paste0(model_path, "saved_models/cologne"))
+    setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
     
     print("computing SVM...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"tunedSVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
@@ -1294,7 +1286,7 @@ for(realization in seq(along = c(1:nR))){#}
               predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
               predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
               # print(paste0("Computing distances..."))
-              if(binary){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc)
+              if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc)
               }else{sampled_data <- mclu_sampling(new_tunedVSVM, predLabelsVSVM_unc)}
               # print(paste0("Relabeling samples..."))
               # Get new labels and updated datasets
@@ -1423,7 +1415,7 @@ for(realization in seq(along = c(1:nR))){#}
 time.taken_oa_postPreproc <- round(Sys.time() - start.time_oa_postPreproc,2)
 time.taken_oa <- round(Sys.time() - start.time_oa,2)
 if(length(clusterSizes)>=2){
-  setwd(paste0(model_path,"results/cologne"))
+  setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
   save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_prob,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
