@@ -465,7 +465,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       
       # iterating over boundMargin to test different threshold on margin distance
       for (kk in seq(along = c(1:length(boundMargin)))){
-        print(paste0("testing similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
+        print(paste0("tuning similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
         
         # remove VSV which are not located in certain distance to decision function
         # data.frame to store elected VSV within the margin
@@ -508,7 +508,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tunedVSVM$resample$Kappa,4)))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current new best kappa:",round(tunedVSVM$resample$Kappa,4)))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM

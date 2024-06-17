@@ -19,10 +19,10 @@ bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
 
-newSizes = c(b)             # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
 resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
-classSize = c(5*b)          # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
+newSizes = c(4,b)             # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(6*b)       # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+classSize = c(8*b)          # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
 
 num_cores <- parallel::detectCores() # Numbers of cores deployed for multicore
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
@@ -532,7 +532,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       
       # iterating over boundMargin to test different threshold on margin distance
       for (kk in seq(along = c(1:length(boundMargin)))){
-        print(paste0("testing similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
+        print(paste0("tuning similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
         
         # remove VSV which are not located in certain distance to decision function
         # data.frame to store elected VSV within the margin
@@ -575,7 +575,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tunedVSVM$resample$Kappa,4)))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current new best kappa:",round(tunedVSVM$resample$Kappa,4)))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -2127,18 +2127,17 @@ for(realization in seq(along = c(1:nR))){#}
                   tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
                   pb$tick()
                 }
-                if(actKappa < tmp_new_tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
+                # *******************************
+                tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
+                tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                
+                if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],4)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
                   new_tunedVSVM = tmp_new_tunedVSVM
-                  actKappa = tmp_new_tunedVSVM$resample$Kappa
-                  best_newSize4iter= newSizes[nS4it]
-                  best_cluster = clusterSizes[cS]
+                  actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
-                  
-                  # *******************************
-                  tmp_pred = predict(new_tunedVSVM, validateFeatsub)
-                  tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                  print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
-                  
+                  best_newSize4iter= newSizes[nS4it]
+                  best_classSize= classSize[clS]
+                  best_cluster = clusterSizes[cS]
                 }
               }
             }
@@ -2581,12 +2580,17 @@ for(realization in seq(along = c(1:nR))){#}
                   tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
                   pb$tick()
                 }
-                if(actKappa < tmp_new_tunedVSVM$resample$Kappa){
+                # *******************************
+                tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
+                tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                
+                if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],4)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
                   new_tunedVSVM = tmp_new_tunedVSVM
-                  actKappa = tmp_new_tunedVSVM$resample$Kappa
-                  best_newSize4iter= newSizes[nS4it]
-                  best_cluster = clusterSizes[cS]
+                  actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
+                  best_newSize4iter= newSizes[nS4it]
+                  best_classSize= classSize[clS]
+                  best_cluster = clusterSizes[cS]
                 }
               }
             }
@@ -3024,18 +3028,17 @@ for(realization in seq(along = c(1:nR))){#}
                   tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
                   pb$tick()
                 }
-                if(actKappa < tmp_new_tunedVSVM$resample$Kappa){ print(paste("found new best kappa:",round(tmp_new_tunedVSVM$resample$Kappa,4)))
+                # *******************************
+                tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
+                tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                
+                if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],4)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
                   new_tunedVSVM = tmp_new_tunedVSVM
-                  actKappa = tmp_new_tunedVSVM$resample$Kappa
-                  best_newSize4iter= newSizes[nS4it]
-                  best_cluster = clusterSizes[cS]
+                  actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
-                  
-                  # *******************************
-                  tmp_pred = predict(new_tunedVSVM, validateFeatsub)
-                  tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                  print(paste0("new best accuracy: ",round(tmp_acc$overall["Accuracy"],4)))
-                  
+                  best_newSize4iter= newSizes[nS4it]
+                  best_classSize= classSize[clS]
+                  best_cluster = clusterSizes[cS]
                 }
               }
             }
@@ -3533,12 +3536,17 @@ for(realization in seq(along = c(1:nR))){#}
                   tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
                   pb$tick()
                 }
-                if(actKappa < tmp_new_tunedVSVM$resample$Kappa){
+                # *******************************
+                tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
+                tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                
+                if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],4)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
                   new_tunedVSVM = tmp_new_tunedVSVM
-                  actKappa = tmp_new_tunedVSVM$resample$Kappa
-                  best_newSize4iter= newSizes[nS4it]
-                  best_cluster = clusterSizes[cS]
+                  actAcc = tmp_acc$overall["Accuracy"]
                   best_resample = resampledSize[rS]
+                  best_newSize4iter= newSizes[nS4it]
+                  best_classSize= classSize[clS]
+                  best_cluster = clusterSizes[cS]
                 }
               }
             }
