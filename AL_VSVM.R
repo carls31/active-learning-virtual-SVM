@@ -7,7 +7,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 16                 # realizations
+nR = 10                 # realizations
 city = "hagadera"       # cologne or hagadera 
 invariance = "scale"    # scale or shape invariance
 model_prob = "binary"   # binary or multiclass problem
@@ -20,8 +20,8 @@ boundMargin = c(1.5, 1.2)     # distance from hyperplane - threshold   # c(0.5,0
 b = 20    # Size of balanced_unlabeled_samples in each class
 
 resampledSize = c(b,2*b)    # total number of relabeled samples # b, b*2, b*6
-newSizes = c(4)             # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-classSize = c(8*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
+newSizes = c(b,4)             # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+classSize = c(5*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
 clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE           # if TRUE, train the models otherwise load them from dir 
@@ -592,7 +592,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
                 best_boundMargin = best_boundMargin))
   }
 }
-########################################  Preprocessing  ########################################
+########################################  Input  ########################################
 if(city=="cologne"){
   if(invariance=="scale"){
     ########################################  Input  ########################################
@@ -1573,6 +1573,8 @@ best_resample_oa=c()
 best_model_oa=c()
 time.taken_iter = c()
 
+########################################  Training  ########################################
+
 # set randomized seed for the random sampling procedure
 seed = 20 # 5, 73, 20 
 
@@ -1581,7 +1583,7 @@ for(realization in seq(along = c(1:nR))){#}
   start.time <- Sys.time()
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
-  print(paste0("number of cores: ",num_cores," | seed:",seed)) 
+  print(paste0("number of CPU cores: ",num_cores," | seed: ",seed)) 
   
   trainDataCurBeg = trainDataPoolAllLev
   testDataCurBeg = testDataAllLev
@@ -3372,7 +3374,7 @@ for(realization in seq(along = c(1:nR))){#}
     # accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
     # print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
     # 
-    ############################################ Save Accuracies ###########################################
+    ############################################ Accuracies ###########################################
     
     AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
     AccuracySVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Accuracy"])
