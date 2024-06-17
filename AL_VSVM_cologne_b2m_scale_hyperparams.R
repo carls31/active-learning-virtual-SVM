@@ -26,7 +26,7 @@ if(binary){
   model_class="multiclass"
   sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
-newSizes = c(b/5,b)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+newSizes = c(b,b/2)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
 clusterSizes = c(40,120)        # number of clusters used to pick samples from different groups # c(4,10,20,40,60,100)
 resampledSize = c(b,b*5)        # total number of relabeled samples # 100, 150, 200, 250 #c(b)
 classSize = c(100,500)#c(min(600,round(min(table(trainDataCurRemaining$REF))/10)))# number of samples for each class # c(25,50,75,100,150,300) 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
