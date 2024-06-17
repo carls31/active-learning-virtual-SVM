@@ -50,10 +50,11 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  31. check sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
  32. compare VSVM_SL_Un_it trained on SVM/VSVM with VSVM_SL_Un_b/VSVM_SL_vUn_b
  33. compare acc from VSVM_SL_Un_it trained before and after VSVM_SL_vUn_b vs VSVM_SL_vUn_b trained before and after VSVM_SL_Un_it
- 34. check the amount of nan values
+ 34. check the amount of nan values -> hagadera 
  35. check the VSVM / VSVM_SL / VSVM_SL_Un performance on the orginal
  36. try MS with one sample per iteration
  37. implement MS-cSV
  38. collect accuracy results from different realization but same hyperparameters setup
  39. consider all the levels for the uncertainty distance 
  40. check which VSVM_SL_vUn_b work better 
+ 41. check warnings in AL binary hagadera
