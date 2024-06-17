@@ -11,15 +11,11 @@ city = "Col"
 invariance = "scale"
 binary = FALSE   # Choose between Binary or Multiclass classification
 
-nR = 3   # Number of Realizations
+nR = 10   # Number of Realizations
 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
-boundMargin = c(1.5, 1, 0.5)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
+boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
 b = 20   # Size of balanced_unlabeled_samples in each class
-
-newSizes = c(4)              # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
-clusterSizes = c(40)          # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
-resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
 
 train  = TRUE         # if TRUE, train the models otherwise load them from dir 
 save_models = TRUE    # if TRUE, save the models into dir after training
@@ -28,13 +24,18 @@ if(binary){
   sampleSizePor = c(2,5,10,20,35,53,75,100) # vector with % of max  # c(2,5,10,20,35,53,75,100)
 }else{
   model_class="multiclass"
-  sampleSizePor = c(35,40,50) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+  sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 } 
+
+newSizes = c(b)             # number of samples picked in each Active Learning iteration # 3, 4, 5, 10,20,25
+clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 60, 80, 90, 100, 300
+resampledSize = c(b)        # total number of relabeld samples # 100, 150, 200, 250
+classSize = c(5*b)          # number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
+
 path = '/home/rsrg9/Documents/tunc_oz/apply_model/'
 model_path = "/home/rsrg9/Documents/GitHub/active-learning-virtual-SVM/"
 if(!dir.exists(path)){path = "D:/tunc_oz/apply_model/"
 model_path = "D:/GitHub/active-learning-virtual-SVM/"
-num_cores=2
 }
 ########################################  Utils  ########################################
 
@@ -2037,7 +2038,6 @@ for(realization in seq(along = c(1:nR))){#}
           }
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          classSize = round(min(table(trainDataCurRemaining$REF))/10)# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
           print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2495,7 +2495,6 @@ for(realization in seq(along = c(1:nR))){#}
         } 
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          classSize = round(min(table(trainDataCurRemaining$REF))/10)# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
           print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2940,7 +2939,6 @@ for(realization in seq(along = c(1:nR))){#}
         KappaVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Kappa"])
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          classSize = round(min(table(trainDataCurRemaining$REF))/10)# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
           print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
@@ -3449,7 +3447,6 @@ for(realization in seq(along = c(1:nR))){#}
         KappaVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Kappa"])
         ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
         if(num_cores>=4){
-          classSize = round(min(table(trainDataCurRemaining$REF))/10)# number of samples for each class # 250, 500, 750, 1000, 1500, 3000, 5803 for multiclass # min(table(trainDataCurRemaining_it$REF))
           print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | ",classSize))
           stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
           # Definition of sampling configuration (strata:random sampling without replacement)
