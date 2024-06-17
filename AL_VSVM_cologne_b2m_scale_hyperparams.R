@@ -10,9 +10,9 @@ library(doParallel) # multiple CPU core
 nR = 3                    # realizations
 city = "cologne"               # cologne or hagadera 
 invariance = "scale"       # scale or shape invariance
-model_prob = "multiclass"  # binary or multiclass problem
+model_prob = "binary"  # binary or multiclass problem
 
-sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+sampleSizePor = c(20) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 
 bound = c(0.7, 0.9)            # radius around SV - threshold            # c(0.3,0.45,0.6,0.75,0.9)
 boundMargin = c(1.5, 1.2)        # distance from hyperplane - threshold    # c(0.5,0.75,1,1.25,1.5)
@@ -49,7 +49,6 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = 
                           ),
                        scaled = FALSE
                        )
-  
   #get best coarse grid sigma,C pair
   sigmaCoarse = svmFitCoarse$finalModel@kernelf@kpar$sigma
   cCoarse = svmFitCoarse$finalModel@param$C
@@ -757,9 +756,9 @@ seed = 20 # 5, 73, 20
 start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}
   start.time <- Sys.time()
-  print(paste0("number of cores: ",num_cores))  
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
+  print(paste0("number of cores: ",num_cores," | seed: ", seed))  
   
   trainDataCurBeg = trainDataPoolAllLev
   testDataCurBeg = testDataAllLev
