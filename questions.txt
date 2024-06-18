@@ -57,4 +57,4 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  38. collect accuracy results from different realization but same hyperparameters setup
  39. consider all the levels for the uncertainty distance 
  40. check which VSVM_SL_vUn_b work better 
- 41. check warnings in AL binary hagadera
+ 41. DONE check warnings in AL binary hagadera -> na due to ncol(samplesRemaining) in UNCERTAINTY DISTANCE FUNCTIONS
