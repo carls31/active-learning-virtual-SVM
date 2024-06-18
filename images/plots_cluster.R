@@ -1,10 +1,8 @@
 library(scales)
 
-col = TRUE
-scale = TRUE
-multiclass = FALSE
-
-if(col){location = "cologne"}else{location = "hagadera"}
+location = "hagadera"
+invariance = "scale"
+class = "binary"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -52,13 +50,12 @@ x <- as.integer(column_names)
 
 setwd(paste0(path,"images/",location))
 
-if(scale){invariance = "scale"}else{invariance = "shape"}
-if(multiclass){
-  class = "multiclass"
+if(class == "multiclass"){
+
   yUpperBound = 0.80
   ylowerBound = 0.445
   }else{
-  class = "binary"
+
   yUpperBound = 0.95
   ylowerBound = 0.91
   }
@@ -109,7 +106,7 @@ dev.off()
 # KAPPA
 ##########################################################################
 
-if(multiclass){
+if(class == "multiclass"){
   yUpperBound = 0.715
   ylowerBound = 0.405
 }else{
