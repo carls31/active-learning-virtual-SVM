@@ -709,7 +709,7 @@ if(city=="cologne"){
 
     # order train datapool by class label in alphabetical order:
     trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
-    gc()
+     
     ###############################################  MultiScale ###################################################
 
     # normalize feature for MultiScale
@@ -751,7 +751,7 @@ if(city=="cologne"){
     # order train datapool by class label in alphabetical order:
     trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
     #########################################################################################
-  } gc()
+  }  
   if(invariance=="shape"){
     ########################################  Input  ########################################
 
@@ -980,7 +980,7 @@ if(city=="cologne"){
       generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09, nomalizedFeatMS, normalizedDataPoolAllLevMultiScale
       )    
     #########################################################################################
-  } gc()
+  }  
 } 
 if(city=="hagadera"){
   if(invariance=="scale"){
@@ -1125,7 +1125,7 @@ if(city=="hagadera"){
     rm(nomalizedFeat_MS, validateDataAllLevMS, splitdf, normalizedDataPoolAllLev_MS
       )
     #########################################################################################
-  } gc()
+  }  
   if(invariance=="shape"){
     ########################################  Input  ########################################
 
@@ -1428,7 +1428,7 @@ if(city=="hagadera"){
     ########################################################################################
   }
 }
-gc()
+ 
 AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracySVM) = colheader
 AccuracySVM_M = matrix(data = NA, nrow = nR, ncol = length(colheader))
