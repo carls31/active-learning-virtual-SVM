@@ -1,10 +1,8 @@
 library(scales)
 
-col = TRUE
-scale = FALSE
-multiclass = TRUE
-
-if(col){location = "cologne"}else{location = "hagadera"}
+location = "hagadera"
+invariance = "scale"
+class = "binary"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -18,6 +16,7 @@ file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
 # file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
+file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
 
 
 # ********************************************************************
@@ -28,6 +27,7 @@ file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
 file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
 # file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
 file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
+file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -101,15 +101,12 @@ x <- 2*as.integer(column_names)
 
 setwd(paste0(path,"images/",location))
 
-if(scale){invariance = "scale"}else{invariance = "shape"}
-if(multiclass){
-  class = "multiclass"
+if(class == "multiclass"){
   yUpperBound = 0.80
   ylowerBound = 0.445
   }else{
-  class = "binary"
-  yUpperBound = 0.94
-  ylowerBound = 0.73
+    yUpperBound = 0.975
+    ylowerBound = 0.67
   }
 
 type = "l"
@@ -262,12 +259,12 @@ dev.off()
 # KAPPA
 ##########################################################################
 
-if(multiclass){
+if(class=="multiclass"){
   yUpperBound = 0.715
   ylowerBound = 0.405
 }else{
-  yUpperBound = 0.83
-  ylowerBound = 0.43
+  yUpperBound = 0.95
+  ylowerBound = 0.4
 }
 
 # *********************************************
