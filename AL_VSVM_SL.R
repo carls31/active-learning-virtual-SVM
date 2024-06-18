@@ -1631,18 +1631,20 @@ for(realization in seq(along = c(1:nR))){#}
       stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
       samples = getdata(trainDataCurBegMS, stratSamp)
 
-      if(length(sampleSizePor)>1 && sample_size>1){
-            trainDataCurMS = rbind(trainDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
-      }else{trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
+      # if(length(sampleSizePor)>1 && sample_size>1){
+      #       trainDataCurMS = rbind(trainDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
+      # }else{trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
+      trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
       trainFeatMS = trainDataCurMS[,1:(ncol(trainDataPoolAllLevMS)-1)]
       trainLabelsMS = trainDataCurMS[,ncol(trainDataPoolAllLevMS)]
 
       stratSamp = strata(testDataCurBegMS, c("REF"), size = shares, method = "srswor")
       samples = getdata(testDataCurBegMS, stratSamp)
 
-      if(length(sampleSizePor)>1 && sample_size>1){
-            testDataCurMS = rbind(testDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
-      }else{testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
+      # if(length(sampleSizePor)>1 && sample_size>1){
+      #       testDataCurMS = rbind(testDataCurMS,samples[,1:ncol(trainDataPoolAllLevMS)])
+      # }else{testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]}
+      testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
       # split test feat from test label for later join with trainData MS
       testFeatMS = testDataCurMS[,1:(ncol(testDataCurMS)-1)]
       testLabelsMS = testDataCurMS[,ncol(testDataCurMS)]
