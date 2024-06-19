@@ -25,6 +25,8 @@ clusterSizes = c(6*b)       # number of clusters used to pick samples from diffe
 if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
 bound = c(0.7)
 boundMargin = c(1.5)
+# resampledSize = c(b)
+clusterSizes = c(2*b)
 } 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
@@ -1916,15 +1918,15 @@ for(realization in seq(along = c(1:nR))){#}
     ################################### VSVM-SL + semi-labeled samples #####################################
     # Definition of sampling configuration (strata:random sampling without replacement)
     stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
-    stratSampRemaining_v = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
+    # stratSampRemaining_v = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
     #stratSampRemaining = strata(trainDataCurRemaining, size = 6*b, method = "srswor") # if trainDataCur is balanced apriori
     
     # get samples of trainDataCurRemaining and set trainDataCurRemaining new
     samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining_b)
-    samplesRemaining_v = getdata(trainDataCurRemaining, stratSampRemaining_v)
+    # samplesRemaining_v = getdata(trainDataCurRemaining, stratSampRemaining_v)
     
     trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_b$ID_unit), ]
-    trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
+    # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_v$ID_unit), ]
     
     trainDataCurRemaining_b = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
     trainDataCurRemainingsub_b = trainDataCurRemaining_b[sindexSVMDATA:eindexSVMDATA]
@@ -1933,8 +1935,8 @@ for(realization in seq(along = c(1:nR))){#}
     
     # get SV of unlabeled samples
     SVindexUn_b = 1:nrow(trainDataCurRemainingsub_b) 
-    SVtotalUn_b = trainDataCurRemaining_b[SVindexUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
-    SVtotalUn_b = cbind(SVtotalUn_b, REF_b)
+    totalUn_b = trainDataCurRemaining_b[SVindexUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
+    totalUn_b = cbind(totalUn_b, REF_b)
     
     print("evaluation of VSVM SL with semi-labeled samples...")
     model_name_Un_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
@@ -1994,14 +1996,14 @@ for(realization in seq(along = c(1:nR))){#}
                                  list(SVtotal, S03C07),
                                  list(SVtotal, S03C05),
                                  list(SVtotal, S01C09),
-                                 list(SVtotalUn_b, S01C09Un_b),
-                                 list(SVtotalUn_b, S03C05Un_b),
-                                 list(SVtotalUn_b, S03C07Un_b),
-                                 list(SVtotalUn_b, S05C03Un_b),
-                                 list(SVtotalUn_b, S05C05Un_b),
-                                 list(SVtotalUn_b, S05C07Un_b),
-                                 list(SVtotalUn_b, S07C03Un_b),
-                                 list(SVtotalUn_b, S09C01Un_b)
+                                 list(totalUn_b, S01C09Un_b),
+                                 list(totalUn_b, S03C05Un_b),
+                                 list(totalUn_b, S03C07Un_b),
+                                 list(totalUn_b, S05C03Un_b),
+                                 list(totalUn_b, S05C05Un_b),
+                                 list(totalUn_b, S05C07Un_b),
+                                 list(totalUn_b, S07C03Un_b),
+                                 list(totalUn_b, S09C01Un_b)
                                )
         )
       }
@@ -2054,14 +2056,14 @@ for(realization in seq(along = c(1:nR))){#}
                                  list(SVtotal, S03C07),
                                  list(SVtotal, S03C05),
                                  list(SVtotal, S01C09),
-                                 list(SVtotalUn_b, S01C09Un_b),
-                                 list(SVtotalUn_b, S03C05Un_b),
-                                 list(SVtotalUn_b, S03C07Un_b),
-                                 list(SVtotalUn_b, S05C03Un_b),
-                                 list(SVtotalUn_b, S05C05Un_b),
-                                 list(SVtotalUn_b, S05C07Un_b),
-                                 list(SVtotalUn_b, S07C03Un_b),
-                                 list(SVtotalUn_b, S09C01Un_b)
+                                 list(totalUn_b, S01C09Un_b),
+                                 list(totalUn_b, S03C05Un_b),
+                                 list(totalUn_b, S03C07Un_b),
+                                 list(totalUn_b, S05C03Un_b),
+                                 list(totalUn_b, S05C05Un_b),
+                                 list(totalUn_b, S05C07Un_b),
+                                 list(totalUn_b, S07C03Un_b),
+                                 list(totalUn_b, S09C01Un_b)
                                )
         )
       }
@@ -2084,36 +2086,36 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name_Un_b
     }
     ################################ VSVM-SL + Virtual semi-labeled Samples ##################################
-    trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
+    # trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
     # trainDataCurRemainingsub_v = trainDataCurRemaining_v[sindexSVMDATA:eindexSVMDATA]
-    # 
-    # REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_v) 
-    # 
+
+    # REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_v)
+
     # get SV of unlabeled samples
     SVindexvUn_v = bestFittingModelUn_b$finalModel@SVindex # 1:nrow(trainDataCurRemainingsub_v) 
-    SVtotalvUn_v = na.omit(trainDataCurRemaining_v[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_v))])
+    SVtotalvUn_v = na.omit(trainDataCurRemaining_b[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_b))])
     # SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
     # 
     # # extracting previously assigned reference column
     # SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-1)]
-    # REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
-    # SVtotalvUn_v = cbind(SVtotalvUn_vFeat,REF_v)
+    REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
+    # SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
     
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
     model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     # get VSs, means rows of SV but with subset on different level
     if(city=="cologne"){
       if(invariance=="scale"){ 
-        SVL2vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL3vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1),ncol(trainDataCurRemaining))]) #)], REF_v)
+        SVL2vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)
+        SVL3vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)
         
-        SVL5vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL6vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL7vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL8vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL9vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL10vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL11vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+        SVL5vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)
+        SVL6vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)
+        SVL7vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)
+        SVL8vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)
+        SVL9vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v)
+        SVL10vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)
+        SVL11vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v)
         
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
@@ -2138,14 +2140,14 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }else{ 
-        S01C09vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((numFeat+1):(2*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S03C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S03C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S05C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S05C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S05C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+        S01C09vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((numFeat+1):(2*numFeat))], REF_v)
+        S03C05vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat))], REF_v)
+        S03C07vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat))], REF_v)
+        S05C03vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((4*numFeat)+1):(5*numFeat))], REF_v)
+        S05C05vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((5*numFeat)+1):(6*numFeat))], REF_v)
+        S05C07vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((6*numFeat)+1):(7*numFeat))], REF_v)
+        S07C03vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat))], REF_v)
+        S09C01vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat))], REF_v)
         
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
@@ -2170,14 +2172,14 @@ for(realization in seq(along = c(1:nR))){#}
       }
     }else{
       if(invariance=="scale"){ 
-        SVL2vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL3vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1),ncol(trainDataCurRemaining))]) #)], REF_v)
+        SVL2vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)
+        SVL3vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)
         
-        SVL5vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL6vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL7vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL8vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
-        SVL9vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
+        SVL5vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)
+        SVL6vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)
+        SVL7vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)
+        SVL8vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)
+        SVL9vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v)
         
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
@@ -2198,14 +2200,14 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }else{ 
-        S01C09vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((numFeat+1):(2*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S03C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S03C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S05C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S05C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S05C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
-        S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
+        S01C09vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c((numFeat+1):(2*numFeat))], REF_v)
+        S03C05vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat))], REF_v)
+        S03C07vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat))], REF_v)
+        S05C03vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((4*numFeat)+1):(5*numFeat))], REF_v)
+        S05C05vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((5*numFeat)+1):(6*numFeat))], REF_v)
+        S05C07vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((6*numFeat)+1):(7*numFeat))], REF_v)
+        S07C03vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat))], REF_v)
+        S09C01vUn_b = cbind(trainDataCurRemaining_b[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat))], REF_v)
         
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
