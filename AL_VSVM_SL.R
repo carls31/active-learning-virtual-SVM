@@ -1598,7 +1598,7 @@ for(realization in seq(along = c(1:nR))){#}
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
     accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-    print(paste0("SVM accuracy: ",round(accSVM$overall["Accuracy"],4)))
+    print(paste0("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)))
     
     best_acc <- accSVM$overall["Accuracy"]
     new_bestTunedVSVM <- tunedSVM
@@ -1656,7 +1656,7 @@ for(realization in seq(along = c(1:nR))){#}
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
     accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-    print(paste0("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],4)))
+    print(paste0("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)))
     
     ####################################### SVM-SL + semi-labeled samples #####################################
     
@@ -1778,7 +1778,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsSVMsumUn_b = predict(bestFittingModelSVMUn_b, validateFeatsub)
     accSVM_SL_Un_b = confusionMatrix(predLabelsSVMsumUn_b, validateLabels)
-    print(paste0("SVM_SL_Un accuracy: ",round(accSVM_SL_Un_b$overall["Accuracy"],4)))
+    print(paste0("SVM_SL_Un accuracy: ",round(accSVM_SL_Un_b$overall["Accuracy"],5)))
     
     if(accSVM_SL_Un_b$overall["Accuracy"]>best_acc){
       best_acc <- accSVM_SL_Un_b$overall["Accuracy"]
@@ -1907,7 +1907,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for modified SV
     predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
     accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-    print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],4)))
+    print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)))
     
     if(accVSVM$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM$overall["Accuracy"]
@@ -1984,7 +1984,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
     accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-    print(paste0("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],4)))
+    print(paste0("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)))
     
     if(accVSVM_SL$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL$overall["Accuracy"]
@@ -2154,7 +2154,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
     accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-    print(paste0("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un_b$overall["Accuracy"],4)))
+    print(paste0("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un_b$overall["Accuracy"],5)))
     
     if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_Un_b$overall["Accuracy"]
@@ -2318,7 +2318,7 @@ for(realization in seq(along = c(1:nR))){#}
     # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
     predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
     accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
-    print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],4)))
+    print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)))
     
     if(accVSVM_SL_vUn_b$overall["Accuracy"]>best_acc){
       best_acc <- accVSVM_SL_vUn_b$overall["Accuracy"]
@@ -2499,7 +2499,7 @@ for(realization in seq(along = c(1:nR))){#}
             tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
             tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
             
-            if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],4)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
+            if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedVSVM$resample$Kappa,4)))
               new_tunedVSVM = tmp_new_tunedVSVM
               actAcc = tmp_acc$overall["Accuracy"]
               best_resample = resampledSize[rS]
