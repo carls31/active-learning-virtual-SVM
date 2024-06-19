@@ -12,20 +12,21 @@ city = "hagadera"       # cologne or hagadera
 invariance = "shape"    # scale or shape invariance
 model_prob = "binary"   # binary or multiclass problem
 
-sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 b = 20           # Size of balanced_unlabeled_samples for each class
 bound = c(0.7, 0.9)           # radius around SV - threshold           
 boundMargin = c(1.5, 1.2)     # distance from hyperplane - threshold   
+sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
 
 resampledSize = c(b,2*b)    # total number of relabeled samples # b, b*2, b*6
 newSizes = c(b,4)             # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 classSize = c(5*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
-clusterSizes = c(5*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(6*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
-if(model_prob == "binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
+if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
 bound = c(0.7)
+boundMargin = c(1.5)
 } 
-train  = TRUE           # if TRUE, train the models otherwise load them from dir 
+train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
 path = '/home/rsrg9/Documents/'
 if(!dir.exists(path)){path = "D:/"
@@ -2327,19 +2328,19 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name
     }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
-    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"] | oa size: ",6*classSize))
-    stratSampSize = c(classSize,classSize,classSize,classSize,classSize,classSize)
+    print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
+    actAcc = -1e-6
+    for(clS in 1:length(classSize)){
+    stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
     # Definition of sampling configuration (strata:random sampling without replacement)
     stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
     # Get new samples from trainDataCurRemaining
     samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
     # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-    actAcc = -1e-6
-    
-    for(rS in 1:length(resampledSize)){
-      for(nS4it in 1:length(newSizes)){
-        for(cS in 1:length(clusterSizes)){
-          print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+    for(cS in 1:length(clusterSizes)){
+      for(rS in 1:length(resampledSize)){
+        for(nS4it in 1:length(newSizes)){
+          print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | oa class pool: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
           
           # new_tunedVSVM <- new_bestTunedVSVM
           # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
@@ -2508,6 +2509,7 @@ for(realization in seq(along = c(1:nR))){#}
           }
         }
       }
+    }
     }
     fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
