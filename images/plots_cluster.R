@@ -1,8 +1,8 @@
 library(scales)
 
-location = "hagadera"
+location = "cologne"
 invariance = "scale"
-class = "binary"
+class = "multiclass"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -10,11 +10,15 @@ setwd(paste0(path,"results/",location))
 
 file_name_acc = "20240614_1743_cluster_Col_scale_binary_acc_20Unl_1nR_1SizePor"
 file_name_acc = "20240614_1944_cluster_Col_scale_binary_acc_20Unl_1nR_1SizePor"
+file_name_acc = "20240617_0006_cluster_Col_scale_multiclass_acc_20Unl_2nR_1SizePor"
+file_name_acc = "20240617_0008_cluster_Col_scale_multiclass_acc_20Unl_2nR_1SizePor"
 
 # ********************************************************************
 
 file_name_kappa = "20240614_1743_cluster_Col_scale_binary_Kappa_20Unl_1nR_1SizePor"
 file_name_kappa = "20240614_1944_cluster_Col_scale_binary_Kappa_20Unl_1nR_1SizePor"
+file_name_kappa = "20240617_0006_cluster_Col_scale_multiclass_Kappa_20Unl_2nR_1SizePor"
+file_name_kappa = "20240617_0008_cluster_Col_scale_multiclass_Kappa_20Unl_2nR_1SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
