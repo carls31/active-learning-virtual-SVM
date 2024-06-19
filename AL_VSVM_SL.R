@@ -562,21 +562,15 @@ if(city=="cologne"){
     generalDataPool$REF <- factor(generalDataPool$REF)
     # generalDataPool <- na.omit(generalDataPool) 
     
-    if(model_prob=="binary"){
-      # transform to 2-Class-Case "Bushes Trees" VS rest
-      print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
+    if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
+      print(paste("note that the first record is of class:",levels(generalDataPool$REF)[1])) 
       f=levels(generalDataPool$REF)[1]
       generalDataPool$REF = as.character(generalDataPool$REF)
       generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
       generalDataPool$REF = as.factor(generalDataPool$REF)
     }
     
-    data = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
-    
     REF = generalDataPool[,ncol(generalDataPool)-1]
-    
-    data = cbind(data, REF)
-    data_label = data[,ncol(data)]
     
     ###################################################  Scaling  ################################################
     
@@ -586,6 +580,8 @@ if(city=="cologne"){
     preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
     normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
     # **************************************** data for map visualization ****************************************
+    # data = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
+    # data = cbind(data, REF)
     # normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNames)]))
     # ************************************************************************************************************
     # apply range of basemodel to all level
@@ -780,8 +776,8 @@ if(city=="cologne"){
     # for(run in seq(along = c(1:(ncol(generalDataPool_shape)-2)))){
     #   generalDataPool_shape[,run] = as.numeric(as.character(generalDataPool_shape[,run]))
     # }
-    if(model_prob=="binary"){ #transform to 2-Class-Case "Bushes Trees" VS rest 
-      print(levels(generalDataPool_shape$REF)[1]) # note that the first record is of class "bushes trees"
+    if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
+      print(paste("note that the first record is of class:",levels(generalDataPool$REF)[1])) 
       f=levels(generalDataPool_shape$REF)[1]
       generalDataPool_shape$REF = as.character(generalDataPool_shape$REF)
       generalDataPool_shape$REF[generalDataPool_shape$REF != as.character(f)] = "other"
@@ -947,9 +943,8 @@ if(city=="cologne"){
     generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
     unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
     
-    if(model_prob=="binary"){
-      # transform to 2-Class-Case "Bushes Trees" VS rest
-      print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
+    if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
+      print(paste("note that the first record is of class:",levels(generalDataPool$REF)[1])) 
       f=levels(generalDataPool$REF)[1]
       generalDataPool$REF = as.character(generalDataPool$REF)
       generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
@@ -1204,8 +1199,8 @@ if(city=="cologne"){
     generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
     unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
     
-    if(model_prob=="binary"){ #transform to 2-Class-Case "Bushes Trees" VS rest
-      print(levels(generalDataPool$REF)[1]) # note that the first record is of class "bushes trees"
+    if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
+      print(paste("note that the first record is of class:",levels(generalDataPool$REF)[1])) 
       f=levels(generalDataPool$REF)[1]
       generalDataPool$REF = as.character(generalDataPool$REF)
       generalDataPool$REF[generalDataPool$REF != as.character(f)] = "other"
@@ -1577,7 +1572,7 @@ for(realization in seq(along = c(1:nR))){#}
       tuneLabel_MS = unlist(list(trainLabelsMS, testLabelsMS))
       
       print("training SVM multilevel...")
-      tunedSVM_MS_tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
+      tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
@@ -1634,7 +1629,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))])
         S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
         
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotalSVMUn_b, S01C09SVMUn_b),
