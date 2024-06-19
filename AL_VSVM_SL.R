@@ -1506,7 +1506,6 @@ time.taken_iter = c()
 # set randomized seed for the random sampling procedure
 seed = 20 # 5, 73, 20 
 
-start.time_oa_postPreproc <- Sys.time()
 for(realization in seq(along = c(1:nR))){#}
   start.time <- Sys.time()
   # initial seed value for randomized sampling
@@ -2503,22 +2502,26 @@ for(realization in seq(along = c(1:nR))){#}
               new_tunedVSVM = tmp_new_tunedVSVM
               actAcc = tmp_acc$overall["Accuracy"]
               best_resample = resampledSize[rS]
-              best_newSize4iter= newSizes[nS4it]
-              # best_classSize= classSize[clS]
+              best_newSize4iter = newSizes[nS4it]
+              best_classSize = classSize[clS]
               best_cluster = clusterSizes[cS]
             }
           }
         }
       }
     }
-    fin_predLabelsVSVM = predict(new_tunedVSVM, validateFeatsub)
-    accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
-    print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],5)))
-    model_name_new_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
+    fin_predLabelsVSVM_SL_itAL = predict(new_tunedVSVM, validateFeatsub)
+    accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
+    print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)))
+    model_name_tunedVSVM_SL_itAL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
+    if(actAcc>best_acc){ 
+      best_acc <- actAcc
+      best_model <- model_name
+    }
     # ************************************************************************************************
     # 
     # # Add predicted labels to the features data set
-    # predLabelsVSVM_Un_unc = cbind(validateFeatsub, fin_predLabelsVSVM)
+    # predLabelsVSVM_Un_unc = cbind(validateFeatsub, fin_predLabelsVSVM_SL_itAL)
     # predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
     # 
     # print("Computing uncertainty samples distance...")
@@ -2568,7 +2571,7 @@ for(realization in seq(along = c(1:nR))){#}
     # AccuracyVSVM_SL_vUn_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b_ud$overall["Accuracy"])
     # AccuracyVSVM_SL_vUn_it[realization,sample_size] = as.numeric(accVSVM_SL_vUn_it$overall["Accuracy"])
     
-    AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Accuracy"])
+    AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
     # AccuracyVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
     # AccuracyVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
     # AccuracyVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
@@ -2587,7 +2590,7 @@ for(realization in seq(along = c(1:nR))){#}
     # KappaVSVM_SL_vUn_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b_ud$overall["Kappa"])
     # KappaVSVM_SL_vUn_it[realization,sample_size] = as.numeric(accVSVM_SL_vUn_it$overall["Kappa"])
     
-    KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_Un_it$overall["Kappa"])
+    KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
     # KappaVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Kappa"])
     # KappaVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Kappa"])
     # KappaVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Kappa"])
@@ -2602,9 +2605,10 @@ for(realization in seq(along = c(1:nR))){#}
   best_boundMargin_oa_SL_vUn = c(best_boundMargin_oa_SL_vUn, best_boundMargin_SLvUn_b)
   best_resample_oa=c(best_resample_oa, best_resample)
   best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
+  best_classSize_oa=c(best_classSize_oa, best_classSize)
   # best_cluster_oa=c(best_cluster_oa, best_cluster)
-  best_model_oa=c(best_model_oa, best_model)
-  time.taken_iter = c(time.taken_iter, round(Sys.time() - start.time,2))
+  best_model_oa=c(best_model_oa,best_model,": ",best_acc,"\n")
+  time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
   if(sample_size==4 && realization==3){
     saveRDS(tunedSVM, model_name_tunedSVM)
     saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
@@ -2613,10 +2617,9 @@ for(realization in seq(along = c(1:nR))){#}
     saveRDS(bestFittingModel, model_name)
     saveRDS(bestFittingModelUn_b, model_name_Un_b)
     saveRDS(bestFittingModelvUn_b, model_name_vUn_b)
-    saveRDS(new_tunedVSVM, model_name_new_tunedVSVM)
+    saveRDS(new_tunedVSVM, model_name_tunedVSVM_SL_itAL)
   }
 }
-time.taken_oa_postPreproc <- round(Sys.time() - start.time_oa_postPreproc,2)
 time.taken_oa <- round(Sys.time() - start.time_oa,2)
 if(length(sampleSizePor)>=5){
   setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
@@ -2624,8 +2627,12 @@ if(length(sampleSizePor)>=5){
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_prob,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
   save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
        file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_prob,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-  cat(time.taken_oa,"\t", time.taken_oa_postPreproc,"\t", time.taken_iter,"\n", best_bound_oa_SL,"\n", best_boundMargin_oa_SL,"\n", best_bound_oa_SL_Un,"\n", best_boundMargin_oa_SL_Un,"\n", best_bound_oa_SL_vUn,"\n", best_boundMargin_oa_SL_vUn,"\n", best_model_oa, 
-      file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_",city,"_",invariance,"_",model_prob,"_metadata_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"), sep = " ")
+  cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
+      "\nbest_bound_oa_SL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL: ", best_boundMargin_oa_SL,
+      "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
+      "\nbest_bound_oa_SL_vUn: ", best_bound_oa_SL_vUn,"\nbest_boundMargin_oa_SL_vUn: ",best_boundMargin_oa_SL_vUn,
+      "\n",best_model_oa, sep = "",
+      file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor"))
   print("accuracy results: acquired.")
 }
 print(best_bound_oa_SL)
@@ -2636,4 +2643,5 @@ print(best_bound_oa_SL_vUn)
 print(best_boundMargin_oa_SL_vUn)
 print(best_resample_oa)
 print(best_newSize_oa)
+print(best_classSize_oa)
 # print(best_cluster_oa)

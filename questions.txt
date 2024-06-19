@@ -42,19 +42,20 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  23. change from svm to ksvm
  24. DONE implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. DONE use the kernel_function from the base_svm 
- 26. try to predict normalized_data -> onlz for visualization purposes (thematic map?)
+ 26. normalized_data -> only for visualization purposes (eg thematic map in qgis)
  27. compare ud accuracies with and without clustering
  28. with few initial samples, check how many samples actually are present when we train each model
- 29. compare VSVM / VSVM_SL / VSVM_SL Unl / VSVM_SL V Unl as base model for ITerative AL and especially VSVM_SL Unl
- 30. check why SVM as an Accuracy of 90% just with 3 samples
- 31. check sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
- 32. compare VSVM_SL_Un_it trained on SVM/VSVM with VSVM_SL_Un_b/VSVM_SL_vUn_b
+ 29. DONE compare VSVM / VSVM_SL / VSVM_SL Unl / VSVM_SL V Unl as base model for ITerative AL and especially VSVM_SL Unl
+ 30. DONE check why SVM as an Accuracy of 90% just with 3 samples
+ 31. DONE check sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
+ 32. DONE compare VSVM_SL_Un_it trained on SVM/VSVM with VSVM_SL_Un_b/VSVM_SL_vUn_b
  33. compare acc from VSVM_SL_Un_it trained before and after VSVM_SL_vUn_b vs VSVM_SL_vUn_b trained before and after VSVM_SL_Un_it
  34. check the amount of nan values -> hagadera 
  35. check the VSVM / VSVM_SL / VSVM_SL_Un performance on the orginal
- 36. try MS with one sample per iteration
+ 36. DONE try MS with one sample per iteration
  37. implement MS-cSV
  38. collect accuracy results from different realization but same hyperparameters setup
- 39. consider all the levels for the uncertainty distance 
- 40. check which VSVM_SL_vUn_b work better 
+ 39. DONE consider all the levels for the uncertainty distance 
+ 40. check which VSVM_SL_vUn_b work better between the 2 
  41. DONE check warnings in AL binary hagadera -> na due to ncol(samplesRemaining) in UNCERTAINTY DISTANCE FUNCTIONS
+ 42. check if running tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub) AND tmp_acc  = confusionMatrix(tmp_pred, validateLabels) the accVSVM_SL_itAL CHANGE OR NOT
