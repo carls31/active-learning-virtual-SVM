@@ -12,20 +12,19 @@ city = "hagadera"       # cologne or hagadera
 invariance = "shape"    # scale or shape invariance
 model_prob = "binary"   # binary or multiclass problem
 
+sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
+b = 20           # Size of balanced_unlabeled_samples for each class
 bound = c(0.7, 0.9)           # radius around SV - threshold           
 boundMargin = c(1.5, 1.2)     # distance from hyperplane - threshold   
-b = 20           # Size of balanced_unlabeled_samples for each class
-
-sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(5,10,20,32,46,62,80,100)
-if(model_prob == "binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
-bound = c(0.7)
-} 
 
 resampledSize = c(b,2*b)    # total number of relabeled samples # b, b*2, b*6
 newSizes = c(b,4)             # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 classSize = c(5*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
-clusterSizes = c(2*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(5*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
+if(model_prob == "binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
+bound = c(0.7)
+} 
 train  = TRUE           # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
 path = '/home/rsrg9/Documents/'
