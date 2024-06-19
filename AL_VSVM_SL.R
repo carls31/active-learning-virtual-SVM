@@ -1588,8 +1588,8 @@ for(realization in seq(along = c(1:nR))){#}
     
     print("training SVM...")
     model_name_tunedSVM = paste0(format(Sys.time(),"%Y%m%d"),"SVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    if (file.exists(model_name) && !train) {
-      tunedSVM <- readRDS(model_name)
+    if (file.exists(model_name_tunedSVM) && !train) {
+      tunedSVM <- readRDS(model_name_tunedSVM)
       print("Luckily, model already exists!")
     } else {
       tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
@@ -1603,7 +1603,7 @@ for(realization in seq(along = c(1:nR))){#}
     new_bestTunedVSVM <- tunedSVM
     new_bestTrainFeatVSVM <- trainFeat 
     new_bestTrainLabelsVSVM <- trainLabels 
-    best_model <- model_name
+    best_model <- model_name_tunedSVM
     
     # ********************** 
     # get original SVs of base SVM
@@ -1616,9 +1616,9 @@ for(realization in seq(along = c(1:nR))){#}
     }
     # **********************
     ################################################ SVM MS  #############################################
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    if (file.exists(model_name) && !train) {
-      tunedSVM_MS <- readRDS(model_name)
+    model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    if (file.exists(model_name_tunedSVM_MS) && !train) {
+      tunedSVM_MS <- readRDS(model_name_tunedSVM_MS)
       print("Luckily, model already exists!")
     } else {
       stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
@@ -1682,7 +1682,7 @@ for(realization in seq(along = c(1:nR))){#}
     if(city=="cologne"){
       if(invariance=="scale"){
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list( # get VSs, means rows of SV but with subset on different level
                                  list(SVtotalSVMUn_b, SVL2SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM_b)),
                                  list(SVtotalSVMUn_b, SVL3SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REFSVM_b)),
@@ -1708,7 +1708,7 @@ for(realization in seq(along = c(1:nR))){#}
         S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
         
         model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotalSVMUn_b, S01C09SVMUn_b),
                                  list(SVtotalSVMUn_b, S03C05SVMUn_b),
@@ -1733,7 +1733,7 @@ for(realization in seq(along = c(1:nR))){#}
         SVL8SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REFSVM_b)
         SVL9SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REFSVM_b)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotalSVMUn_b, SVL2SVMUn_b),
                                  list(SVtotalSVMUn_b, SVL3SVMUn_b),
@@ -1755,7 +1755,7 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))])
         S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotalSVMUn_b, S01C09SVMUn_b),
                                  list(SVtotalSVMUn_b, S03C05SVMUn_b),
@@ -1784,7 +1784,7 @@ for(realization in seq(along = c(1:nR))){#}
       new_bestTunedSVM <- bestFittingModelSVMUn_b
       new_bestTrainFeatSVM <- best_trainFeatSVMUn_b
       new_bestTrainLabelsSVM <- best_trainLabelsSVMUn_b
-      best_model <- model_name
+      best_model <- model_name_SVMUn_b
     }
     ################################################# VSVM ################################################# 
     print("training VSVM...")
@@ -1897,8 +1897,8 @@ for(realization in seq(along = c(1:nR))){#}
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
     model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
-    if (file.exists(model_name) && !train) {
-      tunedVSVM <- readRDS(model_name)
+    if (file.exists(model_name_tunedVSVM) && !train) {
+      tunedVSVM <- readRDS(model_name_tunedVSVM)
       print("Luckily, model already exists!")
     } else {
       tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
@@ -1913,14 +1913,14 @@ for(realization in seq(along = c(1:nR))){#}
       new_bestTunedVSVM <- tunedVSVM
       new_bestTrainFeatVSVM <- trainFeatVSVM
       new_bestTrainLabelsVSVM <- trainLabelsVSVM
-      best_model <- model_name
+      best_model <- model_name_tunedVSVM
     } 
     ################################################ VSVM-SL ################################################
     print("evaluation of VSVM with self learning...")
-    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if(city=="cologne"){
       if(invariance=="scale"){ 
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -1934,7 +1934,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }else{
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, S01C09),
                                  list(SVtotal, S03C05),
@@ -1949,7 +1949,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
     }else{
       if(invariance=="scale"){ 
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -1961,7 +1961,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }else{
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, S01C09),
                                  list(SVtotal, S03C05),
@@ -1990,7 +1990,7 @@ for(realization in seq(along = c(1:nR))){#}
       new_bestTunedVSVM <- bestFittingModel
       new_bestTrainFeatVSVM <- best_trainFeatVSVM
       new_bestTrainLabelsVSVM <- best_trainLabelsVSVM
-      best_model <- model_name
+      best_model <- model_name_tunedVSVM
     }
     ################################### VSVM-SL + semi-labeled samples #####################################
     # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2031,7 +2031,7 @@ for(realization in seq(along = c(1:nR))){#}
         L10Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_b)
         L11Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_b)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -2063,7 +2063,7 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((7*numFeat)+1):(8*numFeat))], REF_b)
         S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
                                  list(SVtotal, S07C03),
@@ -2095,7 +2095,7 @@ for(realization in seq(along = c(1:nR))){#}
         L8Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_b)
         L9Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_b)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -2123,7 +2123,7 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((7*numFeat)+1):(8*numFeat))], REF_b)
         S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
                                  list(SVtotal, S07C03),
@@ -2160,7 +2160,7 @@ for(realization in seq(along = c(1:nR))){#}
       new_bestTunedVSVM <- bestFittingModelUn_b
       new_bestTrainFeatVSVM <- best_trainFeatVSVMUn_b
       new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn_b
-      best_model <- model_name
+      best_model <- model_name_Un_b
     }
     ################################ VSVM-SL + Virtual semi-labeled Samples ##################################
     trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
@@ -2194,7 +2194,7 @@ for(realization in seq(along = c(1:nR))){#}
         SVL10vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         SVL11vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -2226,7 +2226,7 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
                                  list(SVtotal, S07C03),
@@ -2258,7 +2258,7 @@ for(realization in seq(along = c(1:nR))){#}
         SVL8vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         SVL9vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -2286,7 +2286,7 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
                                  list(SVtotal, S07C03),
@@ -2324,7 +2324,7 @@ for(realization in seq(along = c(1:nR))){#}
       new_bestTunedVSVM <- bestFittingModelvUn_b
       new_bestTrainFeatVSVM <- best_trainFeatVSVMvUn_b
       new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn_b
-      best_model <- model_name
+      best_model <- model_name_vUn_b
     }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
@@ -2516,7 +2516,7 @@ for(realization in seq(along = c(1:nR))){#}
     model_name_tunedVSVM_SL_itAL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
     if(actAcc>best_acc){ 
       best_acc <- actAcc
-      best_model <- model_name
+      best_model <- model_name_tunedVSVM_SL_itAL
     }
     # ************************************************************************************************
     # 
