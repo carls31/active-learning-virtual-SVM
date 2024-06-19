@@ -2609,7 +2609,7 @@ for(realization in seq(along = c(1:nR))){#}
   # best_cluster_oa=c(best_cluster_oa, best_cluster)
   best_model_oa=c(best_model_oa,best_model,": ",best_acc,"\n")
   time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
-  if(sample_size==4 && realization==3){
+  if(realization==3 && sample_size==4){
     saveRDS(tunedSVM, model_name_tunedSVM)
     saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
     saveRDS(bestFittingModelSVMUn_b, model_name_SVMUn_b)
