@@ -585,7 +585,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         }
       }
     } 
-    if(save_models && sample_size==5  && realization==5){saveRDS(bestFittingModel, model_name)}
+    if(save_models && sample_size==5   && realization==3){saveRDS(bestFittingModel, model_name)}
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
                 best_trainFeatVSVM = best_trainFeatVSVM, 
@@ -751,8 +751,7 @@ if(city=="cologne"){
     # order train datapool by class label in alphabetical order:
     trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
     #########################################################################################
-  }  
-  if(invariance=="shape"){
+  }else{
     ########################################  Input  ########################################
 
     colheader = as.character(sampleSizePor)                 # corresponding column names    
@@ -981,8 +980,7 @@ if(city=="cologne"){
       )    
     #########################################################################################
   }  
-} 
-if(city=="hagadera"){
+}else{
   if(invariance=="scale"){
     ########################################  Input  ########################################
     inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
@@ -1125,8 +1123,7 @@ if(city=="hagadera"){
     rm(nomalizedFeat_MS, validateDataAllLevMS, splitdf, normalizedDataPoolAllLev_MS
       )
     #########################################################################################
-  }  
-  if(invariance=="shape"){
+  }else{
     ########################################  Input  ########################################
 
     colheader = as.character(sampleSizePor)                 # corresponding column names    
@@ -1599,7 +1596,7 @@ for(realization in seq(along = c(1:nR))){#}
       print("Luckily, model already exists!")
     } else {
       tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-      if(save_models && sample_size==5  && realization==5){saveRDS(tunedSVM, model_name)}
+      if(save_models && sample_size==5   && realization==3){saveRDS(tunedSVM, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVM = predict(tunedSVM, validateFeatsub)
@@ -1658,7 +1655,7 @@ for(realization in seq(along = c(1:nR))){#}
       
       print("training SVM multilevel...")
       tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
-      if(save_models && sample_size==5  && realization==5){saveRDS(tunedSVM_MS, model_name)}
+      if(save_models && sample_size==5   && realization==3){saveRDS(tunedSVM_MS, model_name)}
     }
     # run classification and accuracy assessment for unmodified SV and predict labels of test data
     predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
@@ -1685,11 +1682,11 @@ for(realization in seq(along = c(1:nR))){#}
     SVtotalSVMUn_b = trainDataCurRemainingSVM_b[SVindexSVMUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
     SVtotalSVMUn_b = cbind(SVtotalSVMUn_b, REFSVM_b)
     
+    print("evaluation of SVM with self learning and semi-labeled samples...")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if(city=="cologne"){
       if(invariance=="scale"){
         
-        print("evaluation of SVM with self learning and semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list( # get VSs, means rows of SV but with subset on different level
                                 list(SVtotalSVMUn_b, SVL2SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM_b)),
@@ -1703,8 +1700,7 @@ for(realization in seq(along = c(1:nR))){#}
                                 list(SVtotalSVMUn_b, SVL11SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REFSVM_b))
                               )
         )
-      }
-      if(invariance=="shape"){
+      }else{
 
         # get VSs, means rows of SV but with subset on different level
         S01C09SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]) # , REFSVM_b
@@ -1716,7 +1712,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))])
         S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
         
-        print("evaluation of SVM self learning with semi-labeled samples...")
         model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
@@ -1731,8 +1726,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }
-    }
-    if(city=="hagadera"){
+    }else{
       if(invariance=="scale"){ 
         # get VSs, means rows of SV but with subset on different level
         SVL2SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM_b)
@@ -1744,8 +1738,6 @@ for(realization in seq(along = c(1:nR))){#}
         SVL8SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REFSVM_b)
         SVL9SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REFSVM_b)
         
-        print("evaluation of SVM self learning with semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotalSVMUn_b, SVL2SVMUn_b),
@@ -1757,8 +1749,7 @@ for(realization in seq(along = c(1:nR))){#}
                                  list(SVtotalSVMUn_b, SVL9SVMUn_b)
                                )
         )
-      }
-      if(invariance=="shape"){
+      }else{
         # get VSs, means rows of SV but with subset on different level
         S01C09SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]) # , REFSVM_b
         S03C05SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))])
@@ -1769,8 +1760,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))])
         S09C01SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))])
         
-        print("evaluation of SVM self learning with semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotalSVMUn_b, S01C09SVMUn_b),
@@ -1803,6 +1792,7 @@ for(realization in seq(along = c(1:nR))){#}
       best_model <- model_name
       }
     ################################################# VSVM ################################################# 
+    print("training VSVM...")
     if(city=="cologne"){
       if(invariance=="scale"){ 
         # get VSs, means rows of SV but with subset on different level
@@ -1829,8 +1819,7 @@ for(realization in seq(along = c(1:nR))){#}
                         setNames(SVL10,objInfoNames),
                         setNames(SVL11,objInfoNames)
         ) # The new Train Data Set is made by SVs and VSVs only
-      }
-      if(invariance=="shape"){ 
+      }else{ 
          #get VSV, means rows of SV but with subset on diferent level
          S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
          S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
@@ -1853,8 +1842,7 @@ for(realization in seq(along = c(1:nR))){#}
                          setNames(S09C01,objInfoNames)
                          )
       }  
-    }
-    if(city=="hagadera"){
+    }else{
       if(invariance=="scale"){
         # get VSs, means rows of SV but with subset on different level
         SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
@@ -1876,8 +1864,7 @@ for(realization in seq(along = c(1:nR))){#}
                         setNames(SVL8,objInfoNames),
                         setNames(SVL9,objInfoNames)
                         ) 
-      }  
-      if(invariance=="shape"){
+      }else{
         #get VSV, means rows of SV but with subset on diferent level
         S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
         S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
@@ -1914,14 +1901,13 @@ for(realization in seq(along = c(1:nR))){#}
     tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
-    print("training VSVM...")
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if (file.exists(model_name) && !train) {
       tunedVSVM <- readRDS(model_name)
       print("Luckily, model already exists!")
     } else {
       tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-      if(save_models && sample_size==5  && realization==5){saveRDS(tunedVSVM, model_name)}
+      if(save_models && sample_size==5   && realization==3){saveRDS(tunedVSVM, model_name)}
     }
     # predict labels of test data i.e. run classification and accuracy assessment for modified SV
     predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
@@ -1953,8 +1939,7 @@ for(realization in seq(along = c(1:nR))){#}
                                   list(SVtotal, SVL11)
                                   )
                                 )
-      } 
-      if(invariance=="shape"){
+      }else{
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, S01C09),
@@ -1968,8 +1953,7 @@ for(realization in seq(along = c(1:nR))){#}
                                  )
                                )
       }
-    }
-    if(city=="hagadera"){
+    }else{
       if(invariance=="scale"){ 
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
@@ -1982,8 +1966,7 @@ for(realization in seq(along = c(1:nR))){#}
                                  list(SVtotal, SVL9)
                                  )
                                )
-      } 
-      if(invariance=="shape"){
+      }else{
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, S01C09),
@@ -2038,6 +2021,8 @@ for(realization in seq(along = c(1:nR))){#}
     SVtotalUn_b = trainDataCurRemaining_b[SVindexUn_b ,c(sindexSVMDATA:eindexSVMDATA)]
     SVtotalUn_b = cbind(SVtotalUn_b, REF_b)
     
+    print("evaluation of VSVM SL with semi-labeled samples...")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     # get VSs, means rows of SV but with subset on different level
     if(city=="cologne"){
       if(invariance=="scale"){ 
@@ -2052,8 +2037,6 @@ for(realization in seq(along = c(1:nR))){#}
         L10Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_b)
         L11Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_b)
 
-        print("evaluation of VSVM SL with semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                   list(SVtotal, SVL2),
@@ -2076,8 +2059,7 @@ for(realization in seq(along = c(1:nR))){#}
                                   list(totalUn_b, L11Un_b)
                                 )
         )
-      } 
-      if(invariance=="shape"){
+      }else{
         S01C09Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((numFeat+1):(2*numFeat))], REF_b)
         S03C05Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((2*numFeat)+1):(3*numFeat))], REF_b)
         S03C07Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((3*numFeat)+1):(4*numFeat))], REF_b)
@@ -2087,8 +2069,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((7*numFeat)+1):(8*numFeat))], REF_b)
         S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
         
-        print("evaluation of VSVM self learning with semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
@@ -2110,8 +2090,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }
-    }
-    if(city=="hagadera"){
+    }else{
       if(invariance=="scale"){  
         L2Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_b)
         L3Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_b)
@@ -2122,8 +2101,6 @@ for(realization in seq(along = c(1:nR))){#}
         L8Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_b)
         L9Un_b = cbind(trainDataCurRemaining_b[indexUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_b)
         
-        print("evaluation of VSVM self learning with semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
@@ -2142,8 +2119,7 @@ for(realization in seq(along = c(1:nR))){#}
                                  list(totalUn_b, L9Un_b)
                                )
         )
-      } 
-      if(invariance=="shape"){
+      }else{
         S01C09Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c((numFeat+1):(2*numFeat))], REF_b)
         S03C05Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((2*numFeat)+1):(3*numFeat))], REF_b)
         S03C07Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((3*numFeat)+1):(4*numFeat))], REF_b)
@@ -2153,8 +2129,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((7*numFeat)+1):(8*numFeat))], REF_b)
         S09C01Un_b = cbind(trainDataCurRemaining_b[SVindexUn_b,c(((8*numFeat)+1):(9*numFeat))], REF_b)
         
-        print("evaluation of VSVM self learning with semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
@@ -2210,6 +2184,8 @@ for(realization in seq(along = c(1:nR))){#}
     # REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
     # SVtotalvUn_v = cbind(SVtotalvUn_vFeat,REF_v)
     
+    print("evaluation of VSVM self learning with virtual semi-labeled samples...")
+    model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     # get VSs, means rows of SV but with subset on different level
     if(city=="cologne"){
       if(invariance=="scale"){ 
@@ -2224,8 +2200,6 @@ for(realization in seq(along = c(1:nR))){#}
         SVL10vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         SVL11vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
 
-        print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                 list(SVtotal, SVL2),
@@ -2248,8 +2222,7 @@ for(realization in seq(along = c(1:nR))){#}
                                 list(SVtotalvUn_v, SVL11vUn_b)
                                 )
         )
-      }
-      if(invariance=="shape"){ 
+      }else{ 
         S01C09vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((numFeat+1):(2*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S03C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S03C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
@@ -2259,8 +2232,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
@@ -2282,8 +2253,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }
-    }
-    if(city=="hagadera"){
+    }else{
       if(invariance=="scale"){ 
         SVL2vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1),ncol(trainDataCurRemaining))]) #)], REF_v)
         SVL3vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1),ncol(trainDataCurRemaining))]) #)], REF_v)
@@ -2294,8 +2264,6 @@ for(realization in seq(along = c(1:nR))){#}
         SVL8vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         SVL9vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
@@ -2314,8 +2282,7 @@ for(realization in seq(along = c(1:nR))){#}
                                  list(SVtotalvUn_v, SVL9vUn_b)
                                )
         )
-      }
-      if(invariance=="shape"){ 
+      }else{ 
         S01C09vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c((numFeat+1):(2*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S03C05vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S03C07vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
@@ -2325,8 +2292,6 @@ for(realization in seq(along = c(1:nR))){#}
         S07C03vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         S09C01vUn_b = na.omit(trainDataCurRemaining_v[SVindexvUn_v,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCurRemaining))]) #)], REF_v)
         
-        print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-        model_name = paste0(format(Sys.time(),"%Y%m%d"),"bestFittingModelvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables=list(
                                  list(SVtotal, S09C01),
@@ -2421,8 +2386,7 @@ for(realization in seq(along = c(1:nR))){#}
                               setNames(SVL10,objInfoNames),
                               setNames(SVL11,objInfoNames)
               )
-            }
-            if(invariance=="shape"){
+            }else{
               SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
               
               SVL2 = samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
@@ -2447,8 +2411,7 @@ for(realization in seq(along = c(1:nR))){#}
                                        setNames(SVL11,objInfoNames)
               )
             }
-          }
-          if(city=="hagadera" && num_cores>=4){
+          } else if(city=="hagadera" && num_cores>=4){
             if(invariance=="scale"){
               SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
               
@@ -2471,8 +2434,7 @@ for(realization in seq(along = c(1:nR))){#}
                                       setNames(SVL8,objInfoNames),
                                       setNames(SVL9,objInfoNames)
               )
-            }
-            if(invariance=="shape"){
+            }else{
               SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
               
               SVL2 = samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
@@ -2557,7 +2519,7 @@ for(realization in seq(along = c(1:nR))){#}
     accVSVM_SL_Un_it  = confusionMatrix(fin_predLabelsVSVM, validateLabels)
     print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_Un_it$overall["Accuracy"],5)))
     model_name = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
-    if(save_models && sample_size==5  && realization==5){saveRDS(new_tunedVSVM, model_name)}
+    if(save_models && sample_size==5   && realization==3){saveRDS(new_tunedVSVM, model_name)}
     # ************************************************************************************************
     # 
     # # Add predicted labels to the features data set
@@ -2670,3 +2632,13 @@ print(best_boundMargin_oa_SL_vUn)
 print(best_resample_oa)
 print(best_newSize_oa)
 # print(best_cluster_oa)
+
+
+
+
+
+
+
+
+
+
