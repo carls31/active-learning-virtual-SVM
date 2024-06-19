@@ -2328,6 +2328,7 @@ for(realization in seq(along = c(1:nR))){#}
     }
     ###################################### UNCERTAINTY DISTANCE FUNCTIONS  #######################################
     print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
+    new_tunedVSVM <- bestFittingModel
     actAcc = -1e-6
     for(clS in 1:length(classSize)){
       stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2345,7 +2346,6 @@ for(realization in seq(along = c(1:nR))){#}
             # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
             # new_trainLabelsVSVM <- new_bestTrainLabelsVSVM
             
-            new_tunedVSVM <- bestFittingModel
             new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
             new_trainLabelsVSVM <- best_trainLabelsVSVM
             
