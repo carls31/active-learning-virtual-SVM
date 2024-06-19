@@ -425,79 +425,6 @@ add_new_samples = function(distance_data,
   } 
 }   
 
-# add_new_samples_cSV = function(distance_data,
-#                            ref, features=NA,
-#                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
-#                            newSize=4, modelfin=tunedSVM$finalModel){
-#   # merge features and original labels
-#   ref_added = cbind(distance_data, ref)
-#   
-#   # order by most uncertain samples
-#   ref_added_or = ref_added[order(ref_added$distance),]
-#   
-#   for(l in seq(along = binaryClassProblem)){
-#     pred = sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) {
-#       abs(modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)]))
-#     })
-#     if(pred < smallestDistance)
-#       smallestDistance = pred
-#   }
-#   
-#   # Initialize a vector to store selected sample indices
-#   selected_indices <- c()
-#   cluster_samples <- c()
-#   tmpSize = 0
-#   # Iterate over clusters and select one sample from each cluster
-#   for (sample in seq_len(nrow(ref_added_or))) {
-#     if (!( ref_added_or[sample,]$cluster  %in% cluster_samples) && tmpSize < newSize){
-#       cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
-#       tmpSize = tmpSize+1
-#       
-#       ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
-#       
-#       selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
-#     }
-#   }
-#   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
-#   
-#   # Add relabeled samples to new_trainFeatVSVM and new_trainLabelsVSVM
-#   if(length(features)>1){
-#     # Remove relabeled samples from validateLabels
-#     features <- features[!(rownames(features) %in% selected_indices), ]
-#     reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
-#     ref <- ref[-reor_idx]
-#     new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
-#     new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
-#     return(list(features = features, labels = ref, 
-#                 new_trainFeatVSVM = new_trainFeatVSVM, 
-#                 new_trainLabelsVSVM = new_trainLabelsVSVM))
-#   } else{
-#     return(ref_added_reor[, (ncol(ref_added_reor)-4)])
-#   } 
-# }   
-
-# SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name, tunedSVM$finalModel, SVtotal, # classProb=TRUE,
-# SVL_variables = list(
-#   list(SVtotal, SVL2),
-#   list(SVtotal, SVL3),
-#   list(SVtotal, SVL5),
-#   list(SVtotal, SVL6),
-#   list(SVtotal, SVL7),
-#   list(SVtotal, SVL8),
-#   list(SVtotal, SVL9),
-#   list(SVtotal, SVL10),
-#   list(SVtotal, SVL11),
-#   list(SVtotalvUn_v, SVL2Un_b),
-#   list(SVtotalvUn_v, SVL3Un_b),
-#   list(SVtotalvUn_v, SVL5Un_b),
-#   list(SVtotalvUn_v, SVL6Un_b),
-#   list(SVtotalvUn_v, SVL7Un_b),
-#   list(SVtotalvUn_v, SVL8Un_b),
-#   list(SVtotalvUn_v, SVL9Un_b),
-#   list(SVtotalvUn_v, SVL10Un_b),
-#   list(SVtotalvUn_v, SVL11Un_b)
-#                        )
-#)
 self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVMfinModel, SVtotal, SVL_variables,objInfoNames,rem_extrem,rem_extrem_kerneldist, train=TRUE, classProb = FALSE)
 {
   if (file.exists(model_name) && !train) {
@@ -2336,15 +2263,12 @@ for(realization in seq(along = c(1:nR))){#}
       stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
       # Get new samples from trainDataCurRemaining
       samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
-      # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
+      trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
+      
       for(cS in 1:length(clusterSizes)){
         for(rS in 1:length(resampledSize)){
           for(nS4it in 1:length(newSizes)){
             print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | oa class pool: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
-            
-            # new_tunedVSVM <- new_bestTunedVSVM
-            # new_trainFeatVSVM <- setNames(new_bestTrainFeatVSVM, names)
-            # new_trainLabelsVSVM <- new_bestTrainLabelsVSVM
             
             new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
             new_trainLabelsVSVM <- best_trainLabelsVSVM
