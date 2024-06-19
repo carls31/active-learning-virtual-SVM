@@ -75,7 +75,7 @@ png(filename=paste0(file_name_acc,".png"),
 msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)),
                   pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
-                  xlab= "number of cluster",
+                  xlab= "number of clusters",
                   ylab= "accuracy (%)",
                   main = paste(location,"-", class,"classification problem -", invariance,"invariance")
 )
@@ -125,7 +125,7 @@ png(filename=paste0(file_name_kappa,".png"),
 msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)), 
                   pch=20, type= type,                   col = 1, lwd=2,lty = 1,
-                  xlab= "number of cluster", 
+                  xlab= "number of clusters", 
                   ylab="Kappa-score",
                   main = paste(location,"-", class,"classification problem -", invariance,"invariance")
 )
