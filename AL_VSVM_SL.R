@@ -2406,7 +2406,7 @@ for(realization in seq(along = c(1:nR))){#}
                                         setNames(SVL11,objInfoNames)
                 )
               }
-            } else if(city=="hagadera" && num_cores>=4){
+            }else if(city=="hagadera" && num_cores>=4){
               if(invariance=="scale"){
                 SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
                 
