@@ -1512,7 +1512,7 @@ for(realization in c(1:nR)){#}
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
     
     print("training SVM...")
-    model_name_tunedSVM = paste0(format(Sys.time(),"%Y%m%d"),"SVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_tunedSVM = paste0(format(Sys.time(),"%Y%m%d"),"SVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     if (file.exists(model_name_tunedSVM) && !train) {
       tunedSVM <- readRDS(model_name_tunedSVM)
       print("Luckily, model already exists!")
@@ -1541,7 +1541,7 @@ for(realization in c(1:nR)){#}
     }
     # **********************
     ################################################ SVM MS  #############################################
-    model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     if (file.exists(model_name_tunedSVM_MS) && !train) {
       tunedSVM_MS <- readRDS(model_name_tunedSVM_MS)
       print("Luckily, model already exists!")
@@ -1603,7 +1603,7 @@ for(realization in c(1:nR)){#}
     SVtotalSVMUn_b = cbind(SVtotalSVMUn_b, REFSVM_b)
     
     print("evaluation of SVM with self learning and semi-labeled samples...")
-    model_name_SVMUn_b = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_SVMUn_b = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     if(city=="cologne"){
       if(invariance=="scale"){
         
@@ -1820,7 +1820,7 @@ for(realization in c(1:nR)){#}
     tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
     tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
     
-    model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     if (file.exists(model_name_tunedVSVM) && !train) {
       tunedVSVM <- readRDS(model_name_tunedVSVM)
       print("Luckily, model already exists!")
@@ -1841,7 +1841,7 @@ for(realization in c(1:nR)){#}
     } 
     ################################################ VSVM-SL ################################################
     print("evaluation of VSVM with self learning...")
-    model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     if(city=="cologne"){
       if(invariance=="scale"){ 
         SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
@@ -1940,7 +1940,7 @@ for(realization in c(1:nR)){#}
     totalUn_b = cbind(totalUn_b, REF_b)
     
     print("evaluation of VSVM SL with semi-labeled samples...")
-    model_name_Un_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_Un_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     # get VSs, means rows of SV but with subset on different level
     if(city=="cologne"){
       if(invariance=="scale"){ 
@@ -2103,7 +2103,7 @@ for(realization in c(1:nR)){#}
     SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
     
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
-    model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
     # get VSs, means rows of SV but with subset on different level
     if(city=="cologne"){
       if(invariance=="scale"){ 
@@ -2434,7 +2434,7 @@ for(realization in c(1:nR)){#}
     fin_predLabelsVSVM_SL_itAL = predict(new_tunedVSVM, validateFeatsub)
     accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
     print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)))
-    model_name_tunedVSVM_SL_itAL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl_",seed,".rds")
+    model_name_tunedVSVM_SL_itAL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
     if(actAcc>best_acc){ 
       best_acc <- actAcc
       best_model <- model_name_tunedVSVM_SL_itAL
