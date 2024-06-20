@@ -1431,7 +1431,7 @@ time.taken_iter = c()
 # set randomized seed for the random sampling procedure
 seed = 20 # 5, 73, 20 
 
-for(realization in c(2:nR)){#}
+for(realization in c(1:nR)){#}
   start.time <- Sys.time()
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
@@ -1448,7 +1448,7 @@ for(realization in c(2:nR)){#}
   # subset for each outer iteration test data to speed up computing
   testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
   
-  for(sample_size in seq(along = c(1:length(sampleSizePor)))){#}
+  for(sample_size in c(1:length(sampleSizePor))){#}
     
     print(paste0(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
     
@@ -2090,17 +2090,17 @@ for(realization in c(2:nR)){#}
     # trainDataCurRemaining_v = samplesRemaining_v[,1:ncol(trainDataPoolAllLev)]
     # trainDataCurRemainingsub_v = trainDataCurRemaining_v[sindexSVMDATA:eindexSVMDATA]
 
-    # REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_v)
+    REF_v = predict(bestFittingModelUn_b, trainDataCurRemainingsub_b)
 
     # get SV of unlabeled samples
-    SVindexvUn_v = bestFittingModelUn_b$finalModel@SVindex # 1:nrow(trainDataCurRemainingsub_v) 
-    SVtotalvUn_v = na.omit(trainDataCurRemaining_b[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_b))])
-    # SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
-    # 
-    # # extracting previously assigned reference column
-    # SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-1)]
+    SVindexvUn_v = 1:nrow(trainDataCurRemainingsub_b) #  bestFittingModelUn_b$finalModel@SVindex 
+    SVtotalvUn_v = trainDataCurRemaining_b[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA)] #na.omit(trainDataCurRemaining_b[SVindexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_b))])
+    SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
+    
+    # extracting previously assigned reference column
+    SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-1)] # -1)]
     REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
-    # SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
+    SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
     
     print("evaluation of VSVM self learning with virtual semi-labeled samples...")
     model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
