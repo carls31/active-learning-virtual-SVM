@@ -9,15 +9,15 @@ path="D:/GitHub/active-learning-virtual-SVM/"
 setwd(paste0(path,"results/",city))
 
 file_name_acc = "20240527_1813_Col_scale_binary_acc_20UnlSamples"
-# # file_name_acc = "20240528_0826_Col_scale_binary_acc_20UnlSamples"
-# file_name_acc = "20240530_1759_Col_scale_binary_acc_20Unl_9nR"
-# file_name_acc = "20240601_0826_Col_scale_multiclass_acc_20Unl_3nR"
-# file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
-# file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
-# # file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
-# file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
-# file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
-# file_name_acc = "20240620_1034_hagadera_shape_binary_acc_20Unl_1nR_8SizePor"
+# file_name_acc = "20240528_0826_Col_scale_binary_acc_20UnlSamples"
+file_name_acc = "20240530_1759_Col_scale_binary_acc_20Unl_9nR"
+file_name_acc = "20240601_0826_Col_scale_multiclass_acc_20Unl_3nR"
+file_name_acc = "20240603_1314_Col_scale_multiclass_acc_20Unl_10nR"
+file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
+# file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
+file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
+file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
+file_name_acc = "20240620_1034_hagadera_shape_binary_acc_20Unl_1nR_8SizePor"
 
 
 
@@ -25,12 +25,12 @@ file_name_acc = "20240527_1813_Col_scale_binary_acc_20UnlSamples"
 
 file_name_kappa = "20240530_1759_Col_scale_binary_kappa_20Unl_9nR"
 file_name_kappa = "20240601_0826_Col_scale_multiclass_kappa_20Unl_3nR"
-# file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
-# file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
-# # file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
-# file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
-# file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor"
-# file_name_kappa = "20240620_1034_hagadera_shape_binary_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240603_1314_Col_scale_multiclass_kappa_20Unl_10nR"
+file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
+# file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
+file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
+file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor"
+file_name_kappa = "20240620_1034_hagadera_shape_binary_Kappa_20Unl_1nR_8SizePor"
 
 
 
@@ -133,7 +133,7 @@ if(class == "multiclass"){
       }
     }else{
       if(invariance=="scale"){
-        yUpperBound = 0.93
+        yUpperBound = 0.927
         ylowerBound = 0.79
       }else{
         yUpperBound = 0.96
@@ -184,12 +184,12 @@ msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 )
 lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
-# lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
+lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
 
-# lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
+lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
 lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type ,       col = 3, lwd = 2,lty = 2)
 lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
-# lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty = 1)
+lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty = 1)
 
 # lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
 # lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
@@ -204,20 +204,20 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty 
 legend("bottomright", 
        c("SVM single-level L4",
          "SVM multi-level",
-         # "SVM-SL + Unlabeled",
-         # "VSVM",
+         "SVM-SL + Unlabeled",
+         "VSVM",
          "VSVM-SL","VSVM-SL + Unlabeled",
-         # "VSVM-SL + Virtual Unlabeled",
+         "VSVM-SL + Virtual Unlabeled",
          "VSVM-SL + AL"),
        lty=c(1,3,
-             # 4,1,
+             4,1,
              2,1,
-             # 1,
+             1,
              1), # gives the legend appropriate symbols (lines)
        col=c(1,8,
-             # 1,3,
+             1,3,
              3,4,
-             # 5,
+             5,
              7)  # gives the legend lines the correct color and width
        ) 
 
