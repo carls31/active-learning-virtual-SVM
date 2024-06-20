@@ -1,12 +1,12 @@
 library(scales)
 
-location = "hagadera"
-invariance = "scale"
+city = "hagadera"
+invariance = "shape"
 class = "binary"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
-setwd(paste0(path,"results/",location))
+setwd(paste0(path,"results/",city))
 
 # file_name_acc = "20240527_1813_Col_scale_binary_acc_20UnlSamples"
 # file_name_acc = "20240528_0826_Col_scale_binary_acc_20UnlSamples"
@@ -17,6 +17,8 @@ file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
 # file_name_acc = "20240605_2246_Col_shape_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
+file_name_acc = "20240620_1034_hagadera_shape_binary_acc_20Unl_1nR_8SizePor"
+
 
 
 # ********************************************************************
@@ -28,85 +30,96 @@ file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
 # file_name_kappa = "20240605_2246_Col_shape_multiclass_Kappa_20Unl_10nR"
 file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
 file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor"
+file_name_kappa = "20240620_1034_hagadera_shape_binary_Kappa_20Unl_1nR_8SizePor"
+
 
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
 
-# AccuracySVM=AccuracySVM[2:10,]
-# AccuracySVM_M=AccuracySVM_M[2:10,]
-# AccuracySVM_SL_Un_b=AccuracySVM_SL_Un_b[2:10,]
-# AccuracyVSVM=AccuracyVSVM[2:10,]
-# AccuracyVSVM_SL=AccuracyVSVM_SL[2:10,]
-# AccuracyVSVM_SL_Un_b=AccuracyVSVM_SL_Un_b[2:10,]
-# AccuracyVSVM_SL_vUn_b=AccuracyVSVM_SL_vUn_b[2:10,]
-# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[2:10,]
+# AccuracySVM=AccuracySVM[1,]
+# AccuracySVM_M=AccuracySVM_M[1,]
+# AccuracySVM_SL_Un_b=AccuracySVM_SL_Un_b[1,]
+# AccuracyVSVM=AccuracyVSVM[1,]
+# AccuracyVSVM_SL=AccuracyVSVM_SL[1,]
+# AccuracyVSVM_SL_Un_b=AccuracyVSVM_SL_Un_b[1,]
+# AccuracyVSVM_SL_vUn_b=AccuracyVSVM_SL_vUn_b[1,]
+# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1,]
 # 
-# KappaSVM=KappaSVM[2:10,]
-# KappaSVM_M=KappaSVM_M[2:10,]
-# KappaSVM_SL_Un_b=KappaSVM_SL_Un_b[2:10,]
-# KappaVSVM=KappaVSVM[2:10,]
-# KappaVSVM_SL=KappaVSVM_SL[2:10,]
-# KappaVSVM_SL_Un_b=KappaVSVM_SL_Un_b[2:10,]
-# KappaVSVM_SL_vUn_b=KappaVSVM_SL_vUn_b[2:10,]
-# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[2:10,]
+# KappaSVM=KappaSVM[1,]
+# KappaSVM_M=KappaSVM_M[1,]
+# KappaSVM_SL_Un_b=KappaSVM_SL_Un_b[1,]
+# KappaVSVM=KappaVSVM[1,]
+# KappaVSVM_SL=KappaVSVM_SL[1,]
+# KappaVSVM_SL_Un_b=KappaVSVM_SL_Un_b[1,]
+# KappaVSVM_SL_vUn_b=KappaVSVM_SL_vUn_b[1,]
+# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1,]
 # 
 # 
-# save(AccuracySVM,
-#      AccuracySVM_M,
-#      AccuracySVM_SL_Un_b,
-#      AccuracyVSVM,
-#      AccuracyVSVM_SL,
-#      AccuracyVSVM_SL_Un_b,
-#      AccuracyVSVM_SL_vUn_b,
-#      AccuracyVSVM_SL_Un_it,
-#      file=paste0(file_name_acc,".RData"))
-# save(KappaSVM,
-#      KappaSVM_M,
-#      KappaSVM_SL_Un_b,
-#      KappaVSVM,
-#      KappaVSVM_SL,
-#      KappaVSVM_SL_Un_b,
-#      KappaVSVM_SL_vUn_b,
-#      KappaVSVM_SL_Un_it,
-#      file=paste0(file_name_kappa,".RData"))
+save(AccuracySVM,
+     AccuracySVM_M,
+     AccuracySVM_SL_Un_b,
+     AccuracyVSVM,
+     AccuracyVSVM_SL,
+     AccuracyVSVM_SL_Un_b,
+     AccuracyVSVM_SL_vUn_b,
+     AccuracyVSVM_SL_Un_it,
+     file=paste0(file_name_acc,".RData"))
+save(KappaSVM,
+     KappaSVM_M,
+     KappaSVM_SL_Un_b,
+     KappaVSVM,
+     KappaVSVM_SL,
+     KappaVSVM_SL_Un_b,
+     KappaVSVM_SL_vUn_b,
+     KappaVSVM_SL_Un_it,
+     file=paste0(file_name_kappa,".RData"))
 
-ExCsvMSD = function (datadase, filename = NA){{
+ExCsvMSD = function (datadase, filename = NA){
   
   datadase = as.matrix(datadase)
   n = ncol(datadase)
-  MSDdata = matrix(data = NA, nrow = 2, ncol = n)
-  
-  rownames(MSDdata) = c("Mean","Std Dev")
-  
-  for (l in seq(along=1:n)){
+  if(n>1){
+    MSDdata = matrix(data = NA, nrow = 2, ncol = n)
+    for (l in seq(along=1:n)){
+      MSDdata[1,l] = mean(datadase[,l])
+      MSDdata[2,l] = sd(datadase[,l])
+    }
+    MSDdata_final = rbind(datadase, MSDdata) 
+    #export final kappa value table to .csv-file
+    if(!missing(filename)){ write.csv(MSDdata_final, filename) }
     
-    MSDdata[1,l] = mean(datadase[,l])
-    MSDdata[2,l] = sd(datadase[,l])
+  }else{
+    MSDdata = matrix(data = NA, nrow = 2, ncol = length(datadase))
+    MSDdata[1,] = datadase
+    MSDdata[2,] = 0
   }
-  
-  MSDdata_final = rbind(datadase, MSDdata) 
-  
-  #export final kappa value table to .csv-file
-  if(!missing(filename)){
-    write.csv(MSDdata_final, filename)
-  }
-}
+  rownames(MSDdata) = c("Mean","Std Dev")
   return(MSDdata)
 }
 
 column_names <- colnames(AccuracySVM)
-# column_names <- names(AccuracySVM)
+if(is.null(column_names)){column_names <- names(AccuracySVM)}
 x <- 2*as.integer(column_names)
 
-setwd(paste0(path,"images/",location))
+setwd(paste0(path,"images/",city))
 
 if(class == "multiclass"){
-  yUpperBound = 0.80
-  ylowerBound = 0.445
+  if(city=="hagadera"){
+    yUpperBound = 0.80
+    ylowerBound = 0.445
   }else{
-    yUpperBound = 0.975
-    ylowerBound = 0.67
+    yUpperBound = 0.80
+    ylowerBound = 0.445
+    }
+  }else{
+    if(city=="hagadera"){
+      yUpperBound = 0.98
+      ylowerBound = 0.67
+    }else{
+      yUpperBound = 0.975
+      ylowerBound = 0.67
+    }
   }
 
 type = "l"
@@ -129,7 +142,7 @@ png(filename=paste0(file_name_acc,".png"),
 #                   pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
 #                   xlab= "number of labeled samples per class", 
 #                   ylab= "accuracy (%)",
-#                   main = paste(location,"-", class,"classification problem -", invariance,"invariance")
+#                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 # )
 # lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
 # lines(x, (AccuracySVM_SL_Un_b), type= type ,   col = 1, lwd = 2,lty = 4)
@@ -148,7 +161,7 @@ msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
                   pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                   xlab= "number of labeled samples per class",
                   ylab= "accuracy (%)",
-                  main = paste(location,"-", class,"classification problem -", invariance,"invariance")
+                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 )
 lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
 lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
@@ -217,7 +230,7 @@ msdSVMPlot = plot(x, avgSVM,log = "x",
                   pch=20, type= type,   col = 1, lwd = 2,lty = 1,
                   xlab= "number of labeled samples per class", 
                   ylab="accuracy (%) +/- std dev",
-                  main = paste(location,"-", class,"classification problem -", invariance,"invariance")
+                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 )
 lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
 lines(x, avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
@@ -259,12 +272,22 @@ dev.off()
 # KAPPA
 ##########################################################################
 
-if(class=="multiclass"){
-  yUpperBound = 0.715
-  ylowerBound = 0.405
+if(class == "multiclass"){
+  if(city=="hagadera"){
+    yUpperBound = 0.715
+    ylowerBound = 0.405
+  }else{
+    yUpperBound = 0.715
+    ylowerBound = 0.405
+  }
 }else{
-  yUpperBound = 0.95
-  ylowerBound = 0.4
+  if(city=="hagadera"){
+    yUpperBound = 0.95
+    ylowerBound = 0.4
+  }else{
+    yUpperBound = 0.95
+    ylowerBound = 0.4
+  }
 }
 
 # *********************************************
@@ -280,7 +303,7 @@ msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
                   pch=20, type= type,                   col = 1, lwd=2,lty = 1,
                   xlab= "number of labeled samples per class", 
                   ylab="Kappa-score",
-                  main = paste(location,"-", class,"classification problem -", invariance,"invariance")
+                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 )
 lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
 lines(x, ExCsvMSD(KappaSVM_SL_Un_b)[1,], type= type ,   col = 1, lwd=2,lty = 4)
