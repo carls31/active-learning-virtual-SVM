@@ -93,10 +93,10 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty 
 lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
 
 
-legend(x[1],yUpperBound, # places a legend at the appropriate place 
+legend("bottomright",
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + ITerative AL"),
+         "VSVM-SL + AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
        ) 
@@ -141,10 +141,10 @@ lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd=2,lty = 1)
 
 lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
 
-legend(x[1],yUpperBound, # places a legend at the appropriate place 
+legend("bottomright",
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + ITerative AL"),
+         "VSVM-SL + AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
 ) 

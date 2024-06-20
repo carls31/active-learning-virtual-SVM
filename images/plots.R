@@ -114,8 +114,8 @@ if(class == "multiclass"){
     }
   }else{
     if(city=="hagadera"){
-      yUpperBound = 0.98
-      ylowerBound = 0.67
+      yUpperBound = 0.985
+      ylowerBound = 0.715
     }else{
       yUpperBound = 0.975
       ylowerBound = 0.67
@@ -181,10 +181,10 @@ lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty 
 
 # lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
 
-legend(x[1],yUpperBound, # places a legend at the appropriate place 
+legend("bottomright", 
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + ITerative AL"),
+         "VSVM-SL + AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
        ) 
@@ -256,10 +256,10 @@ lines(x, avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
 arrows(x, avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
 arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
 
-legend(x[1],yUpperBound, # places a legend at the appropriate place
+legend("bottomright",
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + ITerative AL"),
+         "VSVM-SL + AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
 )
@@ -282,8 +282,8 @@ if(class == "multiclass"){
   }
 }else{
   if(city=="hagadera"){
-    yUpperBound = 0.95
-    ylowerBound = 0.4
+    yUpperBound = 0.96
+    ylowerBound = 0.47
   }else{
     yUpperBound = 0.95
     ylowerBound = 0.4
@@ -318,10 +318,10 @@ lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
 # lines(x, ExCsvMSD(KappaVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
-legend(x[1],yUpperBound, # places a legend at the appropriate place 
+legend("bottomright",
        c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
          "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + ITerative AL"),
+         "VSVM-SL + AL"),
        lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
 ) 
