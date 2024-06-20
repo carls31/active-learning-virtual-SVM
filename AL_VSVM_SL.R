@@ -7,7 +7,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 10                 # realizations
+nR = 4                 # realizations
 city = "hagadera"       # cologne or hagadera 
 invariance = "shape"    # scale or shape invariance
 model_prob = "binary"   # binary or multiclass problem
@@ -1419,9 +1419,10 @@ best_bound_oa_SL_Un = c()
 best_boundMargin_oa_SL_Un = c()
 best_bound_oa_SL_vUn = c()
 best_boundMargin_oa_SL_vUn = c()
-best_newSize_oa=c()
-best_cluster_oa=c()
 best_resample_oa=c()
+best_newSize_oa=c()
+best_classSize_oa
+best_cluster_oa=c()
 best_model_oa=c()
 time.taken_iter = c()
 
@@ -1430,7 +1431,7 @@ time.taken_iter = c()
 # set randomized seed for the random sampling procedure
 seed = 20 # 5, 73, 20 
 
-for(realization in seq(along = c(1:nR))){#}
+for(realization in c(2:nR)){#}
   start.time <- Sys.time()
   # initial seed value for randomized sampling
   if(train){seed = seed + sample(100, 1)}
@@ -1840,10 +1841,10 @@ for(realization in seq(along = c(1:nR))){#}
     } 
     ################################################ VSVM-SL ################################################
     print("evaluation of VSVM with self learning...")
-    model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
+    model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"_",b,"Unl",".rds")
     if(city=="cologne"){
       if(invariance=="scale"){ 
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -1857,7 +1858,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }else{
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, S01C09),
                                  list(SVtotal, S03C05),
@@ -1872,7 +1873,7 @@ for(realization in seq(along = c(1:nR))){#}
       }
     }else{
       if(invariance=="scale"){ 
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, SVL2),
                                  list(SVtotal, SVL3),
@@ -1884,7 +1885,7 @@ for(realization in seq(along = c(1:nR))){#}
                                )
         )
       }else{
-        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_tunedVSVM, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+        SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, tunedSVM$finalModel, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                SVL_variables = list(
                                  list(SVtotal, S01C09),
                                  list(SVtotal, S03C05),
@@ -2527,14 +2528,14 @@ for(realization in seq(along = c(1:nR))){#}
   best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
   best_classSize_oa=c(best_classSize_oa, best_classSize)
   # best_cluster_oa=c(best_cluster_oa, best_cluster)
-  best_model_oa=c(best_model_oa,best_model,": ",best_acc,"\n")
+  best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
   time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
   if(realization==3 && sample_size==4){
     saveRDS(tunedSVM, model_name_tunedSVM)
     saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
     saveRDS(bestFittingModelSVMUn_b, model_name_SVMUn_b)
     saveRDS(tunedVSVM, model_name_tunedVSVM)
-    saveRDS(bestFittingModel, model_name)
+    saveRDS(bestFittingModel, model_name_VSVM_SL)
     saveRDS(bestFittingModelUn_b, model_name_Un_b)
     saveRDS(bestFittingModelvUn_b, model_name_vUn_b)
     saveRDS(new_tunedVSVM, model_name_tunedVSVM_SL_itAL)
