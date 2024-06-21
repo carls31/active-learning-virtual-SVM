@@ -6,10 +6,10 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 4                 # realizations
-cities = c("hagadera","cologne")  # city = "cologne"       # cologne or hagadera
-invariances = c("shape","scale")  # invariance = "scale"    # scale or shape invariance
-model_probs = c("multiclass","binary") # model_prob = "binary"   # binary or multiclass problem
+nR = 1                 # realizations
+cities = c("hagadera")  # city = "cologne"       # cologne or hagadera
+invariances = c("scale")  # invariance = "scale"    # scale or shape invariance
+model_probs = c("binary") # model_prob = "binary"   # binary or multiclass problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
 bound = c(0.7, 0.9)           # radius around SV - threshold           
@@ -514,9 +514,10 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
                 best_boundMargin = best_boundMargin))
   }
 }
+###############################################  Preprocessing  ###############################################
 for(city in cities){
-  for(invariance in invariances){
-    for(model_prob in model_probs){
+  for(model_prob in model_probs){
+    for(invariance in invariances){
       start.time_oa <- Sys.time()
       if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100)  # vector with % of max  # c(2,5,10,20,35,53,75,100)
       bound = c(0.7)
@@ -524,8 +525,8 @@ for(city in cities){
       # resampledSize = c(b)
       clusterSizes = c(2*b)
       }
-      if(num_cores<5){sampleSizePor = c(2,10,40)}
-      ########################################  Preprocessing  ########################################
+      if(num_cores<5){sampleSizePor = c(2,40)}
+      print(paste("preprocessing",city,model_prob,invariance,"..."))
       if(city=="cologne"){
         if(invariance=="scale"){
           ########################################  Input  ########################################
@@ -610,7 +611,7 @@ for(city in cities){
                                           normalizedFeat11, normalizedLabelUSE
           )
           # remove used temporary variables
-          rm(normalizedFeat, normalizedFeat2, normalizedFeat3, normalizedFeatBase,
+          rm(normalizedFeat, normalizedFeat2, normalizedFeat3, normalizedFeatBase, normalizedLabelUSE,
             normalizedFeat5,  normalizedFeat6, normalizedFeat7, normalizedFeat8, normalizedFeat9, normalizedFeat10, normalizedFeat11
           )
           ############################################  Splitting & Sampling  ###########################################
@@ -620,24 +621,23 @@ for(city in cities){
           trainDataPoolAllLev = as.data.frame(splitdf[[1]])
           testDataAllLev = as.data.frame(splitdf[[2]])
           validateDataAllLev = as.data.frame(splitdf[[3]])
-          rm(splitdf, normalizedDataPoolAllLev)
-          
+
           # remove use indicator in last column
           trainDataPoolAllLev = trainDataPoolAllLev[,1:ncol(trainDataPoolAllLev)-1]
           testDataAllLev = testDataAllLev[,1:ncol(testDataAllLev)-1]
           validateDataAllLev = validateDataAllLev[,1:ncol(validateDataAllLev)-1]
           
           # split Validate data in features and labels and subset on basislevel of first SVM
-          validateFeatAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-1)]
+          # validateFeatAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-1)]
           validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-          validateFeatsub = validateFeatAllLev[sindexSVMDATA:eindexSVMDATA]
-          
-          # remove used temporary variables
-          rm(validateDataAllLev)
+          validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA,-(ncol(validateDataAllLev))]
           
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
+          # remove used temporary variables
+          rm(splitdf, normalizedDataPoolAllLev,validateDataAllLev
+             )
           ###############################################  MultiScale ###################################################
           
           # normalize feature for MultiScale
@@ -674,7 +674,7 @@ for(city in cities){
           validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
           
           # remove used temporary variables
-          rm(validateDataAllLevMS)
+          rm(generalDataPool,validateDataAllLevMS)
           
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
@@ -784,7 +784,7 @@ for(city in cities){
           #   generalDataPool_shape[,run] = as.numeric(as.character(generalDataPool_shape[,run]))
           # }
           if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
-            print(paste("note that the first record is of class:",levels(generalDataPool$REF)[1])) 
+            print(paste("note that the first record is of class:",levels(generalDataPool_shape$REF)[1])) 
             f=levels(generalDataPool_shape$REF)[1]
             generalDataPool_shape$REF = as.character(generalDataPool_shape$REF)
             generalDataPool_shape$REF[generalDataPool_shape$REF != as.character(f)] = "other"
@@ -828,7 +828,7 @@ for(city in cities){
                                 normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
                                 normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
           )
-          rm(generalDataPool_shape, normalizedFeatBase, 
+          rm(generalDataPool_shape, generalDataPool_scale, normalizedFeatBase, 
             normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
             normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
           )
@@ -837,25 +837,24 @@ for(city in cities){
           generalDataPoolfinal_shape = cbind(normalizedFeat, normalizedLabelUSE)
           
           # Split data in test, train and validate data
-          #Split data in test and train data
           splitdf <- split(generalDataPoolfinal_shape, generalDataPoolfinal_shape$use)
           trainDataPoolAllLev = as.data.frame(splitdf[[1]])
           testDataAllLev = as.data.frame(splitdf[[2]])
           validateDataAllLev = as.data.frame(splitdf[[3]])
-          rm(splitdf, generalDataPoolfinal_shape)
-          
-          #reove use indicator in last column
+
+          # remove use indicator in last column
           trainDataPoolAllLev = trainDataPoolAllLev[,1:ncol(trainDataPoolAllLev)-1]
           testDataAllLev = testDataAllLev[,1:ncol(testDataAllLev)-1]
+          validateDataAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-1)]
           
-          #split Validate Dateset in features and labels ans subset on basislevel of first SVM
-          validateFeatAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-2)]
-          validateLabels = validateDataAllLev[,(ncol(validateDataAllLev)-1)]
-          
-          validateFeatsub = validateFeatAllLev[1:18]
+          # split Validate Dateset in features and labels ans subset on basislevel of first SVM
+          validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+          validateFeatsub = validateFeatAllLev[sindexSVMDATA:eindexSVMDATA,-(ncol(validateDataAllLev))]
           
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
+          rm(splitdf, generalDataPoolfinal_shape, validateDataAllLev
+             )
           ###########################################  MultiLevel ###################################################
           
           #normalize feature for multilevel:
@@ -905,7 +904,7 @@ for(city in cities){
           
           rm(validateDataAllLevMS, generalDataPool_scale, generalDataPoolOrg_S09C01, generalDataPoolOrg_S07C03,  
             generalDataPoolOrg_S05C07, generalDataPoolOrg_S05C05, generalDataPoolOrg_S05C03, generalDataPoolOrg_S03C07, 
-            generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09, nomalizedFeatMS, normalizedDataPoolAllLevMultiScale
+            generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09, nomalizedFeatMS, normalizedDataPoolAllLevMultiScale, normalizedLabelUSE
           )    
           #########################################################################################
         }  
@@ -997,23 +996,21 @@ for(city in cities){
           trainDataPoolAllLev = as.data.frame(splitdf[[1]])
           testDataAllLev = as.data.frame(splitdf[[2]])
           validateDataAllLev = as.data.frame(splitdf[[3]])
-          rm(splitdf)
-          
+
           # remove use indicator in last column
           trainDataPoolAllLev = trainDataPoolAllLev[,1:ncol(trainDataPoolAllLev)-1]
           testDataAllLev = testDataAllLev[,1:ncol(testDataAllLev)-1]
           validateDataAllLev = validateDataAllLev[,1:ncol(validateDataAllLev)-1]
           
           # split Validate data in features and labels and subset on basislevel of first SVM
-          validateFeatAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-1)]
           validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-          validateFeatsub = validateFeatAllLev[sindexSVMDATA:eindexSVMDATA]
+          validateFeatsub = validateFeatAllLev[sindexSVMDATA:eindexSVMDATA,-(ncol(validateDataAllLev))]
           
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
           # remove used temporary variables
-          rm(validateDataAllLev, validateFeatAllLev
+          rm(splitdf, normalizedDataPoolAllLev, validateDataAllLev
           )
           ################################################ MultiScale ###################################################
           
@@ -1048,7 +1045,7 @@ for(city in cities){
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
           
           # remove used temporary variables
-          rm(nomalizedFeat_MS, validateDataAllLevMS, splitdf, normalizedDataPoolAllLev_MS
+          rm(generalDataPool, nomalizedFeat_MS, validateDataAllLevMS, splitdf, normalizedDataPoolAllLev_MS
           )
           #########################################################################################
         }else{
@@ -1088,8 +1085,7 @@ for(city in cities){
           inputPath ="base_level_complete.csv"   
           generalDataPool_scale = read.csv2(inputPath,header = T, sep =";",colClasses =columnClass)
           ### data set to apply modell and export results for visualisation in e.g. ArcGIS
-          data = generalDataPool_scale[,sindexSVMDATA:eindexSVMDATA]
-          
+
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
           
           # import data
@@ -1234,7 +1230,7 @@ for(city in cities){
           preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
           
           # **************************************** data for map visualization ****************************************
-          # normalized_data = predict(preProc, setNames(data,objInfoNames[-length(objInfoNames)]))
+          # normalized_data = predict(preProc, setNames(generalDataPool_scale[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
           # ************************************************************************************************************
           
           normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
@@ -1252,14 +1248,16 @@ for(city in cities){
                                 normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
                                 normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
           )
+          
+          
+          generalDataPoolfinal_shape = cbind(normalizedFeat, normalizedLabelUSE)
+          
           rm(generalDataPool, normalizedFeatBase, 
             normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
             normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
           )
           ########################################  Splitting & Sampling  ########################################
-          
-          generalDataPoolfinal_shape = cbind(normalizedFeat, normalizedLabelUSE)
-          
+
           # Split data in test, train and validate data
           splitdf <- split(generalDataPoolfinal_shape, generalDataPoolfinal_shape$use)
           trainDataPoolAllLev = as.data.frame(splitdf[[1]])
@@ -1269,16 +1267,16 @@ for(city in cities){
           # remove use indicator in last column
           trainDataPoolAllLev = trainDataPoolAllLev[,1:ncol(trainDataPoolAllLev)-1]
           testDataAllLev = testDataAllLev[,1:ncol(testDataAllLev)-1]
+          validateDataAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-1)]
           
           #split Validate Dataset in features and labels ans subset on basislevel of first SVM
-          validateFeatAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-2)]
-          validateLabels = validateDataAllLev[,(ncol(validateDataAllLev)-1)]
-          
-          validateFeatsub = validateFeatAllLev[1:26]
+          validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+          validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA,-(ncol(validateDataAllLev))]
           
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
-          rm(splitdf, generalDataPoolfinal_shape)
           
+          rm(splitdf, generalDataPoolfinal_shape, validateDataAllLev
+             )
           ###########################################  MultiLevel ###################################################
           
           preProc1 = preProcess(nomalizedFeatMS[,1:50], method = "range")
@@ -2568,7 +2566,7 @@ for(city in cities){
         best_resample_oa=c(best_resample_oa, best_resample)
         best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
         best_classSize_oa=c(best_classSize_oa, best_classSize)
-        # best_cluster_oa=c(best_cluster_oa, best_cluster)
+        best_cluster_oa=c(best_cluster_oa, best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
         if(realization==3 && sample_size==4){
@@ -2606,7 +2604,10 @@ for(city in cities){
       print(best_resample_oa)
       print(best_newSize_oa)
       print(best_classSize_oa)
-      # print(best_cluster_oa)
+      print(best_cluster_oa)
+      # rm(trainDataPoolAllLev,trainDataPoolAllLevMS,trainDataCur,   trainDataCurBeg,  trainDataCurMS,trainDataCurBegMS, trainDataCurRemaining,
+      #    testDataAllLev,     testDataAllLevMS,     testDataCurBeg, testDataCurBegMS, testDataCur,   testDataCurMS,
+      #    validateFeatAllLev, validateFeatAllLevMS, validateFeatsub)
     }
   }
 }
