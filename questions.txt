@@ -59,3 +59,11 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  40. check which VSVM_SL_vUn_b work better between the 2 
  41. DONE check warnings in AL binary hagadera -> na due to ncol(samplesRemaining) in UNCERTAINTY DISTANCE FUNCTIONS
  42. check if running tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub) AND tmp_acc  = confusionMatrix(tmp_pred, validateLabels) the accVSVM_SL_itAL CHANGE OR NOT
+
+cologne binary scale 10nR -> only 5 models, different x-axis
+cologne multiclass scale 3nR -> different x-axis, SVM_MS issue
+hagadera binary scale 10nR -> SVM_MS issue
+hagadera binary shape 1nR
+
+cologne multiclass-binary shape-scale
+hagadera multiclass-binary shape-scale
