@@ -2078,7 +2078,7 @@ for(model_prob in model_probs){
               for(cS in 1:length(clusterSizes)){
                 for(rS in 1:length(resampledSize)){
                   for(nS4it in 1:length(newSizes)){
-                    print(paste0("resampled tot: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | class pool: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                    print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                     
                     new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
                     new_trainLabelsVSVM <- best_trainLabelsVSVM
