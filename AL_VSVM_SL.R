@@ -531,9 +531,9 @@ classificationProblem = function(generalDataPool){
 for(model_prob in model_probs){
   if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   bound = c(0.7)
-  # boundMargin = c(1.5)
+  boundMargin = c(1.5)
   resampledSize = c(2*b,b)
-  classSize = c(5*b)
+  # classSize = c(5*b)
   clusterSizes = c(2*b)
   }
   if(num_cores<5){ nR=1
