@@ -7,9 +7,9 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 3                   # realizations
-cities = c("cologne")    # city = "cologne"       # cologne or hagadera
-invariances = c("shape","scale")  # invariance = "scale"    # scale or shape invariance
-model_probs = c("multiclass","binary") # model_prob = "binary"   # binary or multiclass problem
+cities = c("cologne")    # cologne or hagadera
+invariances = c("shape","scale")   # scale or shape invariance
+model_probs = c("multiclass","binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
 bound = c(0.7, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
@@ -531,9 +531,9 @@ classificationProblem = function(generalDataPool){
 for(model_prob in model_probs){
   if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   bound = c(0.7)
-  boundMargin = c(1.5)
+  # boundMargin = c(1.5)
   resampledSize = c(2*b,b)
-  # classSize = c(5*b)
+  classSize = c(5*b)
   clusterSizes = c(2*b)
   }
   if(num_cores<5){ nR=1
