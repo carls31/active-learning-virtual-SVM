@@ -6,7 +6,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 1                   # realizations
+nR = 5                   # realizations
 cities = c("hagadera")    # city = "cologne"       # cologne or hagadera
 invariances = c("scale")  # invariance = "scale"    # scale or shape invariance
 model_probs = c("multiclass") # model_prob = "binary"   # binary or multiclass problem
@@ -2088,50 +2088,50 @@ for(model_prob in model_probs){
                     # bind original SV with modified to new train data set
                     if(city=="cologne"){
                       if(invariance=="scale"){ 
-                        upd_trainDataCur = rbind(setNames(SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL5 = samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))],objInfoNames), 
-                                                setNames(SVL6 = samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL7 = samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL8 = samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL9 = samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL10 = samplesRemaining[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL11 = samplesRemaining[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))],objInfoNames)
+                        upd_trainDataCur = rbind(setNames(samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))],objInfoNames), 
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))],objInfoNames)
                         )
                       }else{
-                        upd_trainDataCur = rbind(setNames(SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL2 = samplesRemaining[c((numFeat+1):(2*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL3 = samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL5 = samplesRemaining[c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL6 = samplesRemaining[c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))],objInfoNames), 
-                                                setNames(SVL7 = samplesRemaining[c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL8 = samplesRemaining[c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL9 = samplesRemaining[c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL10 = samplesRemaining[c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))],objInfoNames)
+                        upd_trainDataCur = rbind(setNames(samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((numFeat+1):(2*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))],objInfoNames), 
+                                                setNames( samplesRemaining[c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))],objInfoNames)
                         )
                       }
                     }else if(city=="hagadera"){
                       if(invariance=="scale"){
-                        upd_trainDataCur = rbind(setNames(SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL2 = samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL3 = samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL5 = samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))],objInfoNames), 
-                                                setNames(SVL6 = samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL7 = samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL8 = samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL9 = samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))],objInfoNames)
+                        upd_trainDataCur = rbind(setNames(samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))],objInfoNames), 
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))],objInfoNames)
                         )
                       }else{
-                        upd_trainDataCur = rbind(setNames(SVtotal = samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL2 = samplesRemaining[c((numFeat+1):(2*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL3 = samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL5 = samplesRemaining[c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))],objInfoNames), 
-                                                setNames(SVL6 = samplesRemaining[c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL7 = samplesRemaining[c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL8 = samplesRemaining[c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL9 = samplesRemaining[c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))],objInfoNames),
-                                                setNames(SVL10 = samplesRemaining[c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))],objInfoNames)
+                        upd_trainDataCur = rbind(setNames(samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c((numFeat+1):(2*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))],objInfoNames), 
+                                                setNames( samplesRemaining[c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))],objInfoNames),
+                                                setNames( samplesRemaining[c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))],objInfoNames)
                         )
                       }
                     }
