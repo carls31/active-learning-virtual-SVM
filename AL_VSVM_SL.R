@@ -2146,6 +2146,7 @@ for(model_prob in model_probs){
                       total = num_iters,
                       clear = FALSE
                     )
+                    t.time <- Sys.time()
                     for (iter in 1:num_iters){
                       # print(paste0("Iteration ",iter,"/",num_iters,"..."))
                       predLabelsVSVM = predict(new_tunedVSVM, upd_trainDataCurFeatsub)
@@ -2176,7 +2177,7 @@ for(model_prob in model_probs){
                       tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
                       pb$tick()
                     }
-                    # *******************************
+                    t.time <- round(Sys.time() - t.time,2)
                     tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
                     tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                     
@@ -2187,6 +2188,7 @@ for(model_prob in model_probs){
                       best_newSize4iter = newSizes[nS4it]
                       best_classSize = classSize[clS]
                       best_cluster = clusterSizes[cS]
+                      train.time = t.time
                     }
                   }
                 }
@@ -2194,7 +2196,7 @@ for(model_prob in model_probs){
             }
             fin_predLabelsVSVM_SL_itAL = predict(new_tunedVSVM, validateFeatsub)
             accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
-            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)))
+            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | trining time: ",train.time,"sec"))
             model_name_tunedVSVM_SL_itAL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             if(actAcc>best_acc){ 
               best_acc <- actAcc
