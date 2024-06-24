@@ -528,7 +528,7 @@ classificationProblem = function(generalDataPool){
   generalDataPool$REF = as.factor(generalDataPool$REF)
   return(generalDataPool)
 }
-
+########################################  Preprocessing  ########################################
 for(model_prob in model_probs){
   if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   bound = c(0.7)
@@ -1348,8 +1348,8 @@ for(model_prob in model_probs){
       best_newSize4iter = NA
       best_classSize=NA
       best_cluster=NA
-      ######################################## Training ########################################
-
+      ########################################  Training  ########################################
+      
       # set randomized seed for the random sampling procedure
       seed = 20 # 5, 73, 20 
 
