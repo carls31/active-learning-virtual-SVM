@@ -498,15 +498,15 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         t.time <- Sys.time()
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
+        t.time = round((Sys.time()-t.time),2)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4)))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4)," | training time: ",t.time,"sec"))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
           best_trainLabelsVSVM = trainLabelsVSVM
           best_bound= bound[jj]
           best_boundMargin = boundMargin[kk]
-          t.time_oa = round((Sys.time()-t.time),2)
         }
       }
     } 
@@ -515,8 +515,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
                 best_trainFeatVSVM = best_trainFeatVSVM, 
                 best_trainLabelsVSVM = best_trainLabelsVSVM, 
                 best_bound = best_bound, 
-                best_boundMargin = best_boundMargin),
-                train.time_oa = t.time_oa)
+                best_boundMargin = best_boundMargin))
   }
 }
 
@@ -1428,11 +1427,12 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else { train.time <- Sys.time()
             tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
+            train.time <- round(Sys.time() - train.time,2)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
           accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-          print(paste0("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | ",round(Sys.time() - train.time,2)))
+          print(paste0("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
           gc()
           best_acc <- accSVM$overall["Accuracy"]
           new_bestTunedVSVM <- tunedSVM
@@ -1481,11 +1481,12 @@ for(model_prob in model_probs){
             print("training SVM multilevel...")
             train.time <- Sys.time()
             tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
+            train.time <- round(Sys.time() - train.time,2)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
           accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-          print(paste0("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | ",round(Sys.time() - train.time,2)))
+          print(paste0("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
           gc()
           ####################################### SVM-SL + semi-labeled samples #####################################
           
@@ -1576,11 +1577,10 @@ for(model_prob in model_probs){
           best_trainLabelsSVMUn_b <- SLresult$best_trainLabelsVSVM
           best_boundSVM_SL_Un = SLresult$best_bound
           best_boundMarginSVM_SL_Un = SLresult$best_boundMargin
-          train.time = SLresult$train.time_oa
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsSVMsumUn_b = predict(bestFittingModelSVMUn_b, validateFeatsub)
           accSVM_SL_Un_b = confusionMatrix(predLabelsSVMsumUn_b, validateLabels)
-          print(paste0("SVM_SL_Un accuracy: ",round(accSVM_SL_Un_b$overall["Accuracy"],5))," | ",train.time)
+          print(paste0("SVM_SL_Un accuracy: ",round(accSVM_SL_Un_b$overall["Accuracy"],5)))
           gc()
           if(accSVM_SL_Un_b$overall["Accuracy"]>best_acc){
             best_acc <- accSVM_SL_Un_b$overall["Accuracy"]
@@ -1705,11 +1705,12 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else {train.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
+            train.time <- round(Sys.time() - train.time,2)
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
           accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | ",round(Sys.time() - train.time,2)))
+          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
           gc()
           if(accVSVM$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM$overall["Accuracy"]
@@ -1783,11 +1784,10 @@ for(model_prob in model_probs){
           best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
           best_bound_SL = SLresult$best_bound
           best_boundMargin_SL = SLresult$best_boundMargin
-          train.time = SLresult$train.time_oa
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
           accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-          print(paste0("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)," | ",train.time))
+          print(paste0("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)))
           gc()
           if(accVSVM_SL$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM_SL$overall["Accuracy"]
@@ -1914,11 +1914,10 @@ for(model_prob in model_probs){
             best_trainLabelsVSVMUn_b <- SLresult$best_trainLabelsVSVM
             best_bound_SL_Un = SLresult$best_bound
             best_boundMargin_SL_Un = SLresult$best_boundMargin
-            train.time = SLresult$train.time_oa
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
             accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-            print(paste0("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un_b$overall["Accuracy"],5)," | ",train.time))
+            print(paste0("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un_b$overall["Accuracy"],5)))
             gc()
             if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
               best_acc <- accVSVM_SL_Un_b$overall["Accuracy"]
@@ -2038,7 +2037,6 @@ for(model_prob in model_probs){
             new_best_trainLabelsVSVMvUn_b <- SLresult$best_trainLabelsVSVM
             new_best_bound_SLvUn_b = SLresult$best_bound
             new_best_boundMargin_SLvUn_b = SLresult$best_boundMargin
-            train.time = SLresult$train.time_oa
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             new_predLabelsVSVMvUn_bsum = predict(new_bestFittingModelvUn_b, validateFeatsub)
             new_accVSVM_SL_vUn_b = confusionMatrix(new_predLabelsVSVMvUn_bsum, validateLabels)
@@ -2055,7 +2053,7 @@ for(model_prob in model_probs){
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
           accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
-          print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)," | ",train.time))
+          print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)))
 
           if(accVSVM_SL_vUn_b$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM_SL_vUn_b$overall["Accuracy"]
