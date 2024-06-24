@@ -1,8 +1,8 @@
 library(scales)
 
-city = "cologne"
+city = "hagadera"
 invariance = "scale"
-class = "binary"
+class = "multiclass"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -18,6 +18,7 @@ file_name_acc = "20240605_1201_Col_shape_binary_acc_20Unl_10nR"
 file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
 file_name_acc = "20240620_1034_hagadera_shape_binary_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240624_1813_hagadera_scale_multiclass_acc_20Unl_1nR_5SizePor"
 
 
 
@@ -31,6 +32,7 @@ file_name_kappa = "20240605_1201_Col_shape_binary_Kappa_20Unl_10nR"
 file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
 file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor"
 file_name_kappa = "20240620_1034_hagadera_shape_binary_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240624_1813_hagadera_scale_multiclass_Kappa_20Unl_1nR_5SizePor"
 
 
 
@@ -107,8 +109,8 @@ setwd(paste0(path,"images/",city))
 if(class == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.80
-      ylowerBound = 0.445
+      yUpperBound = 0.96
+      ylowerBound = 0.755
     }else{
       yUpperBound = 0.80
       ylowerBound = 0.445
@@ -308,8 +310,8 @@ dev.off()
 if(class == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.715
-      ylowerBound = 0.405
+      yUpperBound = 0.94
+      ylowerBound = 0.675
     }else{
       yUpperBound = 0.715
       ylowerBound = 0.405
