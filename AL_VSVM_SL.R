@@ -6,20 +6,20 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 5                   # realizations
-cities = c("hagadera")    # city = "cologne"       # cologne or hagadera
-invariances = c("scale")  # invariance = "scale"    # scale or shape invariance
-model_probs = c("multiclass") # model_prob = "binary"   # binary or multiclass problem
+nR = 3                   # realizations
+cities = c("cologne")    # city = "cologne"       # cologne or hagadera
+invariances = c("shape","scale")  # invariance = "scale"    # scale or shape invariance
+model_probs = c("multiclass","binary") # model_prob = "binary"   # binary or multiclass problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
-bound = c(0.7, 0.9)           # radius around SV - threshold           
-boundMargin = c(1.5, 1.2)     # distance from hyperplane - threshold   
+bound = c(0.7, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
+boundMargin = c(1.5)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(b,2*b)    # total number of relabeled samples # b, b*2, b*6
-newSizes = c(b,4)           # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-classSize = c(5*b)          # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
-clusterSizes = c(6*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+resampledSize = c(3*b,2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(b)            # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+classSize = c(6*b)  #5*b   # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,table(trainDataCurRemaining$REF))/10)
+clusterSizes = c(6*b,2*b)       # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
  
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
@@ -496,6 +496,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
         
         ######################################## VSVM control parameter tuning ########################################
+        t.time <- Sys.time()
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         # of all Different bound settings get the one with best Kappa ans save its model
         if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4)))
@@ -505,6 +506,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
           best_trainLabelsVSVM = trainLabelsVSVM
           best_bound= bound[jj]
           best_boundMargin = boundMargin[kk]
+          t.time_oa = round((Sys.time()-t.time),2)
         }
       }
     } 
@@ -513,7 +515,8 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
                 best_trainFeatVSVM = best_trainFeatVSVM, 
                 best_trainLabelsVSVM = best_trainLabelsVSVM, 
                 best_bound = best_bound, 
-                best_boundMargin = best_boundMargin))
+                best_boundMargin = best_boundMargin),
+                train.time_oa = t.time_oa)
   }
 }
 
@@ -526,14 +529,13 @@ classificationProblem = function(generalDataPool){
   return(generalDataPool)
 }
 
-###############################################  Preprocessing  ###############################################
 for(model_prob in model_probs){
-  
   if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   bound = c(0.7)
-  boundMargin = c(1.5)
-  # resampledSize = c(b)
-  clusterSizes = c(2*b) 
+  # boundMargin = c(1.5)
+  resampledSize = c(2*b,b)
+  classSize = c(5*b)
+  clusterSizes = c(2*b)
   }
   if(num_cores<5){ nR=1
   sampleSizePor = c(5,10) 
@@ -544,8 +546,8 @@ for(model_prob in model_probs){
     for(invariance in invariances){
       
       start.time_oa <- Sys.time()
-      
       print(paste("preprocessing",city,model_prob,invariance,"..."))
+      
       if(city=="cologne"){
         
         inputPath ="cologne_res_100_L2-L13.csv" 
@@ -1019,12 +1021,8 @@ for(model_prob in model_probs){
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
           
           #import format; "NULL" for subset of data on only some level (speed up import)
-          columnClass = c(
-            "NULL",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-            "factor","integer")
-          columnClass2 = c(NA,NA,"factor",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                          NA,NA,
-                          NA,"factor")
+          columnClass = c("NULL",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor","integer")
+          columnClass2 = c(NA,NA,"factor",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor")
           
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/shape1"))
           inputPath ="base_level_complete.csv"   
@@ -1428,13 +1426,13 @@ for(model_prob in model_probs){
           if (file.exists(model_name_tunedSVM) && !train) {
             tunedSVM <- readRDS(model_name_tunedSVM)
             print("Luckily, model already exists!")
-          } else {
+          } else { train.time <- Sys.time()
             tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
           accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-          print(paste0("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)))
+          print(paste0("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | ",round(Sys.time() - train.time,2)))
           gc()
           best_acc <- accSVM$overall["Accuracy"]
           new_bestTunedVSVM <- tunedSVM
@@ -1481,12 +1479,13 @@ for(model_prob in model_probs){
             tuneLabel_MS = unlist(list(trainLabelsMS, testLabelsMS))
             
             print("training SVM multilevel...")
+            train.time <- Sys.time()
             tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
           accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-          print(paste0("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)))
+          print(paste0("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | ",round(Sys.time() - train.time,2)))
           gc()
           ####################################### SVM-SL + semi-labeled samples #####################################
           
@@ -1577,10 +1576,11 @@ for(model_prob in model_probs){
           best_trainLabelsSVMUn_b <- SLresult$best_trainLabelsVSVM
           best_boundSVM_SL_Un = SLresult$best_bound
           best_boundMarginSVM_SL_Un = SLresult$best_boundMargin
+          train.time = SLresult$train.time_oa
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsSVMsumUn_b = predict(bestFittingModelSVMUn_b, validateFeatsub)
           accSVM_SL_Un_b = confusionMatrix(predLabelsSVMsumUn_b, validateLabels)
-          print(paste0("SVM_SL_Un accuracy: ",round(accSVM_SL_Un_b$overall["Accuracy"],5)))
+          print(paste0("SVM_SL_Un accuracy: ",round(accSVM_SL_Un_b$overall["Accuracy"],5))," | ",train.time)
           gc()
           if(accSVM_SL_Un_b$overall["Accuracy"]>best_acc){
             best_acc <- accSVM_SL_Un_b$overall["Accuracy"]
@@ -1703,13 +1703,13 @@ for(model_prob in model_probs){
           if (file.exists(model_name_tunedVSVM) && !train) {
             tunedVSVM <- readRDS(model_name_tunedVSVM)
             print("Luckily, model already exists!")
-          } else {
+          } else {train.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
           accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)))
+          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | ",round(Sys.time() - train.time,2)))
           gc()
           if(accVSVM$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM$overall["Accuracy"]
@@ -1783,10 +1783,11 @@ for(model_prob in model_probs){
           best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
           best_bound_SL = SLresult$best_bound
           best_boundMargin_SL = SLresult$best_boundMargin
+          train.time = SLresult$train.time_oa
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
           accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-          print(paste0("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)))
+          print(paste0("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)," | ",train.time))
           gc()
           if(accVSVM_SL$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM_SL$overall["Accuracy"]
@@ -1913,11 +1914,11 @@ for(model_prob in model_probs){
             best_trainLabelsVSVMUn_b <- SLresult$best_trainLabelsVSVM
             best_bound_SL_Un = SLresult$best_bound
             best_boundMargin_SL_Un = SLresult$best_boundMargin
-            
+            train.time = SLresult$train.time_oa
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             predLabelsVSVMsumUn_b = predict(bestFittingModelUn_b, validateFeatsub)
             accVSVM_SL_Un_b = confusionMatrix(predLabelsVSVMsumUn_b, validateLabels)
-            print(paste0("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un_b$overall["Accuracy"],5)))
+            print(paste0("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un_b$overall["Accuracy"],5)," | ",train.time))
             gc()
             if(accVSVM_SL_Un_b$overall["Accuracy"]>best_acc){
               best_acc <- accVSVM_SL_Un_b$overall["Accuracy"]
@@ -2037,7 +2038,7 @@ for(model_prob in model_probs){
             new_best_trainLabelsVSVMvUn_b <- SLresult$best_trainLabelsVSVM
             new_best_bound_SLvUn_b = SLresult$best_bound
             new_best_boundMargin_SLvUn_b = SLresult$best_boundMargin
-
+            train.time = SLresult$train.time_oa
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             new_predLabelsVSVMvUn_bsum = predict(new_bestFittingModelvUn_b, validateFeatsub)
             new_accVSVM_SL_vUn_b = confusionMatrix(new_predLabelsVSVMvUn_bsum, validateLabels)
@@ -2054,7 +2055,7 @@ for(model_prob in model_probs){
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
           accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
-          print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)))
+          print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)," | ",train.time))
 
           if(accVSVM_SL_vUn_b$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM_SL_vUn_b$overall["Accuracy"]
@@ -2207,24 +2208,22 @@ for(model_prob in model_probs){
             # predLabelsVSVM_Un_unc = cbind(validateFeatsub, fin_predLabelsVSVM_SL_itAL)
             # predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
             # 
-            # print("Computing uncertainty samples distance...")
-            # #calculate uncertainty of the samples by selecting SV's and data set
+            # ****** #
+            # print("Computing uncertainty samples distance...") # by selecting SV's and data set
             # uncertain_sampled_data = uncertainty_dist_v2_2(new_tunedVSVM, predLabelsVSVM_Un_unc)
-            # # predlabels_vsvm_Slu = alter_labels(normdistvsvm_sl_un, validateLabels, resampledSize)
             # predlabels_vsvm_Slu = add_new_samples(uncertain_sampled_data, validateLabels, newSize=resampledSize[1], cluster=round(resampledSize[1]*1.2))
             # accVSVM_SL_Un_b_ud = confusionMatrix(predlabels_vsvm_Slu, validateLabels)
             # print(accVSVM_SL_Un_b_ud$overall["Accuracy"])
             # 
-            # ****** #
             # predLabelsVSVM_Un_unc = cbind(validateFeatsub, predLabelsVSVMsumUn_b)
             # predLabelsVSVM_Un_unc = setNames(predLabelsVSVM_Un_unc, objInfoNames)
             # 
-            #     print("Computing margin samples distance...")
-            #     # margin_sampled_data <- margin_sampling(bestFittingModelUn_b, predLabelsVSVM_Un_unc)
-            #     ms_sampled_data <- margin_sampling(bestFittingModel, predLabelsVSVM_Un_unc)
-            #     predlabels_vsvm_ms = add_new_samples(ms_sampled_data, validateLabels, newSize=resampledSize[1], cluster=round(resampledSize[1]*1.2))
-            #     accVSVM_SL_Un_b_ms = confusionMatrix(predlabels_vsvm_ms, validateLabels)
-            #     print(accVSVM_SL_Un_b_ms$overall["Accuracy"])
+            # ****** #
+            # print("Computing margin samples distance...")
+            # ms_sampled_data <- margin_sampling(bestFittingModel, predLabelsVSVM_Un_unc)
+            # predlabels_vsvm_ms = add_new_samples(ms_sampled_data, validateLabels, newSize=resampledSize[1], cluster=round(resampledSize[1]*1.2))
+            # accVSVM_SL_Un_b_ms = confusionMatrix(predlabels_vsvm_ms, validateLabels)
+            # print(accVSVM_SL_Un_b_ms$overall["Accuracy"])
             # 
             # # ****** #
             # print("Computing Multiclass Level Uncertainty samples distance...")
@@ -2240,13 +2239,11 @@ for(model_prob in model_probs){
             # accVSVM_SL_Un_b_mclp = confusionMatrix(predlabels_vsvm_mclp, validateLabels)
             # print(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
             gc()
-            
             AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
             # AccuracyVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Accuracy"])
             # AccuracyVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Accuracy"])
             # AccuracyVSVM_SL_Un_b_mclu[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclu$overall["Accuracy"])
             # AccuracyVSVM_SL_Un_b_mclp[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_mclp$overall["Accuracy"])
-            
             KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
             # KappaVSVM_SL_Un_b_ud[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ud$overall["Kappa"])
             # KappaVSVM_SL_Un_b_ms[realization,sample_size] = as.numeric(accVSVM_SL_Un_b_ms$overall["Kappa"])
