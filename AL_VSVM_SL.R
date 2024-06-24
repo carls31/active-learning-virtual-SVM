@@ -1209,7 +1209,7 @@ for(model_prob in model_probs){
           gc()
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
-          ###########################################  MultiLevel ###################################################
+          ########################################  MultiLevel ###################################################
           
           preProc1 = preProcess(nomalizedFeatMS[,1:50], method = "range")
           preProc2 = preProcess(nomalizedFeatMS[,51:100], method = "range")
@@ -1511,10 +1511,9 @@ for(model_prob in model_probs){
           print("evaluation of SVM with self learning and semi-labeled samples...")
           model_name_SVMUn_b = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if(city=="cologne"){
-            if(invariance=="scale"){
-              
+            if(invariance=="scale"){ # get VSs, means rows of SV but with subset on different level
               SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                                    SVL_variables = list( # get VSs, means rows of SV but with subset on different level
+                                    SVL_variables = list( 
                                       list(SVtotalSVMUn_b, SVL2SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM_b)),
                                       list(SVtotalSVMUn_b, SVL3SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REFSVM_b)),
                                       list(SVtotalSVMUn_b, SVL5SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REFSVM_b)),
@@ -1527,8 +1526,6 @@ for(model_prob in model_probs){
                                     )
               )
             }else{
-              
-              # get VSs, means rows of SV but with subset on different level
               SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                     SVL_variables = list(
                                       list(SVtotalSVMUn_b, S01C09SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]) ),
@@ -1544,7 +1541,6 @@ for(model_prob in model_probs){
             }
           }else{
             if(invariance=="scale"){ 
-              # get VSs, means rows of SV but with subset on different level
               SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                     SVL_variables = list(
                                       list(SVtotalSVMUn_b, SVL2SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM_b)),
@@ -1557,7 +1553,6 @@ for(model_prob in model_probs){
                                     )
               )
             }else{
-              # get VSs, means rows of SV but with subset on different level
               SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn_b, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                     SVL_variables = list(
                                       list(SVtotalSVMUn_b, S01C09SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((numFeat+1):(2*numFeat),ncol(trainDataCur))])),
@@ -1592,8 +1587,7 @@ for(model_prob in model_probs){
           ################################################# VSVM ################################################# 
           print("training VSVM...")
           if(city=="cologne"){
-            if(invariance=="scale"){ 
-              # get VSs, means rows of SV but with subset on different level
+            if(invariance=="scale"){ # get VSs, means rows of SV but with subset on different level
               SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
               SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
               
@@ -1618,7 +1612,6 @@ for(model_prob in model_probs){
                               setNames(SVL11,objInfoNames)
               ) # The new Train Data Set is made by SVs and VSVs only
             }else{ 
-              #get VSV, means rows of SV but with subset on diferent level
               S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
               S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
               S03C07 = trainDataCur[SVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]
@@ -1628,7 +1621,6 @@ for(model_prob in model_probs){
               S07C03 = trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]
               S09C01 = trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]
               
-              #bind original SV with modified to new train data set
               SVinvar = rbind(setNames(SVtotal,objInfoNames),
                               setNames(S01C09,objInfoNames),
                               setNames(S03C05,objInfoNames),
@@ -1642,7 +1634,6 @@ for(model_prob in model_probs){
             }  
           }else{
             if(invariance=="scale"){
-              # get VSs, means rows of SV but with subset on different level
               SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
               SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
               
@@ -1652,7 +1643,6 @@ for(model_prob in model_probs){
               SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
               SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
               
-              # bind original SV with modified to new train data set
               SVinvar = rbind(setNames(SVtotal,objInfoNames),
                               setNames(SVL2,objInfoNames),
                               setNames(SVL3,objInfoNames),
@@ -1663,7 +1653,6 @@ for(model_prob in model_probs){
                               setNames(SVL9,objInfoNames)
               ) 
             }else{
-              #get VSV, means rows of SV but with subset on diferent level
               S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
               S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
               S03C07 = trainDataCur[SVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]
@@ -1673,7 +1662,6 @@ for(model_prob in model_probs){
               S07C03 = trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]
               S09C01 = trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]
               
-              #bind original SV with modified to new train data set
               SVinvar = rbind(setNames(SVtotal,objInfoNames),
                               setNames(S01C09,objInfoNames),
                               setNames(S03C05,objInfoNames),
@@ -1819,9 +1807,8 @@ for(model_prob in model_probs){
             
             print(paste0("evaluation of VSVM SL with ",b[bb]," semi-labeled samples... [",bb,"/",length(b),"]"))
             model_name_Un_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
-            # get VSs, means rows of SV but with subset on different level
             if(city=="cologne"){
-              if(invariance=="scale"){ 
+              if(invariance=="scale"){ # get VSs, means rows of SV but with subset on different level
                 SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un_b, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                       SVL_variables = list(
                                         list(SVtotal, SVL2),
@@ -1942,9 +1929,8 @@ for(model_prob in model_probs){
 
             print(paste0("evaluation of VSVM SL with ",b[bb]," virtual semi-labeled samples... [",bb,"/",length(b),"]"))
             model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
-            # get VSs, means rows of SV but with subset on different level
             if(city=="cologne"){
-              if(invariance=="scale"){ 
+              if(invariance=="scale"){ # get VSs, means rows of SV but with subset on different level
                 SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn_b, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                       SVL_variables = list(
                                         list(SVtotal, SVL2),
@@ -2082,11 +2068,9 @@ for(model_prob in model_probs){
                     
                     new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
                     new_trainLabelsVSVM <- best_trainLabelsVSVM
-                    
-                    # get VSs, means rows of SV but with subset on different level
-                    # bind original SV with modified to new train data set
-                    if(city=="cologne"){
-                      if(invariance=="scale"){ 
+
+                    if(city=="cologne"){ # bind original SV with modified to new train data set
+                      if(invariance=="scale"){ # get VSs, means rows of SV but with subset on different level
                         upd_trainDataCur = rbind(setNames(samplesRemaining[c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))],objInfoNames),
                                                 setNames( samplesRemaining[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))],objInfoNames),
                                                 setNames( samplesRemaining[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))],objInfoNames),
