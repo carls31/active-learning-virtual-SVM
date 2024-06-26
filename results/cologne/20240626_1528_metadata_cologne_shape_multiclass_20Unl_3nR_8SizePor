@@ -1,0 +1,14 @@
+OA Execution time: 14h
+Realization 1 execution time: 4h
+Realization 2 execution time: 4.81h
+Realization 3 execution time: 5.12h
+
+best_bound_oa_SL: 0.90.90.9
+best_boundMargin_oa_SL: 1.51.51.5
+best_bound_oa_SL_Un: 0.90.90.7
+best_boundMargin_oa_SL_Un: 1.51.51.5
+best_bound_oa_SL_vUn: 0.70.70.7
+best_boundMargin_oa_SL_vUn: 1.51.51.5
+20240626SVM_cologne_shape_multiclass_100Size_20Unl.rds: 0.797588679143954
+20240626VSVM_cologne_shape_multiclass_100Size_20Unl.rds: 0.793950216159609
+20240626VSVM_cologne_shape_multiclass_100Size_20Unl.rds: 0.811122150318198

@@ -2125,6 +2125,8 @@ for(model_prob in model_probs){
                     newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
+                    tmp_new_tunedVSVM <- new_tunedVSVM
+                    
                     pb <- progress_bar$new(
                       format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
                       total = num_iters,
@@ -2133,13 +2135,13 @@ for(model_prob in model_probs){
                     t.time <- Sys.time()
                     for (iter in 1:num_iters){
                       # print(paste0("Iteration ",iter,"/",num_iters,"..."))
-                      predLabelsVSVM = predict(new_tunedVSVM, upd_trainDataCurFeatsub)
+                      predLabelsVSVM = predict(tmp_new_tunedVSVM, upd_trainDataCurFeatsub)
                       # Add predicted labels to the features data set
                       predLabelsVSVM_unc = cbind(upd_trainDataCurFeatsub, predLabelsVSVM)
                       predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                       # print(paste0("Computing distances..."))
-                      if(model_prob=="binary"){sampled_data <- margin_sampling(new_tunedVSVM, predLabelsVSVM_unc,pred_one)
-                      }else{sampled_data <- mclu_sampling(new_tunedVSVM, predLabelsVSVM_unc)}
+                      if(model_prob=="binary"){sampled_data <- margin_sampling(tmp_new_tunedVSVM, predLabelsVSVM_unc,pred_one)
+                      }else{sampled_data <- mclu_sampling(tmp_new_tunedVSVM, predLabelsVSVM_unc)}
                       # print(paste0("Relabeling samples..."))
                       # Get new labels and updated datasets
                       result <- add_new_samples(sampled_data,
@@ -2180,7 +2182,7 @@ for(model_prob in model_probs){
             }
             fin_predLabelsVSVM_SL_itAL = predict(new_tunedVSVM, validateFeatsub)
             accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
-            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | trining time: ",train.time,"sec"))
+            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
             model_name_tunedVSVM_SL_itAL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             if(actAcc>best_acc){ 
               best_acc <- actAcc
