@@ -1,7 +1,7 @@
 library(scales)
 
-city = "hagadera"
-invariance = "scale"
+city = "cologne"
+invariance = "shape"
 class = "multiclass"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
@@ -19,6 +19,7 @@ file_name_acc = "20240611_1332_Col_shape_multiclass_acc_20Unl_10nR"
 file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
 file_name_acc = "20240620_1034_hagadera_shape_binary_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240624_1813_hagadera_scale_multiclass_acc_20Unl_1nR_5SizePor"
+file_name_acc = "20240626_1528_cologne_shape_multiclass_acc_20Unl_3nR_8SizePor"
 
 
 
@@ -33,6 +34,7 @@ file_name_kappa = "20240611_1332_Col_shape_multiclass_Kappa_20Unl_10nR"
 file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor"
 file_name_kappa = "20240620_1034_hagadera_shape_binary_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240624_1813_hagadera_scale_multiclass_Kappa_20Unl_1nR_5SizePor"
+file_name_kappa = "20240626_1528_cologne_shape_multiclass_Kappa_20Unl_3nR_8SizePor"
 
 
 
@@ -120,8 +122,8 @@ if(class == "multiclass"){
       yUpperBound = 0.76
       ylowerBound = 0.40
     }else{
-      yUpperBound = 0.76
-      ylowerBound = 0.40
+      yUpperBound = 0.785
+      ylowerBound = 0.545
       }
   }
 }else{
@@ -321,8 +323,8 @@ if(class == "multiclass"){
       yUpperBound = 0.67
       ylowerBound = 0.34
     }else{
-      yUpperBound = 0.67
-      ylowerBound = 0.34
+      yUpperBound = 0.71
+      ylowerBound = 0.41
     }
   }
 }else{
