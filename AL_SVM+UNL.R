@@ -2268,7 +2268,7 @@ for(model_prob in model_probs){
         best_classSize_oa=c(best_classSize_oa, best_classSize)
         best_cluster_oa=c(best_cluster_oa, best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
-        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
+        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time),units=hours),3),"h"),"\n")
         if(realization==3 && sample_size==4){
           saveRDS(tunedSVM, model_name_tunedSVM)
           saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)

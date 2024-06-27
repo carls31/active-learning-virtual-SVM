@@ -498,7 +498,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         t.time <- Sys.time()
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
-        t.time = round((Sys.time()-t.time),2)
+        t.time <- round(as.numeric((Sys.time() - t.time), units = "secs"), 3)
         # of all Different bound settings get the one with best Kappa ans save its model
         if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4),"| training time:",t.time,"sec"))
           bestFittingModel = tunedVSVM
@@ -1427,7 +1427,7 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else { train.time <- Sys.time()
             tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-            train.time <- round(Sys.time() - train.time,2)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "secs"), 3)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
@@ -1481,7 +1481,7 @@ for(model_prob in model_probs){
             print("training SVM multilevel...")
             train.time <- Sys.time()
             tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
-            train.time <- round(Sys.time() - train.time,2)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "secs"), 3)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
@@ -1693,7 +1693,7 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else {train.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-            train.time <- round(Sys.time() - train.time,2)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "secs"), 3)
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
@@ -2163,7 +2163,8 @@ for(model_prob in model_probs){
                       tmp_new_tunedVSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
                       pb$tick()
                     }
-                    t.time <- round(Sys.time() - t.time,2)
+                    t.time <- round(as.numeric((Sys.time() - t.time), units = "secs"), 3)
+                    
                     tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub)
                     tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                     
@@ -2271,7 +2272,7 @@ for(model_prob in model_probs){
         best_classSize_oa=c(best_classSize_oa, best_classSize)
         best_cluster_oa=c(best_cluster_oa, best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
-        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
+        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 3),"h"),"\n")
         if(realization==3 && sample_size==4){
           saveRDS(tunedSVM, model_name_tunedSVM)
           saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
