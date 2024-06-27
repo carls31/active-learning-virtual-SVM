@@ -12,14 +12,14 @@ invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass","binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
-bound = c(0.7, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
-boundMargin = c(1.5)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
+bound = c(0.3, 0.6, 0.75, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
+boundMargin = c(1.5,1.25,1,0.5)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(2*b)         # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-classSize = c(10*b,20*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
-clusterSizes = c(6*b,4*b,2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+resampledSize = c(3*b,2*b,b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(3*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+classSize = c(10*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
+clusterSizes = c(5*b,2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
  
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
@@ -2240,7 +2240,7 @@ for(model_prob in model_probs){
                     new_trainFeatVSVM <- setNames(trainFeat, names)
                     new_trainLabelsVSVM <- trainLabels
                     
-                    newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
+                    newSize_for_iter = resampledSize[rS] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
                     tmp_new_tunedSVM <- new_tunedSVM
