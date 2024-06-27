@@ -1548,8 +1548,7 @@ for(model_prob in model_probs){
           
           # Definition of sampling configuration (strata:random sampling without replacement)
           stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
-          #stratSampRemaining = strata(trainDataCurRemaining, size = 6*b, method = "srswor") # if trainDataCur is balanced apriori
-          
+
           # get samples of trainDataCurRemaining and set trainDataCurRemaining new
           samplesRemainingSVM_b = getdata(trainDataCurRemaining, stratSampRemaining)
           trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemainingSVM_b$ID_unit), ]
@@ -2130,26 +2129,17 @@ for(model_prob in model_probs){
                       }
                       upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables)
-                                                 
                       tmp_new_tunedSVM <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- as.character(upd_SLresult$best_trainLabelsVSVM)
                       
-                      # selected_feat <- new_trainFeatVSVM[SVindex_ud[valid_indices], ]
-                      # selected_labels <- as.character(new_trainLabelsVSVM[valid_indices])
-                      # new_trainFeatVSVM <- rbind(selected_feat, tmp_trainFeatVSVM)
-                      # new_trainLabelsVSVM <- factor(c(selected_labels, tmp_trainLabelsVSVM))
                       pb$tick()
                     }
                     t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "mins"), 3)
-                    
-                    # tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
-                    # tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                    
-                    if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
-                    # if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
+                    # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
+                    if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
                       new_tunedSVM = tmp_new_tunedSVM
-                      actAcc = tmp_new_tunedSVM$resample$Kappa#tmp_acc$overall["Accuracy"]
+                      actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                       best_resample = resampledSize[rS]
                       best_newSize4iter = newSizes[nS4it]
                       best_classSize = classSize[clS]
