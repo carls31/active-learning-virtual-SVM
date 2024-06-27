@@ -8,19 +8,19 @@ library(doParallel) # multiple CPU cores
 
 nR = 3                   # realizations
 cities = c("cologne")    # cologne or hagadera
-invariances = c("shape")   # scale or shape invariance
-model_probs = c("multiclass","binary")  # multiclass or binary problem
+invariances = c("scale")   # scale or shape invariance
+model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
-bound = c(0.3, 0.6, 0.75, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
-boundMargin = c(1.5,1.25,1,0.5)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
+bound = c(0.5, 0.7, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
+boundMargin = c(1.5, 1.2)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(3*b,2*b,b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(3*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+newSizes = c(3*b,2*b,b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 classSize = c(10*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
-clusterSizes = c(5*b,2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
- 
+clusterSizes = c(4*b,2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+ # then CHECK if(model_prob=="binary")
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
 path = '/home/rsrg9/Documents/'
@@ -552,121 +552,9 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         t.time <- Sys.time()
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
-        t.time = round((Sys.time()-t.time),2)
+        t.time <- round(as.numeric((Sys.time() - start.time), units = "secs"), 3)
         # of all Different bound settings get the one with best Kappa ans save its model
         if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4),"| training time:",t.time,"sec"))
-          bestFittingModel = tunedVSVM
-          actKappa = tunedVSVM$resample$Kappa
-          best_trainFeatVSVM = trainFeatVSVM
-          best_trainLabelsVSVM = trainLabelsVSVM
-          best_bound= bound[jj]
-          best_boundMargin = boundMargin[kk]
-        }
-      }
-    } 
-    return(list(bestFittingModel = bestFittingModel, 
-                actKappa = actKappa, 
-                best_trainFeatVSVM = best_trainFeatVSVM, 
-                best_trainLabelsVSVM = best_trainLabelsVSVM, 
-                best_bound = best_bound, 
-                best_boundMargin = best_boundMargin))
-  }
-}
-
-self_learn_AL = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVtotal, objInfoNames, rem_extrem, rem_extrem_kerneldist, SVL_variables, SVMfinModel=tunedSVM$finalModel, train=TRUE, classProb = FALSE)
-{
-  if (file.exists(model_name) && !train) {
-    bestFittingModel <- readRDS(model_name)
-    actKappa = bestFittingModel$resample$Kappa
-    print("Luckily, model already exists!")
-    return(list(bestFittingModel = bestFittingModel, 
-                actKappa = actKappa))
-  } else {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    actKappa = -1e-6
-    print("applying constraints to VSVs candidates...")
-    # iteration over bound to test different bound thresholds determining the radius of acception
-    for(jj in 1:length(bound)){
-      
-      registerDoParallel(num_cores)
-      # Apply foreach loop to process each SVL variable and bind the results
-      if(model_prob=="binary"){ # print("step 1")
-        SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
-          setNames(rem_extrem(variable[[1]], variable[[2]], bound[jj]), objInfoNames)
-        }
-      }else{ # print("step 1.5")
-        SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
-          setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj], SVMfinModel@kernelf), objInfoNames)
-        }
-      } # print("step 2")
-      registerDoSEQ() # print("step 3")
-      
-      # remove NAs 
-      SVinvarRadi = na.omit(SVinvarRadi)
-      
-      # iterating over boundMargin to test different threshold on margin distance
-      for (kk in seq(along = c(1:length(boundMargin)))){
-        print(paste0("tuning similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
-        
-        if (nrow(SVinvarRadi) > 0) { # Check if SVinvarRadi has rows to process
-          # Remove VSV which are not located within a certain distance to the decision function
-          # data.frame to store elected VSV within the margin
-          SVinvar = setNames(data.frame(matrix(ncol = numFeat + 1, nrow = 0)), objInfoNames)
-          
-          # Progress bar initialization
-          pb <- progress_bar$new(
-            format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
-            total = nrow(SVinvarRadi),
-            clear = FALSE
-          )
-          # Iterate over SVinvarRadi and evaluate distance to hyperplane
-          for (m in 1:nrow(SVinvarRadi)) {
-            signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m, -ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
-            
-            if (signa < boundMargin[kk]) {
-              SVinvar = rbind(SVinvar, SVinvarRadi[m, ])
-            }
-            pb$tick()
-          }
-        } else { warning("SVinvarRadi has no rows to process") }
-        
-        # merge elected VSV with original SV
-        SVinvar_org = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvar,objInfoNames))
-        
-        SVinvar_org=na.omit(SVinvar_org)
-        
-        
-        
-        
-        
-        # split for training to feature and label
-        trainFeatVSVM = SVinvar_org[,1:(ncol(SVinvar_org)-1)]
-        trainLabelsVSVM = SVinvar_org[,ncol(SVinvar_org)]
-        
-        # get list with index of trainData to split between train and test in svmFit
-        countTrainData = nrow(SVinvar_org)
-        indexTrainData = list(c(1:countTrainData))
-        
-        # join of train and test data (through indesTrainData in svmFit seperable)
-        names = objInfoNames[1:length(objInfoNames)-1]
-        tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
-        tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
-        
-        ######################################## VSVM control parameter tuning ########################################
-        t.time <- Sys.time()
-        tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
-        t.time = round((Sys.time()-t.time),2)
-        # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4),"| training time:",t.time,""))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -696,10 +584,10 @@ classificationProblem = function(generalDataPool){
 ########################################  Preprocessing  ########################################
 for(model_prob in model_probs){
   if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
-  bound = c(0.7)
+  # bound = c(0.7)
   # boundMargin = c(1.5)
-  resampledSize = c(2*b)
-  classSize = c(30*b)
+  resampledSize = c(2*b,b)
+  # classSize = c(30*b)
   clusterSizes = c(2*b)
   }
   if(num_cores<5){ nR=1
@@ -1593,7 +1481,7 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else { train.time <- Sys.time()
             tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-            train.time <- round(Sys.time() - train.time,2)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "hours"), 3)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
@@ -1647,7 +1535,7 @@ for(model_prob in model_probs){
             print("training SVM multilevel...")
             train.time <- Sys.time()
             tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
-            train.time <- round(Sys.time() - train.time,2)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "secs"), 3)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
@@ -1859,7 +1747,8 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else {train.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-            train.time <- round(Sys.time() - train.time,2)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "hours"), 3)
+            
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
@@ -2230,8 +2119,8 @@ for(model_prob in model_probs){
               
               for(cS in 1:length(clusterSizes)){
                 for(rS in 1:length(resampledSize)){
-                  for(nS4it in 1:length(newSizes)){
-                    print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                  for(nS4it in 1:length(newSizes[1])){
+                    print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[rS]," [",rS,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                     
                     upd_dataCur <- samplesRemaining
                     upd_dataCurFeatsub <- samplesRemaining[,c(sindexSVMDATA:eindexSVMDATA)]
@@ -2240,7 +2129,7 @@ for(model_prob in model_probs){
                     new_trainFeatVSVM <- setNames(trainFeat, names)
                     new_trainLabelsVSVM <- trainLabels
                     
-                    newSize_for_iter = resampledSize[rS] #sampleSize/10 # or just 4
+                    newSize_for_iter = newSizes[rS] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
                     tmp_new_tunedSVM <- new_tunedSVM
@@ -2256,13 +2145,13 @@ for(model_prob in model_probs){
                       
                       
                       # print(paste0("Iteration ",iter,"/",num_iters,"..."))
-                      predLabelsVSVM = predict(tmp_new_tunedVSVM, upd_dataCurFeatsub)
+                      predLabelsVSVM = predict(tmp_new_tunedSVM, upd_dataCurFeatsub)
                       # Add predicted labels to the features data set
                       predLabelsVSVM_unc = cbind(upd_dataCurFeatsub, predLabelsVSVM)
                       predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                       # print(paste0("Computing distances..."))
-                      if(model_prob=="binary"){sampled_data <- margin_sampling(tmp_new_tunedVSVM, predLabelsVSVM_unc,pred_one)
-                      }else{sampled_data <- mclu_sampling(tmp_new_tunedVSVM, predLabelsVSVM_unc)}
+                      if(model_prob=="binary"){sampled_data <- margin_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc,pred_one)
+                      }else{sampled_data <- mclu_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc)}
                       # print(paste0("Relabeling samples..."))
                       # Get new labels and updated datasets
                       result <- add_new_samples_AL(sampled_data,
@@ -2287,7 +2176,7 @@ for(model_prob in model_probs){
                       
                       # **********************
                       # get original SVs of base SVM
-                      SVindex_ud = tmp_new_tunedVSVM$finalModel@SVindex  
+                      SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex  
                       # valid_indices <- SVindex_ud[SVindex_ud <= nrow(new_trainFeatVSVM)-newSize_for_iter]
                       SVtotal = cbind(new_trainFeatVSVM[SVindex,], new_trainLabelsVSVM[SVindex])
                       
@@ -2298,7 +2187,7 @@ for(model_prob in model_probs){
                       # upd_SVindex_ud = SVindex_ud[SVindex_ud > nrow(new_trainFeatVSVM)-newSize_for_iter] - (nrow(new_trainFeatVSVM)-newSize_for_iter)
                       # **********************
                       
-                      REF_ud = predict(tmp_new_tunedVSVM, new_trainFeat)
+                      REF_ud = predict(tmp_new_tunedSVM, new_trainFeat)
                       
                       # get SV of unlabeled samples
                       # upd_SVindex_ud = 1:nrow(new_trainFeatVSVM)  
@@ -2407,13 +2296,15 @@ for(model_prob in model_probs){
                       # new_trainLabelsVSVM <- factor(c(selected_labels, tmp_trainLabelsVSVM))
                       pb$tick()
                     }
-                    t.time <- round(Sys.time() - t.time,2)
-                    tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
-                    tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                    t.time <- round(as.numeric((Sys.time() - t.time), units = "hours"), 3)
                     
-                    if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
+                    # tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
+                    # tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                    
+                    if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
+                    # if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
                       new_tunedSVM = tmp_new_tunedSVM
-                      actAcc = tmp_acc$overall["Accuracy"]
+                      actAcc = tmp_new_tunedSVM$resample$Kappa#tmp_acc$overall["Accuracy"]
                       best_resample = resampledSize[rS]
                       best_newSize4iter = newSizes[nS4it]
                       best_classSize = classSize[clS]
@@ -2467,18 +2358,18 @@ for(model_prob in model_probs){
           KappaVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Kappa"])
         }
         # Store the overall best hyperparameters 
-        best_bound_oa_SL = c(best_bound_oa_SL, best_bound_SL)
-        best_boundMargin_oa_SL = c(best_boundMargin_oa_SL, best_boundMargin_SL)
-        best_bound_oa_SL_Un = c(best_bound_oa_SL_Un, best_bound_SL_Un)
-        best_boundMargin_oa_SL_Un = c(best_boundMargin_oa_SL_Un, best_boundMargin_SL_Un)
-        best_bound_oa_SL_vUn = c(best_bound_oa_SL_vUn, best_bound_SLvUn_b)
-        best_boundMargin_oa_SL_vUn = c(best_boundMargin_oa_SL_vUn, best_boundMargin_SLvUn_b)
-        best_resample_oa=c(best_resample_oa, best_resample)
-        best_newSize_oa=c(best_newSize_oa, best_newSize4iter)
-        best_classSize_oa=c(best_classSize_oa, best_classSize)
-        best_cluster_oa=c(best_cluster_oa, best_cluster)
+        best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL)
+        best_boundMargin_oa_SL = c(best_boundMargin_oa_SL," ", best_boundMargin_SL)
+        best_bound_oa_SL_Un = c(best_bound_oa_SL_Un," ", best_bound_SL_Un)
+        best_boundMargin_oa_SL_Un = c(best_boundMargin_oa_SL_Un," ", best_boundMargin_SL_Un)
+        best_bound_oa_SL_vUn = c(best_bound_oa_SL_vUn," ", best_bound_SLvUn_b)
+        best_boundMargin_oa_SL_vUn = c(best_boundMargin_oa_SL_vUn," ", best_boundMargin_SLvUn_b)
+        best_resample_oa=c(best_resample_oa," ", best_resample)
+        best_newSize_oa=c(best_newSize_oa," ", best_newSize4iter)
+        best_classSize_oa=c(best_classSize_oa," ", best_classSize)
+        best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
-        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(Sys.time() - start.time,2),"h"),"\n")
+        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric(round(Sys.time() - start.time,2), units = "hours"), 3),"h"),"\n")
         if(realization==3 && sample_size==4){
           saveRDS(tunedSVM, model_name_tunedSVM)
           saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
@@ -2501,6 +2392,8 @@ for(model_prob in model_probs){
             "\nbest_bound_oa_SL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL: ", best_boundMargin_oa_SL,
             "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
             "\nbest_bound_oa_SL_vUn: ", best_bound_oa_SL_vUn,"\nbest_boundMargin_oa_SL_vUn: ",best_boundMargin_oa_SL_vUn,
+            "\nbest_resample_oa: ", best_resample_oa,        "\nbest_newSize_oa: ", best_newSize_oa,
+            "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
             "\n",best_model_oa, sep = "",
             file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         print("accuracy results: acquired.")
