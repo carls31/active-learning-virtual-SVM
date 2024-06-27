@@ -383,7 +383,7 @@ add_new_samples = function(distance_data,
   ref_added_or = ref_added[order(ref_added$distance),]
   
   # Perform k-means clustering
-  km_data <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 20, nstart = 200)
+  km_data <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 25, nstart = 200)
   
   # Add cluster information to the data
   ref_added_or$cluster <- km_data$cluster
@@ -435,7 +435,7 @@ add_new_samples_AL = function(distance_data,
   ref_added_or = ref_added[order(ref_added$distance),]
   
   # Perform k-means clustering
-  km_data <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 20, nstart = 200)
+  km_data <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 25, nstart = 200)
   
   # Add cluster information to the data
   ref_added_or$cluster <- km_data$cluster
