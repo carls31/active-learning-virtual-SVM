@@ -1481,7 +1481,7 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else { train.time <- Sys.time()
             tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-            train.time <- round(as.numeric((Sys.time() - train.time), units = "hours"), 3)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "secs"), 3)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
@@ -1747,7 +1747,7 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else {train.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-            train.time <- round(as.numeric((Sys.time() - train.time), units = "hours"), 3)
+            train.time <- round(as.numeric((Sys.time() - train.time), units = "secs"), 3)
             
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
@@ -2141,9 +2141,7 @@ for(model_prob in model_probs){
                     )
                     t.time <- Sys.time()
                     for (iter in 1:num_iters){
-                      
-                      
-                      
+
                       # print(paste0("Iteration ",iter,"/",num_iters,"..."))
                       predLabelsVSVM = predict(tmp_new_tunedSVM, upd_dataCurFeatsub)
                       # Add predicted labels to the features data set
@@ -2296,7 +2294,7 @@ for(model_prob in model_probs){
                       # new_trainLabelsVSVM <- factor(c(selected_labels, tmp_trainLabelsVSVM))
                       pb$tick()
                     }
-                    t.time <- round(as.numeric((Sys.time() - t.time), units = "hours"), 3)
+                    t.time <- round(as.numeric((Sys.time() - t.time), units = "secs"), 3)
                     
                     # tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
                     # tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
