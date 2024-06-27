@@ -1,7 +1,7 @@
 library(scales)
 
 city = "cologne"
-invariance = "shape"
+invariance = "scale"
 class = "multiclass"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
@@ -20,6 +20,11 @@ file_name_acc = "20240618_1120_hagadera_scale_binary_acc_20Unl_10nR_8SizePor"
 file_name_acc = "20240620_1034_hagadera_shape_binary_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240624_1813_hagadera_scale_multiclass_acc_20Unl_1nR_5SizePor"
 file_name_acc = "20240626_1528_cologne_shape_multiclass_acc_20Unl_3nR_8SizePor"
+file_name_acc = "20240627_0631_cologne_shape_binary_acc_20Unl_3nR_8SizePor"
+file_name_acc = "20240627_0753_cologne_scale_binary_acc_20Unl_3nR_8SizePor"
+file_name_acc = "20240627_0505_cologne_scale_multiclass_acc_20Unl_3nR_8SizePor"
+
+
 
 
 
@@ -35,6 +40,12 @@ file_name_kappa = "20240618_1120_hagadera_scale_binary_Kappa_20Unl_10nR_8SizePor
 file_name_kappa = "20240620_1034_hagadera_shape_binary_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240624_1813_hagadera_scale_multiclass_Kappa_20Unl_1nR_5SizePor"
 file_name_kappa = "20240626_1528_cologne_shape_multiclass_Kappa_20Unl_3nR_8SizePor"
+file_name_kappa = "20240627_0631_cologne_shape_binary_Kappa_20Unl_3nR_8SizePor"
+file_name_kappa = "20240627_0753_cologne_scale_binary_Kappa_20Unl_3nR_8SizePor"
+file_name_kappa = "20240627_0505_cologne_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
+
+
+
 
 
 
@@ -113,38 +124,44 @@ if(class == "multiclass"){
     if(invariance=="scale"){
       yUpperBound = 0.96
       ylowerBound = 0.755
-    }else{
+    }
+    if(invariance=="shape"){
       yUpperBound = 0.80
       ylowerBound = 0.445
       }
-  }else{
+  }
+  if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.76
-      ylowerBound = 0.40
-    }else{
+      yUpperBound = 0.78
+      ylowerBound = 0.50
+    }
+    if(invariance=="shape"){
       yUpperBound = 0.785
       ylowerBound = 0.545
       }
   }
-}else{
-    if(city=="hagadera"){
-      if(invariance=="scale"){
-        yUpperBound = 0.975
-        ylowerBound = 0.67
-      }else{
-        yUpperBound = 0.975
-        ylowerBound = 0.70
-      }
+}
+if(class == "binary"){
+  if(city=="hagadera"){
+    if(invariance=="scale"){
+      yUpperBound = 0.975
+      ylowerBound = 0.67
     }else{
-      if(invariance=="scale"){
-        yUpperBound = 0.927
-        ylowerBound = 0.79
-      }else{
-        yUpperBound = 0.96
-        ylowerBound = 0.65
-      }
+      yUpperBound = 0.975
+      ylowerBound = 0.70
     }
   }
+  if(city=="cologne"){
+    if(invariance=="scale"){
+      yUpperBound = 0.935
+      ylowerBound = 0.80
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.94
+      ylowerBound = 0.80
+    }
+  }
+}
 
 type = "l"
 
@@ -314,35 +331,42 @@ if(class == "multiclass"){
     if(invariance=="scale"){
       yUpperBound = 0.94
       ylowerBound = 0.675
-    }else{
+    }
+    if(invariance=="shape"){
       yUpperBound = 0.715
       ylowerBound = 0.405
     }
-  }else{
+  }
+  if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.67
-      ylowerBound = 0.34
-    }else{
+      yUpperBound = 0.69
+      ylowerBound = 0.38
+    }
+    if(invariance=="shape"){
       yUpperBound = 0.71
       ylowerBound = 0.41
     }
   }
-}else{
+}
+if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.95
       ylowerBound = 0.40
-    }else{
+    }
+    if(invariance=="shape"){
       yUpperBound = 0.96
       ylowerBound = 0.47
     }
-  }else{
+  }
+  if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.95
-      ylowerBound = 0.4
-    }else{
-      yUpperBound = 0.95
-      ylowerBound = 0.4
+      yUpperBound = 0.82
+      ylowerBound = 0.48
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.82
+      ylowerBound = 0.42
     }
   }
 }
