@@ -554,9 +554,9 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tStart.time <- Sys.time()
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
-        t.time <- round(as.numeric((Sys.time() - tStart.time), units = "secs"), 3)
+        t.time <- round(as.numeric((Sys.time() - tStart.time), units = "mins"), 3)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4),"| training time: ",t.time,"sec"))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste("current best kappa:",round(tunedVSVM$resample$Kappa,4),"| training time: ",t.time,"min"))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -1709,13 +1709,13 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else {trainStart.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-            train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
+            train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "mins"), 3)
             
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
           accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
+          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | training time: ",train.time,"min"))
           gc()
           if(accVSVM$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM$overall["Accuracy"]
@@ -2171,7 +2171,7 @@ for(model_prob in model_probs){
                       # new_trainLabelsVSVM <- factor(c(selected_labels, tmp_trainLabelsVSVM))
                       pb$tick()
                     }
-                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
+                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "mins"), 3)
                     
                     # tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
                     # tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
@@ -2192,7 +2192,7 @@ for(model_prob in model_probs){
             }
             fin_predLabelsVSVM_SL_itAL = predict(new_tunedSVM, validateFeatsub)
             accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
-            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
+            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"min"))
             if(actAcc>best_acc){ 
               best_acc <- actAcc
               best_model <- model_name_AL_VSVMSL
