@@ -16,10 +16,10 @@ bound = c(0.5, 0.7, 0.9)           # radius around SV - threshold    # c(0.3, 0.
 boundMargin = c(1.5, 1.2)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(3*b,2*b,b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(3*b,2*b,b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-classSize = c(10*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
-clusterSizes = c(4*b,2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+resampledSize = c(6*b,3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(6*b,3*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+classSize = c(25*b,12.5*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
+clusterSizes = c(8*b,6.1*b,3.05*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
  # then CHECK if(model_prob=="binary")
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
