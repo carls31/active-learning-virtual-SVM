@@ -7,7 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 3                   # realizations
-cities = c("cologne")    # cologne or hagadera
+cities = c("hagadera")    # cologne or hagadera
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass","binary")  # multiclass or binary problem
 
@@ -183,7 +183,7 @@ rem_extrem_kerneldist = function(org, VSV1, a=0.7, kernel_func=tunedSVM$finalMod
   for(f in 1:length(SVClass)){
     distanceSVC1 = c()
     if(nrow(SVClass[[f]])>0){
-      for(n in seq(along = 1:(nrow(SVClass[[f]])-1))){
+      for(n in seq_len(along = 1:(nrow(SVClass[[f]])-1))){
         for(nn in seq(along = c(n:(nrow(SVClass[[f]])-1)))){
           distanceSVC1[length(distanceSVC1)+1] = kern_dis(SVClass[[f]][n,-ncol(SVClass[[f]])], SVClass[[f]][(n+nn),-ncol(SVClass[[f]])],kernel_func)
         }
@@ -196,7 +196,7 @@ rem_extrem_kerneldist = function(org, VSV1, a=0.7, kernel_func=tunedSVM$finalMod
   
   for(k in 1:nrow(org)){
     tmp_cond <- FALSE
-    for(class in c(1:length(SVClass))){
+    for(class in seq_len(length(SVClass))){
       if(as.integer(distance[k,1]) == class){
         if(!is.null(boundClass[[class]]) && !is.na(boundClass[[class]])){
           if(distance[k,2] != 0 && distance[k,2] > (boundClass[[class]])){
@@ -488,7 +488,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
     actKappa = -1e-6
     print("applying constraints to VSVs candidates...")
     # iteration over bound to test different bound thresholds determining the radius of acception
-    for(jj in 1:length(bound)){
+    for(jj in seq_len(length(bound))){
       
       registerDoParallel(num_cores)
       # Apply foreach loop to process each SVL variable and bind the results
@@ -507,7 +507,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       SVinvarRadi = na.omit(SVinvarRadi)
       
       # iterating over boundMargin to test different threshold on margin distance
-      for (kk in seq(along = c(1:length(boundMargin)))){
+      for (kk in seq_len(length(boundMargin))){
         print(paste0("tuning similarity threshold: ",bound[jj]," [",jj,"/",length(bound),"] | bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]"))
         
         if (nrow(SVinvarRadi) > 0) { # Check if SVinvarRadi has rows to process
@@ -1407,7 +1407,7 @@ for(model_prob in model_probs){
       # set randomized seed for the random sampling procedure
       seed = 20 # 5, 73, 20 
 
-      for(realization in c(1:nR)){#}
+      for(realization in 1:nR){#}
         start.time <- Sys.time()
         # initial seed value for randomized sampling
         if(train){seed = seed + sample(100, 1)}
@@ -1424,7 +1424,7 @@ for(model_prob in model_probs){
         # subset for each outer iteration test data to speed up computing
         testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
         
-        for(sample_size in c(1:length(sampleSizePor))){#}
+        for(sample_size in 1:length(sampleSizePor)){#}
           
           print(paste0(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
           
@@ -1501,7 +1501,7 @@ for(model_prob in model_probs){
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
           # **********************
           binaryClassProblem = list()
-          for(jj in seq(along = c(1:length(tunedSVM$finalModel@xmatrix)))){ # COMPARE EVERY COUPLE COMBINATION OF CLASSES
+          for(jj in 1:length(tunedSVM$finalModel@xmatrix)){ # COMPARE EVERY COUPLE COMBINATION OF CLASSES
             binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
           }
           # **********************
@@ -1585,7 +1585,7 @@ for(model_prob in model_probs){
                   list(SVtotalSVMUn_b, SVL6SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REFSVM_b)),
                   list(SVtotalSVMUn_b, SVL7SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REFSVM_b)),
                   list(SVtotalSVMUn_b, SVL8SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REFSVM_b)),
-                  list(SVtotalSVMUn_b, SVL9SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REFSVM_b)),
+                  list(SVtotalSVMUn_b, SVL9SVMUn_b = cbind(trainDataCurRemainingSVM_b[SVindexSVMUn_b,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REFSVM_b))
                 )
               }
           }else{
@@ -2135,6 +2135,8 @@ for(model_prob in model_probs){
                       pb$tick()
                     }
                     t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "mins"), 3)
+                    tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
+                    tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                     # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
                     if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
                       new_tunedSVM = tmp_new_tunedSVM
