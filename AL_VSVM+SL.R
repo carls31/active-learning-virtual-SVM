@@ -19,7 +19,7 @@ sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) lab
 resampledSize = c(6*b,3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(6*b,3*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 classSize = c(12.5*b,10*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
-clusterSizes = c(8*b,3.05*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(3.1*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
  # then CHECK if(model_prob=="binary")
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
@@ -372,7 +372,7 @@ mclp_sampling <- function(org, samp) {
 }
 
 add_new_samples = function(distance_data,
-                           ref, features=NA,IDUnit,
+                           ref, features=NA,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
                            newSize=4, cluster=5){
   if(cluster<newSize){cluster=newSize+1}
@@ -414,8 +414,8 @@ add_new_samples = function(distance_data,
     ref <- ref[-reor_idx]
     new_trainFeatVSVM <- rbind(new_trainFeatVSVM, ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)])
     new_trainLabelsVSVM <- c(new_trainLabelsVSVM, ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)])
-    IDUnit <- IDUnit[reor_idx]
-    return(list(features = features, labels = ref, IDUnit=IDUnit,
+    
+    return(list(features = features, labels = ref,
                 new_trainFeatVSVM = new_trainFeatVSVM, 
                 new_trainLabelsVSVM = new_trainLabelsVSVM))
   } else{
@@ -424,10 +424,10 @@ add_new_samples = function(distance_data,
 }   
 
 add_new_samples_AL = function(distance_data,
-                           ref, features=NA,IDUnit,
+                           ref, features=NA,IDunit,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
                            newSize=4, cluster=5){
-  if(cluster<newSize){cluster=newSize+1}
+  if(cluster<newSize){cluster=round(newSize*1.1)}
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
   
@@ -461,13 +461,12 @@ add_new_samples_AL = function(distance_data,
   if(length(features)>1){
     # Remove relabeled samples from validateLabels
     features <- features[!(rownames(features) %in% selected_indices), ]
-    
     reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
     ref <- ref[-reor_idx]
     new_trainFeatVSVM <- ref_added_reor[reor_idx, 1:(ncol(ref_added_reor)-5)]
     new_trainLabelsVSVM <- ref_added_reor[reor_idx, (ncol(ref_added_reor)-4)]
-    IDUnit <- IDUnit[reor_idx]
-    return(list(features = features, labels = ref, IDUnit=IDUnit,
+    IDunit <- IDunit[reor_idx]
+    return(list(features = features, labels = ref, IDunit=IDunit,
                 new_trainFeatVSVM = new_trainFeatVSVM, 
                 new_trainLabelsVSVM = new_trainLabelsVSVM))
   } else{
@@ -2046,7 +2045,7 @@ for(model_prob in model_probs){
                       # Extract new datasets
                       upd_dataCurFeatsub <- result$features
                       upd_dataCurLabels <- result$labels
-                      upd_ID <- result$IDUnit
+                      upd_ID <- result$IDunit
                       new_trainFeat <- result$new_trainFeatVSVM
                       # new_trainLabelsVSVM <- result$new_trainLabelsVSVM
                       

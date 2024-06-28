@@ -375,7 +375,7 @@ add_new_samples = function(distance_data,
                            ref, features=NA,
                            new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
                            newSize=4, cluster=5){
-  if(cluster<newSize){cluster=newSize+1}
+  if(cluster<newSize){cluster=round(newSize*1.1)}
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
   
