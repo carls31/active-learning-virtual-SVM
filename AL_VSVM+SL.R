@@ -8,11 +8,11 @@ library(doParallel) # multiple CPU cores
 
 nR = 3                   # realizations
 cities = c("hagadera")    # cologne or hagadera
-invariances = c("shape")   # scale or shape invariance
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass","binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
-bound = c(0.5, 0.7, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
+bound = c(0.55, 0.85)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
 boundMargin = c(1.5, 1.2)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
