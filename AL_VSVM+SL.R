@@ -18,8 +18,8 @@ sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) lab
 
 resampledSize = c(6*b,3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(6*b,3*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-classSize = c(12.5*b,10*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
-clusterSizes = c(3.1*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+classSize = c(12*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
+clusterSizes = c(8*b,3.1*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
  # then CHECK if(model_prob=="binary")
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
