@@ -2,7 +2,7 @@ library(scales)
 
 city = "cologne"
 invariance = "scale"
-class = "binary"
+class = "multiclass"
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -24,6 +24,7 @@ file_name_acc = "20240627_0631_cologne_shape_binary_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240627_0753_cologne_scale_binary_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240627_0505_cologne_scale_multiclass_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240627_1337_cologne_scale_binary_acc_20Unl_3nR_8SizePor"
+file_name_acc = "20240628_1251_cologne_scale_multiclass_acc_20Unl_3nR_8SizePor"
 
 
 
@@ -46,6 +47,7 @@ file_name_kappa = "20240627_0631_cologne_shape_binary_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240627_0753_cologne_scale_binary_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240627_0505_cologne_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240627_1337_cologne_scale_binary_Kappa_20Unl_3nR_8SizePor"
+file_name_kappa = "20240628_1251_cologne_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
 
 
 
