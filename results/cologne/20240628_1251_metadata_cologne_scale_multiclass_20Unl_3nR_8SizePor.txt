@@ -1,0 +1,18 @@
+OA Execution time: 23.23h
+Realization 1 execution time: 7.86h
+Realization 2 execution time: 7.72h
+Realization 3 execution time: 6.27h
+
+best_bound_oa_SL:  0.9 0.9 0.5
+best_boundMargin_oa_SL:  1.5 1.5 1.5
+best_bound_oa_SL_Un:  0.9 0.9 0.9
+best_boundMargin_oa_SL_Un:  1.5 1.2 1.5
+best_bound_oa_SL_vUn:  0.9 0.9 0.9
+best_boundMargin_oa_SL_vUn:  1.5 1.2 1.5
+best_resample_oa:  20 60 60
+best_newSize_oa:  60 60 60
+best_classSize_oa:  200 200 200
+best_cluster_oa:  80 80 40
+20240627AL_VSVM+SL_cologne_scale_multiclass_100Size_20Unl_65seed.rds: 0.768
+20240628VSVM_cologne_scale_multiclass_100Size_20Unl.rds: 0.776881215148179
+20240628VSVM_cologne_scale_multiclass_100Size_20Unl.rds: 0.783097482165713
