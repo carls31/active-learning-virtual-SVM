@@ -2259,6 +2259,17 @@ for(model_prob in model_probs){
           KappaVSVM_SL_Un_b[realization,sample_size] = as.numeric(accVSVM_SL_Un_b$overall["Kappa"])
 
           KappaVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Kappa"])
+          
+          if(realization==3 && sample_size==4){
+            saveRDS(tunedSVM, model_name_tunedSVM)
+            saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
+            saveRDS(bestFittingModelSVMUn_b, model_name_SVMUn_b)
+            saveRDS(tunedVSVM, model_name_tunedVSVM)
+            saveRDS(bestFittingModel, model_name_VSVM_SL)
+            saveRDS(bestFittingModelUn_b, model_name_Un_b)
+            saveRDS(bestFittingModelvUn_b, model_name_vUn_b)
+            saveRDS(new_tunedVSVM, model_name_tunedVSVM_SL_itAL)
+          }
         }
         # Store the overall best hyperparameters 
         best_bound_oa_SL = c(best_bound_oa_SL, best_bound_SL)
@@ -2273,16 +2284,6 @@ for(model_prob in model_probs){
         best_cluster_oa=c(best_cluster_oa, best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 3),"h"),"\n")
-        if(realization==3 && sample_size==4){
-          saveRDS(tunedSVM, model_name_tunedSVM)
-          saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
-          saveRDS(bestFittingModelSVMUn_b, model_name_SVMUn_b)
-          saveRDS(tunedVSVM, model_name_tunedVSVM)
-          saveRDS(bestFittingModel, model_name_VSVM_SL)
-          saveRDS(bestFittingModelUn_b, model_name_Un_b)
-          saveRDS(bestFittingModelvUn_b, model_name_vUn_b)
-          saveRDS(new_tunedVSVM, model_name_tunedVSVM_SL_itAL)
-        }
       }
       time.taken_oa <- round(Sys.time() - start.time_oa,2)
       if(length(sampleSizePor)>=8){
