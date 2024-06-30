@@ -1,1 +1,1 @@
-# Active Learning Method with Semi-supervised Costrained Virtual Support Vector Machines for Hyperspectral Satellite Image Classification
+# Active Learning Method with Self-supervised Costrained Virtual Support Vector Machines for Hyperspectral Satellite Image Classification
