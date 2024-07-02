@@ -13,7 +13,7 @@ model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
 bound = c(0.5, 0.8)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
-boundMargin = c(1.5, 1.2)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
+boundMargin = c(1.5)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(3*b,2*b,b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
@@ -2259,16 +2259,6 @@ for(model_prob in model_probs){
             file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         print("accuracy results: acquired.")
       }
-      print(best_bound_oa_SL)
-      print(best_boundMargin_oa_SL)
-      print(best_bound_oa_SL_Un)
-      print(best_boundMargin_oa_SL_Un)
-      print(best_bound_oa_SL_vUn)
-      print(best_boundMargin_oa_SL_vUn)
-      print(best_resample_oa)
-      print(best_newSize_oa)
-      print(best_classSize_oa)
-      print(best_cluster_oa)
       rm(trainDataPoolAllLev,trainDataPoolAllLevMS,trainDataCur,  trainDataCurBeg, trainDataCurMS,trainDataCurBegMS,trainDataCurRemaining,
          testDataAllLev,     testDataAllLevMS,     testDataCurBeg,testDataCurBegMS,testDataCur,   testDataCurMS,validateFeatAllLevMS,validateFeatsub)
       gc()
