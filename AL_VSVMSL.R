@@ -561,9 +561,9 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         ######################################## VSVM control parameter tuning ########################################
         tStart.time <- Sys.time()
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
-        t.time <- round(as.numeric((Sys.time() - tStart.time), units = "mins"), 3)
+        t.time <- round(as.numeric((Sys.time() - tStart.time), units = "secs"), 3)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if(actKappa < tunedVSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tunedVSVM$resample$Kappa,4),"| training time: ",t.time,"min"))
+        if(actKappa < tunedVSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tunedVSVM$resample$Kappa,4)," | training time: ",t.time,"sec"))
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -1728,13 +1728,12 @@ for(model_prob in model_probs){
             print("Luckily, model already exists!")
           } else {trainStart.time <- Sys.time()
             tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-            train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "mins"), 3)
-            
+            train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
           }
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
           accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | training time: ",train.time,"min"))
+          print(paste0("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
           gc()
           if(accVSVM$overall["Accuracy"]>best_acc){
             best_acc <- accVSVM$overall["Accuracy"]
@@ -2015,8 +2014,7 @@ for(model_prob in model_probs){
           model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
           if(num_cores>=16){
             print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-            # new_tunedSVM <- tunedSVM
-            new_tunedSVM <- bestFittingModel
+
             actAcc = -1e-6
             for(clS in 1:length(classSize)){
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2025,8 +2023,8 @@ for(model_prob in model_probs){
               # Get new samples from trainDataCurRemaining
               samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
               trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-              
               # pool_trainDataCur = trainDataCur
+              
               for(cS in 1:length(clusterSizes)){
                 for(rS in 1:length(resampledSize)){
                   for(nS4it in 1:length(newSizes[1])){
@@ -2036,13 +2034,15 @@ for(model_prob in model_probs){
                     upd_dataCurFeatsub <- samplesRemaining[,c(sindexSVMDATA:eindexSVMDATA)]
                     upd_dataCurLabels <- samplesRemaining[,ncol(trainDataCur)]
                     
-                    new_trainFeatVSVM <- setNames(trainFeat, names)
-                    new_trainLabelsVSVM <- trainLabels
+                    # new_trainFeatVSVM <- setNames(trainFeat, names)
+                    # new_trainLabelsVSVM <- trainLabels
+                    # tmp_new_tunedSVM <- tunedSVM
+                    new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
+                    new_trainLabelsVSVM <- best_trainLabelsVSVM
+                    tmp_new_tunedSVM <- bestFittingModel
                     
                     newSize_for_iter = newSizes[rS] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
-                    
-                    tmp_new_tunedSVM <- new_tunedSVM
                     
                     pb <- progress_bar$new(
                       format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
@@ -2152,13 +2152,20 @@ for(model_prob in model_probs){
                       }
                       upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
-                      tmp_new_tunedSVM <- upd_SLresult$bestFittingModel
+                      tmp2_new_tunedSVM <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- as.character(upd_SLresult$best_trainLabelsVSVM)
                       
+                      upd_dataCur <- upd_dataCur[-c(result$IDunit), ]
+                      
+                      if(actAcc_iter < tmp2_new_tunedSVM$resample$Kappa){ print(paste0("iter [",iter,"/",num_iters,"] best kappa: ",round(tmp2_new_tunedSVM$resample$Kappa,4)))
+                        tmp_new_tunedSVM = tmp2_new_tunedSVM
+                        actAcc = tmp_new_tunedSVM$resample$Kappa #
+                      }
+
                       pb$tick()
                     }
-                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "mins"), 3)
+                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
                     tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
                     tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                     # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
@@ -2177,7 +2184,7 @@ for(model_prob in model_probs){
             }
             fin_predLabelsVSVM_SL_itAL = predict(new_tunedSVM, validateFeatsub)
             accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
-            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"min"))
+            print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
             if(actAcc>best_acc){ 
               best_acc <- actAcc
               best_model <- model_name_AL_VSVMSL
