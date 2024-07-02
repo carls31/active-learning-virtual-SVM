@@ -2065,9 +2065,6 @@ for(model_prob in model_probs){
                 for(rS in 1:length(resampledSize)){
                   for(nS4it in 1:length(newSizes)){
                     print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
-                    
-                    new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
-                    new_trainLabelsVSVM <- best_trainLabelsVSVM
 
                     if(city=="cologne"){ # bind original SV with modified to new train data set
                       if(invariance=="scale"){ # get VSs, means rows of SV but with subset on different level
@@ -2122,11 +2119,13 @@ for(model_prob in model_probs){
                     upd_trainDataCurFeatsub = upd_trainDataCur[,1:(ncol(upd_trainDataCur)-1)]
                     upd_trainDataCurLabels = upd_trainDataCur[,ncol(upd_trainDataCur)]
                     
-                    newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
-                    num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
-                    
+                    new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
+                    new_trainLabelsVSVM <- best_trainLabelsVSVM
                     tmp_new_tunedVSVM <- new_tunedVSVM
                     
+                    newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
+                    num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
+
                     pb <- progress_bar$new(
                       format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
                       total = num_iters,
@@ -2300,16 +2299,6 @@ for(model_prob in model_probs){
             file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         print("accuracy results: acquired.")
       }
-      print(best_bound_oa_SL)
-      print(best_boundMargin_oa_SL)
-      print(best_bound_oa_SL_Un)
-      print(best_boundMargin_oa_SL_Un)
-      print(best_bound_oa_SL_vUn)
-      print(best_boundMargin_oa_SL_vUn)
-      print(best_resample_oa)
-      print(best_newSize_oa)
-      print(best_classSize_oa)
-      print(best_cluster_oa)
       rm(trainDataPoolAllLev,trainDataPoolAllLevMS,trainDataCur,  trainDataCurBeg, trainDataCurMS,trainDataCurBegMS,trainDataCurRemaining,
          testDataAllLev,     testDataAllLevMS,     testDataCurBeg,testDataCurBegMS,testDataCur,   testDataCurMS,validateFeatAllLevMS,validateFeatsub)
       gc()
