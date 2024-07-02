@@ -8,23 +8,23 @@ library(doParallel) # multiple CPU cores
 
 nR = 3                   # realizations
 cities = c("hagadera")    # cologne or hagadera
-invariances = c("shape","scale")   # scale or shape invariance
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
-bound = c(0.55, 0.85)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
+bound = c(0.5, 0.8)           # radius around SV - threshold    # c(0.3, 0.6, 0.9)       
 boundMargin = c(1.5, 1.2)          # distance from hyperplane - threshold   # c(1.5, 1, 0.5)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(6*b,3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(6*b,3*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-classSize = c(12*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(600,min(table(trainDataCurRemaining$REF)))/10)
-clusterSizes = c(8*b,3.1*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+resampledSize = c(3*b,2*b,b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(3*b,2*b,b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+classSize = c(60*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass # round(min(table(trainDataCurRemaining$REF)))
+clusterSizes = c(3*b,2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
  # then CHECK if(model_prob=="binary")
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
 path = '/home/rsrg9/Documents/'
-if(!dir.exists(path)){ path = "D:/" }
+if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
 
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = "Kappa"){ #x = training descriptors, y = class labels
@@ -1336,20 +1336,20 @@ for(model_prob in model_probs){
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
           gc()
           ########################################################################################
+          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/10)
+          validateData = cbind(validateFeatsub,validateLabels)
+          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+          validateData = getdata(validateData, val_stratSamp)
+          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+          validateLabels = validateData[,ncol(validateFeatsub)+1]
+          rm(validateData, val_stratSamp)
+          validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
+          val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
+          validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
+          validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
+          validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
+          rm(validateData_MS,val_stratSamp_MS)
         }
-        lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/10)
-        validateData = cbind(validateFeatsub,validateLabels)
-        val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        validateData = getdata(validateData, val_stratSamp)
-        validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        validateLabels = validateData[,ncol(validateFeatsub)+1]
-        rm(validateData, val_stratSamp)
-        validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
-        val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
-        validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
-        validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
-        validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
-        rm(validateData_MS,val_stratSamp_MS)
       }
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracySVM) = colheader
@@ -2015,7 +2015,8 @@ for(model_prob in model_probs){
           model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
           if(num_cores>=16){
             print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
-            new_tunedSVM <- tunedSVM
+            # new_tunedSVM <- tunedSVM
+            new_tunedSVM <- bestFittingModel
             actAcc = -1e-6
             for(clS in 1:length(classSize)){
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2025,6 +2026,7 @@ for(model_prob in model_probs){
               samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
               trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               
+              # pool_trainDataCur = trainDataCur
               for(cS in 1:length(clusterSizes)){
                 for(rS in 1:length(resampledSize)){
                   for(nS4it in 1:length(newSizes[1])){
@@ -2090,15 +2092,15 @@ for(model_prob in model_probs){
                       if(invariance=="scale"){
                         if(city=="cologne"){ 
                           SVL_variables = list(
-                            list(SVtotal, SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]),
-                            list(SVtotal, SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]),
-                            list(SVtotal, SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL10 = trainDataCur[SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL11 = trainDataCur[SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL2 = pool_trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]),
+                            # list(SVtotal, SVL3 = pool_trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]),
+                            # list(SVtotal, SVL5 = pool_trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL6 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL7 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL8 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL9 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL10 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL11 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]),
                             list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
                             list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
                             list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
@@ -2111,13 +2113,13 @@ for(model_prob in model_probs){
                           )
                         }else{
                           SVL_variables = list(
-                            list(SVtotal, SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]),
-                            list(SVtotal, SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]),
-                            list(SVtotal, SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]),
-                            list(SVtotal, SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL2 = pool_trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]),
+                            # list(SVtotal, SVL3 = pool_trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]),
+                            # list(SVtotal, SVL5 = pool_trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL6 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL7 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL8 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]),
+                            # list(SVtotal, SVL9 = pool_trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]),
                             list(SVtotal_ud, SVL2=(cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud))),
                             list(SVtotal_ud, SVL3=(cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud))),
                             list(SVtotal_ud, SVL5=(cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud))),
@@ -2129,14 +2131,14 @@ for(model_prob in model_probs){
                         }
                       }else{
                         SVL_variables = list(
-                          list(SVtotal, trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]),
-                          list(SVtotal, trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]),
+                          # list(SVtotal, pool_trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]),
                           list(SVtotal_ud, S01C09=(cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud))),
                           list(SVtotal_ud, S03C05=(cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud))),
                           list(SVtotal_ud, S03C07=(cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud))),
@@ -2149,7 +2151,7 @@ for(model_prob in model_probs){
                         
                       }
                       upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                                                 SVL_variables)
+                                                 SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- as.character(upd_SLresult$best_trainLabelsVSVM)

@@ -1,0 +1,18 @@
+OA Execution time: 7.71h
+Realization 1 execution time: 2.25h
+Realization 2 execution time: 2.47h
+Realization 3 execution time: 2.25h
+
+best_bound_oa_SL:  0.5 0.5 0.8
+best_boundMargin_oa_SL:  1.5 1.5 1.5
+best_bound_oa_SL_Un:  0.8 0.8 0.5
+best_boundMargin_oa_SL_Un:  1.5 1.5 1.5
+best_bound_oa_SL_vUn:  0.8 0.8 0.5
+best_boundMargin_oa_SL_vUn:  1.5 1.5 1.5
+best_resample_oa:  60 20 60
+best_newSize_oa:  60 60 60
+best_classSize_oa:  1200 1200 1200
+best_cluster_oa:  60 60 60
+20240702VSVM_hagadera_scale_multiclass_100Size_20Unl.rds: 0.965837642158376
+20240702AL_VSVM+SL_hagadera_scale_multiclass_100Size_20Unl_133seed.rds: 0.961823372118234
+20240702AL_VSVM+SL_hagadera_scale_multiclass_100Size_20Unl_178seed.rds: 0.968991242189912
