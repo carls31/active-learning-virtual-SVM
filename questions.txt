@@ -71,3 +71,4 @@ hagadera multiclass-binary shape-scale
  43. update performance
  44. check if using valid acc instead of test kappa increase performance 
  45. try resampledSize proportional to sampleSizePor
+ 46. BAYESIAN OPTIMIZATION FOR HYPERPARAMETERS TUNING 
