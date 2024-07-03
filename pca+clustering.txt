@@ -1,0 +1,39 @@
+# Perform PCA using prcomp from stats library
+pca_result <- prcomp(ref_added_or[, 1:18], center = TRUE, scale. = TRUE)
+
+# Extract the first two principal components
+pca_data <- data.frame(pca_result$x[, 1:2], Distance = ref_added_or$label)
+colnames(pca_data) <- c("PC1", "PC2", "Distance")
+
+# Plot the first two principal components
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Distance )) +
+  geom_point(size = 3) +
+  labs(title = "PCA of Uncertainty Distance",
+       x = "Principal Component 1",
+       y = "Principal Component 2") +
+  theme_minimal()
+
+********************************************************************************
+
+# Perform PCA using prcomp from stats library
+pca_result <- prcomp(ref_added_or[, 1:18], center = TRUE, scale. = TRUE)
+
+# Extract the first two principal components
+pca_data <- data.frame(pca_result$x[, 1:2])
+colnames(pca_data) <- c("PC1", "PC2")
+
+# Apply k-means clustering to the first two principal components
+set.seed(123)  # Set seed for reproducibility
+km_result <- kmeans(pca_data, centers = cluster, iter.max = 25, nstart = 200)
+
+# Add the cluster assignments to the pca_data dataframe
+pca_data$Cluster <- as.factor(km_result$cluster)
+
+# Plot the first two principal components with k-means clusters
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Cluster)) +
+  geom_point(size = 3) +
+  labs(title = "K-means Clustering on PCA",
+       x = "Principal Component 1",
+       y = "Principal Component 2") +
+  theme_minimal()
+
