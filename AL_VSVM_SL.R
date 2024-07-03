@@ -276,7 +276,7 @@ uncertainty_dist_v2_2 = function(org, samp) {
     # calculate_margin_distance(k)
     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
   }
-  registerDoSEQ()
+  # registerDoSEQ()
   
   scaled_distances <- apply(distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   distance$distance <- scaled_distances
@@ -298,7 +298,7 @@ margin_sampling <- function(org, samp, pred_one, classes=NA) {
     # calculate_margin_distance(k)
     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), classes)
   }
-  registerDoSEQ()
+  # registerDoSEQ()
   
   # Apply "range" normalization to mclp_distances
   scaled_distances <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
@@ -330,7 +330,7 @@ mclu_sampling <- function(org, samp, classes=NA) {
   mclu_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
     calculate_mclu_distance(k)
   }
-  registerDoSEQ()
+  # registerDoSEQ()
   
   mclu_distances <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   uncertainty$distance <- mclu_distances
@@ -360,7 +360,7 @@ mclp_sampling <- function(org, samp) {
   mclp_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
     calculate_mclp_distance(k)
   }
-  registerDoSEQ()
+  # registerDoSEQ()
   # Apply "range" normalization to mclp_distances
   scaled_distances <- apply(mclp_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   
@@ -446,7 +446,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
           setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj], SVMfinModel@kernelf), objInfoNames)
         }
       } # print("step 2")
-      registerDoSEQ() # print("step 3")
+      # registerDoSEQ() # print("step 3")
       
       # remove NAs 
       SVinvarRadi = na.omit(SVinvarRadi)
