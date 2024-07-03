@@ -16,11 +16,11 @@ bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(3*b,2*b,b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(3*b,2*b,b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+resampledSize = c(3*b,2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(3*b,2*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
- # then CHECK if(model_prob=="binary")
+clusterSizes = c(2*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
 path = '/home/rsrg9/Documents/'
@@ -445,11 +445,46 @@ add_new_samples_AL = function(distance_data,
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
   
-  # Perform k-means clustering
-  km_data <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 25, nstart = 200)
+  # Perform PCA using prcomp from stats library
+  pca_result <- prcomp(ref_added_or[, 1:18], center = TRUE, scale. = TRUE)
+
+  # Extract the first two principal components
+  pca_data <- data.frame(pca_result$x[, 1:2])
+  colnames(pca_data) <- c("PC1", "PC2")
+
+  ref_data_with_distance <- cbind(ref_added_or[, 1:18], ref_added_or[, 21])
+  
+  # wss <- (nrow(ref_data_with_distance) - 1) * sum(apply(ref_data_with_distance, 2, var))
+  wss <- sum(kmeans(ref_data_with_distance, centers = 10)$tot.withinss)
+  for (i in 1:30) wss[i+1] <- sum(kmeans(ref_data_with_distance, centers = i+10, iter.max = 15, nstart = 50)$tot.withinss)
+  plot(10:40, wss, type = "b", xlab = "Number of Clusters", ylab = "Within groups sum of squares")
+
+  # Apply k-means clustering 
+  km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+
+  # Add the cluster assignments to the pca_data dataframe
+  pca_data$Cluster <- as.factor(km_result$cluster)
+
+  # # Plot the first two principal components with k-means clusters
+  # ggplot(pca_data, aes(x = PC1, y = PC2, color = Cluster)) +
+  #   geom_point(size = 3) +
+  #   labs(title = "K-means Clustering on PCA",
+  #        x = "Principal Component 1",
+  #        y = "Principal Component 2") +
+  #   theme_minimal()
+  cluster_colors <- rainbow(length(unique(pca_data$Cluster)))
+  # Plotting PC1 vs PC2 with different colors for each cluster
+  plot( pca_data$PC1,ref_added_or[, 21], col = cluster_colors[pca_data$Cluster],
+       pch = 20, cex = 2, main = "K-means Clustering on PCA",
+       xlab = "Principal Component 1", ylab = "Distance")
+  legend("right", legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
+         title = "Cluster",xpd = TRUE, bty = "n")
+  
+  # # Perform k-means clustering
+  # km_result <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 25, nstart = 200)
   
   # Add cluster information to the data
-  ref_added_or$cluster <- km_data$cluster
+  ref_added_or$cluster <- km_result$cluster
   
   # Initialize a vector to store selected sample indices
   selected_indices <- c()
@@ -604,11 +639,11 @@ for(model_prob in model_probs){
   # clusterSizes = c(b)
   }
   if(num_cores<5){ nR=1
-  sampleSizePor = c(20) 
-  resampledSize = c(2*b)
-  newSizes = c(2*b)
+  sampleSizePor = c(20)  
+  resampledSize = c(0.5*b)
+  newSizes = c(0.5*b)
   # classSize = c(100*b)
-  clusterSizes = c(2*b)
+  clusterSizes = c(0.55*b) 
   }
   colheader = as.character(sampleSizePor) # corresponding column names
   
@@ -2054,12 +2089,14 @@ for(model_prob in model_probs){
             new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn_b
             best_model <- model_name_vUn_b
           }
+          
           ###################################### AL_VSVM+SL #######################################
+          
           model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
           if(num_cores>=4){
             print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
             actAcc = -1e-6
-            classSize=c(min(120*b,round(as.numeric(min(table(trainDataCurRemaining$REF))))))
+            classSize=c(min(240*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             for(clS in 1:length(classSize)){
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
               # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2070,8 +2107,8 @@ for(model_prob in model_probs){
               
               for(cS in 1:length(clusterSizes)){
                 for(rS in 1:length(resampledSize)){
-                  for(nS4it in 1:length(newSizes)[1]){
-                    print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[rS]," [",rS,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
+                  for(nS4it in 1:length(newSizes)){
+                    print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
                     upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
@@ -2108,8 +2145,9 @@ for(model_prob in model_probs){
                       # Extract new datasets
                       upd_dataCurFeatsub <- result$features
                       upd_dataCurLabels <- result$labels
-                      # upd_ID_unit <- 
-
+                      # get SV of labeled samples
+                      upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
+                      
                       new_trainFeat <- result$new_trainFeatVSVM
                       new_trainLabels <- result$new_trainLabelsVSVM
                       
@@ -2127,11 +2165,9 @@ for(model_prob in model_probs){
                       SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
                       # **********************
 
-                      REF_ud = predict(tmp_new_tunedSVM, new_trainFeat)
-                      # confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat))$overall["Accuracy"]
-
-                      # get SV of unlabeled samples
-                      upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
+                      # REF_ud = predict(tmp_new_tunedSVM, new_trainFeat)
+                      REF_ud = new_trainLabels
+                      # confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat))
 
                       SVtotal_ud = cbind(new_trainFeat, REF_ud)
 
@@ -2194,12 +2230,13 @@ for(model_prob in model_probs){
                           list(SVtotal_ud, S07C03=(cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud))),
                           list(SVtotal_ud, S09C01=(cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)))
                         )
-                      }
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.3, 0.6, 0.9), boundMargin = c(1.5, 1, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      } #        
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.05, 0.1, 0.3), boundMargin = c(0.5, 0.3, 0.2), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- as.character(upd_SLresult$best_trainLabelsVSVM)
+                      # length(best_trainLabelsVSVM)
                       # length(bestFittingModel$finalModel@SVindex)
                       # length(new_trainLabels)
                       # length(new_trainLabelsVSVM)
@@ -2237,7 +2274,7 @@ for(model_prob in model_probs){
             accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
             print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
             if(actAcc>best_acc){ 
-              best_acc <- actAcc
+              best_acc <- actAcc 
               best_model <- model_name_AL_VSVMSL
             }
             gc()
