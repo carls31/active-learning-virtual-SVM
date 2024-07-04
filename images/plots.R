@@ -1,8 +1,8 @@
 library(scales)
 
-city = "hagadera"
-invariance = "scale"
-class = "multiclass"
+city = "cologne"    # cologne or hagadera
+invariance = "scale"     # scale or shape
+class = "binary"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -27,10 +27,7 @@ file_name_acc = "20240627_1337_cologne_scale_binary_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240628_1251_cologne_scale_multiclass_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240701_2254_hagadera_scale_multiclass_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240702_1012_hagadera_scale_multiclass_acc_20Unl_3nR_8SizePor"
-
-
-
-
+file_name_acc = "20240703_1916_cologne_scale_binary_acc_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -52,17 +49,13 @@ file_name_kappa = "20240627_1337_cologne_scale_binary_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240628_1251_cologne_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240701_2254_hagadera_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240702_1012_hagadera_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
-
-
-
-
-
-
+file_name_kappa = "20240703_1916_cologne_scale_binary_Kappa_20Unl_1nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
 
+# # **********************************************************************************
 # AccuracySVM=AccuracySVM[1,]
 # AccuracySVM_M=AccuracySVM_M[1,]
 # AccuracySVM_SL_Un_b=AccuracySVM_SL_Un_b[1,]
@@ -100,6 +93,7 @@ load(paste0(file_name_kappa,".RData"))
 #      KappaVSVM_SL_vUn_b,
 #      KappaVSVM_SL_Un_it,
 #      file=paste0(file_name_kappa,".RData"))
+# # **********************************************************************************
 
 ExCsvMSD = function (datadase, filename = NA){
   
