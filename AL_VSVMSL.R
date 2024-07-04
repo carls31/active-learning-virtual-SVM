@@ -19,7 +19,7 @@ sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) lab
 resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(60*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(10*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -452,7 +452,7 @@ add_new_samples_AL = function(distance_data,
   pca_data <- data.frame(pca_result$x[, 1:6])
   colnames(pca_data) <- c("PC1", "PC2","PC3", "PC4", "PC5", "PC6")
   
-  ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
+  # ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
   ref_data_with_distance <- cbind(pca_data[, 1:6], ref_added_or[, nFeat+3])
   
   # wss <- (nrow(ref_data_with_distance) - 1) * sum(apply(ref_data_with_distance, 2, var))
@@ -2251,7 +2251,7 @@ for(model_prob in model_probs){
             # fin_predLabelsVSVM_SL_itAL = predict(new_tunedSVM, validateFeatsub)
             # accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
             print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
-
+            
             AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
             if(actAcc>best_acc){ 
@@ -2259,8 +2259,8 @@ for(model_prob in model_probs){
               best_model <- model_name_AL_VSVMSL
             }
           }
-          ########################################## End Realization #########################################
-          gc()
+          ####################################### End Sample Portion ######################################
+          cat("\n\n\n")
           if(realization==2 && sample_size==4){
             saveRDS(tunedSVM, model_name_tunedSVM)
             saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
@@ -2272,6 +2272,7 @@ for(model_prob in model_probs){
             saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
           }
         }
+        gc()
         # Store the overall best hyperparameters 
         best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL)
         best_boundMargin_oa_SL = c(best_boundMargin_oa_SL," ", best_boundMargin_SL)
@@ -2285,6 +2286,7 @@ for(model_prob in model_probs){
         best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric(round(Sys.time() - start.time,2), units = "hours"), 3),"h"),"\n")
+        ########################################## End Realization #########################################
       }
       time.taken_oa <- round(Sys.time() - start.time_oa,2)
       if(length(sampleSizePor)>=8){
