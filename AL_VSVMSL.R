@@ -17,13 +17,12 @@ boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(0.45*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(60*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
-# path = '/home/rsrg9/Documents/'
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -438,7 +437,7 @@ add_new_samples = function(distance_data,
 add_new_samples_AL = function(distance_data,
                               ref, features=NA,ID_unit,
                               new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
-                              newSize=4, cluster=5){
+                              newSize=4, cluster=5, nFeat=numFeat){
   if(cluster<newSize){cluster=round(newSize*1.01)}
   # merge features and original labels
   ref_added = cbind(distance_data, ref)
@@ -450,15 +449,16 @@ add_new_samples_AL = function(distance_data,
   pca_result <- prcomp(ref_added_or[, 1:18], center = TRUE, scale. = TRUE)
   
   # Extract the first two principal components
-  pca_data <- data.frame(pca_result$x[, 1:2])
-  colnames(pca_data) <- c("PC1", "PC2")
+  pca_data <- data.frame(pca_result$x[, 1:6])
+  colnames(pca_data) <- c("PC1", "PC2","PC3", "PC4", "PC5", "PC6")
   
-  ref_data_with_distance <- cbind(ref_added_or[, 1:18], ref_added_or[, 21])
+  ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
+  ref_data_with_distance <- cbind(pca_data[, 1:6], ref_added_or[, nFeat+3])
   
   # wss <- (nrow(ref_data_with_distance) - 1) * sum(apply(ref_data_with_distance, 2, var))
-  # wss <- sum(kmeans(ref_data_with_distance, centers = 10)$tot.withinss)
-  # for (i in 1:30) wss[i+1] <- sum(kmeans(ref_data_with_distance, centers = i+10, iter.max = 15, nstart = 50)$tot.withinss)
-  # plot(10:40, wss, type = "b", xlab = "Number of Clusters", ylab = "Within groups sum of squares")
+  # # wss <- sum(kmeans(ref_data_with_distance, centers = 10)$tot.withinss)
+  # for (i in 1:30) wss[i+1] <- sum(kmeans(ref_data_with_distance, centers = i+1, iter.max = 15, nstart = 50)$tot.withinss)
+  # plot(1:31, wss, type = "b", xlab = "Number of Clusters", ylab = "Within groups sum of squares")
   
   # Apply k-means clustering 
   km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
@@ -467,12 +467,6 @@ add_new_samples_AL = function(distance_data,
   pca_data$Cluster <- as.factor(km_result$cluster)
   
   # # Plot the first two principal components with k-means clusters
-  # ggplot(pca_data, aes(x = PC1, y = PC2, color = Cluster)) +
-  #   geom_point(size = 3) +
-  #   labs(title = "K-means Clustering on PCA",
-  #        x = "Principal Component 1",
-  #        y = "Principal Component 2") +
-  #   theme_minimal()
   # cluster_colors <- rainbow(length(unique(pca_data$Cluster)))
   # # Plotting PC1 vs PC2 with different colors for each cluster
   # plot( pca_data$PC1,ref_added_or[, 21], col = cluster_colors[pca_data$Cluster],
@@ -480,9 +474,9 @@ add_new_samples_AL = function(distance_data,
   #      xlab = "Principal Component 1", ylab = "Distance")
   # legend("right", legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
   #        title = "Cluster",xpd = TRUE, bty = "n")
-  
+
   # # Perform k-means clustering
-  # km_result <- kmeans(ref_added_or[, 1:18], centers = cluster, iter.max = 25, nstart = 200)
+  # km_result <- kmeans(ref_added_or[, 1:nFeat], centers = cluster, iter.max = 25, nstart = 200)
   
   # Add cluster information to the data
   ref_added_or$cluster <- km_result$cluster
@@ -979,7 +973,7 @@ for(model_prob in model_probs){
                           "Lx_s_cb","Lx_s_bl","Lx_s_gr","Lx_s_y","Lx_s_reg","Lx_s_nir2","Lx_s_ndvi","Lx_s_nir","Lx_s_re",
                           "Lx_t_diss","Lx_t_hom","Lx_t_mean",
                           "label")
-        
+        lightC = 3 # lighter validate dataset for running faster prediction 
         if(invariance=="scale"){
           ########################################  Input  ########################################
           inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
@@ -1371,20 +1365,21 @@ for(model_prob in model_probs){
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
           # gc()
           ##################################################################################################################
-          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/10)
-          validateData = cbind(validateFeatsub,validateLabels)
-          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-          validateData = getdata(validateData, val_stratSamp)
-          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-          validateLabels = validateData[,ncol(validateFeatsub)+1]
-          rm(validateData, val_stratSamp)
-          validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
-          val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
-          validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
-          validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
-          validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
-          rm(validateData_MS,val_stratSamp_MS)
+          lightC = 10 # lighter validate dataset for running faster prediction 
         }
+        lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
+        validateData = cbind(validateFeatsub,validateLabels)
+        val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+        validateData = getdata(validateData, val_stratSamp)
+        validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+        validateLabels = validateData[,ncol(validateFeatsub)+1]
+        rm(validateData, val_stratSamp)
+        validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
+        val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
+        validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
+        validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
+        validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
+        rm(validateData_MS,val_stratSamp_MS)
       }
       if(num_cores<=4){ # lighter dataset for training on smaller PC
         lightS=round(as.numeric(c(table(trainDataPoolAllLev$REF)[1],table(trainDataPoolAllLev$REF)[2]))/10)
@@ -1436,14 +1431,6 @@ for(model_prob in model_probs){
       
       AccuracyVSVM_SL_Un_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracyVSVM_SL_Un_it) = colheader
-      # AccuracyVSVM_SL_Un_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(AccuracyVSVM_SL_Un_b_ud) = colheader
-      # AccuracyVSVM_SL_Un_b_ms = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(AccuracyVSVM_SL_Un_b_ms) = colheader
-      # AccuracyVSVM_SL_Un_b_mclu = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(AccuracyVSVM_SL_Un_b_mclu) = colheader
-      # AccuracyVSVM_SL_Un_b_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(AccuracyVSVM_SL_Un_b_mclp) = colheader
       
       # ******** KAPPA SCORE
       KappaSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1465,15 +1452,8 @@ for(model_prob in model_probs){
       
       KappaVSVM_SL_Un_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(KappaVSVM_SL_Un_it) = colheader
-      # KappaVSVM_SL_Un_b_ud = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(KappaVSVM_SL_Un_b_ud) = colheader
-      # KappaVSVM_SL_Un_b_ms = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(KappaVSVM_SL_Un_b_ms) = colheader
-      # KappaVSVM_SL_Un_b_mclu = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(KappaVSVM_SL_Un_b_mclu) = colheader
-      # KappaVSVM_SL_Un_b_mclp = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(KappaVSVM_SL_Un_b_mclp) = colheader
       
+      # ********
       best_bound_oa_SL = c()
       best_boundMargin_oa_SL = c()
       best_bound_oa_SL_Un = c()
@@ -2097,7 +2077,7 @@ for(model_prob in model_probs){
             print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
             actAcc = -1e-6
             classSize=c(min(240*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
-            if(model_prob=="multiclass"){classSize=classSize/3}
+            if(model_prob=="multiclass"&&city=="cologne"){classSize=round(classSize/3)}
             for(clS in 1:length(classSize)){
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
               # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2228,9 +2208,9 @@ for(model_prob in model_probs){
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #         
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.03, 0.1), boundMargin = c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.01, 0.05), boundMargin = c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
-                      tmp_new_tunedSVM <- upd_SLresult$bestFittingModel
+                      tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
                       upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
@@ -2250,11 +2230,11 @@ for(model_prob in model_probs){
                       # tmp_new_tunedSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
 
                       t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
-                      tmp_pred = predict(tmp_new_tunedSVM, validateFeatsub)
+                      tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                       # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
-                      if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
-                        new_tunedSVM = tmp_new_tunedSVM
+                      if(actAcc < tmp_acc$overall["Accuracy"]){ print(paste0("current best accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)))
+                        tmp_new_tunedSVM = tmp_new_tunedSVM2
                         actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                         accVSVM_SL_itAL = tmp_acc
                         best_resample = resampledSize[rS]
@@ -2289,7 +2269,7 @@ for(model_prob in model_probs){
             saveRDS(bestFittingModel, model_name_VSVM_SL)
             saveRDS(bestFittingModelUn_b, model_name_Un_b)
             saveRDS(bestFittingModelvUn_b, model_name_vUn_b)
-            saveRDS(new_tunedSVM, model_name_AL_VSVMSL)
+            saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
           }
         }
         # Store the overall best hyperparameters 
