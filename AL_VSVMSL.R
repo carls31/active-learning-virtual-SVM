@@ -22,7 +22,7 @@ newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked in ea
 clusterSizes = c(0.45*b) # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing  
+num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
 # path = '/home/rsrg9/Documents/'
 path = '/home/data1/Lorenzo'
 if(!dir.exists(path)){path = "D:/"}
@@ -2233,7 +2233,7 @@ for(model_prob in model_probs){
                       tmp_new_tunedSVM <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
-                      upd_dataCur <- upd_dataCur[-c(result$IDunit), ]
+                      upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       # length(best_trainLabelsVSVM)
                       # length(bestFittingModel$finalModel@SVindex)
                       # length(new_trainLabels)
