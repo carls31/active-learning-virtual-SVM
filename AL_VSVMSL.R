@@ -24,7 +24,7 @@ clusterSizes = c(0.45*b) # number of clusters used to pick samples from differen
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
 # path = '/home/rsrg9/Documents/'
-path = '/home/data1/Lorenzo'
+path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
 
