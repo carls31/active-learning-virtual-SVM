@@ -73,3 +73,4 @@ hagadera multiclass-binary shape-scale
  45. try resampledSize proportional to sampleSizePor
  46. BAYESIAN OPTIMIZATION FOR HYPERPARAMETERS TUNING 
  47. check distance from the margin only for samples from the wrong side of the hyperplane
+ 48. check the number of samples before and after AL iterations
