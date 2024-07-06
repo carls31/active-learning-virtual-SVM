@@ -7,9 +7,9 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("hagadera")    # cologne or hagadera
-invariances = c("shape")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+cities = c("hagadera","cologne")    # cologne or hagadera
+invariances = c("shape","scale")   # scale or shape invariance
+model_probs = c("multiclass","binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
@@ -452,8 +452,8 @@ add_new_samples_AL = function(distance_data,
   pca_data <- data.frame(pca_result$x[, 1:6])
   colnames(pca_data) <- c("PC1", "PC2","PC3", "PC4", "PC5", "PC6")
   
-  # ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
-  ref_data_with_distance <- cbind(pca_data[, 1:6], ref_added_or[, nFeat+3])
+  ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
+  # ref_data_with_distance <- cbind(pca_data[, 1:6], ref_added_or[, nFeat+3])
   
   # wss <- (nrow(ref_data_with_distance) - 1) * sum(apply(ref_data_with_distance, 2, var))
   # # wss <- sum(kmeans(ref_data_with_distance, centers = 10)$tot.withinss)
@@ -628,10 +628,10 @@ classificationProblem = function(generalDataPool){
 ########################################  Preprocessing  ########################################
 for(model_prob in model_probs){
   # if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
-  # resampledSize = c(2*b)
-  # newSizes = c(0.4*b)
+  resampledSize = c(2*b)
+  newSizes = c(0.4*b)
   # classSize = c(30*b)
-  # clusterSizes = c(0.45*b)
+  clusterSizes = c(4*b)
   # }
   if(num_cores<5){ nR=1
   sampleSizePor = c(20)  
