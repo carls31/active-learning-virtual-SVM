@@ -627,12 +627,12 @@ classificationProblem = function(generalDataPool){
 }
 ########################################  Preprocessing  ########################################
 for(model_prob in model_probs){
-  # if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
+  if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   resampledSize = c(2*b)
-  newSizes = c(0.4*b)
+  newSizes = c(0.5*b)
   # classSize = c(30*b)
   clusterSizes = c(4*b)
-  # }
+  }
   if(num_cores<5){ nR=1
   sampleSizePor = c(20)  
   resampledSize = c(0.5*b)
