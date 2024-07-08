@@ -16,10 +16,10 @@ bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(4*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(0.8*b,1*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+resampledSize = c(6*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(1,5*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(24*b,36*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(36*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -632,7 +632,7 @@ for(model_prob in model_probs){
   bound = c(0.4, 0.8)          
   boundMargin = c(1.5, 0.5)
   resampledSize = c(2*b)
-  newSizes = c(0.4*b,0.5*b)
+  newSizes = c(0.5*b)
   # classSize = c(30*b)
   clusterSizes = c(2*b)
   }
@@ -743,7 +743,6 @@ for(model_prob in model_probs){
           validateDataAllLev = validateDataAllLev[,1:ncol(validateDataAllLev)-1]
           
           # split Validate data in features and labels and subset on basislevel of first SVM
-          # validateFeatAllLev = validateDataAllLev[,1:(ncol(validateDataAllLev)-1)]
           validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
           validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
           rm(validateDataAllLev)
@@ -781,7 +780,7 @@ for(model_prob in model_probs){
           validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-1)]
           validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
           rm(validateDataAllLevMS)
-          # gc()
+           
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
           #########################################################################################
@@ -852,7 +851,7 @@ for(model_prob in model_probs){
                                         setNames(generalDataPoolOrg_S07C03[,3:22],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
                                         setNames(generalDataPoolOrg_S09C01[,3:22],c(objInfoNames[-length(objInfoNames)],"REF","use" )))
           
-          # gc()
+           
           if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
             generalDataPool_shape=classificationProblem(generalDataPool_shape)
           }
@@ -875,7 +874,7 @@ for(model_prob in model_probs){
           # normalization of  data ("range" scales the data to the interval [0, 1]; c("center", "scale") centers and scales the input data)
           preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
           normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-          # gc()
+           
           # **************************************** data for map visualization ****************************************
           # normalized_data = predict(preProc, setNames(generalDataPool[1:18],objInfoNames[-length(objInfoNames)]))
           # ************************************************************************************************************
@@ -888,7 +887,7 @@ for(model_prob in model_probs){
           normalizedFeatS03C07 = predict(preProc, setNames(normalizedFeat[,(6*numFeat+1):(7*numFeat)],objInfoNames[-length(objInfoNames)]))
           normalizedFeatS03C05 = predict(preProc, setNames(normalizedFeat[,(7*numFeat+1):(8*numFeat)],objInfoNames[-length(objInfoNames)]))
           normalizedFeatS01C09 = predict(preProc, setNames(normalizedFeat[,(8*numFeat+1):(9*numFeat)],objInfoNames[-length(objInfoNames)]))
-          # gc()
+           
           normalizedFeat = cbind(normalizedFeatBase, 
                                  normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
                                  normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09
@@ -917,7 +916,7 @@ for(model_prob in model_probs){
           rm(validateDataAllLev)
           
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
-          # gc()
+           
           ##################################################  MultiLevel ###################################################
           tempnames = 1: ncol(normalizedFeat)
           tempnames = as.character(tempnames)
@@ -963,7 +962,7 @@ for(model_prob in model_probs){
           rm(validateDataAllLevMS)
           
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-          # gc()
+           
           #########################################################################################
         }  
       }else{
@@ -1031,7 +1030,7 @@ for(model_prob in model_probs){
           normalizedFeat7 = predict(preProc, setNames(normalizedFeat[,(5*numFeat+1):(6*numFeat)],objInfoNames[-length(objInfoNames)]))
           normalizedFeat8 = predict(preProc, setNames(normalizedFeat[,(6*numFeat+1):(7*numFeat)],objInfoNames[-length(objInfoNames)]))
           normalizedFeat9 = predict(preProc, setNames(normalizedFeat[,(7*numFeat+1):(8*numFeat)],objInfoNames[-length(objInfoNames)]))
-          # gc()
+           
           normalizedDataPoolAllLev = cbind(normalizedFeat2, normalizedFeat3, normalizedFeatBase,
                                            normalizedFeat5,  normalizedFeat6, normalizedFeat7,  
                                            normalizedFeat8, normalizedFeat9, normalizedLabelUSE
@@ -1059,7 +1058,7 @@ for(model_prob in model_probs){
           
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
-          # gc()
+           
           ################################################## MultiScale ####################################################
           # normalize feature for MultiScale
           nomalizedFeat_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
@@ -1069,16 +1068,16 @@ for(model_prob in model_probs){
           preProc3 = preProcess(nomalizedFeat_MS[,101:150], method = "range")
           preProc4 = preProcess(nomalizedFeat_MS[,151:200], method = "range")
           preProc5 = preProcess(nomalizedFeat_MS[,201:208], method = "range")
-          # gc()
+           
           nomalizedFeat_MS[,1:50]= predict(preProc1, normalizedFeat[,1:50])
           nomalizedFeat_MS[,51:100]= predict(preProc2, normalizedFeat[,51:100])
           nomalizedFeat_MS[,101:150]= predict(preProc3, normalizedFeat[,101:150])
           nomalizedFeat_MS[,151:200]= predict(preProc4, normalizedFeat[,151:200])
           nomalizedFeat_MS[,201:208]= predict(preProc5, normalizedFeat[,201:208])
-          # gc()
+           
           normalizedDataPoolAllLev_MS = cbind( nomalizedFeat_MS, normalizedLabelUSE)
           rm(nomalizedFeat_MS, normalizedLabelUSE)
-          # gc()
+           
           # **************************************** data for map visualization ****************************************
           # normalized_data_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
           # normalized_data_MS[,1:50] = predict(preProc1, generalDataPool[,1:50])
@@ -1108,7 +1107,7 @@ for(model_prob in model_probs){
           
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-          # gc()
+           
           #############################################################################################################
         }else{
           ##################################################  Input  ##################################################
@@ -1144,56 +1143,56 @@ for(model_prob in model_probs){
           generalDataPoolOrg_S03C07 = cbind(generalDataPoolOrg_S03C07[,1:2],generalDataPoolOrg_S03C07[,4:29],generalDataPoolOrg_S03C07[,3],generalDataPoolOrg_S03C07[,30])
           generalDataPoolOrg_S03C05 = cbind(generalDataPoolOrg_S03C05[,1:2],generalDataPoolOrg_S03C05[,4:29],generalDataPoolOrg_S03C05[,3],generalDataPoolOrg_S03C05[,30])
           generalDataPoolOrg_S01C09 = cbind(generalDataPoolOrg_S01C09[,1:2],generalDataPoolOrg_S01C09[,4:29],generalDataPoolOrg_S01C09[,3],generalDataPoolOrg_S01C09[,30])
-          # gc()
+           
           colnames(generalDataPoolOrg_S09C01)[29] <- "REF"
           colnames(generalDataPoolOrg_S09C01)[30] <- "USE"
-          # gc()
+           
           generalDataPoolOrg_S09C01$S9C1T_DISS=as.numeric(generalDataPoolOrg_S09C01$S9C1T_DISS)
           generalDataPoolOrg_S09C01$S9C1T_HOM=as.numeric(generalDataPoolOrg_S09C01$S9C1T_HOM)
           generalDataPoolOrg_S09C01$S9C1T_MEA=as.numeric(generalDataPoolOrg_S09C01$S9C1T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S07C03)[29] <- "REF"
           colnames(generalDataPoolOrg_S07C03)[30] <- "USE"
           generalDataPoolOrg_S07C03$S7C3T_DISS=as.numeric(generalDataPoolOrg_S07C03$S7C3T_DISS)
           generalDataPoolOrg_S07C03$S7C3T_HOM=as.numeric(generalDataPoolOrg_S07C03$S7C3T_HOM)
           generalDataPoolOrg_S07C03$S7C3T_MEA=as.numeric(generalDataPoolOrg_S07C03$S7C3T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S05C07)[29] <- "REF"
           colnames(generalDataPoolOrg_S05C07)[30] <- "USE"
           generalDataPoolOrg_S05C07$S5C7T_DISS=as.numeric(generalDataPoolOrg_S05C07$S5C7T_DISS)
           generalDataPoolOrg_S05C07$S5C7T_HOM=as.numeric(generalDataPoolOrg_S05C07$S5C7T_HO)
           generalDataPoolOrg_S05C07$S5C7T_MEA=as.numeric(generalDataPoolOrg_S05C07$S5C7T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S05C05)[29] <- "REF"
           colnames(generalDataPoolOrg_S05C05)[30] <- "USE"
           generalDataPoolOrg_S05C05$S5C5T_DISS=as.numeric(generalDataPoolOrg_S05C05$S5C5T_DISS)
           generalDataPoolOrg_S05C05$S5C5T_HOM=as.numeric(generalDataPoolOrg_S05C05$S5C5T_HOM)
           generalDataPoolOrg_S05C05$S5C5T_MEA=as.numeric(generalDataPoolOrg_S05C05$S5C5T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S05C03)[29] <- "REF"
           colnames(generalDataPoolOrg_S05C03)[30] <- "USE"
           generalDataPoolOrg_S05C03$S5C3T_DISS=as.numeric(generalDataPoolOrg_S05C03$S5C3T_DISS)
           generalDataPoolOrg_S05C03$S5C3T_HOM=as.numeric(generalDataPoolOrg_S05C03$S5C3T_HOM)
           generalDataPoolOrg_S05C03$S5C3T_MEA=as.numeric(generalDataPoolOrg_S05C03$S5C3T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S03C07)[29] <- "REF"
           colnames(generalDataPoolOrg_S03C07)[30] <- "USE"
           generalDataPoolOrg_S03C07$S3C7T_DISS=as.numeric(generalDataPoolOrg_S03C07$S3C7T_DISS)
           generalDataPoolOrg_S03C07$S3C7T_HOM=as.numeric(generalDataPoolOrg_S03C07$S3C7T_HOM)
           generalDataPoolOrg_S03C07$S3C7T_MEA=as.numeric(generalDataPoolOrg_S03C07$S3C7T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S03C05)[29] <- "REF"
           colnames(generalDataPoolOrg_S03C05)[30] <- "USE"
           generalDataPoolOrg_S03C05$S3C5T_DISS=as.numeric(generalDataPoolOrg_S03C05$S3C5T_DISS)
           generalDataPoolOrg_S03C05$S3C5T_HOM=as.numeric(generalDataPoolOrg_S03C05$S3C5T_HOM)
           generalDataPoolOrg_S03C05$S3C5T_MEA=as.numeric(generalDataPoolOrg_S03C05$S3C5T_MEA)
-          # gc()
+           
           colnames(generalDataPoolOrg_S01C09)[29] <- "REF"
           colnames(generalDataPoolOrg_S01C09)[30] <- "USE"
           generalDataPoolOrg_S01C09$S1C9T_DISS=as.numeric(generalDataPoolOrg_S01C09$S1C9T_DISS)
           generalDataPoolOrg_S01C09$S1C9T_HOM=as.numeric(generalDataPoolOrg_S01C09$S1C9T_HOM)
           generalDataPoolOrg_S01C09$S1C9T_MEA=as.numeric(generalDataPoolOrg_S01C09$S1C9T_MEA)
-          # gc()
+           
           #exclude unclassified and delete level of factor
           generalDataPool_scale = subset(generalDataPool_scale, REF != "unclassified")
           generalDataPool_scale$REF = factor(generalDataPool_scale$REF)
@@ -1223,7 +1222,7 @@ for(model_prob in model_probs){
           generalDataPoolOrg_S01C09$REF <- factor(generalDataPoolOrg_S01C09$REF)
           
           recordCount_shape = nrow(generalDataPoolOrg_S01C09)
-          # gc()
+           
           generalDataPool = rbind(setNames(generalDataPool_scale[,1:28],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
                                   setNames(generalDataPoolOrg_S01C09[,3:30],c(objInfoNames[-length(objInfoNames)],"REF","use" )), 
                                   setNames(generalDataPoolOrg_S03C05[,3:30],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
@@ -1233,20 +1232,20 @@ for(model_prob in model_probs){
                                   setNames(generalDataPoolOrg_S05C07[,3:30],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
                                   setNames(generalDataPoolOrg_S07C03[,3:30],c(objInfoNames[-length(objInfoNames)],"REF","use" )),
                                   setNames(generalDataPoolOrg_S09C01[,3:30],c(objInfoNames[-length(objInfoNames)],"REF","use" )))
-          # gc()
+           
           char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
           generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
           unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
-          # gc()
+           
           if(model_prob=="binary"){ #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
             generalDataPool=classificationProblem(generalDataPool)
           }
           ########################################  Scaling  ########################################
-          # gc()
+           
           normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
           normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):ncol(generalDataPool)]
           rm(generalDataPool)
-          # gc()
+           
           normalizedFeat = cbind(normalizedFeat[1:recordCount_shape,],
                                  normalizedFeat[(recordCount_shape+1):(2*recordCount_shape),],
                                  normalizedFeat[((2*recordCount_shape)+1):(3*recordCount_shape),],
@@ -1260,7 +1259,7 @@ for(model_prob in model_probs){
           
           #normalization of  data ("range" scales the data to the interval [0, 1]; c("center", "scale") centers and scales the input data)
           preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
-          # gc()
+           
           # **************************************** data for map visualization ****************************************
           # normalized_data = predict(preProc, setNames(generalDataPool_scale[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
           # ************************************************************************************************************
@@ -1282,7 +1281,7 @@ for(model_prob in model_probs){
           )
           rm(normalizedFeatBase, normalizedFeatS09C01, normalizedFeatS07C03, normalizedFeatS05C07, normalizedFeatS05C05, 
              normalizedFeatS05C03, normalizedFeatS03C07, normalizedFeatS03C05, normalizedFeatS01C09)
-          # gc()
+           
           generalDataPoolfinal_shape = cbind(normalizedFeat, normalizedLabelUSE)
           
           ############################################# Splitting & Sampling #############################################
@@ -1292,7 +1291,7 @@ for(model_prob in model_probs){
           testDataAllLev = as.data.frame(splitdf[[2]])
           validateDataAllLev = as.data.frame(splitdf[[3]])
           rm(splitdf, generalDataPoolfinal_shape)
-          # gc()
+           
           # remove use indicator in last column
           trainDataPoolAllLev = trainDataPoolAllLev[,1:ncol(trainDataPoolAllLev)-1]
           testDataAllLev = testDataAllLev[,1:ncol(testDataAllLev)-1]
@@ -1302,7 +1301,7 @@ for(model_prob in model_probs){
           validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
           validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
           rm(validateDataAllLev)
-          # gc()
+           
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
           ################################################## MultiScale ####################################################
@@ -1312,7 +1311,7 @@ for(model_prob in model_probs){
           preProc3 = preProcess(nomalizedFeatMS[,101:150], method = "range")
           preProc4 = preProcess(nomalizedFeatMS[,151:200], method = "range")
           preProc5 = preProcess(nomalizedFeatMS[,201:234], method = "range")
-          # gc()
+           
           nomalizedFeatMS[,1:50]= predict(preProc1, normalizedFeat[,1:50])
           nomalizedFeatMS[,51:100]= predict(preProc2, normalizedFeat[,51:100])
           nomalizedFeatMS[,101:150]= predict(preProc3, normalizedFeat[,101:150])
@@ -1321,7 +1320,7 @@ for(model_prob in model_probs){
           normalizedDataPoolAllLev_MS = cbind(nomalizedFeatMS, normalizedLabelUSE)
           rm(nomalizedFeatMS, normalizedLabelUSE
           )
-          # gc()
+           
           # **************************************** data for map visualization ****************************************
           # data_MS = cbind(generalDataPool_scale[,1:26],
           #                 generalDataPoolOrg_S01C09[,3:28], 
@@ -1345,14 +1344,14 @@ for(model_prob in model_probs){
              generalDataPoolOrg_S05C07, generalDataPoolOrg_S05C05, generalDataPoolOrg_S05C03,
              generalDataPoolOrg_S03C07, generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09
           )
-          # gc()
+           
           # Split data in test and train data Multilevel
           splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$use)
           trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
           testDataAllLevMS = as.data.frame(splitdf[[2]])
           validateDataAllLevMS = as.data.frame(splitdf[[3]])
           rm(splitdf, normalizedDataPoolAllLev_MS)
-          # gc()
+           
           # remove "USE" indicator in last column MS
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
           testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
@@ -1366,7 +1365,7 @@ for(model_prob in model_probs){
           rm(validateDataAllLevMS)
           
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-          # gc()
+           
           ##################################################################################################################
           lightC = 10 # lighter validate dataset for running faster prediction 
         }
@@ -1384,37 +1383,7 @@ for(model_prob in model_probs){
         validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
         rm(validateData_MS,val_stratSamp_MS)
       }
-      if(num_cores<=4){ # lighter dataset for training on smaller PC
-        lightS=round(as.numeric(c(table(trainDataPoolAllLev$REF)[1],table(trainDataPoolAllLev$REF)[2]))/10)
-        stratSamp = strata(trainDataPoolAllLev, c("REF"), size = lightS, method = "srswor")
-        trainDataPoolAllLev = getdata(trainDataPoolAllLev, stratSamp)[,1:ncol(trainDataPoolAllLev)]
-        rm(stratSamp)
-        lightS=round(as.numeric(c(table(testDataAllLev$REF)[2],table(testDataAllLev$REF)[1]))/10)
-        stratSamp = strata(testDataAllLev, c("REF"), size = lightS, method = "srswor")
-        testDataAllLev = getdata(testDataAllLev, stratSamp)[,1:ncol(testDataAllLev)]
-        rm(stratSamp)
-        lightS=round(as.numeric(c(table(trainDataPoolAllLevMS$REF)[1],table(trainDataPoolAllLevMS$REF)[2]))/10)
-        stratSamp = strata(trainDataPoolAllLevMS, c("REF"), size = lightS, method = "srswor")
-        trainDataPoolAllLevMS = getdata(trainDataPoolAllLevMS, stratSamp)[,1:ncol(trainDataPoolAllLevMS)]
-        rm(stratSamp)
-        lightS=round(as.numeric(c(table(testDataAllLevMS$REF)[2],table(testDataAllLevMS$REF)[1]))/10)
-        stratSamp = strata(testDataAllLevMS, c("REF"), size = lightS, method = "srswor")
-        testDataAllLevMS = getdata(testDataAllLevMS, stratSamp)[,1:ncol(testDataAllLevMS)]
-        rm(stratSamp)
-        lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2]))/10)
-        validateData = cbind(validateFeatsub,validateLabels)
-        val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        validateData = getdata(validateData, val_stratSamp)
-        validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        validateLabels = validateData[,ncol(validateFeatsub)+1]
-        rm(validateData, val_stratSamp)
-        validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
-        val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
-        validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
-        validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
-        validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
-        rm(validateData_MS,val_stratSamp_MS,preProc)
-      }
+
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracySVM) = colheader
       AccuracySVM_M = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1568,16 +1537,15 @@ for(model_prob in model_probs){
           new_bestTrainLabelsVSVM <- trainLabels 
           best_model <- model_name_tunedSVM
           
-          # ********************************************  
-          # get original SVs of base SVM
+          # get original SVs of base SVM *************************
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
-          # ******************************************** 
+          # ******************************************************
           binaryClassProblem = list()
           for(jj in 1:length(tunedSVM$finalModel@xmatrix)){ # COMPARE EVERY COUPLE COMBINATION OF CLASSES
             binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
           }
-          # ******************************************** 
+          # ******************************************************
           ################################################ SVM MS  #############################################
           model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (file.exists(model_name_tunedSVM_MS) && !train) {
@@ -2060,9 +2028,6 @@ for(model_prob in model_probs){
               best_boundMargin_SLvUn_b = new_best_boundMargin_SLvUn_b
             }
           }
-          # # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
-          # predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
-          # accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
           print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)))
           
           AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
@@ -2110,16 +2075,15 @@ for(model_prob in model_probs){
                     
                     trainStart.time <- Sys.time()
                     for (iter in 1:num_iters){
-                      
-                      # print(paste0("Iteration ",iter,"/",num_iters,"..."))
+                      print(paste0("iteration [",iter,"/",num_iters,"]"))
                       predLabelsVSVM = predict(tmp_new_tunedSVM, upd_dataCurFeatsub)
                       # Add predicted labels to the features data set
                       predLabelsVSVM_unc = cbind(upd_dataCurFeatsub, predLabelsVSVM)
                       predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
-                      # print(paste0("Computing distances..."))
+                      # print(paste0("computing distances..."))
                       if(model_prob=="binary"){sampled_data <- margin_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_one, binaryClassProblem)
                       }else{                   sampled_data <- mclu_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_all, binaryClassProblem) }
-                      # print(paste0("Relabeling samples..."))
+                      # print(paste0("labeling new samples..."))
                       # Get new labels and updated datasets
                       result <- add_new_samples_AL(sampled_data,
                                                    upd_dataCurLabels, upd_dataCurFeatsub, upd_dataCur$ID_unit,
@@ -2133,8 +2097,7 @@ for(model_prob in model_probs){
                       
                       new_trainFeat <- result$new_trainFeatVSVM
                       new_trainLabels <- result$new_trainLabelsVSVM
-                      # confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat))
-                      
+
                       # **********************
                       # get original SVs of base SVM
                       SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
@@ -2154,15 +2117,6 @@ for(model_prob in model_probs){
                       if(invariance=="scale"){
                         if(city=="cologne"){
                           SVL_variables = list(
-                            # list(SVtotal, SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]),
-                            # list(SVtotal, SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]),
-                            # list(SVtotal, SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL10 = trainDataCur[SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL11 = trainDataCur[SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]),
                             list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
                             list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
                             list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
@@ -2175,13 +2129,6 @@ for(model_prob in model_probs){
                           )
                         }else{
                           SVL_variables = list(
-                            # list(SVtotal, SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]),
-                            # list(SVtotal, SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]),
-                            # list(SVtotal, SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]),
-                            # list(SVtotal, SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]),
                             list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
                             list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
                             list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
@@ -2193,14 +2140,6 @@ for(model_prob in model_probs){
                         }
                       }else{
                         SVL_variables = list(
-                          # list(SVtotal, trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]),
-                          # list(SVtotal, trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]),
                           list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
                           list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
                           list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
@@ -2218,16 +2157,6 @@ for(model_prob in model_probs){
                       new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
                       upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       
-                      # new_trainFeatVSVM <- rbind(new_trainFeatVSVM, setNames(new_trainFeat, names))
-                      # new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM, new_trainLabels))
-                      # # Get list with index of trainData to split between train and test in svmFit
-                      # countTrainDataUn = nrow(new_trainFeatVSVM)
-                      # indexTrainDataUn_it = list(c(1:countTrainDataUn))
-                      # # Join of train and test data (seperable in svmFit through indexes)
-                      # tuneFeatVSVMUn_it = rbind(new_trainFeatVSVM, setNames(testFeatsub, names))
-                      # tuneLabelsVSVMUn_it = unlist(list(new_trainLabelsVSVM, testLabels))
-                      # tmp_new_tunedSVM = svmFit(tuneFeatVSVMUn_it, tuneLabelsVSVMUn_it, indexTrainDataUn_it, showPrg = FALSE)
-
                       t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
@@ -2241,14 +2170,12 @@ for(model_prob in model_probs){
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
                         train.time = t.time
-                      }
+                      }else{ print(paste0("discarded accuracy: ",round(tmp_acc$overall["Accuracy"],5))) }
                     }
                   }
                 }
               }
             }
-            # fin_predLabelsVSVM_SL_itAL = predict(new_tunedSVM, validateFeatsub)
-            # accVSVM_SL_itAL  = confusionMatrix(fin_predLabelsVSVM_SL_itAL, validateLabels)
             print(paste0("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec"))
             
             AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
