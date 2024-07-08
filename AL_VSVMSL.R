@@ -6,7 +6,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 2                   # realizations
+nR = 1                   # realizations
 cities = c("hagadera","cologne")    # cologne or hagadera
 invariances = c("shape","scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
@@ -17,9 +17,9 @@ boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(4*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(1*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
+newSizes = c(0.8*b,1*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(24*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(24*b,36*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -450,11 +450,11 @@ add_new_samples_AL = function(distance_data,
   pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
   
   # Extract the first two principal components
-  pca_data <- data.frame(pca_result$x[, 1:6])
-  colnames(pca_data) <- c("PC1", "PC2","PC3", "PC4", "PC5", "PC6")
+  pca_data <- data.frame(pca_result$x[, 1:9])
+  colnames(pca_data) <- c("PC1", "PC2","PC3", "PC4", "PC5", "PC6", "PC7", "PC8", "PC9")
   
-  ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
-  # ref_data_with_distance <- cbind(pca_data[, 1:6], ref_added_or[, nFeat+3])
+  # ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
+  ref_data_with_distance <- cbind(pca_data[, 1:9], ref_added_or[, nFeat+3])
   
   # wss <- (nrow(ref_data_with_distance) - 1) * sum(apply(ref_data_with_distance, 2, var))
   # # wss <- sum(kmeans(ref_data_with_distance, centers = 10)$tot.withinss)
@@ -629,10 +629,12 @@ classificationProblem = function(generalDataPool){
 ########################################  Preprocessing  ########################################
 for(model_prob in model_probs){
   if(model_prob=="binary"){sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
+  bound = c(0.4, 0.8)          
+  boundMargin = c(1.5, 0.5)
   resampledSize = c(2*b)
-  newSizes = c(0.5*b)
+  newSizes = c(0.4*b,0.5*b)
   # classSize = c(30*b)
-  clusterSizes = c(4*b)
+  clusterSizes = c(2*b)
   }
   if(num_cores<5){ nR=1
   sampleSizePor = c(20)  
@@ -2051,15 +2053,16 @@ for(model_prob in model_probs){
             if(new_accVSVM_SL_vUn_b$overall["Accuracy"]>actAcc_vUn){print
               actAcc_vUn <- new_accVSVM_SL_vUn_b$overall["Accuracy"]
               bestFittingModelvUn_b <- new_bestFittingModelvUn_b
+              accVSVM_SL_vUn_b <- new_accVSVM_SL_vUn_b
               best_trainFeatVSVMvUn_b <- new_best_trainFeatVSVMvUn_b
               best_trainLabelsVSVMvUn_b <- new_best_trainLabelsVSVMvUn_b
               best_bound_SLvUn_b = new_best_bound_SLvUn_b
               best_boundMargin_SLvUn_b = new_best_boundMargin_SLvUn_b
             }
           }
-          # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
-          predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
-          accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
+          # # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
+          # predLabelsVSVMvUn_bsum = predict(bestFittingModelvUn_b, validateFeatsub)
+          # accVSVM_SL_vUn_b = confusionMatrix(predLabelsVSVMvUn_bsum, validateLabels)
           print(paste0("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn_b$overall["Accuracy"],5)))
           
           AccuracyVSVM_SL_vUn_b[realization,sample_size] = as.numeric(accVSVM_SL_vUn_b$overall["Accuracy"])
@@ -2077,7 +2080,7 @@ for(model_prob in model_probs){
           if(num_cores>=4){
             print(paste0("computing uncertainty distance for active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]"))
             actAcc = -1e-6
-            classSize=c(min(240*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            classSize=c(min(150*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if(model_prob=="multiclass"&&city=="cologne"){classSize=round(classSize/3)}
             for(clS in 1:length(classSize)){
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2086,10 +2089,9 @@ for(model_prob in model_probs){
               # Get new samples from trainDataCurRemaining
               samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
               # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-              
-              for(cS in 1:length(clusterSizes)){
-                for(rS in 1:length(resampledSize)){
-                  for(nS4it in 1:length(newSizes)){
+              for(nS4it in 1:length(newSizes)){
+                for(cS in 1:length(clusterSizes)){
+                  for(rS in 1:length(resampledSize)){
                     print(paste0("sampled: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | samples/iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool/class: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]"))
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
@@ -2209,7 +2211,7 @@ for(model_prob in model_probs){
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #         
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.01, 0.1), boundMargin = c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.01, 0.1, 0.4), boundMargin = c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
