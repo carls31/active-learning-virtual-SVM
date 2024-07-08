@@ -7,7 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("hagadera","cologne")    # cologne or hagadera
+cities = c("cologne")    # cologne or hagadera
 invariances = c("shape","scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -2158,7 +2158,7 @@ for (model_prob in model_probs) {
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #          = c(1.5, 1, 0.5)
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.4,0.1, 0.01), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.3, 0.01), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
@@ -2238,7 +2238,8 @@ for (model_prob in model_probs) {
             file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
-      cat(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)),"\nlength best_trainLabelsVSVM:",length(best_trainLabelsVSVM),"\nlength bestFittingModel$finalModel@SVindex:", length(bestFittingModel$finalModel@SVindex),"\nlength new_trainLabels:",length(new_trainLabels),"\nlength new_trainLabelsVSVM:",length(new_trainLabelsVSVM),"\n\n\n")
+      print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
+      cat("length best_trainLabelsVSVM:",length(best_trainLabelsVSVM),"\nlength bestFittingModel$finalModel@SVindex:", length(bestFittingModel$finalModel@SVindex),"\nlength new_trainLabels:",length(new_trainLabels),"\nlength new_trainLabelsVSVM:",length(new_trainLabelsVSVM),"\n\n\n")
     }
   }
 }
