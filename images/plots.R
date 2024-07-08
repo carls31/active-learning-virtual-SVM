@@ -1,6 +1,6 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 invariance = "scale"     # scale or shape
 class = "multiclass"     # multiclass or binary
 
@@ -29,6 +29,13 @@ file_name_acc = "20240701_2254_hagadera_scale_multiclass_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240702_1012_hagadera_scale_multiclass_acc_20Unl_3nR_8SizePor"
 file_name_acc = "20240703_1916_cologne_scale_binary_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240704_1551_cologne_scale_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240704_2214_hagadera_scale_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240705_0521_hagadera_shape_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240705_1832_hagadera_shape_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240706_0629_hagadera_shape_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240706_1237_hagadera_scale_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240707_1149_cologne_shape_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240708_1000_cologne_scale_multiclass_acc_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -52,6 +59,13 @@ file_name_kappa = "20240701_2254_hagadera_scale_multiclass_Kappa_20Unl_3nR_8Size
 file_name_kappa = "20240702_1012_hagadera_scale_multiclass_Kappa_20Unl_3nR_8SizePor"
 file_name_kappa = "20240703_1916_cologne_scale_binary_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240704_1551_cologne_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240704_2214_hagadera_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240705_0521_hagadera_shape_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240705_1832_hagadera_shape_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240706_0629_hagadera_shape_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240706_1237_hagadera_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240707_1149_cologne_shape_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240708_1000_cologne_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -129,12 +143,12 @@ setwd(paste0(path,"images/",city))
 if(class == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.96
-      ylowerBound = 0.755
+      yUpperBound = 0.97
+      ylowerBound = 0.775
     }
     if(invariance=="shape"){
-      yUpperBound = 0.80
-      ylowerBound = 0.445
+      yUpperBound = 0.97
+      ylowerBound = 0.80
       }
   }
   if(city=="cologne"){
@@ -336,12 +350,12 @@ dev.off()
 if(class == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.94
-      ylowerBound = 0.675
+      yUpperBound = 0.955
+      ylowerBound = 0.695
     }
     if(invariance=="shape"){
-      yUpperBound = 0.715
-      ylowerBound = 0.405
+      yUpperBound = 0.955
+      ylowerBound = 0.715
     }
   }
   if(city=="cologne"){
