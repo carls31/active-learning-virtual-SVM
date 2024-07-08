@@ -6,7 +6,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 1                   # realizations
+nR = 2                   # realizations
 cities = c("hagadera","cologne")    # cologne or hagadera
 invariances = c("shape","scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
@@ -19,7 +19,7 @@ sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) lab
 resampledSize = c(4*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(1*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(24*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -76,7 +76,8 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = 
   return(svmFitNarrow)  
 }
 # ***********************************
-
+# rem_extrem(variable[[1]], variable[[2]], bound[jj])
+# rem_extrem(org= SVtotal_ud, VSV1=S01C09, a=0.7)
 # Evaluate the distance between Virtual Support Vectors and Support Vectors lying in the input space
 rem_extrem = function(org, VSV1, a=0.7){
   # Euclidean Distance between two points lying in the input space
@@ -122,7 +123,7 @@ rem_extrem = function(org, VSV1, a=0.7){
     disClass2median = mean(distanceSVC2)
     boundClass2 = disClass2median*a
   }
-  distance$X1 = factor(distance$X1)
+  distance$X1 = factor(distance$X1,levels=levels(org$"REF"))
   # Iterate over the distance vector and substitute in VSV1 the samples which overstep the threshold
   for(k in seq(nrow(org))){
     if(is.na(distance[k,2])){
@@ -514,9 +515,9 @@ add_new_samples_AL = function(distance_data,
     return(ref_added_reor[, (ncol(ref_added_reor)-4)])
   } 
 }   
-# self_learn(testFeatsub, testLabels, bound, boundMargin, model_name=model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-#            SVL_variables = list(list(SVtotal, trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]))
-#            )
+
+# upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.01, 0.1), boundMargin = c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+#                            SVL_variables, tmp_new_tunedSVM$finalModel)
 # upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
 #                            SVL_variables=list(list(SVtotal_ud, S01C09=(cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)))))
 self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVtotal, objInfoNames, rem_extrem, rem_extrem_kerneldist, SVL_variables, SVMfinModel=tunedSVM$finalModel, train=TRUE, classProb = FALSE)
@@ -2214,10 +2215,6 @@ for(model_prob in model_probs){
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
                       upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
-                      # length(best_trainLabelsVSVM)
-                      # length(bestFittingModel$finalModel@SVindex)
-                      # length(new_trainLabels)
-                      # length(new_trainLabelsVSVM)
                       
                       # new_trainFeatVSVM <- rbind(new_trainFeatVSVM, setNames(new_trainFeat, names))
                       # new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM, new_trainLabels))
@@ -2305,6 +2302,7 @@ for(model_prob in model_probs){
             file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         print("accuracy results: acquired.")
       }
+      cat("",confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)),"\nlength best_trainLabelsVSVM:",length(best_trainLabelsVSVM),"\nlength bestFittingModel$finalModel@SVindex:", length(bestFittingModel$finalModel@SVindex),"\nlength new_trainLabels:",length(new_trainLabels),"\nlength new_trainLabelsVSVM:",length(new_trainLabelsVSVM),"\n\n\n")
     }
   }
 }
