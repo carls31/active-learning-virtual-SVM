@@ -1,8 +1,8 @@
 library(scales)
 
-city = "hagadera"    # cologne or hagadera
+city = "cologne"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-class = "multiclass"     # multiclass or binary
+class = "binary"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -36,6 +36,8 @@ file_name_acc = "20240706_0629_hagadera_shape_multiclass_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240706_1237_hagadera_scale_multiclass_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240707_1149_cologne_shape_multiclass_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240708_1000_cologne_scale_multiclass_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240709_0142_cologne_shape_binary_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240709_0403_cologne_scale_binary_acc_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -66,6 +68,8 @@ file_name_kappa = "20240706_0629_hagadera_shape_multiclass_Kappa_20Unl_1nR_8Size
 file_name_kappa = "20240706_1237_hagadera_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240707_1149_cologne_shape_multiclass_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240708_1000_cologne_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240709_0142_cologne_shape_binary_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240709_0403_cologne_scale_binary_Kappa_20Unl_1nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -174,12 +178,12 @@ if(class == "binary"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.935
-      ylowerBound = 0.80
+      yUpperBound = 0.95
+      ylowerBound = 0.78
     }
     if(invariance=="shape"){
-      yUpperBound = 0.94
-      ylowerBound = 0.80
+      yUpperBound = 0.941
+      ylowerBound = 0.79
     }
   }
 }
@@ -382,11 +386,11 @@ if(class == "binary"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.82
-      ylowerBound = 0.48
+      yUpperBound = 0.827
+      ylowerBound = 0.46
     }
     if(invariance=="shape"){
-      yUpperBound = 0.82
+      yUpperBound = 0.825
       ylowerBound = 0.42
     }
   }
