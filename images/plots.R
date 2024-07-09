@@ -1,6 +1,6 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 invariance = "scale"     # scale or shape
 class = "binary"     # multiclass or binary
 
@@ -38,6 +38,7 @@ file_name_acc = "20240707_1149_cologne_shape_multiclass_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240708_1000_cologne_scale_multiclass_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240709_0142_cologne_shape_binary_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240709_0403_cologne_scale_binary_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240709_1058_hagadera_scale_binary_acc_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -70,6 +71,7 @@ file_name_kappa = "20240707_1149_cologne_shape_multiclass_Kappa_20Unl_1nR_8SizeP
 file_name_kappa = "20240708_1000_cologne_scale_multiclass_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240709_0142_cologne_shape_binary_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240709_0403_cologne_scale_binary_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240709_1058_hagadera_scale_binary_Kappa_20Unl_1nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -169,7 +171,7 @@ if(class == "multiclass"){
 if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.975
+      yUpperBound = 0.985
       ylowerBound = 0.67
     }else{
       yUpperBound = 0.975
@@ -376,7 +378,7 @@ if(class == "multiclass"){
 if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.95
+      yUpperBound = 0.96
       ylowerBound = 0.40
     }
     if(invariance=="shape"){
