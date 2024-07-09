@@ -7,8 +7,8 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("cologne")    # cologne or hagadera
-invariances = c("shape","scale")   # scale or shape invariance
+cities = c("hagadera")    # cologne or hagadera
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples for each class
@@ -529,7 +529,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
                 actKappa = actKappa))
   } else {
     actKappa = -1e-6
-    cat("applying constraints to VSVs candidates...\n")
+    cat("applying constraints to VSVs candidates\n")
     # iteration over bound to test different bound thresholds determining the radius of acception
     for(jj in seq(along=bound)){
       
@@ -640,7 +640,7 @@ for (model_prob in model_probs) {
   # bound = c(0.3, 0.9)          
   # boundMargin = c(1.5, 0.5)
   resampledSize = c(2*b)
-  newSizes = c(0.4*b,0.5*b)
+  newSizes = c(0.4*b)
   # classSize = c(30*b)
   clusterSizes = c(0.8*b,2*b)
   }
@@ -1524,7 +1524,7 @@ for (model_prob in model_probs) {
           setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
           
           cat("training SVM\n")
-          model_name_tunedSVM = paste0(format(Sys.time(),"%Y%m%d"),"SVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          model_name_tunedSVM = paste0(format(Sys.time(),"%Y%m%d"),"SVM_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (file.exists(model_name_tunedSVM) && !train) {
             tunedSVM <- readRDS(model_name_tunedSVM)
             cat("Luckily, model already exists!")
@@ -1555,7 +1555,7 @@ for (model_prob in model_probs) {
           }
           # ******************************************************
           ################################################ SVM MS  #############################################
-          model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (file.exists(model_name_tunedSVM_MS) && !train) {
             tunedSVM_MS <- readRDS(model_name_tunedSVM_MS)
             cat("Luckily, model already exists!")
@@ -1614,7 +1614,7 @@ for (model_prob in model_probs) {
           SVtotalSVMUn_b = cbind(SVtotalSVMUn_b, REFSVM_b)
           
           cat("evaluation of SVM with self learning and semi-labeled samples\n")
-          model_name_SVMUn_b = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          model_name_SVMUn_b = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_b_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (invariance=="scale") {
             if (city=="cologne") {# get VSs, means rows of SV but with subset on different level
               SVL_variables = list( 
@@ -1753,7 +1753,7 @@ for (model_prob in model_probs) {
           tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
           tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
           
-          model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          model_name_tunedVSVM = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (file.exists(model_name_tunedVSVM) && !train) {
             tunedVSVM <- readRDS(model_name_tunedVSVM)
             cat("Luckily, model already exists!")
@@ -1777,7 +1777,7 @@ for (model_prob in model_probs) {
           } 
           ################################################ VSVM-SL ################################################
           cat("evaluation of VSVM with self learning\n")
-          model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (invariance=="scale") {
             if (city=="cologne") { 
               SVL_variables = list(
@@ -1857,7 +1857,7 @@ for (model_prob in model_probs) {
             totalUn_b = cbind(totalUn_b, REF_b)
             
             cat("evaluation of VSVM SL with ",b[bb]," semi-labeled samples [",bb,"/",length(b),"]","\n",sep="")
-            model_name_Un_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
+            model_name_Un_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_b_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
             if (invariance=="scale") {
               if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
                 SVL_variables = list(
@@ -1954,7 +1954,7 @@ for (model_prob in model_probs) {
             SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
             
             cat("evaluation of VSVM SL with ",b[bb]," virtual semi-labeled samples [",bb,"/",length(b),"]","\n",sep="")
-            model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
+            model_name_vUn_b = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_b_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
             if (invariance=="scale") {
               if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
                 SVL_variables = list(
@@ -2049,7 +2049,7 @@ for (model_prob in model_probs) {
           }
           ###################################### AL_VSVM+SL #######################################
           
-          model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
+          model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
           if (num_cores>=4) {
             cat("computing uncertainty distance for active learning procedure [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]","\n",sep="")
             actAcc = -1e-6
@@ -2158,7 +2158,7 @@ for (model_prob in model_probs) {
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #          = c(1.5, 1, 0.5)
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.3, 0.01), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.6, 0.3, 0.01), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
@@ -2225,9 +2225,9 @@ for (model_prob in model_probs) {
       if (length(sampleSizePor)>=8) {
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
         save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un_b,AccuracyVSVM,AccuracyVSVM_SL,AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_Un_it,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_prob,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",invariance,"_",city,"_",model_prob,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un_b,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un_b,KappaVSVM_SL_vUn_b,KappaVSVM_SL_Un_it,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",invariance,"_",model_prob,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             "\nbest_bound_oa_SL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL: ", best_boundMargin_oa_SL,
             "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
@@ -2235,7 +2235,7 @@ for (model_prob in model_probs) {
             "\nbest_resample_oa: ", best_resample_oa,        "\nbest_newSize_oa: ", best_newSize_oa,
             "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
             "\n",best_model_oa, sep = "",
-            file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",invariance,"_",model_prob,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
+            file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
