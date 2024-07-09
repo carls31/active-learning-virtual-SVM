@@ -7,19 +7,19 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("hagadera")    # cologne or hagadera
-invariances = c("scale")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+cities = c("hagadera","cologne")    # cologne or hagadera
+invariances = c("shape","scale")   # scale or shape invariance
+model_probs = c("multiclass","binary")  # multiclass or binary problem
 
-b = c(20)           # Size of balanced_unlabeled_samples for each class
+b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
-boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
+boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(6*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(1.2*b,1.5*b) # = resampledSize[rS]       # number of samples picked in each Active Learning iteration # 4, 5, 10, 20, resampledSize
-# classSize = c(100*b) #1200 # number of samples for each class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(10*b,36*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+newSizes = c(1.2*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
+# classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
+clusterSizes = c(6.25*b,36*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -199,7 +199,7 @@ rem_extrem_kerneldist = function(org, VSV1, a=0.7, kernel_func=tunedSVM$finalMod
       boundClass[[f]] = disClass1mean*a
     }
   }
-  distance$X1 = factor(distance$X1)
+  distance$X1 = factor(distance$X1,levels=levels(org$"REF"))
   
   for(k in seq(nrow(org))){
     # tmp_cond <- FALSE
@@ -451,7 +451,7 @@ add_new_samples_AL = function(distance_data,
   
   # Extract the first two principal components
   pca_data <- data.frame(pca_result$x[, 1:9])
-  colnames(pca_data) <- c("PC1", "PC2","PC3", "PC4", "PC5", "PC6", "PC7", "PC8", "PC9")
+  colnames(pca_data) <- c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7", "PC8", "PC9")
   
   # ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], ref_added_or[, nFeat+3])
   ref_data_with_distance <- cbind(pca_data[, 1:9], ref_added_or[, nFeat+3])
@@ -638,7 +638,7 @@ classificationProblem = function(generalDataPool){
 for (model_prob in model_probs) {
   if (model_prob=="binary") { sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   # bound = c(0.3, 0.9)          
-  # boundMargin = c(1.5, 0.5)
+  # boundMargin = c(1.5, 1, 0.5)
   resampledSize = c(2*b)
   newSizes = c(0.4*b)
   # classSize = c(30*b)
@@ -983,7 +983,7 @@ for (model_prob in model_probs) {
                           "Lx_s_cb","Lx_s_bl","Lx_s_gr","Lx_s_y","Lx_s_reg","Lx_s_nir2","Lx_s_ndvi","Lx_s_nir","Lx_s_re",
                           "Lx_t_diss","Lx_t_hom","Lx_t_mean",
                           "label")
-        lightC = 3 # lighter validate dataset for running faster prediction 
+        lightC = 2 # lighter validate dataset for running faster prediction 
         if (invariance=="scale") {
           ########################################  Input  ########################################
           inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
@@ -1375,7 +1375,7 @@ for (model_prob in model_probs) {
           trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
            
           ##################################################################################################################
-          lightC = 10 # lighter validate dataset for running faster prediction 
+          # lightC = 10 # lighter validate dataset for running faster prediction
         }
         lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
         validateData = cbind(validateFeatsub,validateLabels)
@@ -2054,7 +2054,7 @@ for (model_prob in model_probs) {
             cat("computing uncertainty distance for active learning procedure [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]","\n",sep="")
             actAcc = -1e-6
             classSize=c(min(150*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
-            if (model_prob=="multiclass"&&city=="cologne") {classSize=round(classSize/3)}
+            if (model_prob=="multiclass") {classSize=round(classSize/3)}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
               # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2158,7 +2158,7 @@ for (model_prob in model_probs) {
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #          = c(1.5, 1, 0.5)
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.6, 0.3, 0.01), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.8, 0.3, 0.01), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
