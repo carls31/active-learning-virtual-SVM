@@ -76,3 +76,4 @@ hagadera multiclass-binary shape-scale
  48. check the number of samples before and after AL iterations
  49. check SVM+AL again
  50. increase size of the test set
+ 51. progressive AL hyperparameters wrt sampleSizePor
