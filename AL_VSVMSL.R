@@ -16,10 +16,10 @@ bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(0.6*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
+resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(6*b,48*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(0.6*b,6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -473,7 +473,7 @@ add_new_samples_AL = function(distance_data,
   # par(mar = c(5, 4, 4, 8), xpd = TRUE)
   # # Plotting PC1 vs PC2 with different colors for each cluster
   # plot( pca_data$PC1,ref_added_or[, 21], col = cluster_colors[pca_data$Cluster],
-  #      pch = 20, cex = 2, main = "K-means Clustering on PCA",
+  #      pch = 20, cex = 2, main = "K-means Clustering on PCA + distance",
   #      xlab = "Principal Component 1", ylab = "Distance")
   # # legend("right", legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
   # #        title = "Cluster",xpd = TRUE, bty = "n")
@@ -644,7 +644,7 @@ for (model_prob in model_probs) {
   if (model_prob=="binary") { sampleSizePor = c(2,5,10,20,35,53,75,100) # c(100,75,53,35,20,10,5,2)
   # bound = c(0.3, 0.9)          
   # boundMargin = c(1.5, 1, 0.5)
-  resampledSize = c(2*b)
+  # resampledSize = c(2*b)
   newSizes = c(0.4*b)
   # classSize = c(30*b)
   clusterSizes = c(0.8*b,2*b)
