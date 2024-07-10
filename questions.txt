@@ -87,3 +87,5 @@ benchmark with AL VSVM SL random
 	           AL VSVM SL uncertainty distance
 	           AL VSVM SL self-learning constraints
 add semi-labeled samples after each iteration of AL
+  
+  53. check for strange behaviour in the accuracies results (e.g. SVM multilevel, general upside-down of the accuracy of the model [some go up while the others go down])
