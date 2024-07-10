@@ -434,7 +434,7 @@ add_new_samples = function(distance_data,
 #                    ref=upd_dataCurLabels, features=upd_dataCurFeatsub, ID_unit=upd_dataCur$ID_unit,
 #                    new_trainFeatVSVM, new_trainLabelsVSVM,
 #                    newSize=newSize_for_iter,
-#                    cluster=clusterSizes[cS] )
+#                    cluster=clusterSizes[cS], nFeat=numFeat )
 add_new_samples_AL = function(distance_data,
                               ref, features=NA,ID_unit,
                               new_trainFeatVSVM=NA, new_trainLabelsVSVM=NA,
@@ -469,12 +469,17 @@ add_new_samples_AL = function(distance_data,
   
   # # Plot the first two principal components with k-means clusters
   # cluster_colors <- rainbow(length(unique(pca_data$Cluster)))
+  # # Set up plotting area with more space on the right for the legend
+  # par(mar = c(5, 4, 4, 8), xpd = TRUE)
   # # Plotting PC1 vs PC2 with different colors for each cluster
   # plot( pca_data$PC1,ref_added_or[, 21], col = cluster_colors[pca_data$Cluster],
   #      pch = 20, cex = 2, main = "K-means Clustering on PCA",
   #      xlab = "Principal Component 1", ylab = "Distance")
-  # legend("right", legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
-  #        title = "Cluster",xpd = TRUE, bty = "n")
+  # # legend("right", legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
+  # #        title = "Cluster",xpd = TRUE, bty = "n")
+  # # Adding the legend outside the plot
+  # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
+  #        title = "Cluster", bty = "n")
 
   # # Perform k-means clustering
   # km_result <- kmeans(ref_added_or[, 1:nFeat], centers = cluster, iter.max = 25, nstart = 200)
