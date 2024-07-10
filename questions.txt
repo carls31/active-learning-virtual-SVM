@@ -78,3 +78,12 @@ hagadera multiclass-binary shape-scale
  50. increase size of the test set
  51. progressive AL hyperparameters wrt sampleSizePor
  52. AL on VSVs from SL
+
+pseudo code of VSVM SL vUN
+	           AL VSVM SL 1
+	           AL VSVM SL 2
+	           AL VSVM SL 3
+benchmark with AL VSVM SL random
+	           AL VSVM SL uncertainty distance
+	           AL VSVM SL self-learning constraints
+add semi-labeled samples after each iteration of AL
