@@ -1,8 +1,8 @@
 library(scales)
 
 city = "cologne"    # cologne or hagadera
-invariance = "shape"     # scale or shape
-class = "multiclass"     # multiclass or binary
+invariance = "scale"     # scale or shape
+class = "binary"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -48,8 +48,10 @@ file_name_acc = "20240710_hagadera_binary_scale_acc_20Unl_11nR_8SizePor"
 file_name_acc = "20240710_cologne_multiclass_scale_acc_20Unl_8nR_8SizePor"
 file_name_acc = "20240710_cologne_binary_scale_acc_20Unl_5nR_8SizePor"
 file_name_acc = "20240710_cologne_multiclass_shape_acc_20Unl_4nR_8SizePor"
-# file_name_acc = "20240710_1153_cologne_binary_shape_acc_20Unl_1nR_8SizePor"
-# file_name_acc = "20240710_cologne_binary_shape_acc_20Unl_6nR_8SizePor"
+file_name_acc = "20240710_1153_cologne_binary_shape_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240710_cologne_binary_shape_acc_20Unl_6nR_8SizePor"
+file_name_acc = "20240710_1347_cologne_binary_scale_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240710_cologne_binary_scale_acc_20Unl_6nR_8SizePor"
 
 
 # ********************************************************************
@@ -92,8 +94,10 @@ file_name_kappa = "20240710_hagadera_binary_scale_Kappa_20Unl_11nR_8SizePor"
 file_name_kappa = "20240710_cologne_multiclass_scale_Kappa_20Unl_8nR_8SizePor"
 file_name_kappa = "20240710_cologne_binary_scale_Kappa_20Unl_5nR_8SizePor"
 file_name_kappa = "20240710_cologne_multiclass_shape_Kappa_20Unl_4nR_8SizePor"
-# file_name_kappa = "20240710_1153_cologne_binary_shape_Kappa_20Unl_1nR_8SizePor"
-# file_name_kappa = "20240710_cologne_binary_shape_Kappa_20Unl_6nR_8SizePor"
+file_name_kappa = "20240710_1153_cologne_binary_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240710_cologne_binary_shape_Kappa_20Unl_6nR_8SizePor"
+file_name_kappa = "20240710_1347_cologne_binary_scale_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240710_cologne_binary_scale_Kappa_20Unl_6nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -154,8 +158,8 @@ load(paste0(file_name_kappa,".RData"))
 # KappaVSVM_SL_vUn_b=tmp_KappaVSVM_SL_vUn_b
 # KappaVSVM_SL_Un_it=tmp_KappaVSVM_SL_Un_it
 # 
-# file_name_acc = "20240710_cologne_binary_shape_acc_20Unl_6nR_8SizePor"
-# file_name_kappa = "20240710_cologne_binary_shape_Kappa_20Unl_6nR_8SizePor"
+# file_name_acc = "20240710_cologne_binary_scale_acc_20Unl_6nR_8SizePor"
+# file_name_kappa = "20240710_cologne_binary_scale_Kappa_20Unl_6nR_8SizePor"
 
 # # **********************************************************************************
 # AccuracySVM=AccuracySVM[1,]
