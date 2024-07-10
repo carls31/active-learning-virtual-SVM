@@ -9,7 +9,7 @@ library(doParallel) # multiple CPU cores
 nR = 1                   # realizations
 cities = c("cologne")    # cologne or hagadera
 invariances = c("shape","scale")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
@@ -2201,7 +2201,7 @@ for (model_prob in model_probs) {
           }
           cat("\n") ############################ End Sample Portion ######################################
           
-          if (realization==2 && sample_size==4) {
+          if (realization==1 && sample_size==4) {
             saveRDS(tunedSVM, model_name_tunedSVM)
             saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
             saveRDS(bestFittingModelSVMUn_b, model_name_SVMUn_b)
