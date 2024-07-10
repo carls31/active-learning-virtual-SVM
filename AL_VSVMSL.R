@@ -7,7 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("hagadera","cologne")    # cologne or hagadera
+cities = c("cologne")    # cologne or hagadera
 invariances = c("shape","scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -656,7 +656,7 @@ for (model_prob in model_probs) {
     for (city in cities) {
       
       start.time_oa <- Sys.time()
-      cat("preprocessing ",city," ",model_prob," ",invariance," | [",city,"/",length(cities),"] | [",model_prob,"/",length(model_probs),"] | [",invariance,"/",length(invariances),"]\n",sep="")
+      cat("preprocessing",city,model_prob,invariance)
       
       if (city=="cologne") {
         
@@ -1377,19 +1377,20 @@ for (model_prob in model_probs) {
           ##################################################################################################################
           lightC = 4 # lighter validate dataset for running faster prediction
         }
-        lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
-        validateData = cbind(validateFeatsub,validateLabels)
-        val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        validateData = getdata(validateData, val_stratSamp)
-        validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        validateLabels = validateData[,ncol(validateFeatsub)+1]
-        rm(validateData, val_stratSamp)
-        validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
-        val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
-        validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
-        validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
-        validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
-        rm(validateData_MS,val_stratSamp_MS)
+        if (model_prob=="multiclass") { 
+          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
+          validateData = cbind(validateFeatsub,validateLabels)
+          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+          validateData = getdata(validateData, val_stratSamp)
+          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+          validateLabels = validateData[,ncol(validateFeatsub)+1]
+          rm(validateData, val_stratSamp)
+          validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
+          val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
+          validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
+          validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
+          validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
+          rm(validateData_MS,val_stratSamp_MS) }
       }
 
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
