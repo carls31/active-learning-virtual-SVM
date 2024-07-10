@@ -1,8 +1,8 @@
 library(scales)
 
-city = "hagadera"    # cologne or hagadera
-invariance = "scale"     # scale or shape
-class = "binary"     # multiclass or binary
+city = "cologne"    # cologne or hagadera
+invariance = "shape"     # scale or shape
+class = "multiclass"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -39,6 +39,17 @@ file_name_acc = "20240708_1000_cologne_scale_multiclass_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240709_0142_cologne_shape_binary_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240709_0403_cologne_scale_binary_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240709_1058_hagadera_scale_binary_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240710_0330_cologne_binary_shape_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240710_0028_hagadera_binary_shape_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240710_hagadera_binary_shape_acc_20Unl_2nR_8SizePor"
+file_name_acc = "20240710_hagadera_multiclass_shape_acc_20Unl_3nR_8SizePor"
+file_name_acc = "20240710_hagadera_multiclass_scale_acc_20Unl_2nR_8SizePor"
+file_name_acc = "20240710_hagadera_binary_scale_acc_20Unl_11nR_8SizePor"
+file_name_acc = "20240710_cologne_multiclass_scale_acc_20Unl_8nR_8SizePor"
+file_name_acc = "20240710_cologne_binary_scale_acc_20Unl_5nR_8SizePor"
+file_name_acc = "20240710_cologne_multiclass_shape_acc_20Unl_4nR_8SizePor"
+# file_name_acc = "20240710_1153_cologne_binary_shape_acc_20Unl_1nR_8SizePor"
+# file_name_acc = "20240710_cologne_binary_shape_acc_20Unl_6nR_8SizePor"
 
 
 # ********************************************************************
@@ -72,10 +83,79 @@ file_name_kappa = "20240708_1000_cologne_scale_multiclass_Kappa_20Unl_1nR_8SizeP
 file_name_kappa = "20240709_0142_cologne_shape_binary_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240709_0403_cologne_scale_binary_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240709_1058_hagadera_scale_binary_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240710_0330_cologne_binary_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240710_0028_hagadera_binary_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240710_hagadera_binary_shape_Kappa_20Unl_2nR_8SizePor"
+file_name_kappa = "20240710_hagadera_multiclass_shape_Kappa_20Unl_3nR_8SizePor"
+file_name_kappa = "20240710_hagadera_multiclass_scale_Kappa_20Unl_2nR_8SizePor"
+file_name_kappa = "20240710_hagadera_binary_scale_Kappa_20Unl_11nR_8SizePor"
+file_name_kappa = "20240710_cologne_multiclass_scale_Kappa_20Unl_8nR_8SizePor"
+file_name_kappa = "20240710_cologne_binary_scale_Kappa_20Unl_5nR_8SizePor"
+file_name_kappa = "20240710_cologne_multiclass_shape_Kappa_20Unl_4nR_8SizePor"
+# file_name_kappa = "20240710_1153_cologne_binary_shape_Kappa_20Unl_1nR_8SizePor"
+# file_name_kappa = "20240710_cologne_binary_shape_Kappa_20Unl_6nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
+
+# # **********************************************************************************
+# tmp_AccuracySVM = AccuracySVM
+# tmp_AccuracySVM_M = AccuracySVM_M
+# tmp_AccuracySVM_SL_Un_b = AccuracySVM_SL_Un_b
+# tmp_AccuracyVSVM = AccuracyVSVM
+# tmp_AccuracyVSVM_SL = AccuracyVSVM_SL
+# tmp_AccuracyVSVM_SL_Un_b = AccuracyVSVM_SL_Un_b
+# tmp_AccuracyVSVM_SL_vUn_b = AccuracyVSVM_SL_vUn_b
+# tmp_AccuracyVSVM_SL_Un_it = AccuracyVSVM_SL_Un_it
+# 
+# tmp_KappaSVM = KappaSVM
+# tmp_KappaSVM_M = KappaSVM_M
+# tmp_KappaSVM_SL_Un_b = KappaSVM_SL_Un_b
+# tmp_KappaVSVM = KappaVSVM
+# tmp_KappaVSVM_SL = KappaVSVM_SL
+# tmp_KappaVSVM_SL_Un_b = KappaVSVM_SL_Un_b
+# tmp_KappaVSVM_SL_vUn_b = KappaVSVM_SL_vUn_b
+# tmp_KappaVSVM_SL_Un_it = KappaVSVM_SL_Un_it
+# # **********************************************************************************
+# tmp_AccuracySVM=rbind(tmp_AccuracySVM,AccuracySVM)
+# tmp_AccuracySVM_M=rbind(tmp_AccuracySVM_M,AccuracySVM_M)
+# tmp_AccuracySVM_SL_Un_b=rbind(tmp_AccuracySVM_SL_Un_b,AccuracySVM_SL_Un_b)
+# tmp_AccuracyVSVM=rbind(tmp_AccuracyVSVM,AccuracyVSVM)
+# tmp_AccuracyVSVM_SL=rbind(tmp_AccuracyVSVM_SL,AccuracyVSVM_SL)
+# tmp_AccuracyVSVM_SL_Un_b=rbind(tmp_AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_Un_b)
+# tmp_AccuracyVSVM_SL_vUn_b=rbind(tmp_AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_vUn_b)
+# tmp_AccuracyVSVM_SL_Un_it=rbind(tmp_AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_it)
+# 
+# tmp_KappaSVM=rbind(tmp_KappaSVM,KappaSVM)
+# tmp_KappaSVM_M=rbind(tmp_KappaSVM_M,KappaSVM_M)
+# tmp_KappaSVM_SL_Un_b=rbind(tmp_KappaSVM_SL_Un_b,KappaSVM_SL_Un_b)
+# tmp_KappaVSVM=rbind(tmp_KappaVSVM,KappaVSVM)
+# tmp_KappaVSVM_SL=rbind(tmp_KappaVSVM_SL,KappaVSVM_SL)
+# tmp_KappaVSVM_SL_Un_b=rbind(tmp_KappaVSVM_SL_Un_b,KappaVSVM_SL_Un_b)
+# tmp_KappaVSVM_SL_vUn_b=rbind(tmp_KappaVSVM_SL_vUn_b,KappaVSVM_SL_vUn_b)
+# tmp_KappaVSVM_SL_Un_it=rbind(tmp_KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_it)
+# # **********************************************************************************
+# AccuracySVM=tmp_AccuracySVM
+# AccuracySVM_M=tmp_AccuracySVM_M
+# AccuracySVM_SL_Un_b=tmp_AccuracySVM_SL_Un_b
+# AccuracyVSVM=tmp_AccuracyVSVM
+# AccuracyVSVM_SL=tmp_AccuracyVSVM_SL
+# AccuracyVSVM_SL_Un_b=tmp_AccuracyVSVM_SL_Un_b
+# AccuracyVSVM_SL_vUn_b=tmp_AccuracyVSVM_SL_vUn_b
+# AccuracyVSVM_SL_Un_it=tmp_AccuracyVSVM_SL_Un_it
+# 
+# KappaSVM=tmp_KappaSVM
+# KappaSVM_M=tmp_KappaSVM_M
+# KappaSVM_SL_Un_b=tmp_KappaSVM_SL_Un_b
+# KappaVSVM=tmp_KappaVSVM
+# KappaVSVM_SL=tmp_KappaVSVM_SL
+# KappaVSVM_SL_Un_b=tmp_KappaVSVM_SL_Un_b
+# KappaVSVM_SL_vUn_b=tmp_KappaVSVM_SL_vUn_b
+# KappaVSVM_SL_Un_it=tmp_KappaVSVM_SL_Un_it
+# 
+# file_name_acc = "20240710_cologne_binary_shape_acc_20Unl_6nR_8SizePor"
+# file_name_kappa = "20240710_cologne_binary_shape_Kappa_20Unl_6nR_8SizePor"
 
 # # **********************************************************************************
 # AccuracySVM=AccuracySVM[1,]
@@ -163,7 +243,7 @@ if(class == "multiclass"){
       ylowerBound = 0.56
     }
     if(invariance=="shape"){
-      yUpperBound = 0.785
+      yUpperBound = 0.79
       ylowerBound = 0.545
       }
   }
@@ -173,8 +253,9 @@ if(class == "binary"){
     if(invariance=="scale"){
       yUpperBound = 0.985
       ylowerBound = 0.67
-    }else{
-      yUpperBound = 0.975
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.985
       ylowerBound = 0.70
     }
   }
@@ -382,7 +463,7 @@ if(class == "binary"){
       ylowerBound = 0.40
     }
     if(invariance=="shape"){
-      yUpperBound = 0.96
+      yUpperBound = 0.963
       ylowerBound = 0.47
     }
   }
