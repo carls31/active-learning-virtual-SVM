@@ -19,7 +19,7 @@ sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) lab
 resampledSize = c(2.5*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-clusterSizes = c(0.6*b,6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+clusterSizes = c(6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
@@ -603,7 +603,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData, classProb)
         t.time <- round(as.numeric((Sys.time() - tStart.time), units = "secs"), 3)
         # of all Different bound settings get the one with best Kappa ans save its model
-        if (actKappa < tunedVSVM$resample$Kappa) {cat("current best kappa: ",round(tunedVSVM$resample$Kappa,4)," | training time: ",t.time,"sec\n",sep="")
+        if (actKappa < tunedVSVM$resample$Kappa) {cat("current best kappa: ",round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
           best_trainFeatVSVM = trainFeatVSVM
@@ -1541,7 +1541,7 @@ for (model_prob in model_probs) {
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
           accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-          cat("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | training time: ",train.time,"sec","\n",sep="")
+          cat("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | execution time: ",train.time,"sec","\n",sep="")
       
           AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
           KappaSVM[realization,sample_size] = as.numeric(accSVM$overall["Kappa"])
@@ -1596,7 +1596,7 @@ for (model_prob in model_probs) {
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
           accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-          cat("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | training time: ",train.time,"sec","\n",sep="")
+          cat("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | execution time: ",train.time,"sec","\n",sep="")
           
           AccuracySVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Accuracy"])
           KappaSVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Kappa"])
@@ -1770,7 +1770,7 @@ for (model_prob in model_probs) {
           # predict labels of test data i.e. run classification and accuracy assessment for modified SV
           predLabelsVSVM = predict(tunedVSVM, validateFeatsub)
           accVSVM = confusionMatrix(predLabelsVSVM, validateLabels)
-          cat("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | training time: ",train.time,"sec","\n",sep="")
+          cat("VSVM accuracy: ",round(accVSVM$overall["Accuracy"],5)," | execution time: ",train.time,"sec","\n",sep="")
           
           AccuracyVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Accuracy"])
           KappaVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Kappa"])
@@ -2094,11 +2094,10 @@ for (model_prob in model_probs) {
                       # Add predicted labels to the features data set
                       predLabelsVSVM_unc = cbind(upd_dataCurFeatsub, predLabelsVSVM)
                       predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
-                      # print(paste0("computing distances"))
+                      cat("computing distances\n")
                       if (model_prob=="binary") { sampled_data <- margin_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_one, binaryClassProblem)
                       } else {                    sampled_data <- mclu_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_all, binaryClassProblem) }
-                      # print(paste0("labeling new samples"))
-                      # Get new labels and updated datasets
+                     cat("getting active-labeled samples and updated datasets\n")
                       result <- add_new_samples_AL(sampled_data,
                                                    upd_dataCurLabels, upd_dataCurFeatsub, upd_dataCur$ID_unit,
                                                    new_trainFeatVSVM, new_trainLabelsVSVM,
@@ -2190,7 +2189,7 @@ for (model_prob in model_probs) {
                 }
               }
             }
-            cat("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | training time: ",train.time,"sec","\n",sep="")
+            cat("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | execution time: ",train.time,"sec","\n",sep="")
             
             AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
