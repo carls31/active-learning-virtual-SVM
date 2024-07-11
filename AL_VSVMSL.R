@@ -8,7 +8,7 @@ library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
 cities = c("cologne")    # cologne or hagadera
-invariances = c("shape","scale")   # scale or shape invariance
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
@@ -2060,7 +2060,7 @@ for (model_prob in model_probs) {
             cat("computing uncertainty distance for active learning procedure [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]","\n",sep="")
             actAcc = -1e-6
             classSize=c(min(150*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
-            if (model_prob=="multiclass") {classSize=round(classSize/3)}
+            if (model_prob=="multiclass") {classSize=round(classSize/4)}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
               # Definition of sampling configuration (strata:random sampling without replacement)
