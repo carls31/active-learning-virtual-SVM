@@ -79,7 +79,7 @@ hagadera multiclass-binary shape-scale
  51. progressive AL hyperparameters wrt sampleSizePor
  52. AL on VSVs from SL
 
-pseudo code of VSVM SL vUN (?) [maybe to be added in the benchmark instead?]
+pseudo code + flowchart of VSVM SL vUN (?) [maybe to be added in the benchmark instead?]
 	           AL VSVM SL 1
 	           AL VSVM SL 2
 	           AL VSVM SL 3
