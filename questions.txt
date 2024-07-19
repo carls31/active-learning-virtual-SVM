@@ -83,9 +83,10 @@ pseudo code + flowchart of VSVM SL vUN (?) [maybe to be added in the benchmark i
 	           AL VSVM SL 1
 	           AL VSVM SL 2
 	           AL VSVM SL 3
-benchmark with AL VSVM SL random
-	           AL VSVM SL uncertainty distance
-	           AL VSVM SL self-learning constraints
+benchmark with Random AL VSVM SL 
+	           AL VSVM SL 
+	           AL SL VSVM SL 
+		   AL VSVM SL + SEMI
 add semi-labeled samples after each iteration of AL
   
   53. check for strange behaviour in the accuracies results (e.g. SVM multilevel, general upside-down of the accuracy of the model [some go up while the others go down])
