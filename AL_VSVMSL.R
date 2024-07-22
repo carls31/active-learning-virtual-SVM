@@ -2084,6 +2084,17 @@ for (model_prob in model_probs) {
                     new_trainLabelsVSVM <- best_trainLabelsVSVM
                     tmp_new_tunedSVM <- bestFittingModel
                     
+                    
+                    # # **********************
+                    # # **********************
+                    # # get original SVs of base SVM
+                    # SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
+                    # new_trainFeatVSVM = new_trainFeatVSVM[SVindex_ud,]
+                    # new_trainLabelsVSVM = new_trainLabelsVSVM[SVindex_ud]
+                    # # **********************
+                    # # **********************
+                    
+                    
                     newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
