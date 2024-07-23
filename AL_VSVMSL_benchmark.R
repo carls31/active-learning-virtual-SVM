@@ -9,7 +9,7 @@ library(doParallel) # multiple CPU cores
 nR = 1                   # realizations
 cities = c("cologne")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
@@ -22,7 +22,7 @@ newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked per i
 clusterSizes = c(5*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores()-6 # Numbers of CPU cores for parallel processing  
+num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -651,9 +651,9 @@ for (model_prob in model_probs) {
   }
   if (num_cores<5) { nR=1
   sampleSizePor = c(20)  
-  resampledSize = c(0.5*b)
+  resampledSize = c(2.5*b)
   newSizes = c(0.5*b)
-  clusterSizes = c(0.55*b) 
+  clusterSizes = c(2*b) 
   }
   colheader = as.character(sampleSizePor) # corresponding column names
   
@@ -1272,12 +1272,6 @@ for (model_prob in model_probs) {
         testDataCurBeg = testDataAllLev
         # subset for each outer iteration test data to speed up computing
         testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
-        
-        ######  MultiScale
-        trainDataCurBegMS = trainDataPoolAllLevMS
-        testDataCurBegMS = testDataAllLevMS
-        # subset for each outer iteration test data to speed up computing
-        testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
         
         for (sample_size in seq(along=sampleSizePor)) {#}
           
