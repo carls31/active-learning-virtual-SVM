@@ -2,18 +2,21 @@ library(scales)
 
 city = "cologne"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-class = "binary"     # multiclass or binary
+class = "multiclass"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
 setwd(paste0(path,"results/",city))
 
 file_name_acc = "20240724_1814_cologne_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
+file_name_acc = "20240725_1256_cologne_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
 
 file_name_kappa = "20240724_1814_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+file_name_kappa = "20240725_1256_cologne_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
@@ -157,7 +160,7 @@ if(class == "multiclass"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.785
+      yUpperBound = 0.942
       ylowerBound = 0.56
     }
     if(invariance=="shape"){
@@ -276,90 +279,90 @@ dev.off()
 # 
 # avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,]
 # sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[2,]
-# 
-# 
-# 
-# ##########################################################################
-# # KAPPA
-# ##########################################################################
-# 
-# 
-# if(class == "multiclass"){
-#   if(city=="hagadera"){
-#     if(invariance=="scale"){
-#       yUpperBound = 0.955
-#       ylowerBound = 0.695
-#     }
-#     if(invariance=="shape"){
-#       yUpperBound = 0.955
-#       ylowerBound = 0.715
-#     }
-#   }
-#   if(city=="cologne"){
-#     if(invariance=="scale"){
-#       yUpperBound = 0.705
-#       ylowerBound = 0.40
-#     }
-#     if(invariance=="shape"){
-#       yUpperBound = 0.71
-#       ylowerBound = 0.41
-#     }
-#   }
-# }
-# if(class == "binary"){
-#   if(city=="hagadera"){
-#     if(invariance=="scale"){
-#       yUpperBound = 0.96
-#       ylowerBound = 0.40
-#     }
-#     if(invariance=="shape"){
-#       yUpperBound = 0.963
-#       ylowerBound = 0.47
-#     }
-#   }
-#   if(city=="cologne"){
-#     if(invariance=="scale"){
-#       yUpperBound = 0.827
-#       ylowerBound = 0.46
-#     }
-#     if(invariance=="shape"){
-#       yUpperBound = 0.825
-#       ylowerBound = 0.42
-#     }
-#   }
-# }
-# 
-# 
-# # *********************************************
-# png(filename=paste0(file_name_kappa,".png"),
-#     units="in", 
-#     width=20, 
-#     height=16, 
-#     pointsize=12,
-#     res=96)
-# 
-# msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
-#                   ylim=range(c(ylowerBound,yUpperBound)), 
-#                   pch=20, type= type,                   col = 1, lwd=2,lty = 1,
-#                   xlab= "number of labeled samples per class", 
-#                   ylab="Kappa-score",
-#                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
-# )
-# 
-# lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 7, lwd=2,lty = 1)
-# lines(x, ExCsvMSD(KappaVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd=2,lty = 1)
-# lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd=2,lty = 1)
-# lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 3, lwd=2,lty = 1)
-# 
-# # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
-# legend("bottomright", 
-#        c("SVM single-level L4",
-#          "VSVM-SL AL",
-#          "VSVM-SL AL random",
-#          "VSVM-SL AL v1",
-#          "VSVM-SL AL v2"),
-#        lty=c(1,1,1,1,1), # gives the legend appropriate symbols (lines)
-#        col=c(1,7,4,5,3)  # gives the legend lines the correct color and width
-# ) 
-# 
-# dev.off()
+
+
+
+##########################################################################
+# KAPPA
+##########################################################################
+
+
+if(class == "multiclass"){
+  if(city=="hagadera"){
+    if(invariance=="scale"){
+      yUpperBound = 0.955
+      ylowerBound = 0.695
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.955
+      ylowerBound = 0.715
+    }
+  }
+  if(city=="cologne"){
+    if(invariance=="scale"){
+      yUpperBound = 0.705
+      ylowerBound = 0.40
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.71
+      ylowerBound = 0.41
+    }
+  }
+}
+if(class == "binary"){
+  if(city=="hagadera"){
+    if(invariance=="scale"){
+      yUpperBound = 0.96
+      ylowerBound = 0.40
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.963
+      ylowerBound = 0.47
+    }
+  }
+  if(city=="cologne"){
+    if(invariance=="scale"){
+      yUpperBound = 0.827
+      ylowerBound = 0.46
+    }
+    if(invariance=="shape"){
+      yUpperBound = 0.825
+      ylowerBound = 0.42
+    }
+  }
+}
+
+
+# *********************************************
+png(filename=paste0(file_name_kappa,".png"),
+    units="in",
+    width=20,
+    height=16,
+    pointsize=12,
+    res=96)
+
+msdSVMPlot = plot(x, (KappaSVM),log = "x",
+                  ylim=range(c(ylowerBound,yUpperBound)),
+                  pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                  xlab= "number of labeled samples per class",
+                  ylab="Kappa-score",
+                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+)
+
+lines(x, (KappaVSVM_SL_Un_it), type= type ,          col = 7, lwd=2,lty = 1)
+lines(x, (KappaVSVM_SL_Un_random_it), type= type ,  col = 4, lwd=2,lty = 1)
+lines(x, (KappaVSVM_SL_Un_AL_v1), type= type , col = 5, lwd=2,lty = 1)
+lines(x, (KappaVSVM_SL_Un_AL_v2), type= type , col = 3, lwd=2,lty = 1)
+
+# "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
+legend("bottomright",
+       c("SVM single-level L4",
+         "VSVM-SL AL",
+         "VSVM-SL AL random",
+         "VSVM-SL AL v1",
+         "VSVM-SL AL v2"),
+       lty=c(1,1,1,1,1), # gives the legend appropriate symbols (lines)
+       col=c(1,7,4,5,3)  # gives the legend lines the correct color and width
+)
+
+dev.off()
