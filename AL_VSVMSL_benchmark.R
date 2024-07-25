@@ -8,8 +8,8 @@ library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
 cities = c("hagadera")    # cologne or hagadera
-invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+invariances = c("shape")   # scale or shape invariance
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
@@ -2115,7 +2115,7 @@ for (model_prob in model_probs) {
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(tunedSVM, new_trainFeat)))
-      cat("length best_trainLabelsVSVM: ",length(best_trainLabelsVSVM),"\nlength tunedSVM$finalModel@SVindex: ", length(tunedSVM$finalModel@SVindex),"\nlength new_trainLabels: ",length(new_trainLabels),"\nlength new_trainLabelsVSVM: ",length(new_trainLabelsVSVM),"\n\n\n",sep="")
+      cat("length trainLabels: ",length(trainLabels),"\nlength tunedSVM$finalModel@SVindex: ", length(tunedSVM$finalModel@SVindex),"\nlength new_trainLabels: ",length(new_trainLabels),"\nlength new_trainLabelsVSVM: ",length(new_trainLabelsVSVM),"\n\n\n",sep="")
     }
   }
 }

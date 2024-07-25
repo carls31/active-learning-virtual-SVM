@@ -1,0 +1,10 @@
+OA Execution time: 1.54h
+Realization 1 execution time: 1.42h
+
+best_bound_oa_SL: 
+best_boundMargin_oa_SL: 
+best_resample_oa:  50
+best_newSize_oa:  10
+best_classSize_oa:  3000
+best_cluster_oa:  100
+20240725AL_VSVM+SL_hagadera_binary_scale_100Size_20Unl_76seed.rds: 0.987802794878028
