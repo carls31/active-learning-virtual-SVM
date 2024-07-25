@@ -7,7 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("cologne")    # cologne or hagadera
+cities = c("hagadera")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
