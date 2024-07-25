@@ -1,0 +1,10 @@
+OA Execution time: 17.71h
+Realization 1 execution time: 17.68h
+
+best_bound_oa_SL: 
+best_boundMargin_oa_SL: 
+best_resample_oa:  50
+best_newSize_oa:  10
+best_classSize_oa:  1000
+best_cluster_oa:  100
+20240725AL_VSVM+SL_cologne_multiclass_scale_100Size_20Unl_105seed.rds: 0.758415903618771
