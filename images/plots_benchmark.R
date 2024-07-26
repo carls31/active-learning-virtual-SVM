@@ -1,6 +1,6 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 class = "binary"     # multiclass or binary
 invariance = "scale"     # scale or shape
 
@@ -15,6 +15,7 @@ file_name_acc = "20240725_2127_hagadera_binary_scale_acc_benchmark_20Unl_1nR_8Si
 file_name_acc = "20240726_0628_hagadera_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240725_1936_hagadera_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240726_1628_cologne_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
+file_name_acc = "20240726_1740_hagadera_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -26,6 +27,7 @@ file_name_kappa = "20240725_2127_hagadera_binary_scale_Kappa_benchmark_20Unl_1nR
 file_name_kappa = "20240726_0628_hagadera_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240725_1936_hagadera_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240726_1628_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+file_name_kappa = "20240726_1740_hagadera_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
 
 
 
@@ -184,7 +186,7 @@ if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.985
-      ylowerBound = 0.67
+      ylowerBound = 0.86
     }
     if(invariance=="shape"){
       yUpperBound = 0.985
@@ -324,7 +326,7 @@ if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.96
-      ylowerBound = 0.40
+      ylowerBound = 0.61
     }
     if(invariance=="shape"){
       yUpperBound = 0.963
