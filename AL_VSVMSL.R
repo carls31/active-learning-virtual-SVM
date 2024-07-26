@@ -1560,11 +1560,14 @@ for (model_prob in model_probs) {
       
           AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
           KappaSVM[realization,sample_size] = as.numeric(accSVM$overall["Kappa"])
+          if (sample_size==4) {
           best_acc <- accSVM$overall["Accuracy"]
+          best_model <- model_name_tunedSVM
+          }
           new_bestTunedVSVM <- tunedSVM
           new_bestTrainFeatVSVM <- trainFeat 
           new_bestTrainLabelsVSVM <- trainLabels 
-          best_model <- model_name_tunedSVM
+          
           
           # get original SVs of base SVM *************************
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
@@ -1686,7 +1689,7 @@ for (model_prob in model_probs) {
           
           AccuracySVM_SL_Un[realization,sample_size] = as.numeric(accSVM_SL_Un$overall["Accuracy"])
           KappaSVM_SL_Un[realization,sample_size] = as.numeric(accSVM_SL_Un$overall["Kappa"])
-          if (accSVM_SL_Un$overall["Accuracy"]>best_acc) {
+          if (accSVM_SL_Un$overall["Accuracy"]>best_acc && sample_size==4) {
             best_acc <- accSVM_SL_Un$overall["Accuracy"]
             new_bestTunedSVM <- bestFittingModelSVMUn
             new_bestTrainFeatSVM <- best_trainFeatSVMUn
@@ -1789,7 +1792,7 @@ for (model_prob in model_probs) {
           
           AccuracyVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Accuracy"])
           KappaVSVM[realization,sample_size] = as.numeric(accVSVM$overall["Kappa"])
-          if (accVSVM$overall["Accuracy"]>best_acc) {
+          if (accVSVM$overall["Accuracy"]>best_acc && sample_size==4) {
             best_acc <- accVSVM$overall["Accuracy"]
             new_bestTunedVSVM <- tunedVSVM
             new_bestTrainFeatVSVM <- trainFeatVSVM
@@ -1849,7 +1852,7 @@ for (model_prob in model_probs) {
           
           KappaVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
           AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
-          if (accVSVM_SL$overall["Accuracy"]>best_acc) {
+          if (accVSVM_SL$overall["Accuracy"]>best_acc && sample_size==4) {
             best_acc <- accVSVM_SL$overall["Accuracy"]
             new_bestTunedVSVM <- bestFittingModel
             new_bestTrainFeatVSVM <- best_trainFeatVSVM
@@ -2212,7 +2215,7 @@ for (model_prob in model_probs) {
             
             AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
-            if (actAcc>best_acc) { 
+            if (actAcc>best_acc && sample_size==4) { 
               best_acc <- actAcc 
               best_model <- model_name_AL_VSVMSL
             }
