@@ -2089,7 +2089,7 @@ for (model_prob in model_probs) {
               for (nS4it in 1:length(newSizes)) {
                 for (cS in 1:length(clusterSizes)) {
                   for (rS in 1:length(resampledSize)) {
-                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]","\n",sep="")
+                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | class pool size: ",classSize[clS]," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]","\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
                     upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
