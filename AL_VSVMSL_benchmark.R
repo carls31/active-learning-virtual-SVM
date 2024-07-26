@@ -7,7 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("cologne")    # cologne or hagadera
+cities = c("hagadera")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -1528,7 +1528,7 @@ for (model_prob in model_probs) {
           
           if (num_cores>=4) {
           
-          ###################################### AL_VSVM+SL RANDOM #######################################
+            cat("\n") ################################ AL_VSVM+SL RANDOM #######################################
           
             model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_r_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
@@ -1666,9 +1666,9 @@ for (model_prob in model_probs) {
         
 
           
-          ####################################### AL_VSVSM_SL v1  #######################################
+            cat("\n") ################################# AL_VSVSM_SL v1  #######################################
 
-          model_name_AL_VSVM_SL_v1 = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_v1",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
+            model_name_AL_VSVM_SL_v1 = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_v1",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
           
             cat("computing uncertainty distance for v1 active learning procedure [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actKappa = -1e-6
@@ -1777,8 +1777,8 @@ for (model_prob in model_probs) {
 
 
 
-
-          ###################################### AL_VSVSM_SL v2  #######################################
+             
+            cat("\n") ########################### AL_VSVSM_SL v2  #######################################
           
             cat("computing uncertainty distance for v2 active learning procedure... [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
@@ -1879,10 +1879,10 @@ for (model_prob in model_probs) {
 
 
 
-          ###################################### AL_VSVM+SL #######################################
-          
-          model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
-          
+            cat("\n") ################################ AL_VSVM+SL #######################################
+            
+            model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
+            
             cat("computing uncertainty distance for active learning procedure [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
             classSize=c(min(150*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
@@ -2032,7 +2032,7 @@ for (model_prob in model_probs) {
 
   
                   
-          # ###################################### AL_SL_VSVM_SL #######################################
+            cat("\n") ############################### AL_SL_VSVM_SL #######################################
           
 
           }
