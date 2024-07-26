@@ -1843,8 +1843,8 @@ for (model_prob in model_probs) {
           bestFittingModel <- SLresult$bestFittingModel
           best_trainFeatVSVM <- SLresult$best_trainFeatVSVM
           best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
-          best_bound_SL = SLresult$best_bound
-          best_boundMargin_SL = SLresult$best_boundMargin
+          # best_bound_SL = SLresult$best_bound
+          # best_boundMargin_SL = SLresult$best_boundMargin
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
           accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
@@ -1947,8 +1947,8 @@ for (model_prob in model_probs) {
             bestFittingModelUn <- SLresult$bestFittingModel
             best_trainFeatVSVMUn <- SLresult$best_trainFeatVSVM
             best_trainLabelsVSVMUn <- SLresult$best_trainLabelsVSVM
-            best_bound_SL_Un = SLresult$best_bound
-            best_boundMargin_SL_Un = SLresult$best_boundMargin
+            # best_bound_SL_Un = SLresult$best_bound
+            # best_boundMargin_SL_Un = SLresult$best_boundMargin
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             predLabelsVSVMsumUn = predict(bestFittingModelUn, validateFeatsub)
             accVSVM_SL_Un = confusionMatrix(predLabelsVSVMsumUn, validateLabels)
@@ -2044,8 +2044,8 @@ for (model_prob in model_probs) {
             new_bestFittingModelvUn <- SLresult$bestFittingModel
             new_best_trainFeatVSVMvUn <- SLresult$best_trainFeatVSVM
             new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
-            new_best_bound_SLvUn = SLresult$best_bound
-            new_best_boundMargin_SLvUn = SLresult$best_boundMargin
+            # new_best_bound_SLvUn = SLresult$best_bound
+            # new_best_boundMargin_SLvUn = SLresult$best_boundMargin
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             new_predLabelsVSVMvUnsum = predict(new_bestFittingModelvUn, validateFeatsub)
             new_accVSVM_SL_vUn = confusionMatrix(new_predLabelsVSVMvUnsum, validateLabels)
@@ -2056,8 +2056,8 @@ for (model_prob in model_probs) {
               accVSVM_SL_vUn <- new_accVSVM_SL_vUn
               best_trainFeatVSVMvUn <- new_best_trainFeatVSVMvUn
               best_trainLabelsVSVMvUn <- new_best_trainLabelsVSVMvUn
-              best_bound_SLvUn = new_best_bound_SLvUn
-              best_boundMargin_SLvUn = new_best_boundMargin_SLvUn
+              # best_bound_SLvUn = new_best_bound_SLvUn
+              # best_boundMargin_SLvUn = new_best_boundMargin_SLvUn
             }
           }
           cat("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn$overall["Accuracy"],5),"\n",sep="")
@@ -2191,6 +2191,8 @@ for (model_prob in model_probs) {
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
                       upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
+                      best_bound_SL_AL = upd_SLresult$best_bound
+                      best_boundMargin_SL_AL = upd_SLresult$best_boundMargin
                       
                       t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 3)
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
@@ -2234,12 +2236,12 @@ for (model_prob in model_probs) {
           }
         }
         # Store the overall best hyperparameters 
-        best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL)
-        best_boundMargin_oa_SL = c(best_boundMargin_oa_SL," ", best_boundMargin_SL)
-        best_bound_oa_SL_Un = c(best_bound_oa_SL_Un," ", best_bound_SL_Un)
-        best_boundMargin_oa_SL_Un = c(best_boundMargin_oa_SL_Un," ", best_boundMargin_SL_Un)
-        best_bound_oa_SL_vUn = c(best_bound_oa_SL_vUn," ", best_bound_SLvUn)
-        best_boundMargin_oa_SL_vUn = c(best_boundMargin_oa_SL_vUn," ", best_boundMargin_SLvUn)
+        best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL_AL)
+        best_boundMargin_oa_SL = c(best_boundMargin_oa_SL," ", best_boundMargin_SL_AL)
+        # best_bound_oa_SL_Un = c(best_bound_oa_SL_Un," ", best_bound_SL_Un)
+        # best_boundMargin_oa_SL_Un = c(best_boundMargin_oa_SL_Un," ", best_boundMargin_SL_Un)
+        # best_bound_oa_SL_vUn = c(best_bound_oa_SL_vUn," ", best_bound_SLvUn)
+        # best_boundMargin_oa_SL_vUn = c(best_boundMargin_oa_SL_vUn," ", best_boundMargin_SLvUn)
         best_resample_oa=c(best_resample_oa," ", best_resample)
         best_newSize_oa=c(best_newSize_oa," ", best_newSize4iter)
         best_classSize_oa=c(best_classSize_oa," ", best_classSize)
@@ -2256,9 +2258,9 @@ for (model_prob in model_probs) {
         save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un,KappaVSVM,KappaVSVM_SL,KappaVSVM_SL_Un,KappaVSVM_SL_vUn,KappaVSVM_SL_Un_it,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
-            "\nbest_bound_oa_SL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL: ", best_boundMargin_oa_SL,
-            "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
-            "\nbest_bound_oa_SL_vUn: ", best_bound_oa_SL_vUn,"\nbest_boundMargin_oa_SL_vUn: ",best_boundMargin_oa_SL_vUn,
+            "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
+            # "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
+            # "\nbest_bound_oa_SL_vUn: ", best_bound_oa_SL_vUn,"\nbest_boundMargin_oa_SL_vUn: ",best_boundMargin_oa_SL_vUn,
             "\nbest_resample_oa: ", best_resample_oa,        "\nbest_newSize_oa: ", best_newSize_oa,
             "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,"\n",best_model_oa, sep = "",
             file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
