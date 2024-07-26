@@ -661,6 +661,7 @@ for (model_prob in model_probs) {
     for (city in cities) {
       
       start.time_oa <- Sys.time()
+      lightC = 2 # lighter validate dataset for running faster prediction 
       cat("preprocessing",city,model_prob,invariance,"\n")
       
       if (city=="cologne") {
@@ -978,6 +979,21 @@ for (model_prob in model_probs) {
            
           #########################################################################################
         }  
+        if (model_prob=="multiclass") { 
+          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
+          validateData = cbind(validateFeatsub,validateLabels)
+          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+          validateData = getdata(validateData, val_stratSamp)
+          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+          validateLabels = validateData[,ncol(validateFeatsub)+1]
+          rm(validateData, val_stratSamp)
+          validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
+          val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
+          validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
+          validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
+          validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
+          rm(validateData_MS,val_stratSamp_MS) 
+        }
       } else {
         
         numFeat = 26                   # number of features per level (dimensionality)
@@ -988,7 +1004,6 @@ for (model_prob in model_probs) {
                           "Lx_s_cb","Lx_s_bl","Lx_s_gr","Lx_s_y","Lx_s_reg","Lx_s_nir2","Lx_s_ndvi","Lx_s_nir","Lx_s_re",
                           "Lx_t_diss","Lx_t_hom","Lx_t_mean",
                           "label")
-        lightC = 2 # lighter validate dataset for running faster prediction 
         if (invariance=="scale") {
           ########################################  Input  ########################################
           inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
