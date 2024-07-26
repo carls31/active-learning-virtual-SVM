@@ -226,10 +226,12 @@ msdSVMPlot = plot(x, (AccuracySVM),log = "x",
                   ylab= "accuracy (%)",
                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 )
+# lines(x, (AccuracyVSVM_SL), type= type , col = 3, lwd = 2,lty = 1)
 lines(x, (AccuracyVSVM_SL_Un_it), type= type ,       col = 7, lwd = 2,lty = 1)
 lines(x, (AccuracyVSVM_SL_Un_random_it), type= type ,  col = 4, lwd = 2,lty = 1)
 lines(x, (AccuracyVSVM_SL_Un_AL_v1), type= type , col = 5, lwd = 2,lty = 1)
 lines(x, (AccuracyVSVM_SL_Un_AL_v2), type= type , col = 3, lwd = 2,lty = 1)
+
 
 # # ******************************************************************************************************
 
@@ -241,6 +243,7 @@ lines(x, (AccuracyVSVM_SL_Un_AL_v2), type= type , col = 3, lwd = 2,lty = 1)
 #                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 # )
 # 
+# # lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type , col = 3, lwd = 2,lty = 1)
 # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type ,       col = 7, lwd = 2,lty = 1)
 # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
 # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_AL_v1)[1,], type= type , col = 5, lwd = 2,lty = 1)
@@ -249,16 +252,19 @@ lines(x, (AccuracyVSVM_SL_Un_AL_v2), type= type , col = 3, lwd = 2,lty = 1)
 
 legend("bottomright", 
        c("SVM single-level L4",
+         # "VSVM-SL",
          "VSVM-SL AL",
          "VSVM-SL AL random",
          "VSVM-SL AL v1",
          "VSVM-SL AL v2"),
        lty=c(1,
+             # 1,
              1,
              1,
              1,
              1), # gives the legend appropriate symbols (lines)
        col=c(1,
+             # 3,
              7,
              4,
              5,
@@ -272,26 +278,21 @@ dev.off()
 # avgSVM=ExCsvMSD(AccuracySVM)[1,]
 # sdSVM=ExCsvMSD(AccuracySVM)[2,]
 # 
-# avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
-# sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
-# 
-# avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[1,]
-# sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[2,]
-# 
-# avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
-# sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
-# 
 # avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[1,]
 # sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
-# 
-# avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,]
-# sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[2,]
 # 
 # avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
 # sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]
 # 
-# avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,]
-# sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[2,]
+# avgVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,]
+# sdVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[2,]
+# 
+# avgVSVM_SL_Un_AL_v1=ExCsvMSD(AccuracyVSVM_SL_Un_AL_v1)[1,]
+# sdVSVM_SL_Un_AL_v1=ExCsvMSD(AccuracyVSVM_SL_Un_AL_v1)[2,]
+# 
+# avgVSVM_SL_Un_AL_v2=ExCsvMSD(AccuracyVSVM_SL_Un_AL_v2)[1,]
+# sdVSVM_SL_Un_AL_v2=ExCsvMSD(AccuracyVSVM_SL_Un_AL_v2)[2,]
+
 
 
 
@@ -362,6 +363,7 @@ msdSVMPlot = plot(x, (KappaSVM),log = "x",
                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
 )
 
+# lines(x, (KappaVSVM_SL), type= type , col = 3, lwd=2,lty = 1)
 lines(x, (KappaVSVM_SL_Un_it), type= type ,          col = 7, lwd=2,lty = 1)
 lines(x, (KappaVSVM_SL_Un_random_it), type= type ,  col = 4, lwd=2,lty = 1)
 lines(x, (KappaVSVM_SL_Un_AL_v1), type= type , col = 5, lwd=2,lty = 1)
@@ -370,12 +372,17 @@ lines(x, (KappaVSVM_SL_Un_AL_v2), type= type , col = 3, lwd=2,lty = 1)
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend("bottomright",
        c("SVM single-level L4",
+         # "VSVM-SL",
          "VSVM-SL AL",
          "VSVM-SL AL random",
          "VSVM-SL AL v1",
          "VSVM-SL AL v2"),
-       lty=c(1,1,1,1,1), # gives the legend appropriate symbols (lines)
-       col=c(1,7,4,5,3)  # gives the legend lines the correct color and width
+       lty=c(1,
+             # 1,
+             1,1,1,1), # gives the legend appropriate symbols (lines)
+       col=c(1,
+             # 3,
+             7,4,5,3)  # gives the legend lines the correct color and width
 )
 
 dev.off()
