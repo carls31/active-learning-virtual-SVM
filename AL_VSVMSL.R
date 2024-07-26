@@ -980,7 +980,7 @@ for (model_prob in model_probs) {
           #########################################################################################
         }  
         if (model_prob=="multiclass") { 
-          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
+          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/lightC)
           validateData = cbind(validateFeatsub,validateLabels)
           val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
           validateData = getdata(validateData, val_stratSamp)
