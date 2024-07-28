@@ -7,8 +7,8 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("cologne")    # cologne or hagadera
-invariances = c("shape")   # scale or shape invariance
+cities = c("hagadera")    # cologne or hagadera
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
@@ -1537,7 +1537,7 @@ for (model_prob in model_probs) {
             new_bestTunedVSVM <- bestFittingModel
             new_bestTrainFeatVSVM <- best_trainFeatVSVM
             new_bestTrainLabelsVSVM <- best_trainLabelsVSVM
-            best_model <- model_name_tunedVSVM
+            best_model <- model_name_VSVM_SL
           }
           
           if (num_cores>=4) {
