@@ -8,12 +8,12 @@ library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
 cities = c("hagadera")    # cologne or hagadera
-invariances = c("scale")   # scale or shape invariance
+invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
-bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
-boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
+bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
+boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
@@ -2197,13 +2197,17 @@ for (model_prob in model_probs) {
              KappaVSVM_SL_Un_AL_v2,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_benchmark_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
+            "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
+            # "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
+            # "\nbest_bound_oa_SL_vUn: ", best_bound_oa_SL_vUn,"\nbest_boundMargin_oa_SL_vUn: ",best_boundMargin_oa_SL_vUn,
             "\nbest_resample_oa: ", best_resample_oa,        "\nbest_newSize_oa: ", best_newSize_oa,
-            "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,"\n",best_model_oa, sep = "",
-            file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_benchmark_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
+            "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,"\n",best_model_oa, 
+            "\nlength train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),
+            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_benchmark_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(tunedSVM, new_trainFeat)))
-      cat("length trainLabels: ",length(trainLabels),"\nlength SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new_trainLabels: ",length(new_trainLabels),"\nlength new_trainLabelsVSVM: ",length(new_trainLabelsVSVM),"\n\n\n",sep="")
+      cat("length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),"\n\n\n",sep="")
     }
   }
 }
