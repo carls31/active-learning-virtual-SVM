@@ -278,7 +278,7 @@ if(class == "binary"){
 }
 
 type = "l"
-
+# type = "o"
 
 ######################################## Accuracy ##########################################
 
@@ -290,51 +290,54 @@ png(filename=paste0(file_name_acc,".png"),
     res=96)
 
 # # ******************************************************************************************************
-# type = "o"
-# x <- 2*as.integer(names(AccuracySVM))
-# msdSVMPlot = plot(x, (AccuracySVM),log = "x",
-#                   ylim=range(c(ylowerBound,yUpperBound)), 
-#                   pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
-#                   xlab= "number of labeled samples per class", 
-#                   ylab= "accuracy (%)",
-#                   main = paste(city,"-", class,"classification problem -", invariance,"invariance")
-# )
-# lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
-# lines(x, (AccuracySVM_SL_Un_b), type= type ,   col = 1, lwd = 2,lty = 4)
-# 
-# lines(x, (AccuracyVSVM), type= type ,          col = 3, lwd = 2,lty = 1)
-# lines(x, (AccuracyVSVM_SL), type= type ,       col = 3, lwd = 2,lty = 2)
-# lines(x, (AccuracyVSVM_SL_Un_b), type= type ,  col = 4, lwd = 2,lty = 1)
-# lines(x, (AccuracyVSVM_SL_vUn_b), type= type , col = 5, lwd = 2,lty = 1)
-# 
-# 
-# lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
+
+if(nrow(AccuracySVM)>1){
+  msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
+                    ylim=range(c(ylowerBound,yUpperBound)),
+                    pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
+                    xlab= "number of labeled samples per class",
+                    ylab= "accuracy (%)",
+                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+  )
+  lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
+  lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
+  
+  lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
+  lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type ,       col = 3, lwd = 2,lty = 2)
+  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  
+  # lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
+  # lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
+  # lines(x, AccuracyVSVM_SL_Un_b_ms, type= type , col = 6, lwd=2)
+  
+  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
+  
+  # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
+}else{
+  msdSVMPlot = plot(x, (AccuracySVM),log = "x",
+                    ylim=range(c(ylowerBound,yUpperBound)),
+                    pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
+                    xlab= "number of labeled samples per class",
+                    ylab= "accuracy (%)",
+                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+  )
+  lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
+  lines(x, (AccuracySVM_SL_Un_b), type= type ,   col = 1, lwd = 2,lty = 4)
+  
+  lines(x, (AccuracyVSVM), type= type ,          col = 3, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL), type= type ,       col = 3, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_b), type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_vUn_b), type= type , col = 5, lwd = 2,lty = 1)
+  
+  
+  lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
+  
+  # lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
+  
+}
+
 # # ******************************************************************************************************
-
-msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
-                  ylim=range(c(ylowerBound,yUpperBound)),
-                  pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
-                  xlab= "number of labeled samples per class",
-                  ylab= "accuracy (%)",
-                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
-)
-lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
-lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
-
-lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
-lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type ,       col = 3, lwd = 2,lty = 2)
-lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
-lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty = 1)
-
-# lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
-# lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
-# lines(x, AccuracyVSVM_SL_Un_b_ms, type= type , col = 6, lwd=2)
-
-lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
-
-# lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
-
-# lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
 
 legend("bottomright", 
        c("SVM single-level L4",
@@ -360,79 +363,81 @@ dev.off()
 
 ######################################## Accuracy +/- std dev ##########################################
 
-avgSVM=ExCsvMSD(AccuracySVM)[1,]
-sdSVM=ExCsvMSD(AccuracySVM)[2,]
-
-avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
-sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
-
-avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[1,]
-sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[2,]
-
-avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
-sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
-
-avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[1,]
-sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
-
-avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,]
-sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[2,]
-
-avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
-sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]
-
-avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,]
-sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[2,]
-
-# *********************************************
-png(filename=paste0(file_name_acc,"_sd.png"),
-    units="in",
-    width=20,
-    height=16,
-    pointsize=12,
-    res=96)
-
-msdSVMPlot = plot(x, avgSVM,log = "x",
-                  ylim=range(c(ylowerBound,yUpperBound)),
-                  pch=20, type= type,   col = 1, lwd = 2,lty = 1,
-                  xlab= "number of labeled samples per class", 
-                  ylab="accuracy (%) +/- std dev",
-                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
-)
-lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
-lines(x, avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
-
-lines(x, avgVSVM, type= type ,          col = 3, lwd = 2,lty = 1)
-lines(x, avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 2)
-lines(x, avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
-lines(x, avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
-
-# lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
-# lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
-# lines(x, AccuracyVSVM_SL_Un_b_ms, type= type , col = 6, lwd=2)
- 
-lines(x, avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
-# lines(x, avgVSVM_SL_Un_b_ud, type= type , col = 4, lwd=2)
-# lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
-
-# arrows(x, avgSVM-sdSVM, x, avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
-# arrows(x, avgSVM_M-sdSVM_M, x, avgSVM_M+sdSVM_M, length=0.075, angle=90, code=3 ,col = 2,lty=2)
-# arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 3,lty=2)
-# arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 1,lty=3)
-# arrows(x, avgSVM_SL_Un_b-sdSVM_SL_Un_b, x, avgSVM_SL_Un_b+sdSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 1,lty=4)
-arrows(x, avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
-arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
-
-legend("bottomright",
-       c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
-         "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + AL"),
-       lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
-       col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
-)
-
-dev.off()
-
+if(nrow(AccuracySVM)>1){
+  
+  avgSVM=ExCsvMSD(AccuracySVM)[1,]
+  sdSVM=ExCsvMSD(AccuracySVM)[2,]
+  
+  avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
+  sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
+  
+  avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[1,]
+  sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[2,]
+  
+  avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
+  sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
+  
+  avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[1,]
+  sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
+  
+  avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,]
+  sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[2,]
+  
+  avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
+  sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]
+  
+  avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,]
+  sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[2,]
+  
+  # *********************************************
+  png(filename=paste0(file_name_acc,"_sd.png"),
+      units="in",
+      width=20,
+      height=16,
+      pointsize=12,
+      res=96)
+  
+  msdSVMPlot = plot(x, avgSVM,log = "x",
+                    ylim=range(c(ylowerBound,yUpperBound)),
+                    pch=20, type= type,   col = 1, lwd = 2,lty = 1,
+                    xlab= "number of labeled samples per class", 
+                    ylab="accuracy (%) +/- std dev",
+                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+  )
+  lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
+  lines(x, avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
+  
+  lines(x, avgVSVM, type= type ,          col = 3, lwd = 2,lty = 1)
+  lines(x, avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 2)
+  lines(x, avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x, avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
+  
+  # lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
+  # lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
+  # lines(x, AccuracyVSVM_SL_Un_b_ms, type= type , col = 6, lwd=2)
+  
+  lines(x, avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
+  # lines(x, avgVSVM_SL_Un_b_ud, type= type , col = 4, lwd=2)
+  # lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
+  
+  # arrows(x, avgSVM-sdSVM, x, avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
+  # arrows(x, avgSVM_M-sdSVM_M, x, avgSVM_M+sdSVM_M, length=0.075, angle=90, code=3 ,col = 2,lty=2)
+  # arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 3,lty=2)
+  # arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 1,lty=3)
+  # arrows(x, avgSVM_SL_Un_b-sdSVM_SL_Un_b, x, avgSVM_SL_Un_b+sdSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 1,lty=4)
+  arrows(x, avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
+  arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
+  
+  legend("bottomright",
+         c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
+           "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
+           "VSVM-SL + AL"),
+         lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
+         col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
+  )
+  
+  dev.off()
+}
 
 
 ##########################################################################
@@ -493,25 +498,45 @@ png(filename=paste0(file_name_kappa,".png"),
     height=16, 
     pointsize=12,
     res=96)
-
-msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
-                  ylim=range(c(ylowerBound,yUpperBound)), 
-                  pch=20, type= type,                   col = 1, lwd=2,lty = 1,
-                  xlab= "number of labeled samples per class", 
-                  ylab="Kappa-score",
-                  main = paste(city,"-", class,"classification problem -", invariance,"invariance")
-)
-lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
-lines(x, ExCsvMSD(KappaSVM_SL_Un_b)[1,], type= type ,   col = 1, lwd=2,lty = 4)
-
-lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
-lines(x, ExCsvMSD(KappaVSVM_SL)[1,], type= type ,       col = 3, lwd=2,lty = 2)
-lines(x, ExCsvMSD(KappaVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd=2,lty = 1)
-lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd=2,lty = 1)
-
-lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
-
-# lines(x, ExCsvMSD(KappaVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
+if(nrow(KappaSVM)>1){
+  msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
+                    ylim=range(c(ylowerBound,yUpperBound)), 
+                    pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                    xlab= "number of labeled samples per class", 
+                    ylab="Kappa-score",
+                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+  )
+  lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
+  lines(x, ExCsvMSD(KappaSVM_SL_Un_b)[1,], type= type ,   col = 1, lwd=2,lty = 4)
+  
+  lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
+  lines(x, ExCsvMSD(KappaVSVM_SL)[1,], type= type ,       col = 3, lwd=2,lty = 2)
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd=2,lty = 1)
+  lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd=2,lty = 1)
+  
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
+  
+  # lines(x, ExCsvMSD(KappaVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
+}else{
+  msdSVMPlot = plot(x, (KappaSVM),log = "x",
+                    ylim=range(c(ylowerBound,yUpperBound)), 
+                    pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                    xlab= "number of labeled samples per class", 
+                    ylab="Kappa-score",
+                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+  )
+  lines(x, (KappaSVM_M), type= type ,         col = 8, lwd=2,lty = 3)
+  lines(x, (KappaSVM_SL_Un_b), type= type ,   col = 1, lwd=2,lty = 4)
+  
+  lines(x, (KappaVSVM), type= type ,          col = 3, lwd=2,lty = 1)
+  lines(x, (KappaVSVM_SL), type= type ,       col = 3, lwd=2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_b), type= type ,  col = 4, lwd=2,lty = 1)
+  lines(x, (KappaVSVM_SL_vUn_b), type= type , col = 5, lwd=2,lty = 1)
+  
+  lines(x, (KappaVSVM_SL_Un_it), type= type , col = 7, lwd=2,lty = 1)
+  
+  # lines(x, (KappaVSVM_SL_Un_b_ud), type= type , col = 4, lwd=2)
+}
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend("bottomright",
