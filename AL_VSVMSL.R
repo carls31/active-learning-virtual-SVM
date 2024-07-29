@@ -689,7 +689,7 @@ for (model_prob in model_probs) {
         generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnClass)
         
         if (invariance=="scale") {
-          ########################################  Input  ########################################
+          ###################################################  Input  ########################################
           
           sindexSVMDATA = 37        # start of baseline model with one segmentation scale data
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
@@ -756,42 +756,42 @@ for (model_prob in model_probs) {
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
-          ##################################################  MultiLevel ###################################################
-          # normalize feature for MultiScale
-          nomalizedFeat_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
-          # WHAT IS THE DIFFERENCE WITH THE OTHER generalDataPool, i.e. data_MS?
-          preProc = preProcess(nomalizedFeat_MS, method = "range")
-          nomalizedFeat_MS = predict(preProc, nomalizedFeat_MS)
-          normalizedDataPoolAllLev_MS = cbind( nomalizedFeat_MS[1:((sindexSVMDATA + 8*numFeat)-1)], normalizedLabelUSE)
-          rm(nomalizedFeat_MS, normalizedLabelUSE)
-          # **************************************** data for map visualization ****************************************
-          # normalized_data_MS = predict(preProc, generalDataPool[,1:(ncol(generalDataPool)-2)])
-          # normalized_data_MS = cbind( normalized_data_MS[1:((sindexSVMDATA + 8*numFeat)-1)])
-          # ************************************************************************************************************
-          rm(generalDataPool)
-          
-          #Split data in test, train and validate data Multiscale
-          splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$USE)
-          trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
-          testDataAllLevMS = as.data.frame(splitdf[[2]])
-          validateDataAllLevMS = as.data.frame(splitdf[[3]])
-          rm(splitdf, normalizedDataPoolAllLev_MS)
-          
-          # remove use indicator in last column MS
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
-          testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
-          validateDataAllLevMS = validateDataAllLevMS[,1:ncol(validateDataAllLevMS)-1]
-          
-          # split Validate data in features and labels for MS
-          validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-1)]
-          validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
-          rm(validateDataAllLevMS)
-           
-          # order train datapool by class label in alphabetical order:
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-          #########################################################################################
+          # ##################################################  MultiLevel ###################################################
+          # # normalize feature for MultiScale
+          # nomalizedFeat_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
+          # # WHAT IS THE DIFFERENCE WITH THE OTHER generalDataPool, i.e. data_MS?
+          # preProc = preProcess(nomalizedFeat_MS, method = "range")
+          # nomalizedFeat_MS = predict(preProc, nomalizedFeat_MS)
+          # normalizedDataPoolAllLev_MS = cbind( nomalizedFeat_MS[1:((sindexSVMDATA + 8*numFeat)-1)], normalizedLabelUSE)
+          # rm(nomalizedFeat_MS, normalizedLabelUSE)
+          # # **************************************** data for map visualization ****************************************
+          # # normalized_data_MS = predict(preProc, generalDataPool[,1:(ncol(generalDataPool)-2)])
+          # # normalized_data_MS = cbind( normalized_data_MS[1:((sindexSVMDATA + 8*numFeat)-1)])
+          # # ************************************************************************************************************
+          # rm(generalDataPool)
+          # 
+          # #Split data in test, train and validate data Multiscale
+          # splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$USE)
+          # trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
+          # testDataAllLevMS = as.data.frame(splitdf[[2]])
+          # validateDataAllLevMS = as.data.frame(splitdf[[3]])
+          # rm(splitdf, normalizedDataPoolAllLev_MS)
+          # 
+          # # remove use indicator in last column MS
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
+          # testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
+          # validateDataAllLevMS = validateDataAllLevMS[,1:ncol(validateDataAllLevMS)-1]
+          # 
+          # # split Validate data in features and labels for MS
+          # validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-1)]
+          # validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
+          # rm(validateDataAllLevMS)
+          #  
+          # # order train datapool by class label in alphabetical order:
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
+          #############################################################################################################
         } else { # seed 47
-          ########################################  Input  ########################################
+          ###################################################  Input  ########################################
           sindexSVMDATA = 1   # start of baseline model with one segmentation scale data
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
           
@@ -861,7 +861,7 @@ for (model_prob in model_probs) {
           if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
             generalDataPool_shape=classificationProblem(generalDataPool_shape)
           }
-          ########################################  Scaling  ########################################
+          ###################################################  Scaling  ########################################
           
           normalizedFeat = generalDataPool_shape[,1:(ncol(generalDataPool_shape)-2)]
           normalizedLabelUSE = generalDataPool_shape[1:nrow(generalDataPoolOrg_S09C01),19:20]
@@ -923,53 +923,53 @@ for (model_prob in model_probs) {
           
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
            
-          ##################################################  MultiLevel ###################################################
-          tempnames = 1: ncol(normalizedFeat)
-          tempnames = as.character(tempnames)
-          nomalizedFeatMS = setNames(normalizedFeat,tempnames)
-          preProc = preProcess(nomalizedFeatMS, method = "range")
-          nomalizedFeatMS= predict(preProc, nomalizedFeatMS)
-          normalizedDataPoolAllLev_MS = cbind( nomalizedFeatMS, normalizedLabelUSE)
-          rm(nomalizedFeatMS,normalizedLabelUSE)
-          # **************************************** data for map visualization ****************************************
-          # normalized_data_MS = cbind(generalDataPool[,1:18],
-          #                 generalDataPoolOrg_S01C09[,3:20], 
-          #                 generalDataPoolOrg_S03C05[,3:20],
-          #                 generalDataPoolOrg_S03C07[,3:20],
-          #                 generalDataPoolOrg_S05C03[,3:20],
-          #                 generalDataPoolOrg_S05C05[,3:20],
-          #                 generalDataPoolOrg_S05C07[,3:20],
-          #                 generalDataPoolOrg_S07C03[,3:20],
-          #                 generalDataPoolOrg_S09C01[,3:20])
-          # normalized_data_MS = setNames(normalized_data_MS,tempnames)
-          # normalized_data_MS = predict(preProc, normalized_data_MS[,1:ncol(data_MS)])
-          # ************************************************************************************************************
-          rm(generalDataPool, generalDataPoolOrg_S09C01, generalDataPoolOrg_S07C03,  
-             generalDataPoolOrg_S05C07, generalDataPoolOrg_S05C05, generalDataPoolOrg_S05C03, generalDataPoolOrg_S03C07, 
-             generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09 ) 
-          
-          #Split data in test and train data Multilevel
-          splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$use)
-          trainDataPoolAllLevMS = (as.data.frame(splitdf[[1]]))
-          testDataAllLevMS = (as.data.frame(splitdf[[2]]))
-          validateDataAllLevMS = (as.data.frame(splitdf[[3]]))
-          rm(splitdf,normalizedDataPoolAllLev_MS)
-          
-          #reove use indicator in last column MS
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
-          testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
-          trainDataPoolAllLevMS = na.omit(trainDataPoolAllLevMS)
-          testDataAllLevMS = na.omit(testDataAllLevMS)
-          
-          #split Validate Dateset in features and labels for MS
-          validateDataAllLevMS = na.omit(validateDataAllLevMS)
-          validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-2)]
-          validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS)-1)]
-          rm(validateDataAllLevMS)
-          
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-           
-          #########################################################################################
+          # ##################################################  MultiLevel ###################################################
+          # tempnames = 1: ncol(normalizedFeat)
+          # tempnames = as.character(tempnames)
+          # nomalizedFeatMS = setNames(normalizedFeat,tempnames)
+          # preProc = preProcess(nomalizedFeatMS, method = "range")
+          # nomalizedFeatMS= predict(preProc, nomalizedFeatMS)
+          # normalizedDataPoolAllLev_MS = cbind( nomalizedFeatMS, normalizedLabelUSE)
+          # rm(nomalizedFeatMS,normalizedLabelUSE)
+          # # **************************************** data for map visualization ****************************************
+          # # normalized_data_MS = cbind(generalDataPool[,1:18],
+          # #                 generalDataPoolOrg_S01C09[,3:20], 
+          # #                 generalDataPoolOrg_S03C05[,3:20],
+          # #                 generalDataPoolOrg_S03C07[,3:20],
+          # #                 generalDataPoolOrg_S05C03[,3:20],
+          # #                 generalDataPoolOrg_S05C05[,3:20],
+          # #                 generalDataPoolOrg_S05C07[,3:20],
+          # #                 generalDataPoolOrg_S07C03[,3:20],
+          # #                 generalDataPoolOrg_S09C01[,3:20])
+          # # normalized_data_MS = setNames(normalized_data_MS,tempnames)
+          # # normalized_data_MS = predict(preProc, normalized_data_MS[,1:ncol(data_MS)])
+          # # ************************************************************************************************************
+          # rm(generalDataPool, generalDataPoolOrg_S09C01, generalDataPoolOrg_S07C03,  
+          #    generalDataPoolOrg_S05C07, generalDataPoolOrg_S05C05, generalDataPoolOrg_S05C03, generalDataPoolOrg_S03C07, 
+          #    generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09 ) 
+          # 
+          # #Split data in test and train data Multilevel
+          # splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$use)
+          # trainDataPoolAllLevMS = (as.data.frame(splitdf[[1]]))
+          # testDataAllLevMS = (as.data.frame(splitdf[[2]]))
+          # validateDataAllLevMS = (as.data.frame(splitdf[[3]]))
+          # rm(splitdf,normalizedDataPoolAllLev_MS)
+          # 
+          # #reove use indicator in last column MS
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
+          # testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
+          # trainDataPoolAllLevMS = na.omit(trainDataPoolAllLevMS)
+          # testDataAllLevMS = na.omit(testDataAllLevMS)
+          # 
+          # #split Validate Dateset in features and labels for MS
+          # validateDataAllLevMS = na.omit(validateDataAllLevMS)
+          # validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-2)]
+          # validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS)-1)]
+          # rm(validateDataAllLevMS)
+          # 
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
+          #  
+          #############################################################################################################
         }  
         if (model_prob=="multiclass") { 
           lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/lightC)
@@ -979,12 +979,12 @@ for (model_prob in model_probs) {
           validateFeatsub = validateData[,1:ncol(validateFeatsub)]
           validateLabels = validateData[,ncol(validateFeatsub)+1]
           rm(validateData, val_stratSamp)
-          validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
-          val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
-          validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
-          validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
-          validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
-          rm(validateData_MS,val_stratSamp_MS) 
+          # validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
+          # val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
+          # validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
+          # validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
+          # validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
+          # rm(validateData_MS,val_stratSamp_MS) 
         }
       } else {
         
@@ -997,7 +997,7 @@ for (model_prob in model_probs) {
                           "Lx_t_diss","Lx_t_hom","Lx_t_mean",
                           "label")
         if (invariance=="scale") {
-          ########################################  Input  ########################################
+          ###################################################  Input  ########################################
           inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
           
           sindexSVMDATA = 53                                      # start of baseline model with one segmentation scale data
@@ -1079,58 +1079,58 @@ for (model_prob in model_probs) {
           # order train datapool by class label in alphabetical order:
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
            
-          ################################################## MultiScale ####################################################
-          # normalize feature for MultiScale
-          nomalizedFeat_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
-          
-          preProc1 = preProcess(nomalizedFeat_MS[,1:50], method = "range")
-          preProc2 = preProcess(nomalizedFeat_MS[,51:100], method = "range")
-          preProc3 = preProcess(nomalizedFeat_MS[,101:150], method = "range")
-          preProc4 = preProcess(nomalizedFeat_MS[,151:200], method = "range")
-          preProc5 = preProcess(nomalizedFeat_MS[,201:208], method = "range")
-           
-          nomalizedFeat_MS[,1:50]= predict(preProc1, normalizedFeat[,1:50])
-          nomalizedFeat_MS[,51:100]= predict(preProc2, normalizedFeat[,51:100])
-          nomalizedFeat_MS[,101:150]= predict(preProc3, normalizedFeat[,101:150])
-          nomalizedFeat_MS[,151:200]= predict(preProc4, normalizedFeat[,151:200])
-          nomalizedFeat_MS[,201:208]= predict(preProc5, normalizedFeat[,201:208])
-           
-          normalizedDataPoolAllLev_MS = cbind( nomalizedFeat_MS, normalizedLabelUSE)
-          rm(nomalizedFeat_MS, normalizedLabelUSE)
-           
-          # **************************************** data for map visualization ****************************************
-          # normalized_data_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
-          # normalized_data_MS[,1:50] = predict(preProc1, generalDataPool[,1:50])
-          # normalized_data_MS[,51:100]= predict(preProc2, generalDataPool[,51:100])
-          # normalized_data_MS[,101:150]= predict(preProc3, generalDataPool[,101:150])
-          # normalized_data_MS[,151:200]= predict(preProc4, generalDataPool[,151:200])
-          # normalized_data_MS[,201:208]= predict(preProc5, generalDataPool[,201:208])
-          # ************************************************************************************************************
-          rm(generalDataPool)
-          
-          #Split data in test, train and validate data Multiscale
-          splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$USE)
-          trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
-          testDataAllLevMS = as.data.frame(splitdf[[2]])
-          validateDataAllLevMS = as.data.frame(splitdf[[3]])
-          rm(splitdf,normalizedDataPoolAllLev_MS)
-          
-          # remove use indicator in last column MS
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
-          testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
-          validateDataAllLevMS = validateDataAllLevMS[,1:ncol(validateDataAllLevMS)-1]
-          
-          # split Validate data in features and labels for MS
-          validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-1)]
-          validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
-          rm(validateDataAllLevMS)
-          
-          # order train datapool by class label in alphabetical order:
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-           
+          # ################################################## MultiLevel ####################################################
+          # # normalize feature for MultiScale
+          # nomalizedFeat_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
+          # 
+          # preProc1 = preProcess(nomalizedFeat_MS[,1:50], method = "range")
+          # preProc2 = preProcess(nomalizedFeat_MS[,51:100], method = "range")
+          # preProc3 = preProcess(nomalizedFeat_MS[,101:150], method = "range")
+          # preProc4 = preProcess(nomalizedFeat_MS[,151:200], method = "range")
+          # preProc5 = preProcess(nomalizedFeat_MS[,201:208], method = "range")
+          #  
+          # nomalizedFeat_MS[,1:50]= predict(preProc1, normalizedFeat[,1:50])
+          # nomalizedFeat_MS[,51:100]= predict(preProc2, normalizedFeat[,51:100])
+          # nomalizedFeat_MS[,101:150]= predict(preProc3, normalizedFeat[,101:150])
+          # nomalizedFeat_MS[,151:200]= predict(preProc4, normalizedFeat[,151:200])
+          # nomalizedFeat_MS[,201:208]= predict(preProc5, normalizedFeat[,201:208])
+          #  
+          # normalizedDataPoolAllLev_MS = cbind( nomalizedFeat_MS, normalizedLabelUSE)
+          # rm(nomalizedFeat_MS, normalizedLabelUSE)
+          #  
+          # # **************************************** data for map visualization ****************************************
+          # # normalized_data_MS = generalDataPool[,1:(ncol(generalDataPool)-2)]
+          # # normalized_data_MS[,1:50] = predict(preProc1, generalDataPool[,1:50])
+          # # normalized_data_MS[,51:100]= predict(preProc2, generalDataPool[,51:100])
+          # # normalized_data_MS[,101:150]= predict(preProc3, generalDataPool[,101:150])
+          # # normalized_data_MS[,151:200]= predict(preProc4, generalDataPool[,151:200])
+          # # normalized_data_MS[,201:208]= predict(preProc5, generalDataPool[,201:208])
+          # # ************************************************************************************************************
+          # rm(generalDataPool)
+          # 
+          # #Split data in test, train and validate data Multiscale
+          # splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$USE)
+          # trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
+          # testDataAllLevMS = as.data.frame(splitdf[[2]])
+          # validateDataAllLevMS = as.data.frame(splitdf[[3]])
+          # rm(splitdf,normalizedDataPoolAllLev_MS)
+          # 
+          # # remove use indicator in last column MS
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
+          # testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
+          # validateDataAllLevMS = validateDataAllLevMS[,1:ncol(validateDataAllLevMS)-1]
+          # 
+          # # split Validate data in features and labels for MS
+          # validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-1)]
+          # validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS))]
+          # rm(validateDataAllLevMS)
+          # 
+          # # order train datapool by class label in alphabetical order:
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
+          #  
           #############################################################################################################
         } else {
-          ##################################################  Input  ##################################################
+          ###################################################  Input  ##################################################
           
           sindexSVMDATA = 1                                       # start of baseline model with one segmentation scale data
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
@@ -1260,7 +1260,7 @@ for (model_prob in model_probs) {
           if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
             generalDataPool=classificationProblem(generalDataPool)
           }
-          ########################################  Scaling  ########################################
+          ###################################################  Scaling  ########################################
            
           normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
           normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):ncol(generalDataPool)]
@@ -1304,7 +1304,7 @@ for (model_prob in model_probs) {
            
           generalDataPoolfinal_shape = cbind(normalizedFeat, normalizedLabelUSE)
           
-          ############################################# Splitting & Sampling #############################################
+          #############################################  Splitting & Sampling #############################################
           # Split data in test, train and validate data
           splitdf <- split(generalDataPoolfinal_shape, generalDataPoolfinal_shape$use)
           trainDataPoolAllLev = as.data.frame(splitdf[[1]])
@@ -1324,69 +1324,69 @@ for (model_prob in model_probs) {
            
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
-          ################################################## MultiScale ####################################################
-          
-          preProc1 = preProcess(nomalizedFeatMS[,1:50], method = "range")
-          preProc2 = preProcess(nomalizedFeatMS[,51:100], method = "range")
-          preProc3 = preProcess(nomalizedFeatMS[,101:150], method = "range")
-          preProc4 = preProcess(nomalizedFeatMS[,151:200], method = "range")
-          preProc5 = preProcess(nomalizedFeatMS[,201:234], method = "range")
-           
-          nomalizedFeatMS[,1:50]= predict(preProc1, normalizedFeat[,1:50])
-          nomalizedFeatMS[,51:100]= predict(preProc2, normalizedFeat[,51:100])
-          nomalizedFeatMS[,101:150]= predict(preProc3, normalizedFeat[,101:150])
-          nomalizedFeatMS[,151:200]= predict(preProc4, normalizedFeat[,151:200])
-          nomalizedFeatMS[,201:234]= predict(preProc5, normalizedFeat[,201:234])
-          normalizedDataPoolAllLev_MS = cbind(nomalizedFeatMS, normalizedLabelUSE)
-          rm(nomalizedFeatMS, normalizedLabelUSE
-          )
-           
-          # **************************************** data for map visualization ****************************************
-          # data_MS = cbind(generalDataPool_scale[,1:26],
-          #                 generalDataPoolOrg_S01C09[,3:28], 
-          #                 generalDataPoolOrg_S03C05[,3:28],
-          #                 generalDataPoolOrg_S03C07[,3:28],
-          #                 generalDataPoolOrg_S05C03[,3:28],
-          #                 generalDataPoolOrg_S05C05[,3:28],
-          #                 generalDataPoolOrg_S05C07[,3:28],
-          #                 generalDataPoolOrg_S07C03[,3:28],
-          #                 generalDataPoolOrg_S09C01[,3:28])
-          # data_MS = setNames(data_MS,colnames(normalizedFeat))
-          # normalized_data_MS = data_MS
-          # normalized_data_MS[,1:50]= predict(preProc1, data_MS[,1:50])
-          # normalized_data_MS[,51:100]= predict(preProc2, data_MS[,51:100])
-          # normalized_data_MS[,101:150]= predict(preProc3, data_MS[,101:150])
-          # normalized_data_MS[,151:200]= predict(preProc4, data_MS[,151:200])
-          # normalized_data_MS[,201:234]= predict(preProc5, data_MS[,201:234])
-          # rm(data_MS)
-          # ************************************************************************************************************
-          rm(generalDataPool_scale, generalDataPoolOrg_S09C01, generalDataPoolOrg_S07C03,
-             generalDataPoolOrg_S05C07, generalDataPoolOrg_S05C05, generalDataPoolOrg_S05C03,
-             generalDataPoolOrg_S03C07, generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09
-          )
-           
-          # Split data in test and train data Multilevel
-          splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$use)
-          trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
-          testDataAllLevMS = as.data.frame(splitdf[[2]])
-          validateDataAllLevMS = as.data.frame(splitdf[[3]])
-          rm(splitdf, normalizedDataPoolAllLev_MS)
-           
-          # remove "USE" indicator in last column MS
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
-          testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
-          trainDataPoolAllLevMS = na.omit(trainDataPoolAllLevMS)
-          testDataAllLevMS = na.omit(testDataAllLevMS)
-          
-          # split Validate Dateset in features and labels for MS
-          validateDataAllLevMS = na.omit(validateDataAllLevMS)
-          validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-2)]
-          validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS)-1)]
-          rm(validateDataAllLevMS)
-          
-          trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
-           
-          ##################################################################################################################
+          # ################################################## MultiLevel ####################################################
+          # 
+          # preProc1 = preProcess(nomalizedFeatMS[,1:50], method = "range")
+          # preProc2 = preProcess(nomalizedFeatMS[,51:100], method = "range")
+          # preProc3 = preProcess(nomalizedFeatMS[,101:150], method = "range")
+          # preProc4 = preProcess(nomalizedFeatMS[,151:200], method = "range")
+          # preProc5 = preProcess(nomalizedFeatMS[,201:234], method = "range")
+          #  
+          # nomalizedFeatMS[,1:50]= predict(preProc1, normalizedFeat[,1:50])
+          # nomalizedFeatMS[,51:100]= predict(preProc2, normalizedFeat[,51:100])
+          # nomalizedFeatMS[,101:150]= predict(preProc3, normalizedFeat[,101:150])
+          # nomalizedFeatMS[,151:200]= predict(preProc4, normalizedFeat[,151:200])
+          # nomalizedFeatMS[,201:234]= predict(preProc5, normalizedFeat[,201:234])
+          # normalizedDataPoolAllLev_MS = cbind(nomalizedFeatMS, normalizedLabelUSE)
+          # rm(nomalizedFeatMS, normalizedLabelUSE
+          # )
+          #  
+          # # **************************************** data for map visualization ****************************************
+          # # data_MS = cbind(generalDataPool_scale[,1:26],
+          # #                 generalDataPoolOrg_S01C09[,3:28], 
+          # #                 generalDataPoolOrg_S03C05[,3:28],
+          # #                 generalDataPoolOrg_S03C07[,3:28],
+          # #                 generalDataPoolOrg_S05C03[,3:28],
+          # #                 generalDataPoolOrg_S05C05[,3:28],
+          # #                 generalDataPoolOrg_S05C07[,3:28],
+          # #                 generalDataPoolOrg_S07C03[,3:28],
+          # #                 generalDataPoolOrg_S09C01[,3:28])
+          # # data_MS = setNames(data_MS,colnames(normalizedFeat))
+          # # normalized_data_MS = data_MS
+          # # normalized_data_MS[,1:50]= predict(preProc1, data_MS[,1:50])
+          # # normalized_data_MS[,51:100]= predict(preProc2, data_MS[,51:100])
+          # # normalized_data_MS[,101:150]= predict(preProc3, data_MS[,101:150])
+          # # normalized_data_MS[,151:200]= predict(preProc4, data_MS[,151:200])
+          # # normalized_data_MS[,201:234]= predict(preProc5, data_MS[,201:234])
+          # # rm(data_MS)
+          # # ************************************************************************************************************
+          # rm(generalDataPool_scale, generalDataPoolOrg_S09C01, generalDataPoolOrg_S07C03,
+          #    generalDataPoolOrg_S05C07, generalDataPoolOrg_S05C05, generalDataPoolOrg_S05C03,
+          #    generalDataPoolOrg_S03C07, generalDataPoolOrg_S03C05, generalDataPoolOrg_S01C09
+          # )
+          #  
+          # # Split data in test and train data Multilevel
+          # splitdf <- split(normalizedDataPoolAllLev_MS, normalizedDataPoolAllLev_MS$use)
+          # trainDataPoolAllLevMS = as.data.frame(splitdf[[1]])
+          # testDataAllLevMS = as.data.frame(splitdf[[2]])
+          # validateDataAllLevMS = as.data.frame(splitdf[[3]])
+          # rm(splitdf, normalizedDataPoolAllLev_MS)
+          #  
+          # # remove "USE" indicator in last column MS
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[,1:ncol(trainDataPoolAllLevMS)-1]
+          # testDataAllLevMS = testDataAllLevMS[,1:ncol(testDataAllLevMS)-1]
+          # trainDataPoolAllLevMS = na.omit(trainDataPoolAllLevMS)
+          # testDataAllLevMS = na.omit(testDataAllLevMS)
+          # 
+          # # split Validate Dateset in features and labels for MS
+          # validateDataAllLevMS = na.omit(validateDataAllLevMS)
+          # validateFeatAllLevMS = validateDataAllLevMS[,1:(ncol(validateDataAllLevMS)-2)]
+          # validateLabelsMS = validateDataAllLevMS[,(ncol(validateDataAllLevMS)-1)]
+          # rm(validateDataAllLevMS)
+          # 
+          # trainDataPoolAllLevMS = trainDataPoolAllLevMS[order(trainDataPoolAllLevMS[,ncol(trainDataPoolAllLevMS)]),]
+          #  
+          #############################################################################################################
           lightC = 4 # lighter validate dataset for running faster prediction
         }
         if (model_prob=="multiclass") { 
@@ -1397,12 +1397,13 @@ for (model_prob in model_probs) {
           validateFeatsub = validateData[,1:ncol(validateFeatsub)]
           validateLabels = validateData[,ncol(validateFeatsub)+1]
           rm(validateData, val_stratSamp)
-          validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
-          val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
-          validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
-          validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
-          validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
-          rm(validateData_MS,val_stratSamp_MS) }
+          # validateData_MS = cbind(validateFeatAllLevMS,validateLabelsMS)
+          # val_stratSamp_MS = strata(validateData_MS, c("validateLabelsMS"), size = lightS, method = "srswor")
+          # validateData_MS = getdata(validateData_MS, val_stratSamp_MS)
+          # validateFeatAllLevMS = validateData_MS[,1:ncol(validateFeatAllLevMS)]
+          # validateLabelsMS = validateData_MS[,ncol(validateFeatAllLevMS)+1]
+          # rm(validateData_MS,val_stratSamp_MS) 
+          }
       }
 
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1418,7 +1419,6 @@ for (model_prob in model_probs) {
       colnames(AccuracyVSVM_SL) = colheader
       AccuracyVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracyVSVM_SL_Un) = colheader
-      
       AccuracyVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracyVSVM_SL_vUn) = colheader
       
@@ -1439,7 +1439,6 @@ for (model_prob in model_probs) {
       colnames(KappaVSVM_SL) = colheader
       KappaVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(KappaVSVM_SL_Un) = colheader
-      
       KappaVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(KappaVSVM_SL_vUn) = colheader
       
@@ -1479,11 +1478,11 @@ for (model_prob in model_probs) {
         # subset for each outer iteration test data to speed up computing
         testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
         
-        ######  MultiScale
-        trainDataCurBegMS = trainDataPoolAllLevMS
-        testDataCurBegMS = testDataAllLevMS
-        # subset for each outer iteration test data to speed up computing
-        testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
+        # ######  MultiScale
+        # trainDataCurBegMS = trainDataPoolAllLevMS
+        # testDataCurBegMS = testDataAllLevMS
+        # # subset for each outer iteration test data to speed up computing
+        # testDataCurBegMS = testDataCurBegMS[order(testDataCurBegMS[,ncol(testDataCurBegMS)]),]
         
         for (sample_size in seq(along=sampleSizePor)) {#}
           
@@ -1570,46 +1569,46 @@ for (model_prob in model_probs) {
             binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
           }
           # ******************************************************
-          cat("\n") ######################################### SVM MS  #############################################
-          model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
-          if (file.exists(model_name_tunedSVM_MS) && !train) {
-            tunedSVM_MS <- readRDS(model_name_tunedSVM_MS)
-            cat("Luckily, model already exists!")
-          } else {
-            stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
-            samples = getdata(trainDataCurBegMS, stratSamp)
-            
-            trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
-            trainFeatMS = trainDataCurMS[,1:(ncol(trainDataPoolAllLevMS)-1)]
-            trainLabelsMS = trainDataCurMS[,ncol(trainDataPoolAllLevMS)]
-            
-            stratSamp = strata(testDataCurBegMS, c("REF"), size = shares, method = "srswor")
-            samples = getdata(testDataCurBegMS, stratSamp)
-            
-            testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
-            # split test feat from test label for later join with trainData MS
-            testFeatMS = testDataCurMS[,1:(ncol(testDataCurMS)-1)]
-            testLabelsMS = testDataCurMS[,ncol(testDataCurMS)]
-            
-            countTrainDataMS = nrow(trainFeatMS)
-            indexTrainDataMS = list(c(1:countTrainDataMS))
-            
-            #join train and test test data (through indexTrainData in svmFit separable)
-            tuneFeat_MS = rbind(trainFeatMS, testFeatMS)
-            tuneLabel_MS = unlist(list(trainLabelsMS, testLabelsMS))
-            
-            cat("training SVM multilevel\n")
-            trainStart.time <- Sys.time()
-            tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
-            train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
-          }
-          # run classification and accuracy assessment for unmodified SV and predict labels of test data
-          predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
-          accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
-          cat("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | execution time: ",train.time,"sec","\n",sep="")
-          
-          AccuracySVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Accuracy"])
-          KappaSVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Kappa"])
+          # cat("\n") ######################################### SVM MS  #############################################
+          # model_name_tunedSVM_MS = paste0(format(Sys.time(),"%Y%m%d"),"SVM_MS_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          # if (file.exists(model_name_tunedSVM_MS) && !train) {
+          #   tunedSVM_MS <- readRDS(model_name_tunedSVM_MS)
+          #   cat("Luckily, model already exists!")
+          # } else {
+          #   stratSamp = strata(trainDataCurBegMS, c("REF"), size = shares, method = "srswor")
+          #   samples = getdata(trainDataCurBegMS, stratSamp)
+          #   
+          #   trainDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
+          #   trainFeatMS = trainDataCurMS[,1:(ncol(trainDataPoolAllLevMS)-1)]
+          #   trainLabelsMS = trainDataCurMS[,ncol(trainDataPoolAllLevMS)]
+          #   
+          #   stratSamp = strata(testDataCurBegMS, c("REF"), size = shares, method = "srswor")
+          #   samples = getdata(testDataCurBegMS, stratSamp)
+          #   
+          #   testDataCurMS = samples[,1:ncol(trainDataPoolAllLevMS)]
+          #   # split test feat from test label for later join with trainData MS
+          #   testFeatMS = testDataCurMS[,1:(ncol(testDataCurMS)-1)]
+          #   testLabelsMS = testDataCurMS[,ncol(testDataCurMS)]
+          #   
+          #   countTrainDataMS = nrow(trainFeatMS)
+          #   indexTrainDataMS = list(c(1:countTrainDataMS))
+          #   
+          #   #join train and test test data (through indexTrainData in svmFit separable)
+          #   tuneFeat_MS = rbind(trainFeatMS, testFeatMS)
+          #   tuneLabel_MS = unlist(list(trainLabelsMS, testLabelsMS))
+          #   
+          #   cat("training SVM multilevel\n")
+          #   trainStart.time <- Sys.time()
+          #   tunedSVM_MS = svmFit(tuneFeat_MS, tuneLabel_MS, indexTrainDataMS)
+          #   train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+          # }
+          # # run classification and accuracy assessment for unmodified SV and predict labels of test data
+          # predLabelsSVMmultiScale = predict(tunedSVM_MS, validateFeatAllLevMS)
+          # accSVM_M = confusionMatrix(predLabelsSVMmultiScale, validateLabelsMS)
+          # cat("SVM_M accuracy: ",round(accSVM_M$overall["Accuracy"],5)," | execution time: ",train.time,"sec","\n",sep="")
+          # 
+          # AccuracySVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Accuracy"])
+          # KappaSVM_M[realization,sample_size] = as.numeric(accSVM_M$overall["Kappa"])
           cat("\n") ############################### SVM-SL + semi-labeled samples #####################################
           
           # Definition of sampling configuration (strata:random sampling without replacement)
@@ -2083,7 +2082,8 @@ for (model_prob in model_probs) {
               for (nS4it in 1:length(newSizes)) {
                 for (cS in 1:length(clusterSizes)) {
                   for (rS in 1:length(resampledSize)) {
-                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
+                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",
+                        nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
                     upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
@@ -2218,7 +2218,7 @@ for (model_prob in model_probs) {
           
           if (realization==1 && sample_size==4) {
             saveRDS(tunedSVM, model_name_tunedSVM)
-            saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
+            # saveRDS(tunedSVM_MS, model_name_tunedSVM_MS)
             saveRDS(bestFittingModelSVMUn, model_name_SVMUn)
             # saveRDS(tunedVSVM, model_name_tunedVSVM)
             saveRDS(bestFittingModel, model_name_VSVM_SL)
@@ -2245,11 +2245,15 @@ for (model_prob in model_probs) {
       time.taken_oa <- round(Sys.time() - start.time_oa,2)
       if (length(sampleSizePor)>=8) {
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
-        save(AccuracySVM,AccuracySVM_M,AccuracySVM_SL_Un,
+        save(AccuracySVM,
+             # AccuracySVM_M,
+             AccuracySVM_SL_Un,
              # AccuracyVSVM,
              AccuracyVSVM_SL,AccuracyVSVM_SL_Un,AccuracyVSVM_SL_vUn,AccuracyVSVM_SL_Un_it,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-        save(KappaSVM,KappaSVM_M,KappaSVM_SL_Un,
+        save(KappaSVM,
+             # KappaSVM_M,
+             KappaSVM_SL_Un,
              # KappaVSVM,
              KappaVSVM_SL,KappaVSVM_SL_Un,KappaVSVM_SL_vUn,KappaVSVM_SL_Un_it,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
