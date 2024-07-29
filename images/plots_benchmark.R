@@ -1,8 +1,8 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
-class = "multiclass"     # multiclass or binary
-invariance = "scale"     # scale or shape
+city = "hagadera"    # cologne or hagadera
+class = "binary"     # multiclass or binary
+invariance = "shape"     # scale or shape
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -28,6 +28,7 @@ file_name_acc = "20240729_0219_cologne_multiclass_shape_acc_benchmark_20Unl_1nR_
 file_name_acc = "20240729_cologne_multiclass_shape_acc_benchmark_20Unl_3nR_8SizePor"
 file_name_acc = "20240729_1026_cologne_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240729_cologne_multiclass_scale_acc_benchmark_20Unl_2nR_8SizePor"
+file_name_acc = "20240729_1431_hagadera_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -52,6 +53,7 @@ file_name_kappa = "20240729_0219_cologne_multiclass_shape_Kappa_benchmark_20Unl_
 file_name_kappa = "20240729_cologne_multiclass_shape_Kappa_benchmark_20Unl_3nR_8SizePor"
 file_name_kappa = "20240729_1026_cologne_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240729_cologne_multiclass_scale_Kappa_benchmark_20Unl_2nR_8SizePor"
+file_name_kappa = "20240729_1431_hagadera_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 
 
 
