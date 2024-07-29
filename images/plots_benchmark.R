@@ -2,7 +2,7 @@ library(scales)
 
 city = "cologne"    # cologne or hagadera
 class = "multiclass"     # multiclass or binary
-invariance = "shape"     # scale or shape
+invariance = "scale"     # scale or shape
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -12,11 +12,13 @@ file_name_acc = "20240724_1814_cologne_binary_scale_acc_benchmark_20Unl_1nR_8Siz
 file_name_acc = "20240725_1256_cologne_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240726_1015_cologne_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240725_2127_hagadera_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
-file_name_acc = "20240726_0628_hagadera_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240725_1936_hagadera_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
-file_name_acc = "20240726_1628_cologne_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
+file_name_acc = "20240726_0628_hagadera_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240726_1740_hagadera_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
-file_name_acc = "20240728_1221_hagadera_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
+
+file_name_acc = "20240726_1628_cologne_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
+
+file_name_acc = "20240728_1221_hagadera_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor" # added vsvm sl
 file_name_acc = "20240728_0421_cologne_multiclass_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240728_0046_cologne_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240727_2309_cologne_multiclass_shape_acc_benchmark_20Unl_1nR_8SizePor"
@@ -24,6 +26,8 @@ file_name_acc = "20240727_1310_cologne_multiclass_scale_acc_benchmark_20Unl_1nR_
 file_name_acc = "20240728_cologne_multiclass_shape_acc_benchmark_20Unl_2nR_8SizePor"
 file_name_acc = "20240729_0219_cologne_multiclass_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240729_cologne_multiclass_shape_acc_benchmark_20Unl_3nR_8SizePor"
+file_name_acc = "20240729_1026_cologne_multiclass_scale_acc_benchmark_20Unl_1nR_8SizePor"
+file_name_acc = "20240729_cologne_multiclass_scale_acc_benchmark_20Unl_2nR_8SizePor"
 
 
 # ********************************************************************
@@ -32,11 +36,13 @@ file_name_kappa = "20240724_1814_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_
 file_name_kappa = "20240725_1256_cologne_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240726_1015_cologne_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240725_2127_hagadera_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
-file_name_kappa = "20240726_0628_hagadera_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240725_1936_hagadera_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
-file_name_kappa = "20240726_1628_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+file_name_kappa = "20240726_0628_hagadera_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240726_1740_hagadera_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
-file_name_kappa = "20240728_1221_hagadera_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+
+file_name_kappa = "20240726_1628_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+
+file_name_kappa = "20240728_1221_hagadera_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor" # added vsvm sl
 file_name_kappa = "20240728_0421_cologne_multiclass_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240728_0046_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240727_2309_cologne_multiclass_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
@@ -44,6 +50,8 @@ file_name_kappa = "20240727_1310_cologne_multiclass_scale_Kappa_benchmark_20Unl_
 file_name_kappa = "20240728_cologne_multiclass_shape_Kappa_benchmark_20Unl_2nR_8SizePor"
 file_name_kappa = "20240729_0219_cologne_multiclass_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240729_cologne_multiclass_shape_Kappa_benchmark_20Unl_3nR_8SizePor"
+file_name_kappa = "20240729_1026_cologne_multiclass_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+file_name_kappa = "20240729_cologne_multiclass_scale_Kappa_benchmark_20Unl_2nR_8SizePor"
 
 
 
@@ -94,8 +102,8 @@ load(paste0(file_name_kappa,".RData"))
 # KappaVSVM_SL_Un_random_it=tmp_KappaVSVM_SL_Un_random_it
 # KappaVSVM_SL_Un_it=tmp_KappaVSVM_SL_Un_it
 # 
-# file_name_acc = "20240729_cologne_multiclass_shape_acc_benchmark_20Unl_3nR_8SizePor"
-# file_name_kappa = "20240729_cologne_multiclass_shape_Kappa_benchmark_20Unl_3nR_8SizePor"
+# file_name_acc = "20240729_cologne_multiclass_scale_acc_benchmark_20Unl_2nR_8SizePor"
+# file_name_kappa = "20240729_cologne_multiclass_scale_Kappa_benchmark_20Unl_2nR_8SizePor"
 # 
 # save(AccuracySVM,
 #      AccuracyVSVM_SL,
@@ -338,7 +346,7 @@ png(filename=paste0(file_name_kappa,".png"),
 
 # *********************************************
 
-if(nrow(KappaSVM)){
+if(nrow(KappaSVM)>1){
   msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
@@ -383,7 +391,9 @@ legend("bottomright",
              1,1,1,1), # gives the legend appropriate symbols (lines)
        col=c(1,
              4,
-             2,5,3,7)  # gives the legend lines the correct color and width
+             2,5,
+             3,
+             7)  # gives the legend lines the correct color and width
 )
 
 dev.off()
