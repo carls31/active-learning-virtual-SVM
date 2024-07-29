@@ -72,11 +72,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  52. DONE AL on VSVs from SL
  53. check for strange behaviour in the accuracies results (e.g. SVM multilevel, general upside-down of the accuracy of the model [some go up while the others go down])
 
-
-cologne binary scale 10nR -> only 5 models, different x-axis
-cologne multiclass scale 3nR -> different x-axis, SVM_MS issue
-hagadera binary scale 10nR -> SVM_MS issue
-hagadera binary shape 1nR
+cologne multiclass shape
 
 cologne multiclass-binary shape-scale
 hagadera multiclass-binary shape-scale
