@@ -305,10 +305,10 @@ if(nrow(AccuracySVM)>1){
                     ylab= "accuracy (%)",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
+  # lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
   
-  lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
+  # lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type ,       col = 3, lwd = 2,lty = 2)
   lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty = 1)
@@ -328,10 +328,10 @@ if(nrow(AccuracySVM)>1){
                     ylab= "accuracy (%)",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
+  # lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x, (AccuracySVM_SL_Un_b), type= type ,   col = 1, lwd = 2,lty = 4)
   
-  lines(x, (AccuracyVSVM), type= type ,          col = 3, lwd = 2,lty = 1)
+  # lines(x, (AccuracyVSVM), type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL), type= type ,       col = 3, lwd = 2,lty = 2)
   lines(x, (AccuracyVSVM_SL_Un_b), type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_vUn_b), type= type , col = 5, lwd = 2,lty = 1)
@@ -347,19 +347,23 @@ if(nrow(AccuracySVM)>1){
 
 legend("bottomright", 
        c("SVM single-level L4",
-         "SVM multi-level",
+         # "SVM multi-level",
          "SVM-SL + Unlabeled",
-         "VSVM",
+         # "VSVM",
          "VSVM-SL","VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
          "VSVM-SL + AL"),
-       lty=c(1,3,
-             4,1,
+       lty=c(1,
+             # 3,
+             4,
+             # 1,
              2,1,
              1,
              1), # gives the legend appropriate symbols (lines)
-       col=c(1,8,
-             1,3,
+       col=c(1,
+             # 8,
+             1,
+             # 3,
              3,4,
              5,
              7)  # gives the legend lines the correct color and width
@@ -374,14 +378,14 @@ if(nrow(AccuracySVM)>1){
   avgSVM=ExCsvMSD(AccuracySVM)[1,]
   sdSVM=ExCsvMSD(AccuracySVM)[2,]
   
-  avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
-  sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
+  # avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
+  # sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
   
   avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[1,]
   sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[2,]
   
-  avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
-  sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
+  # avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
+  # sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
   
   avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[1,]
   sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
@@ -410,10 +414,10 @@ if(nrow(AccuracySVM)>1){
                     ylab="accuracy (%) +/- std dev",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
+  # lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x, avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
   
-  lines(x, avgVSVM, type= type ,          col = 3, lwd = 2,lty = 1)
+  # lines(x, avgVSVM, type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x, avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 2)
   lines(x, avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x, avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
@@ -435,11 +439,22 @@ if(nrow(AccuracySVM)>1){
   arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
   
   legend("bottomright",
-         c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
-           "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
+         c("SVM single-level L4",
+           # "SVM multi-level",
+           "SVM-SL + Unlabeled",
+           # "VSVM",
+           "VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
            "VSVM-SL + AL"),
-         lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
-         col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
+         lty=c(1,
+               # 3,
+               4,
+               # 1,
+               2,1,1,1), # gives the legend appropriate symbols (lines)
+         col=c(1,
+               # 8,
+               1,
+               # 3,
+               3,4,5,7)  # gives the legend lines the correct color and width
   )
   
   dev.off()
@@ -512,10 +527,10 @@ if(nrow(KappaSVM)>1){
                     ylab="Kappa-score",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
+  # lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
   lines(x, ExCsvMSD(KappaSVM_SL_Un_b)[1,], type= type ,   col = 1, lwd=2,lty = 4)
   
-  lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
+  # lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
   lines(x, ExCsvMSD(KappaVSVM_SL)[1,], type= type ,       col = 3, lwd=2,lty = 2)
   lines(x, ExCsvMSD(KappaVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd=2,lty = 1)
   lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd=2,lty = 1)
@@ -531,10 +546,10 @@ if(nrow(KappaSVM)>1){
                     ylab="Kappa-score",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, (KappaSVM_M), type= type ,         col = 8, lwd=2,lty = 3)
+  # lines(x, (KappaSVM_M), type= type ,         col = 8, lwd=2,lty = 3)
   lines(x, (KappaSVM_SL_Un_b), type= type ,   col = 1, lwd=2,lty = 4)
   
-  lines(x, (KappaVSVM), type= type ,          col = 3, lwd=2,lty = 1)
+  # lines(x, (KappaVSVM), type= type ,          col = 3, lwd=2,lty = 1)
   lines(x, (KappaVSVM_SL), type= type ,       col = 3, lwd=2,lty = 2)
   lines(x, (KappaVSVM_SL_Un_b), type= type ,  col = 4, lwd=2,lty = 1)
   lines(x, (KappaVSVM_SL_vUn_b), type= type , col = 5, lwd=2,lty = 1)
@@ -546,11 +561,22 @@ if(nrow(KappaSVM)>1){
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend("bottomright",
-       c("SVM single-level L4","SVM multi-level","SVM-SL + Unlabeled",
-         "VSVM","VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
+       c("SVM single-level L4",
+         # "SVM multi-level",
+         "SVM-SL + Unlabeled",
+         # "VSVM",
+         "VSVM-SL","VSVM-SL + Unlabeled", "VSVM-SL + Virtual Unlabeled",
          "VSVM-SL + AL"),
-       lty=c(1,3,4,1,2,1,1,1), # gives the legend appropriate symbols (lines)
-       col=c(1,8,1,3,3,4,5,7)  # gives the legend lines the correct color and width
+       lty=c(1,
+             # 3,
+             4,
+             # 1,
+             2,1,1,1), # gives the legend appropriate symbols (lines)
+       col=c(1,
+             # 8,
+             1,
+             # 3, 
+             3,4,5,7)  # gives the legend lines the correct color and width
 ) 
 
 dev.off()
