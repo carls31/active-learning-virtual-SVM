@@ -292,7 +292,7 @@ uncertainty_dist_v2_2 = function(org, samp) {
   
   return(samp)
 }
-# margin_sampling(org=tmp_new_tunedSVM, samp=predLabelsVSVM_unc,pred_one,binaryClassProblem, classes=NA)
+# margin_sampling(org=tmp_new_tunedSVM, samp=predLabelsVSVM_unc, pred_one, binaryClassProblem, classes=NA)
 # Evaluate Margin Sampling (MS) WITH MULTICORES CPU - PARALLEL COMPUTING new_tunedSVM, predLabelsVSVM_unc
 margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA) {
   if(is.na(classes)){classes=as.factor(levels(samp[, ncol(samp)]))}
@@ -309,12 +309,15 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA) 
   registerDoSEQ()
   
   # Apply "range" normalization to mclp_distances
-  scaled_distances <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
-  # Assign scaled distances to probability dataframe
-  margin_distance$distance <- scaled_distances
-  merged_data <- cbind(samp, margin_distance)
+  # scaled_distances <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   
-  return(merged_data)
+  # Assign scaled distances to probability dataframe
+  margin_distance$distance <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+  margin_distance$distance <- log1p(margin_distances * (exp(1) - 1))
+  
+  sampled_data <- cbind(samp, margin_distance)
+  
+  return(sampled_data)
 }
 
 # mclu_sampling(org=tmp_new_tunedSVM, predLabelsVSVM_unc, pred_all, binaryClassProblem)
@@ -344,7 +347,6 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA) {
   # ***********************************************************************************
   
   # # Flatten the matrices to vectors for plotting
-  # mclu_distances <- as.vector(mclu_distances)
   # scaled_mclu <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   # distances_power <- mclu_distances^0.9
   # distances_log <- log1p(mclu_distances * (exp(1) - 1))
@@ -375,12 +377,12 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA) {
   
   # ****************************************************************************************
   
-  # mclu_distances <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
-  # uncertainty$distance <- mclu_distances
+  # uncertainty$distance <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   uncertainty$distance <- log1p(mclu_distances * (exp(1) - 1))
-  merged_data <- cbind(samp, uncertainty)
+  # uncertainty$distance <- mclu_distances^0.9
+  sampled_data <- cbind(samp, uncertainty)
   
-  return(merged_data)
+  return(sampled_data)
 }
 
 mclp_sampling <- function(org, samp) {
@@ -648,7 +650,6 @@ for (model_prob in model_probs) {
   clusterSizes = c(0.55*b) 
   }
   colheader = as.character(sampleSizePor) # corresponding column names
-  
   for (invariance in invariances) {
     for (city in cities) {
       
@@ -1790,10 +1791,11 @@ for (model_prob in model_probs) {
           #   new_bestTrainFeatVSVM <- trainFeatVSVM
           #   new_bestTrainLabelsVSVM <- trainLabelsVSVM
           #   best_model <- model_name_tunedVSVM
-          # } 
+          }
           cat("\n") ######################################## VSVM-SL ################################################
           cat("evaluation of VSVM with self learning\n")
           model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          trainStartSL.time <-Sys.time()
           if (invariance=="scale") {
             if (city=="cologne") { 
               SVL_variables = list(
@@ -1837,10 +1839,11 @@ for (model_prob in model_probs) {
           best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
           # best_bound_SL = SLresult$best_bound
           # best_boundMargin_SL = SLresult$best_boundMargin
+          trainSL.time <- round(as.numeric((Sys.time() - trainStartSL.time), units = "secs"), 1)
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
           accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-          cat("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5),"\n",sep="")
+          cat("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)," | execution time: ",trainSL.time,"sec","\n",sep="")
           
           KappaVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
           AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
@@ -1941,10 +1944,11 @@ for (model_prob in model_probs) {
             best_trainLabelsVSVMUn <- SLresult$best_trainLabelsVSVM
             # best_bound_SL_Un = SLresult$best_bound
             # best_boundMargin_SL_Un = SLresult$best_boundMargin
+            trainUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             predLabelsVSVMsumUn = predict(bestFittingModelUn, validateFeatsub)
             accVSVM_SL_Un = confusionMatrix(predLabelsVSVMsumUn, validateLabels)
-            cat("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un$overall["Accuracy"],5),"\n",sep="")
+            cat("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un$overall["Accuracy"],5)," | execution time: ",trainUn.time,"sec","\n",sep="")
             
             AccuracyVSVM_SL_Un[realization,sample_size] = as.numeric(accVSVM_SL_Un$overall["Accuracy"])
             KappaVSVM_SL_Un[realization,sample_size] = as.numeric(accVSVM_SL_Un$overall["Kappa"])
@@ -2038,6 +2042,7 @@ for (model_prob in model_probs) {
             new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
             # new_best_bound_SLvUn = SLresult$best_bound
             # new_best_boundMargin_SLvUn = SLresult$best_boundMargin
+            trainvUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             new_predLabelsVSVMvUnsum = predict(new_bestFittingModelvUn, validateFeatsub)
             new_accVSVM_SL_vUn = confusionMatrix(new_predLabelsVSVMvUnsum, validateLabels)
@@ -2052,7 +2057,7 @@ for (model_prob in model_probs) {
               # best_boundMargin_SLvUn = new_best_boundMargin_SLvUn
             }
           }
-          cat("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn$overall["Accuracy"],5),"\n",sep="")
+          cat("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn$overall["Accuracy"],5)," | execution time: ",trainvUn.time,"sec","\n",sep="")
           
           AccuracyVSVM_SL_vUn[realization,sample_size] = as.numeric(accVSVM_SL_vUn$overall["Accuracy"])
           KappaVSVM_SL_vUn[realization,sample_size] = as.numeric(accVSVM_SL_vUn$overall["Kappa"])
@@ -2084,17 +2089,16 @@ for (model_prob in model_probs) {
                   for (rS in 1:length(resampledSize)) {
                     cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",
                         nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
-                    
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
                     upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
                     upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
                     
-                    new_trainFeatVSVM <- setNames(trainFeat, names)
-                    new_trainLabelsVSVM <- trainLabels
-                    tmp_new_tunedSVM <- tunedSVM
-                    # new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
-                    # new_trainLabelsVSVM <- best_trainLabelsVSVM
-                    # tmp_new_tunedSVM <- bestFittingModel
+                    # new_trainFeatVSVM <- setNames(trainFeat, names)
+                    # new_trainLabelsVSVM <- trainLabels
+                    # tmp_new_tunedSVM <- tunedSVM
+                    new_trainFeatVSVM <- setNames(best_trainFeatVSVM, names)
+                    new_trainLabelsVSVM <- best_trainLabelsVSVM
+                    tmp_new_tunedSVM <- bestFittingModel
                     
                     newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
@@ -2118,13 +2122,13 @@ for (model_prob in model_probs) {
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
                                                upd_dataCur$ID_unit ) 
+                      confusionMatrix(result$new_trainLabelsVSVM,predict(bestFittingModel, result$new_trainFeatVSVM))
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
                       upd_dataCurFeatsub <- result$features
                       upd_dataCurLabels <- result$labels
                       upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
-                      
                       new_trainFeat <- result$new_trainFeatVSVM
                       new_trainLabels <- result$new_trainLabelsVSVM
                       
@@ -2179,7 +2183,7 @@ for (model_prob in model_probs) {
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound=c(0.01, 0.3, 0.9), boundMargin=c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound=c(0.3, 0.9, 0.01), boundMargin=c(0.5, 1.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
