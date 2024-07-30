@@ -30,8 +30,8 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  10. DONE overall hyperparameters optimization e.g. "boundMargin" and "bound" 
  11. DONE descriptive stats of the dataset/data visualization
  12. DONE Kappa-score coefficient definition: change the metric from "kappa" to "ROC" (and maybe also to "accuracy") 
- 13. check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doesn't work
- 14. one vs all VSM Classification instead of binarymulticlass
+ 13. FUTURE -> check why if(!tmp_cond){VSV1[k,]=NA} in rem_extrem_kerneldist doesn't work
+ 14. FUTURE -> one vs all VSM Classification instead of binarymulticlass
  15. DONE why multiclass script is implemented differently from the binary ones and got different accuracies
  16. DONE add a flag to see which label actually changed
  17. DONE add shape scripts
@@ -40,7 +40,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  20. DONE either balanced the datapool at the beginning or the each train/test/validate/unlabeled set
  21. DONE pick one new sample at time OR pick multiple from different regions/classes
  22. DONE plots for different model accuracies with different training data size and unlabeled samples
- 23. FURURE -> IMPLEMENT ksvm 
+ 23. FUTURE -> IMPLEMENT ksvm 
  24. DONE implement VSVM-SL + VIRTUAL Unlabeled Samples on new_tunedVSVM IT
  25. DONE use the kernel_function from the base_svm 
  26. normalized_data -> only for visualization purposes (eg thematic map in qgis)
@@ -51,7 +51,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  31. DONE check sampleSize = sampleSizePor[sample_size] - sampleSizePor[sample_size-1]
  32. DONE compare VSVM_SL_Un_it trained on SVM/VSVM with VSVM_SL_Un_b/VSVM_SL_vUn_b
  33. DONE compare acc from VSVM_SL_Un_it trained before and after VSVM_SL_vUn_b vs VSVM_SL_vUn_b trained before and after VSVM_SL_Un_it
- 34. check the amount of nan values in hagadera 
+ 34. DONE check the amount of nan values in hagadera 
  35. DONE check the VSVM / VSVM_SL / VSVM_SL_Un performance on the orginal
  36. DONE try MS with one sample per iteration
  37. FUTURE -> IMPLEMENT MS-cSV 
@@ -59,18 +59,19 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  39. DONE consider all the levels for the uncertainty distance 
  40. DONE check which VSVM_SL_vUn_b work better between the to possible implementations 
  41. DONE check warnings in AL binary hagadera -> na due to ncol(samplesRemaining) in UNCERTAINTY DISTANCE FUNCTIONS
- 42. check if running tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub) AND tmp_acc  = confusionMatrix(tmp_pred, validateLabels) the accVSVM_SL_itAL CHANGE OR NOT
+ 42. DONE check if running tmp_pred = predict(tmp_new_tunedVSVM, validateFeatsub) AND tmp_acc  = confusionMatrix(tmp_pred, validateLabels) the accVSVM_SL_itAL CHANGE OR NOT
  43. DONE update performance
  44. DONE check if using valid acc instead of test kappa increase performance 
- 45. try resampledSize proportional to sampleSizePor -> HYPERPARAMETER
- 46. FUTURE -> BAYESIAN OPTIMIZATION FOR HYPERPARAMETERS TUNING  
+ 45. FUTURE -> BAYESIAN OPTIMIZATION FOR HYPERPARAMETERS TUNING  
+ 46. FUTURE -> try resampledSize proportional to sampleSizePor -> HYPERPARAMETER
  47. check distance from the margin only for samples from the wrong side of the hyperplane
- 48. check the number of training samples before and after AL iterations
+ 48. check the number of training samples before and after AL iterations -> hag m shape, col m (?)
  49. check SVM+AL again
  50. FUTURE -> IMPLEMENT t-SNE CLUSTERING  
  51. DONE progressive AL hyperparameters wrt sampleSizePor
  52. DONE AL on VSVs from SL
- 53. check for strange behaviour in the accuracies results (e.g. SVM multilevel, general upside-down of the accuracy of the model [some go up while the others go down])
+ 53. check for strange behaviour in the accuracies results: SVM multilevel, (e.g. general upside-down of the accuracy of the model [some go up while the others go down] -> biased set)
+ 54. FUTURE -> CNN
 
 cologne multiclass shape
 
