@@ -55,6 +55,9 @@ file_name_acc = "20240710_cologne_multiclass_shape_acc_20Unl_4nR_8SizePor"
 # file_name_acc = "20240711_1153_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
 
+file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
+
+
 
 # ********************************************************************
 
@@ -102,6 +105,9 @@ file_name_kappa = "20240710_cologne_multiclass_shape_Kappa_20Unl_4nR_8SizePor"
 # file_name_kappa = "20240710_cologne_binary_scale_Kappa_20Unl_6nR_8SizePor"
 # file_name_kappa = "20240711_1153_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
+
+file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
+
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
