@@ -1,8 +1,8 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 class = "binary"     # multiclass or binary
-invariance = "shape"     # scale or shape
+invariance = "scale"     # scale or shape
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -30,6 +30,8 @@ file_name_acc = "20240729_1026_cologne_multiclass_scale_acc_benchmark_20Unl_1nR_
 file_name_acc = "20240729_cologne_multiclass_scale_acc_benchmark_20Unl_2nR_8SizePor"
 file_name_acc = "20240729_1431_hagadera_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
 file_name_acc = "20240729_1702_cologne_binary_shape_acc_benchmark_20Unl_1nR_8SizePor"
+file_name_acc = "20240729_2209_cologne_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
+file_name_acc = "20240729_1935_hagadera_binary_scale_acc_benchmark_20Unl_1nR_8SizePor"
 
 
 # ********************************************************************
@@ -56,6 +58,8 @@ file_name_kappa = "20240729_1026_cologne_multiclass_scale_Kappa_benchmark_20Unl_
 file_name_kappa = "20240729_cologne_multiclass_scale_Kappa_benchmark_20Unl_2nR_8SizePor"
 file_name_kappa = "20240729_1431_hagadera_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
 file_name_kappa = "20240729_1702_cologne_binary_shape_Kappa_benchmark_20Unl_1nR_8SizePor"
+file_name_kappa = "20240729_2209_cologne_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
+file_name_kappa = "20240729_1935_hagadera_binary_scale_Kappa_benchmark_20Unl_1nR_8SizePor"
 
 
 
@@ -180,7 +184,7 @@ if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.985
-      ylowerBound = 0.86
+      ylowerBound = 0.78
     }
     if(invariance=="shape"){
       yUpperBound = 0.985
@@ -189,8 +193,8 @@ if(class == "binary"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.965
-      ylowerBound = 0.83
+      yUpperBound = 0.945
+      ylowerBound = 0.81
     }
     if(invariance=="shape"){
       yUpperBound = 0.941
@@ -319,8 +323,8 @@ if(class == "multiclass"){
 if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.96
-      ylowerBound = 0.61
+      yUpperBound = 0.97
+      ylowerBound = 0.5
     }
     if(invariance=="shape"){
       yUpperBound = 0.963
@@ -329,8 +333,8 @@ if(class == "binary"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.935
-      ylowerBound = 0.395
+      yUpperBound = 0.825
+      ylowerBound = 0.44
     }
     if(invariance=="shape"){
       yUpperBound = 0.825
