@@ -2284,7 +2284,8 @@ for (model_prob in model_probs) {
             saveRDS(tmp_new_tunedSVM_r, model_name_AL_VSVMSL_r)
             # saveRDS(new_tunedVSVM_v1, model_name_AL_VSVM_SL_v1)
             # saveRDS(new_tunedVSVM_v2, model_name_AL_VSVM_SL_v2)
-            saveRDS(tmp_new_tunedSVM_r, model_name_AL_VSVMSL_r)
+            saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
+            saveRDS(tmp_new_tunedSVM_SL, model_name_ALSL_VSVMSL)
             
           }
         }
