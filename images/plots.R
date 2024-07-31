@@ -1,8 +1,8 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 invariance = "shape"     # scale or shape
-class = "multiclass"     # multiclass or binary
+class = "binary"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -55,7 +55,10 @@ file_name_acc = "20240710_cologne_multiclass_shape_acc_20Unl_4nR_8SizePor"
 # file_name_acc = "20240711_1153_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
 
-file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
+file_name_acc = "20240730_2155_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240731_1009_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor" # same of 20240730_2155
+file_name_acc = "20240730_1809_hagadera_multiclass_shape_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240731_1337_hagadera_binary_shape_acc_20Unl_1nR_8SizePor"
 
 
 
@@ -106,7 +109,10 @@ file_name_kappa = "20240710_cologne_multiclass_shape_Kappa_20Unl_4nR_8SizePor"
 # file_name_kappa = "20240711_1153_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
 
-file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
+file_name_kappa = "20240730_2155_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240731_1009_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor" # same of 20240730_2155
+file_name_kappa = "20240730_1809_hagadera_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240731_1337_hagadera_binary_shape_Kappa_20Unl_1nR_8SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -115,56 +121,56 @@ load(paste0(file_name_kappa,".RData"))
 # # **********************************************************************************
 # tmp_AccuracySVM = AccuracySVM
 # tmp_AccuracySVM_M = AccuracySVM_M
-# tmp_AccuracySVM_SL_Un_b = AccuracySVM_SL_Un_b
+# tmp_AccuracySVM_SL_Un = AccuracySVM_SL_Un
 # tmp_AccuracyVSVM = AccuracyVSVM
 # tmp_AccuracyVSVM_SL = AccuracyVSVM_SL
-# tmp_AccuracyVSVM_SL_Un_b = AccuracyVSVM_SL_Un_b
-# tmp_AccuracyVSVM_SL_vUn_b = AccuracyVSVM_SL_vUn_b
+# tmp_AccuracyVSVM_SL_Un = AccuracyVSVM_SL_Un
+# tmp_AccuracyVSVM_SL_vUn = AccuracyVSVM_SL_vUn
 # tmp_AccuracyVSVM_SL_Un_it = AccuracyVSVM_SL_Un_it
 # 
 # tmp_KappaSVM = KappaSVM
 # tmp_KappaSVM_M = KappaSVM_M
-# tmp_KappaSVM_SL_Un_b = KappaSVM_SL_Un_b
+# tmp_KappaSVM_SL_Un = KappaSVM_SL_Un
 # tmp_KappaVSVM = KappaVSVM
 # tmp_KappaVSVM_SL = KappaVSVM_SL
-# tmp_KappaVSVM_SL_Un_b = KappaVSVM_SL_Un_b
-# tmp_KappaVSVM_SL_vUn_b = KappaVSVM_SL_vUn_b
+# tmp_KappaVSVM_SL_Un = KappaVSVM_SL_Un
+# tmp_KappaVSVM_SL_vUn = KappaVSVM_SL_vUn
 # tmp_KappaVSVM_SL_Un_it = KappaVSVM_SL_Un_it
 # # **********************************************************************************
 # tmp_AccuracySVM=rbind(tmp_AccuracySVM,AccuracySVM)
 # tmp_AccuracySVM_M=rbind(tmp_AccuracySVM_M,AccuracySVM_M)
-# tmp_AccuracySVM_SL_Un_b=rbind(tmp_AccuracySVM_SL_Un_b,AccuracySVM_SL_Un_b)
+# tmp_AccuracySVM_SL_Un=rbind(tmp_AccuracySVM_SL_Un,AccuracySVM_SL_Un)
 # tmp_AccuracyVSVM=rbind(tmp_AccuracyVSVM,AccuracyVSVM)
 # tmp_AccuracyVSVM_SL=rbind(tmp_AccuracyVSVM_SL,AccuracyVSVM_SL)
-# tmp_AccuracyVSVM_SL_Un_b=rbind(tmp_AccuracyVSVM_SL_Un_b,AccuracyVSVM_SL_Un_b)
-# tmp_AccuracyVSVM_SL_vUn_b=rbind(tmp_AccuracyVSVM_SL_vUn_b,AccuracyVSVM_SL_vUn_b)
+# tmp_AccuracyVSVM_SL_Un=rbind(tmp_AccuracyVSVM_SL_Un,AccuracyVSVM_SL_Un)
+# tmp_AccuracyVSVM_SL_vUn=rbind(tmp_AccuracyVSVM_SL_vUn,AccuracyVSVM_SL_vUn)
 # tmp_AccuracyVSVM_SL_Un_it=rbind(tmp_AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_it)
 # 
 # tmp_KappaSVM=rbind(tmp_KappaSVM,KappaSVM)
 # tmp_KappaSVM_M=rbind(tmp_KappaSVM_M,KappaSVM_M)
-# tmp_KappaSVM_SL_Un_b=rbind(tmp_KappaSVM_SL_Un_b,KappaSVM_SL_Un_b)
+# tmp_KappaSVM_SL_Un=rbind(tmp_KappaSVM_SL_Un,KappaSVM_SL_Un)
 # tmp_KappaVSVM=rbind(tmp_KappaVSVM,KappaVSVM)
 # tmp_KappaVSVM_SL=rbind(tmp_KappaVSVM_SL,KappaVSVM_SL)
-# tmp_KappaVSVM_SL_Un_b=rbind(tmp_KappaVSVM_SL_Un_b,KappaVSVM_SL_Un_b)
-# tmp_KappaVSVM_SL_vUn_b=rbind(tmp_KappaVSVM_SL_vUn_b,KappaVSVM_SL_vUn_b)
+# tmp_KappaVSVM_SL_Un=rbind(tmp_KappaVSVM_SL_Un,KappaVSVM_SL_Un)
+# tmp_KappaVSVM_SL_vUn=rbind(tmp_KappaVSVM_SL_vUn,KappaVSVM_SL_vUn)
 # tmp_KappaVSVM_SL_Un_it=rbind(tmp_KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_it)
 # # **********************************************************************************
 # AccuracySVM=tmp_AccuracySVM
 # AccuracySVM_M=tmp_AccuracySVM_M
-# AccuracySVM_SL_Un_b=tmp_AccuracySVM_SL_Un_b
+# AccuracySVM_SL_Un=tmp_AccuracySVM_SL_Un
 # AccuracyVSVM=tmp_AccuracyVSVM
 # AccuracyVSVM_SL=tmp_AccuracyVSVM_SL
-# AccuracyVSVM_SL_Un_b=tmp_AccuracyVSVM_SL_Un_b
-# AccuracyVSVM_SL_vUn_b=tmp_AccuracyVSVM_SL_vUn_b
+# AccuracyVSVM_SL_Un=tmp_AccuracyVSVM_SL_Un
+# AccuracyVSVM_SL_vUn=tmp_AccuracyVSVM_SL_vUn
 # AccuracyVSVM_SL_Un_it=tmp_AccuracyVSVM_SL_Un_it
 # 
 # KappaSVM=tmp_KappaSVM
 # KappaSVM_M=tmp_KappaSVM_M
-# KappaSVM_SL_Un_b=tmp_KappaSVM_SL_Un_b
+# KappaSVM_SL_Un=tmp_KappaSVM_SL_Un
 # KappaVSVM=tmp_KappaVSVM
 # KappaVSVM_SL=tmp_KappaVSVM_SL
-# KappaVSVM_SL_Un_b=tmp_KappaVSVM_SL_Un_b
-# KappaVSVM_SL_vUn_b=tmp_KappaVSVM_SL_vUn_b
+# KappaVSVM_SL_Un=tmp_KappaVSVM_SL_Un
+# KappaVSVM_SL_vUn=tmp_KappaVSVM_SL_vUn
 # KappaVSVM_SL_Un_it=tmp_KappaVSVM_SL_Un_it
 # 
 # file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
@@ -172,39 +178,39 @@ load(paste0(file_name_kappa,".RData"))
 # # **********************************************************************************
 # AccuracySVM=AccuracySVM[1,]
 # AccuracySVM_M=AccuracySVM_M[1,]
-# AccuracySVM_SL_Un_b=AccuracySVM_SL_Un_b[1,]
+# AccuracySVM_SL_Un=AccuracySVM_SL_Un[1,]
 # AccuracyVSVM=AccuracyVSVM[1,]
 # AccuracyVSVM_SL=AccuracyVSVM_SL[1,]
-# AccuracyVSVM_SL_Un_b=AccuracyVSVM_SL_Un_b[1,]
-# AccuracyVSVM_SL_vUn_b=AccuracyVSVM_SL_vUn_b[1,]
+# AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1,]
+# AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1,]
 # AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1,]
 # 
 # KappaSVM=KappaSVM[1,]
 # KappaSVM_M=KappaSVM_M[1,]
-# KappaSVM_SL_Un_b=KappaSVM_SL_Un_b[1,]
+# KappaSVM_SL_Un=KappaSVM_SL_Un[1,]
 # KappaVSVM=KappaVSVM[1,]
 # KappaVSVM_SL=KappaVSVM_SL[1,]
-# KappaVSVM_SL_Un_b=KappaVSVM_SL_Un_b[1,]
-# KappaVSVM_SL_vUn_b=KappaVSVM_SL_vUn_b[1,]
+# KappaVSVM_SL_Un=KappaVSVM_SL_Un[1,]
+# KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1,]
 # KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1,]
 # # **********************************************************************************
 # 
 # save(AccuracySVM,
 #      AccuracySVM_M,
-#      AccuracySVM_SL_Un_b,
+#      AccuracySVM_SL_Un,
 #      AccuracyVSVM,
 #      AccuracyVSVM_SL,
-#      AccuracyVSVM_SL_Un_b,
-#      AccuracyVSVM_SL_vUn_b,
+#      AccuracyVSVM_SL_Un,
+#      AccuracyVSVM_SL_vUn,
 #      AccuracyVSVM_SL_Un_it,
 #      file=paste0(file_name_acc,".RData"))
 # save(KappaSVM,
 #      KappaSVM_M,
-#      KappaSVM_SL_Un_b,
+#      KappaSVM_SL_Un,
 #      KappaVSVM,
 #      KappaVSVM_SL,
-#      KappaVSVM_SL_Un_b,
-#      KappaVSVM_SL_vUn_b,
+#      KappaVSVM_SL_Un,
+#      KappaVSVM_SL_vUn,
 #      KappaVSVM_SL_Un_it,
 #      file=paste0(file_name_kappa,".RData"))
 # # **********************************************************************************
@@ -268,7 +274,7 @@ if(class == "binary"){
     }
     if(invariance=="shape"){
       yUpperBound = 0.985
-      ylowerBound = 0.70
+      ylowerBound = 0.85
     }
   }
   if(city=="cologne"){
@@ -299,27 +305,27 @@ png(filename=paste0(file_name_acc,".png"),
 
 if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
-                    ylim=range(c(ylowerBound,yUpperBound)),
+                    # ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
-  lines(x, ExCsvMSD(AccuracySVM_SL_Un_b)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
+  lines(x, ExCsvMSD(AccuracySVM_SL_Un)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
   
   # lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type ,       col = 3, lwd = 2,lty = 2)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn)[1,], type= type , col = 5, lwd = 2,lty = 1)
   
-  # lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
-  # lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
-  # lines(x, AccuracyVSVM_SL_Un_b_ms, type= type , col = 6, lwd=2)
+  # lines(x, AccuracyVSVM_SL_Un_mclp, type= type , col = 4, lwd=2,lty=2)
+  # lines(x, AccuracyVSVM_SL_Un_mclu, type= type , col = 5, lwd=2)
+  # lines(x, AccuracyVSVM_SL_Un_ms, type= type , col = 6, lwd=2)
   
   lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
   
-  # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
+  # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
 }else{
   msdSVMPlot = plot(x, (AccuracySVM),log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
@@ -329,12 +335,12 @@ if(nrow(AccuracySVM)>1){
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
-  lines(x, (AccuracySVM_SL_Un_b), type= type ,   col = 1, lwd = 2,lty = 4)
+  lines(x, (AccuracySVM_SL_Un), type= type ,   col = 1, lwd = 2,lty = 4)
   
   # lines(x, (AccuracyVSVM), type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL), type= type ,       col = 3, lwd = 2,lty = 2)
-  lines(x, (AccuracyVSVM_SL_Un_b), type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_vUn_b), type= type , col = 5, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un), type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_vUn), type= type , col = 5, lwd = 2,lty = 1)
   
   
   lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
@@ -381,8 +387,8 @@ if(nrow(AccuracySVM)>1){
   # avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
   # sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
   
-  avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[1,]
-  sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un_b)[2,]
+  avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un)[1,]
+  sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un)[2,]
   
   # avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
   # sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
@@ -390,14 +396,14 @@ if(nrow(AccuracySVM)>1){
   avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[1,]
   sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
   
-  avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[1,]
-  sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un_b)[2,]
+  avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un)[1,]
+  sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un)[2,]
   
   avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
   sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]
   
-  avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[1,]
-  sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn_b)[2,]
+  avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn)[1,]
+  sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn)[2,]
   
   # *********************************************
   png(filename=paste0(file_name_acc,"_sd.png"),
@@ -408,7 +414,7 @@ if(nrow(AccuracySVM)>1){
       res=96)
   
   msdSVMPlot = plot(x, avgSVM,log = "x",
-                    ylim=range(c(ylowerBound,yUpperBound)),
+                    # ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,   col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class", 
                     ylab="accuracy (%) +/- std dev",
@@ -422,9 +428,9 @@ if(nrow(AccuracySVM)>1){
   lines(x, avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x, avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
-  # lines(x, AccuracyVSVM_SL_Un_b_mclp, type= type , col = 4, lwd=2,lty=2)
-  # lines(x, AccuracyVSVM_SL_Un_b_mclu, type= type , col = 5, lwd=2)
-  # lines(x, AccuracyVSVM_SL_Un_b_ms, type= type , col = 6, lwd=2)
+  # lines(x, AccuracyVSVM_SL_Un_mclp, type= type , col = 4, lwd=2,lty=2)
+  # lines(x, AccuracyVSVM_SL_Un_mclu, type= type , col = 5, lwd=2)
+  # lines(x, AccuracyVSVM_SL_Un_ms, type= type , col = 6, lwd=2)
   
   lines(x, avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
   # lines(x, avgVSVM_SL_Un_b_ud, type= type , col = 4, lwd=2)
@@ -496,7 +502,7 @@ if(class == "binary"){
     }
     if(invariance=="shape"){
       yUpperBound = 0.963
-      ylowerBound = 0.47
+      ylowerBound = 0.57
     }
   }
   if(city=="cologne"){
@@ -521,23 +527,23 @@ png(filename=paste0(file_name_kappa,".png"),
     res=96)
 if(nrow(KappaSVM)>1){
   msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
-                    ylim=range(c(ylowerBound,yUpperBound)), 
+                    ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
-                    xlab= "number of labeled samples per class", 
+                    xlab= "number of labeled samples per class",
                     ylab="Kappa-score",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
-  lines(x, ExCsvMSD(KappaSVM_SL_Un_b)[1,], type= type ,   col = 1, lwd=2,lty = 4)
-  
+  lines(x, ExCsvMSD(KappaSVM_SL_Un)[1,], type= type ,   col = 1, lwd=2,lty = 4)
+
   # lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
   lines(x, ExCsvMSD(KappaVSVM_SL)[1,], type= type ,       col = 3, lwd=2,lty = 2)
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un_b)[1,], type= type ,  col = 4, lwd=2,lty = 1)
-  lines(x, ExCsvMSD(KappaVSVM_SL_vUn_b)[1,], type= type , col = 5, lwd=2,lty = 1)
-  
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un)[1,], type= type ,  col = 4, lwd=2,lty = 1)
+  lines(x, ExCsvMSD(KappaVSVM_SL_vUn)[1,], type= type , col = 5, lwd=2,lty = 1)
+
   lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
-  
-  # lines(x, ExCsvMSD(KappaVSVM_SL_Un_b_ud)[1,], type= type , col = 4, lwd=2)
+
+  # lines(x, ExCsvMSD(KappaVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
 }else{
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)), 
@@ -547,16 +553,16 @@ if(nrow(KappaSVM)>1){
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, (KappaSVM_M), type= type ,         col = 8, lwd=2,lty = 3)
-  lines(x, (KappaSVM_SL_Un_b), type= type ,   col = 1, lwd=2,lty = 4)
+  lines(x, (KappaSVM_SL_Un), type= type ,   col = 1, lwd=2,lty = 4)
   
   # lines(x, (KappaVSVM), type= type ,          col = 3, lwd=2,lty = 1)
   lines(x, (KappaVSVM_SL), type= type ,       col = 3, lwd=2,lty = 2)
-  lines(x, (KappaVSVM_SL_Un_b), type= type ,  col = 4, lwd=2,lty = 1)
-  lines(x, (KappaVSVM_SL_vUn_b), type= type , col = 5, lwd=2,lty = 1)
+  lines(x, (KappaVSVM_SL_Un), type= type ,  col = 4, lwd=2,lty = 1)
+  lines(x, (KappaVSVM_SL_vUn), type= type , col = 5, lwd=2,lty = 1)
   
   lines(x, (KappaVSVM_SL_Un_it), type= type , col = 7, lwd=2,lty = 1)
   
-  # lines(x, (KappaVSVM_SL_Un_b_ud), type= type , col = 4, lwd=2)
+  # lines(x, (KappaVSVM_SL_Un_ud), type= type , col = 4, lwd=2)
 }
 
 # "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
