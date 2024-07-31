@@ -65,7 +65,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function}
  45. FUTURE -> BAYESIAN OPTIMIZATION FOR HYPERPARAMETERS TUNING  
  46. FUTURE -> try resampledSize proportional to sampleSizePor -> HYPERPARAMETER
  47. check distance from the margin only for samples from the wrong side of the hyperplane
- 48. check the number of training samples before and after AL iterations -> hag m shape, col m (?)
+ 48. check the number of training samples before and after AL iterations -> col+hag MULTICLASS SHAPE
  49. check SVM+AL again
  50. FUTURE -> IMPLEMENT t-SNE CLUSTERING  
  51. DONE progressive AL hyperparameters wrt sampleSizePor
