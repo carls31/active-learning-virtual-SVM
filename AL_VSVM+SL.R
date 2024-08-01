@@ -2553,14 +2553,14 @@ for (model_prob in model_probs) {
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
         save(AccuracySVM, AccuracyVSVM_SL,
              AccuracyVSVM_SL_Un_it, 
-             # AccuracyVSVM_SL_Un_random_it,
+             AccuracyVSVM_SL_Un_random_it,
              # AccuracyVSVM_SL_Un_AL_v1,
              # AccuracyVSVM_SL_Un_AL_v2,
              AccuracyVSVM_SL_Un_itSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_ALSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, KappaVSVM_SL,
              KappaVSVM_SL_Un_it, 
-             # KappaVSVM_SL_Un_random_it,
+             KappaVSVM_SL_Un_random_it,
              # KappaVSVM_SL_Un_AL_v1,
              # KappaVSVM_SL_Un_AL_v2,
              KappaVSVM_SL_Un_itSL,
