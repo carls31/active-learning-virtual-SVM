@@ -2211,8 +2211,6 @@ for (model_prob in model_probs) {
                       
                       tmp_new_tunedSVM2 <- sampledResult$bestFittingModel
                       sampled_data <- sampledResult$sampled_data
-                      
-                      
 
                       
                       d.time <- round(as.numeric((Sys.time() - distStart.time), units = "secs"), 1)
