@@ -2538,8 +2538,8 @@ for (model_prob in model_probs) {
           }
         }
         # Store the overall best hyperparameters 
-        best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL_AL)
-        best_boundMargin_oa_SL = c(best_boundMargin_oa_SL," ", best_boundMargin_SL_AL)
+        # best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL_AL)
+        # best_boundMargin_oa_SL = c(best_boundMargin_oa_SL," ", best_boundMargin_SL_AL)
         best_resample_oa=c(best_resample_oa," ", best_resample)
         best_newSize_oa=c(best_newSize_oa," ", best_newSize4iter)
         best_classSize_oa=c(best_classSize_oa," ", best_classSize)
@@ -2568,7 +2568,7 @@ for (model_prob in model_probs) {
              KappaVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_ALSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
-            "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
+            # "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
             # "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
             # "\nbest_bound_oa_SL_vUn: ", best_bound_oa_SL_vUn,"\nbest_boundMargin_oa_SL_vUn: ",best_boundMargin_oa_SL_vUn,
             "\nbest_resample_oa: ", best_resample_oa,        "\nbest_newSize_oa: ", best_newSize_oa,

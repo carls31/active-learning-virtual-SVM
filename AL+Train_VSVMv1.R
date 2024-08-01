@@ -1880,7 +1880,7 @@ for (model_prob in model_probs) {
             # KappaVSVM_SL_Un_AL_v2[realization,sample_size] = as.numeric(accVSVM_SL_AL_v2$overall["Kappa"])
             # 
             
-            cat("\n") ############################## AL_VSVM+SL #######################################
+            cat("\n") ############################## AL_VSVMSL #######################################
 
             model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
 
@@ -2151,6 +2151,8 @@ for (model_prob in model_probs) {
                       upd_SLresult <- self_learn(testFeatsub, testLabels, bound=c(0.01, 0.3, 0.9), boundMargin=c(1.5, 0.5), model_name_ALTrain_VSVMSLv1, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM_ALTrainv1$finalModel)
                       tmp_new_tunedSVM_ALTrainv12 <- upd_SLresult$bestFittingModel
+                      best_bound_SL_AL = upd_SLresult$best_bound
+                      best_boundMargin_SL_AL = upd_SLresult$best_boundMargin
                       # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
                       upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
