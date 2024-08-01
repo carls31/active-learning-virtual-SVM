@@ -1359,20 +1359,28 @@ for (model_prob in model_probs) {
           
           # get original SVs of base SVM *************************
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
+
+
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
           
-          
-          # # Create a frequency table of the column
-          # freq_table <- table(SVtotal$REF)
-          # 
-          # # Check for any classes with zero labels
-          # zero_label_classes <- names(freq_table[freq_table == 0])
-          # 
-          # # Print the classes with zero labels
-          # print(zero_label_classes)
-          
-          
-          
+          freq_table <- table(SVtotal$REF)
+          zero_label_classes <- names(freq_table[freq_table == 0])
+          if (length(zero_label_classes) > 0) {
+            for (class in zero_label_classes) {
+              # Find the indices of rows in trainDataCur with the zero label class
+              class_indices <- which(trainLabels == class)
+
+              # Extract the corresponding rows from trainFeat and trainLabels
+              class_feat <- trainFeat[class_indices, , drop = FALSE]
+              class_labels <- trainLabels[class_indices, drop = FALSE]
+
+              # Create a data frame with the same structure as SVtotal
+              class_data <- cbind(class_feat, class_labels)
+
+              # Append the class_data to SVtotal
+              SVtotal <- rbind(SVtotal, class_data)
+            }
+          }
           
           # ******************************************************
           binaryClassProblem = list()
@@ -1384,31 +1392,7 @@ for (model_prob in model_probs) {
           cat("\n") ###################################### VSVM-SL ################################################
           trainStart.time <- Sys.time()
           if (invariance=="scale") {
-            if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
-              SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
-              SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
-              
-              SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
-              SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
-              SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
-              SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
-              SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
-              SVL10 = trainDataCur[SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
-              SVL11 = trainDataCur[SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
-              
-              # bind original SV with modified to new train data set
-              SVinvar = rbind(setNames(SVtotal,objInfoNames),
-                              setNames(SVL2,objInfoNames),
-                              setNames(SVL3,objInfoNames),
-                              setNames(SVL5,objInfoNames),
-                              setNames(SVL6,objInfoNames),
-                              setNames(SVL7,objInfoNames),
-                              setNames(SVL8,objInfoNames),
-                              setNames(SVL9,objInfoNames),
-                              setNames(SVL10,objInfoNames),
-                              setNames(SVL11,objInfoNames)
-              ) # The new Train Data Set is made by SVs and VSVs only
-            } else {
+            # if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
               SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
               SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
               
@@ -1427,7 +1411,36 @@ for (model_prob in model_probs) {
                               setNames(SVL8,objInfoNames),
                               setNames(SVL9,objInfoNames)
               )
-            }
+              if (city=="cologne") {
+              SVL10 = trainDataCur[SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
+              SVL11 = trainDataCur[SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
+              
+              # bind original SV with modified to new train data set
+              SVinvar = rbind(setNames(SVinvar,objInfoNames),
+                              setNames(SVL10,objInfoNames),
+                              setNames(SVL11,objInfoNames)
+              ) # The new Train Data Set is made by SVs and VSVs only
+              }
+            # } else {
+            #   SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
+            #   SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
+            #   
+            #   SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
+            #   SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
+            #   SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
+            #   SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
+            #   SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
+            #   
+            #   SVinvar = rbind(setNames(SVtotal,objInfoNames),
+            #                   setNames(SVL2,objInfoNames),
+            #                   setNames(SVL3,objInfoNames),
+            #                   setNames(SVL5,objInfoNames),
+            #                   setNames(SVL6,objInfoNames),
+            #                   setNames(SVL7,objInfoNames),
+            #                   setNames(SVL8,objInfoNames),
+            #                   setNames(SVL9,objInfoNames)
+            #   )
+            # }
           } else {
             S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
             S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
@@ -2221,7 +2234,7 @@ for (model_prob in model_probs) {
         best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric(round(Sys.time() - start.time,2), units = "hours"), 3),"h"),"\n")
-        cat("\n") ############################## End Realization #########################################
+        ######################################## End Realization #########################################
       }
       time.taken_oa <- round(Sys.time() - start.time_oa,2)
       if (length(sampleSizePor)>=8) {
@@ -2248,7 +2261,7 @@ for (model_prob in model_probs) {
             "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,"\n",best_model_oa, 
             "\nlength train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),
             sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_benchmark_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
-        cat("accuracy results: acquired\n")
+        cat("accuracy results: acquired\n\n\n")
       }
       print(confusionMatrix(new_trainLabels,predict(tunedSVM, new_trainFeat)))
       cat("length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),"\n\n\n",sep="")

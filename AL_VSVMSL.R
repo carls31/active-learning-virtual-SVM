@@ -1566,7 +1566,7 @@ for (model_prob in model_probs) {
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
           # ******************************************************
           binaryClassProblem = list()
-          for (jj in 1:length(tunedSVM$finalModel@xmatrix)) { # COMPARE EVERY COUPLE COMBINATION OF CLASSES
+          for (jj in 1:length(tunedSVM$finalModel@xmatrix)) {     # Records which 2 classes are involved in 2 class problems
             binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
           }
           names = objInfoNames[1:length(objInfoNames)-1]
@@ -2247,7 +2247,7 @@ for (model_prob in model_probs) {
         best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric(round(Sys.time() - start.time,2), units = "hours"), 3),"h"),"\n")
-        cat("\n") ############################## End Realization #########################################
+        ######################################## End Realization #########################################
       }
       time.taken_oa <- round(Sys.time() - start.time_oa,2)
       if (length(sampleSizePor)>=8) {
@@ -2272,7 +2272,7 @@ for (model_prob in model_probs) {
             "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,"\n",best_model_oa, 
             "\nlength train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),"\nlength AL VSVM+SL SVs: ",length(tmp_new_tunedSVM$finalModel@SVindex),
             sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
-        cat("accuracy results: acquired\n")
+        cat("accuracy results: acquired\n\n\n")
       }
       print(confusionMatrix(new_trainLabels,predict(tunedSVM, new_trainFeat)))
       cat("length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),"\nlength AL VSVM+SL SVs: ",length(tmp_new_tunedSVM$finalModel@SVindex),"\n\n\n",sep="")
