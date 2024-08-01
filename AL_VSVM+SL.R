@@ -621,7 +621,11 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
 
 self_learn_AL = function(testFeatsub, testLabels,
                          # bound,
-                         boundMargin, model_name, SVtotal, objInfoNames, rem_extrem, rem_extrem_kerneldist, SVL_variables, SVMfinModel=tunedSVM$finalModel, train=TRUE, classProb = FALSE) {
+                         boundMargin, model_name, SVtotal, objInfoNames, 
+                         # rem_extrem, rem_extrem_kerneldist, 
+                         SVL_variables, 
+                         # SVMfinModel=tunedSVM$finalModel, 
+                         train=TRUE, classProb = FALSE) {
   if (file.exists(model_name) && !train) {
     bestFittingModel <- readRDS(model_name)
     actKappa = bestFittingModel$resample$Kappa
@@ -650,6 +654,7 @@ self_learn_AL = function(testFeatsub, testLabels,
     #   # remove NAs
     #   SVinvarRadi = na.omit(SVinvarRadi)
     # Use foreach to iterate through SVL_variables and combine results
+    
     SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %do% {
       # Set names and combine into a single data frame
       setNames(variable, objInfoNames)
@@ -658,10 +663,32 @@ self_learn_AL = function(testFeatsub, testLabels,
       for(kk in seq(along=boundMargin)){
         cat("tuning bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]\n",sep="")
         
+        # if (nrow(SVinvarRadi) > 0) { # Check if SVinvarRadi has rows to process
+        #   # Remove VSV which are not located within a certain distance to the decision function
+        #   # data.frame to store elected VSV within the margin
+        #   SVinvar = setNames(data.frame(matrix(ncol = numFeat + 1, nrow = 0)), objInfoNames)
+        #   
+        #   # Progress bar initialization
+        #   pb <- progress_bar$new(
+        #     format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
+        #     total = nrow(SVinvarRadi),
+        #     clear = FALSE
+        #   )
+        #   # Iterate over SVinvarRadi and evaluate distance to hyperplane
+        #   for (m in 1:nrow(SVinvarRadi)) {
+        #     signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m, -ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
+        #     
+        #     if (signa < boundMargin[kk]) {
+        #       SVinvar = rbind(SVinvar, SVinvarRadi[m, ])
+        #     }
+        #     pb$tick()
+        #   }
+        # } else { warning("SVinvarRadi has no rows to process") }
+        
         if (nrow(SVinvarRadi) > 0) { # Check if SVinvarRadi has rows to process
           # Remove VSV which are not located within a certain distance to the decision function
           # data.frame to store elected VSV within the margin
-          SVinvar = setNames(data.frame(matrix(ncol = numFeat + 1, nrow = 0)), objInfoNames)
+          SVinvar = setNames(data.frame(matrix(ncol = numFeat + 2, nrow = 0)), c(objInfoNames, "distance"))
           
           # Progress bar initialization
           pb <- progress_bar$new(
@@ -669,21 +696,27 @@ self_learn_AL = function(testFeatsub, testLabels,
             total = nrow(SVinvarRadi),
             clear = FALSE
           )
+          
           # Iterate over SVinvarRadi and evaluate distance to hyperplane
           for (m in 1:nrow(SVinvarRadi)) {
             signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m, -ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
             
             if (signa < boundMargin[kk]) {
-              SVinvar = rbind(SVinvar, SVinvarRadi[m, ])
+              row_with_distance = c(SVinvarRadi[m, ], distance = signa)
+              SVinvar = rbind(SVinvar, row_with_distance)
             }
             pb$tick()
           }
-        } else { warning("SVinvarRadi has no rows to process") }
+        } else { 
+          warning("SVinvarRadi has no rows to process") 
+        }
         
         # merge elected VSV with original SV
-        SVinvar_org = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvar,objInfoNames))
+        SVinvar_org = rbind(setNames(SVtotal,objInfoNames), setNames(SVinvar[, -ncol(SVinvar)],objInfoNames))
         
         SVinvar_org=na.omit(SVinvar_org)
+        
+        SVinvar=setNames(SVinvar[, -ncol(SVinvar)],objInfoNames)
         
         # split for training to feature and label
         trainFeatVSVM = SVinvar_org[,1:(ncol(SVinvar_org)-1)]
@@ -706,17 +739,15 @@ self_learn_AL = function(testFeatsub, testLabels,
         if (actKappa < tunedVSVM$resample$Kappa) {cat("current best kappa: ",round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
           bestFittingModel = tunedVSVM
           actKappa = tunedVSVM$resample$Kappa
-          best_trainFeatVSVM = trainFeatVSVM
-          best_trainLabelsVSVM = trainLabelsVSVM
+          best_trainAS = SVinvar
+          # best_trainLabelsVSVM = SVinvar[,ncol(SVinvar_org)]
           # best_bound= bound[jj]
           best_boundMargin = boundMargin[kk]
           # Check if actKappa is 1 and break if true
           if (actKappa == 1) {
             return(list(bestFittingModel = bestFittingModel, 
                         actKappa = actKappa, 
-                        best_trainFeatVSVM = best_trainFeatVSVM, 
-                        best_trainLabelsVSVM = best_trainLabelsVSVM, 
-                        # best_bound = best_bound, 
+                        sampled_data = best_trainAS, 
                         best_boundMargin = best_boundMargin))
           }
         }
@@ -724,9 +755,7 @@ self_learn_AL = function(testFeatsub, testLabels,
     # } 
     return(list(bestFittingModel = bestFittingModel, 
                 actKappa = actKappa, 
-                best_trainFeatVSVM = best_trainFeatVSVM, 
-                best_trainLabelsVSVM = best_trainLabelsVSVM, 
-                # best_bound = best_bound, 
+                sampled_data = best_trainAS, 
                 best_boundMargin = best_boundMargin))
   }
 }
@@ -2172,13 +2201,19 @@ for (model_prob in model_probs) {
                       # if (model_prob=="binary") { sampled_data <- margin_sampling(tmp_new_tunedSVM_SL, predLabelsVSVM_unc, pred_one, binaryClassProblem)
                       # } else {                    sampled_data <- mclu_sampling(tmp_new_tunedSVM_SL, predLabelsVSVM_unc, pred_all, binaryClassProblem) }
                       
+                      SVL_variables<-cbind(new_trainLabelsVSVM, upd_dataCurLabels)
+                      # c(0.7, 0.5, 0.3)
+                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(0.5), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
+                                                     # rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                                    SVL_variables, 
+                                                    # tmp_new_tunedSVM_SL$finalModel
+                                                    )
+                      
+                      tmp_new_tunedSVM2 <- sampledResult$bestFittingModel
+                      sampled_data <- sampledResult$sampled_data
                       
                       
-                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(0.7, 0.5, 0.3), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                                                    SVL_variables, tmp_new_tunedSVM_SL$finalModel)
-                      
-                      sampled_data <- sampledResult$
-                      
+
                       
                       d.time <- round(as.numeric((Sys.time() - distStart.time), units = "secs"), 1)
                       cat("computing distances required ", d.time,"sec\n",sep="")
