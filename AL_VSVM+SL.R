@@ -1481,8 +1481,8 @@ for (model_prob in model_probs) {
           accSVM = confusionMatrix(predLabelsSVM, validateLabels)
           cat("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
           
-          AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
-          KappaSVM[realization,sample_size] = as.numeric(accSVM$overall["Kappa"])
+          AccuracySVM[iterTrain,sample_size] = as.numeric(accSVM$overall["Accuracy"])
+          KappaSVM[iterTrain,sample_size] = as.numeric(accSVM$overall["Kappa"])
           if (sample_size==4) {
             best_acc <- accSVM$overall["Accuracy"]
             best_model <- model_name_tunedSVM
@@ -1626,8 +1626,8 @@ for (model_prob in model_probs) {
           accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
           cat("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)," | execution time: ",t.time,"sec\n",sep="")
           
-          AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
-          KappaVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
+          AccuracyVSVM_SL[iterTrain,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
+          KappaVSVM_SL[iterTrain,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
           if (sample_size==4 && accVSVM_SL$overall["Accuracy"]>best_acc) {
             best_acc <- accVSVM_SL$overall["Accuracy"]
             new_bestTunedVSVM <- bestFittingModel
@@ -1759,8 +1759,8 @@ for (model_prob in model_probs) {
             }
             cat("VSVM_SL - AL random accuracy: ",round(accVSVM_SL_AL_random$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
-            AccuracyVSVM_SL_Un_random_it[realization,sample_size] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
-            KappaVSVM_SL_Un_random_it[realization,sample_size] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
+            AccuracyVSVM_SL_Un_random_it[iterTrain,sample_size] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
+            KappaVSVM_SL_Un_random_it[iterTrain,sample_size] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
             if (sample_size==4 && actAcc>best_acc) { 
               best_acc <- actAcc 
               best_model <- model_name_AL_VSVMSL_r
@@ -2161,8 +2161,8 @@ for (model_prob in model_probs) {
             }
             cat("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
-            AccuracyVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
-            KappaVSVM_SL_Un_it[realization,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
+            AccuracyVSVM_SL_Un_it[iterTrain,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
+            KappaVSVM_SL_Un_it[iterTrain,sample_size] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
             if(sample_size==4 && actAcc>best_acc){ 
               best_acc <- actAcc 
               best_model <- model_name_AL_VSVMSL
@@ -2333,8 +2333,8 @@ for (model_prob in model_probs) {
             }
             cat("VSVM_SL - AL + SL accuracy: ",round(accVSVM_SL_itALSL$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
-            AccuracyVSVM_SL_Un_itSL[realization,sample_size] = as.numeric(accVSVM_SL_itALSL$overall["Accuracy"])
-            KappaVSVM_SL_Un_itSL[realization,sample_size] = as.numeric(accVSVM_SL_itALSL$overall["Kappa"])
+            AccuracyVSVM_SL_Un_itSL[iterTrain,sample_size] = as.numeric(accVSVM_SL_itALSL$overall["Accuracy"])
+            KappaVSVM_SL_Un_itSL[iterTrain,sample_size] = as.numeric(accVSVM_SL_itALSL$overall["Kappa"])
             if(sample_size==4 && actAcc>best_acc){ 
               best_acc <- actAcc 
               best_model <- model_name_ALSL_VSVMSL
@@ -2512,8 +2512,8 @@ for (model_prob in model_probs) {
             }
             cat("VSVM_SL - AL + Train SL accuracy: ",round(accVSVM_SL_itAL_TSLv1$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
-            AccuracyVSVM_SL_Un_itTSL[realization,sample_size] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Accuracy"])
-            KappaVSVM_SL_Un_itTSL[realization,sample_size] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Kappa"])
+            AccuracyVSVM_SL_Un_itTSL[iterTrain,sample_size] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Accuracy"])
+            KappaVSVM_SL_Un_itTSL[iterTrain,sample_size] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Kappa"])
             if(sample_size==4 && actAcc>best_acc){ 
               best_acc <- actAcc 
               best_model <- model_name_ALTrainSL_VSVMSL
@@ -2557,6 +2557,7 @@ for (model_prob in model_probs) {
              # AccuracyVSVM_SL_Un_AL_v1,
              # AccuracyVSVM_SL_Un_AL_v2,
              AccuracyVSVM_SL_Un_itSL,
+             AccuracyVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_ALSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, KappaVSVM_SL,
              KappaVSVM_SL_Un_it, 
@@ -2564,6 +2565,7 @@ for (model_prob in model_probs) {
              # KappaVSVM_SL_Un_AL_v1,
              # KappaVSVM_SL_Un_AL_v2,
              KappaVSVM_SL_Un_itSL,
+             KappaVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_ALSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
