@@ -1,0 +1,15 @@
+OA Execution time: 2.43h
+Realization 1 execution time: 2.31h
+
+best_bound_oa_SL_AL:  0.01
+best_boundMargin_oa_SL_AL:  0.5
+best_resample_oa:  40
+best_newSize_oa:  10
+best_classSize_oa:  200
+best_cluster_oa:  100
+20240731VSVM_SLUn_hagadera_multiclass_scale_32Size_20Unl.rds: 0.963319689633197
+
+length train Labels: 500
+length SVM SVs: 100
+length new train Labels AL: 261
+length AL VSVM+SL SVs: 279

@@ -6,7 +6,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-trainingIterationis = 2
+tI = 2
 nR = 1                   # realizations
 cities = c("cologne")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
@@ -1201,7 +1201,8 @@ for (model_prob in model_probs) {
           rm(validateData, val_stratSamp) 
         }
       }
-      
+      nRtmp = nR
+      nR = tI
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracySVM) = colheader
       
@@ -1244,7 +1245,7 @@ for (model_prob in model_probs) {
       
       KappaVSVM_SL_Un_it_Tv1 = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(KappaVSVM_SL_Un_it_Tv1) = colheader
-      
+      nR = nRtmp
       # ********
       best_bound_oa_SL = c()
       best_boundMargin_oa_SL = c()
@@ -1254,6 +1255,7 @@ for (model_prob in model_probs) {
       best_cluster_oa=c()
       best_model_oa=c()
       time.taken_iter = c()
+      table_trainLabels = NULL
       best_resample=NA
       best_newSize4iter = NA
       best_classSize=NA
@@ -1312,21 +1314,22 @@ for (model_prob in model_probs) {
           # subset on base level
           testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
           
+          # subset on L_4 ***************************** SVM base for invariants ************************************
+          trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+          # ************************************************ *******************************************************
           
-          for (iterTrain in seq(trainingIterationis)){
-          cat(city," ",model_prob ," ",invariance," | iter train [",iterTrain,"/",trainingIterationis,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
-            
+          for (iterTrain in seq(tI)){
+          cat(city," ",model_prob ," ",invariance," | iter train [",iterTrain,"/",tI,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
           
           # trainData index to split between train and test in svmFit
           countTrainData = nrow(trainFeat)
           indexTrainData = list(c(1:countTrainData))
           
-          # subset on L_4 ***************************** SVM base for invariants ************************************
-          trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
-          # ************************************************ *******************************************************
           # join of train and test test data (separable through indexTrainData in svmFit)
-          tuneFeat = rbind(trainFeat, testFeatsub)
+          tuneFeat = rbind(setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
           tuneLabel = unlist(list(trainLabels, testLabels))
+          
+          table_trainLabels = rbind(table_trainLabels,table(trainLabels))  
           
           setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
           
@@ -1357,6 +1360,20 @@ for (model_prob in model_probs) {
           # get original SVs of base SVM *************************
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
+          
+          
+          # # Create a frequency table of the column
+          # freq_table <- table(SVtotal$REF)
+          # 
+          # # Check for any classes with zero labels
+          # zero_label_classes <- names(freq_table[freq_table == 0])
+          # 
+          # # Print the classes with zero labels
+          # print(zero_label_classes)
+          
+          
+          
+          
           # ******************************************************
           binaryClassProblem = list()
           for (jj in 1:length(tunedSVM$finalModel@xmatrix)) { 

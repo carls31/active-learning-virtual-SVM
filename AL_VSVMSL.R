@@ -8,7 +8,7 @@ library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
 cities = c("hagadera","cologne")    # cologne or hagadera
-invariances = c("shape")   # scale or shape invariance
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
