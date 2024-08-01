@@ -1,8 +1,8 @@
 library(scales)
 
 city = "hagadera"    # cologne or hagadera
-invariance = "shape"     # scale or shape
-class = "binary"     # multiclass or binary
+invariance = "scale"     # scale or shape
+class = "multiclass"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -55,10 +55,14 @@ file_name_acc = "20240710_cologne_multiclass_shape_acc_20Unl_4nR_8SizePor"
 # file_name_acc = "20240711_1153_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
 
+###### EQUAL SAMPLE SIZE PORTIONS FOR B2M
 file_name_acc = "20240730_2155_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240731_1009_cologne_multiclass_shape_acc_20Unl_1nR_8SizePor" # same of 20240730_2155
 file_name_acc = "20240730_1809_hagadera_multiclass_shape_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240731_1337_hagadera_binary_shape_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240731_1603_cologne_binary_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_acc = "20240801_0342_cologne_multiclass_scale_acc_20Unl_1nR_8SizePor"
+file_name_acc = "20240731_2129_hagadera_multiclass_scale_acc_20Unl_1nR_8SizePor"
 
 
 
@@ -109,10 +113,19 @@ file_name_kappa = "20240710_cologne_multiclass_shape_Kappa_20Unl_4nR_8SizePor"
 # file_name_kappa = "20240711_1153_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
 
+###### EQUAL SAMPLE SIZE PORTIONS FOR B2M
 file_name_kappa = "20240730_2155_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240731_1009_cologne_multiclass_shape_Kappa_20Unl_1nR_8SizePor" # same of 20240730_2155
 file_name_kappa = "20240730_1809_hagadera_multiclass_shape_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240731_1337_hagadera_binary_shape_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240731_1603_cologne_binary_shape_acc_20Unl_1nR_8SizePor"
+file_name_kappa = "20240801_0342_cologne_multiclass_scale_Kappa_20Unl_1nR_8SizePor"
+file_name_kappa = "20240731_2129_hagadera_multiclass_scale_Kappa_20Unl_1nR_8SizePor"
+
+
+
+
+
 
 
 load(paste0(file_name_acc,".RData"))
@@ -248,7 +261,7 @@ if(class == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.97
-      ylowerBound = 0.775
+      ylowerBound = 0.82
     }
     if(invariance=="shape"){
       yUpperBound = 0.97
@@ -257,8 +270,8 @@ if(class == "multiclass"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.785
-      ylowerBound = 0.56
+      yUpperBound = 0.76
+      ylowerBound = 0.50
     }
     if(invariance=="shape"){
       yUpperBound = 0.79
@@ -305,7 +318,7 @@ png(filename=paste0(file_name_acc,".png"),
 
 if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
-                    # ylim=range(c(ylowerBound,yUpperBound)),
+                    ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
@@ -414,7 +427,7 @@ if(nrow(AccuracySVM)>1){
       res=96)
   
   msdSVMPlot = plot(x, avgSVM,log = "x",
-                    # ylim=range(c(ylowerBound,yUpperBound)),
+                    ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,   col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class", 
                     ylab="accuracy (%) +/- std dev",
@@ -476,7 +489,7 @@ if(class == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.955
-      ylowerBound = 0.695
+      ylowerBound = 0.74
     }
     if(invariance=="shape"){
       yUpperBound = 0.955
@@ -485,8 +498,8 @@ if(class == "multiclass"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.705
-      ylowerBound = 0.40
+      yUpperBound = 0.68
+      ylowerBound = 0.35
     }
     if(invariance=="shape"){
       yUpperBound = 0.71
@@ -546,7 +559,7 @@ if(nrow(KappaSVM)>1){
   # lines(x, ExCsvMSD(KappaVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
 }else{
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
-                    ylim=range(c(ylowerBound,yUpperBound)), 
+                    ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
                     xlab= "number of labeled samples per class", 
                     ylab="Kappa-score",
