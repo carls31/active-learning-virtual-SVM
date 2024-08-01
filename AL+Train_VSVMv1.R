@@ -1360,8 +1360,6 @@ for (model_prob in model_probs) {
           
           # get original SVs of base SVM *************************
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
-
-
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
           
           freq_table <- table(SVtotal$REF)
@@ -1370,14 +1368,11 @@ for (model_prob in model_probs) {
             for (class in zero_label_classes) {
               # Find the indices of rows in trainDataCur with the zero label class
               class_indices <- which(trainLabels == class)
-
               # Extract the corresponding rows from trainFeat and trainLabels
               class_feat <- trainFeat[class_indices, , drop = FALSE]
               class_labels <- trainLabels[class_indices, drop = FALSE]
-
               # Create a data frame with the same structure as SVtotal
               class_data <- cbind(class_feat, class_labels)
-              
               # Append the class_data to SVtotal
               SVtotal <- rbind(setNames(SVtotal,c(objInfoNames[1:length(objInfoNames)-1],"REF")), setNames(class_data,c(objInfoNames[1:length(objInfoNames)-1],"REF")))
             }
@@ -1393,7 +1388,6 @@ for (model_prob in model_probs) {
           cat("\n") ###################################### VSVM-SL ################################################
           trainStart.time <- Sys.time()
           if (invariance=="scale") {
-            # if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
               SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
               SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
               
@@ -1422,26 +1416,6 @@ for (model_prob in model_probs) {
                               setNames(SVL11,objInfoNames)
               ) # The new Train Data Set is made by SVs and VSVs only
               }
-            # } else {
-            #   SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
-            #   SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
-            #   
-            #   SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
-            #   SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
-            #   SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
-            #   SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
-            #   SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
-            #   
-            #   SVinvar = rbind(setNames(SVtotal,objInfoNames),
-            #                   setNames(SVL2,objInfoNames),
-            #                   setNames(SVL3,objInfoNames),
-            #                   setNames(SVL5,objInfoNames),
-            #                   setNames(SVL6,objInfoNames),
-            #                   setNames(SVL7,objInfoNames),
-            #                   setNames(SVL8,objInfoNames),
-            #                   setNames(SVL9,objInfoNames)
-            #   )
-            # }
           } else {
             S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
             S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
@@ -1657,7 +1631,7 @@ for (model_prob in model_probs) {
             
             
             
-            # cat("\n") ############################### AL_VSVSM_SL v1  #######################################
+            # cat("\n") ############################ AL_VSVSM_SL v1  #######################################
             # 
             # model_name_AL_VSVM_SL_v1 = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_v1",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             # 
@@ -1757,7 +1731,7 @@ for (model_prob in model_probs) {
             
             
             
-            # cat("\n") ############################### AL_VSVSM_SL v2  #######################################
+            # cat("\n") ############################ AL_VSVSM_SL v2  #######################################
             # 
             # model_name_AL_VSVM_SL_v2 = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_v2",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             # 
@@ -1906,7 +1880,7 @@ for (model_prob in model_probs) {
             # KappaVSVM_SL_Un_AL_v2[realization,sample_size] = as.numeric(accVSVM_SL_AL_v2$overall["Kappa"])
             # 
             
-            cat("\n") ################################### AL_VSVM+SL #######################################
+            cat("\n") ############################## AL_VSVM+SL #######################################
 
             model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
 
@@ -2059,7 +2033,7 @@ for (model_prob in model_probs) {
 
             
             
-            cat("\n") ################################# AL+Train_VSVM_SL #######################################
+            cat("\n") ############################## AL+Train_VSVM_SL #######################################
             
             model_name_ALTrain_VSVMSLv1 = paste0(format(Sys.time(),"%Y%m%d"),"AL+Train_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
@@ -2210,11 +2184,7 @@ for (model_prob in model_probs) {
               best_model <- model_name_ALTrain_VSVMSLv1
             }
             # TO BE IMPLEMENTED
-            cat("\n") ################################# AL+Train_VSVM+SL #######################################
-            
           }
-          # new_trainFeatVSVM <- rbind(new_trainFeatVSVM, setNames(new_trainFeat, names))
-          # new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM, new_trainLabels))
           cat("\n") ############################ End Sample Portion ######################################
           }
           if (realization==1 && sample_size==4) {

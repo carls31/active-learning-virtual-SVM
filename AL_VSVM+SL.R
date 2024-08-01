@@ -1638,7 +1638,7 @@ for (model_prob in model_probs) {
           #######################################################################################################
           
           if (num_cores>=4) {
-            cat("\n") ################################ AL_VSVM+SL RANDOM #######################################
+            cat("\n") ############################# AL_VSVMSL RANDOM #######################################
             
             model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_r_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
@@ -1768,7 +1768,7 @@ for (model_prob in model_probs) {
             
             
             
-            # cat("\n") ################################# AL_VSVSM_SL v1  #######################################
+            # cat("\n") ########################### AL_VSVSM_SL v1  #######################################
             # 
             # model_name_AL_VSVM_SL_v1 = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_SL_v1",city,"_",invariance,"_",model_prob,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             # 
@@ -2017,7 +2017,7 @@ for (model_prob in model_probs) {
             # KappaVSVM_SL_Un_AL_v2[realization,sample_size] = as.numeric(accVSVM_SL_AL_v2$overall["Kappa"])
             # 
             
-            cat("\n") ################################ AL_VSVM+SL #######################################
+            cat("\n") ############################# AL_VSVMSL #######################################
             
             model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
@@ -2171,11 +2171,11 @@ for (model_prob in model_probs) {
             
             
             
-            cat("\n") ############################### AL_VSVM+SL #######################################
+            cat("\n") ############################# AL_VSVM+SL #######################################
 
             model_name_ALSL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL+SL_VSVMSL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
-            cat("computing uncertainty distance for active labeling [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            cat("computing uncertainty distance for active labeling + SL [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
             classSize=c(min(45*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") {classSize=round(classSize/3)}
@@ -2343,7 +2343,7 @@ for (model_prob in model_probs) {
             
             
             
-            cat("\n") ############################### AL+Train_VSVM+SL #######################################
+            cat("\n") ############################# AL+Train_VSVM+SL #######################################
             
             model_name_ALTrainSL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL+TrainSL_VSVMSL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
@@ -2525,7 +2525,7 @@ for (model_prob in model_probs) {
             
             
           }
-          cat("\n") ############################ End Sample Portion ######################################
+          cat("\n") ############################# End Sample Portion ######################################
           }
           if (realization==1 && sample_size==4) {
             saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
@@ -2535,8 +2535,6 @@ for (model_prob in model_probs) {
             saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
             saveRDS(tmp_new_tunedSVM_SL, model_name_ALSL_VSVMSL)
             saveRDS(tmp_new_tunedSVM_ALTrainSLv1, model_name_ALTrainSL_VSVMSL)
-            
-            
           }
         }
         # Store the overall best hyperparameters 
