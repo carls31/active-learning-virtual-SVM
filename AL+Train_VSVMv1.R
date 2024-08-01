@@ -1278,6 +1278,7 @@ for (model_prob in model_probs) {
         
         for (sample_size in seq(along=sampleSizePor)) {#}
           
+          cat("realization [",realization,"/",nR,"]\n",sep="")
           # cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
           
           sampleSize = sampleSizePor[sample_size]
