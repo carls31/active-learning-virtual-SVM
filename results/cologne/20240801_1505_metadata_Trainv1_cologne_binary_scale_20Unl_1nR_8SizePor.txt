@@ -1,0 +1,12 @@
+OA Execution time: 2.67h
+Realization 1 execution time: 0.392h
+
+best_resample_oa:  60
+best_newSize_oa:  10
+best_classSize_oa:  900
+best_cluster_oa:  100
+20240801VSVM_SL_cologne_binary_scale_32Size_20Unl.rds: 0.938960643734952
+
+length train Labels: 27
+length SVM SVs: 14
+length new train Labels AL: 
