@@ -2,7 +2,7 @@ library(scales)
 
 city = "hagadera"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-class = "multiclass"     # multiclass or binary
+class = "binary"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -13,6 +13,7 @@ file_name_acc = "20240801_1137_cologne_binary_scale_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240801_1651_cologne_binary_scale_acc_AL+Trainv1_20Unl_1nR_8SizePor"
 file_name_acc = "20240801_1030_hagadera_binary_scale_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240802_1549_hagadera_multiclass_scale_acc_AL+Trainv1_20Unl_1nR_8SizePor"
+file_name_acc = "20240802_2253_hagadera_binary_scale_acc_ALTSL_20Unl_1nR_8SizePor"
 
 
 
@@ -23,6 +24,7 @@ file_name_kappa = "20240801_1137_cologne_binary_scale_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240801_1651_cologne_binary_scale_Kappa_AL+Trainv1_20Unl_1nR_8SizePor"
 file_name_kappa = "20240801_1030_hagadera_binary_scale_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240802_1549_hagadera_multiclass_scale_Kappa_AL+Trainv1_20Unl_1nR_8SizePor"
+file_name_kappa = "20240802_2253_hagadera_binary_scale_Kappa_ALTSL_20Unl_1nR_8SizePor"
 
 
 
@@ -88,8 +90,8 @@ if(class == "multiclass"){
 if(class == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.985
-      ylowerBound = 0.67
+      yUpperBound = 0.99
+      ylowerBound = 0.85
     }
     if(invariance=="shape"){
       yUpperBound = 0.985
@@ -140,11 +142,11 @@ png(filename=paste0(file_name_acc,".png"),
   lines(x, (AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 2)
 
-  lines(x, (AccuracyVSVM_SL_Un_it_SL)[1,], type= type , col = 5, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_it_SL)[2,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_itSL)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un_itSL)[2,], type= type , col = 5, lwd = 2,lty = 2)
   
-  lines(x, (AccuracyVSVM_SL_Un_it_TSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_it_TSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un_itTSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
   
 
 
@@ -252,10 +254,10 @@ png(filename=paste0(file_name_kappa,".png"),
                     ylab="Kappa-score",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, KappaSVM[2,], type= type ,         col = 1, lwd = 2,lty = 2)
+  lines(x, KappaSVM[2,], type= type , col = 1, lwd = 2,lty = 2)
   
-  lines(x, KappaVSVM_SL[1,], type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x, KappaVSVM_SL[2,], type= type ,       col = 3, lwd = 2,lty = 2)
+  lines(x, KappaVSVM_SL[1,], type= type , col = 3, lwd = 2,lty = 1)
+  lines(x, KappaVSVM_SL[2,], type= type , col = 3, lwd = 2,lty = 2)
   
   lines(x, (KappaVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 1)
   lines(x, (KappaVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 2)
@@ -263,11 +265,11 @@ png(filename=paste0(file_name_kappa,".png"),
   lines(x, (KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x, (KappaVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 2)
 
-  lines(x, (KappaVSVM_SL_Un_it_SL)[1,], type= type , col = 5, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_it_SL)[2,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_itSL)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  lines(x, (KappaVSVM_SL_Un_itSL)[2,], type= type , col = 5, lwd = 2,lty = 2)
   
-  lines(x, (KappaVSVM_SL_Un_it_TSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_it_TSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
+  lines(x, (KappaVSVM_SL_Un_itTSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
   
   legend("bottomright", 
          c("SVM single-level L4","SVM single-level L4 retrain",
