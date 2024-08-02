@@ -8,8 +8,8 @@ library(doParallel) # multiple CPU cores
 
 tI = 2                   # Re-training iterations
 nR = 1                   # realizations
-cities = c("hagadera")    # cologne or hagadera
-invariances = c("scale")   # scale or shape invariance
+cities = c("cologne")    # cologne or hagadera
+invariances = c("shape")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
@@ -18,7 +18,7 @@ boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
 resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(1*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
+newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
 clusterSizes = c(5*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
@@ -425,6 +425,7 @@ add_AL_samples = function(distance_data,
                           new_trainFeatVSVM=NULL, new_trainLabelsVSVM=NULL,
                           newSize=4, cluster=5, ID_unit=NULL, nFeat=numFeat, PCA_flag=TRUE){
   if(cluster<newSize){cluster=round(newSize*1.01)}
+  if(cluster<nrow(distance_data)){cluster=round(nrow(distance_data)/10)}
   # merge features and original labels
   distance_data$label=as.factor(distance_data$label)
   ref_added = cbind(distance_data, ref)
@@ -625,7 +626,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
   }
 }
 
-# self_learn_AL(testFeatsub, testLabels, boundMargin=c(0.5), model_name=model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
+# self_learn_AL(testFeatsub, testLabels, boundMargin=c(3), model_name=model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
 #                                SVL_variables, validateFeatsub)
 self_learn_AL = function(testFeatsub, testLabels,
                          # bound,
@@ -1977,7 +1978,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling + SL [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
-            classSize=c(min(30*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            classSize=c(min(45*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") {classSize=round(classSize/3)}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2020,13 +2021,13 @@ for (model_prob in model_probs) {
                       SVL_variables<-setNames(SVL_variables, objInfoNames)
                       
                       # c(0.7, 0.5, 0.3)
-                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(1), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
+                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(3), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
                                                     SVL_variables, validateFeatsub, upd_dataCurLabels
                                                     )
                       
                       tmp_new_tunedSVM2 <- sampledResult$bestFittingModel
                       sampled_data <- sampledResult$sampled_data
-                      ref <- sampledResult$best_updCur_Labels
+                      reference_label <- sampledResult$best_updCur_Labels
                       
                       # # **********************
                       # # **********************
@@ -2035,7 +2036,7 @@ for (model_prob in model_probs) {
                       cat("computing distances required ", d.time,"sec\n",sep="")
                       ALSamplesStart.time <- Sys.time()
                       result <- add_AL_samples(sampled_data,
-                                               ref, sampled_data[,1:numFeat], 
+                                               reference_label, sampled_data[,1:numFeat], 
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
                                                upd_dataCur$ID_unit ) 
@@ -2145,7 +2146,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling + Train SL [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
-            classSize=c(min(30*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            classSize=c(min(45*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") {classSize=round(classSize/3)}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2188,7 +2189,7 @@ for (model_prob in model_probs) {
                       SVL_variables<-setNames(SVL_variables, objInfoNames)
                       
                       # c(0.7, 0.5, 0.3)
-                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(1), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
+                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(3), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
                                                      SVL_variables, validateFeatsub, upd_dataCurLabels
                       )
                       
@@ -2368,7 +2369,7 @@ for (model_prob in model_probs) {
             "\nbest_resample_oa: ", best_resample_oa,        "\nbest_newSize_oa: ", best_newSize_oa,
             "\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,"\n",best_model_oa, 
             "\nlength train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(bestFittingModel$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),
-            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_benchmark_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
+            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_ALTSL_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
