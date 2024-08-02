@@ -1790,7 +1790,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling + Train v1 [",realization,"/",nR,"] | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
-            classSize=c(min(45*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            classSize=c(min(30*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") {classSize=round(classSize/3)}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -1990,14 +1990,14 @@ for (model_prob in model_probs) {
              # AccuracyVSVM_SL_Un_AL_v1,
              # AccuracyVSVM_SL_Un_AL_v2,
              AccuracyVSVM_SL_Un_it_Tv1,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_AL+Trainv1_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_AL_Trainv1_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, KappaVSVM_SL,
              KappaVSVM_SL_Un_it,
              KappaVSVM_SL_Un_random_it,
              # KappaVSVM_SL_Un_AL_v1,
              # KappaVSVM_SL_Un_AL_v2,
              KappaVSVM_SL_Un_it_Tv1,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_AL+Trainv1_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_AL_Trainv1_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
             # "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,

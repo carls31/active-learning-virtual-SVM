@@ -17,8 +17,8 @@ bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0
 boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 
-resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-newSizes = c(0.5*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
+resampledSize = c(2*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
+newSizes = c(1*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
 clusterSizes = c(5*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 
@@ -415,6 +415,7 @@ mclp_sampling <- function(org, samp) {
   return(merged_data)
 }
 # result <- add_AL_samples(distance_data=sampled_data,
+# ref=reference_label, features=sampled_data[,1:numFeat]
 #                          ref=upd_dataCurLabels, features=upd_dataCurFeatsub, 
 #                          new_trainFeatVSVM, new_trainLabelsVSVM,
 #                          newSize=newSize_for_iter, cluster=clusterSizes[cS], 
@@ -425,6 +426,7 @@ add_AL_samples = function(distance_data,
                           newSize=4, cluster=5, ID_unit=NULL, nFeat=numFeat, PCA_flag=TRUE){
   if(cluster<newSize){cluster=round(newSize*1.01)}
   # merge features and original labels
+  distance_data$label=as.factor(distance_data$label)
   ref_added = cbind(distance_data, ref)
   
   # order by most uncertain samples
@@ -696,7 +698,7 @@ self_learn_AL = function(testFeatsub, testLabels,
           # Remove VSV which are not located within a certain distance to the decision function
           # data.frame to store elected VSV within the margin
           SVinvar = setNames(data.frame(matrix(ncol = numFeat + 2, nrow = 0)), c(objInfoNames, "distance"))
-          upd_Labels = setNames(data.frame(matrix(ncol = 1, nrow = 0)), "ref")
+          upd_Labels <- factor(character(0), levels = levels(upd_dataCurLabels))
           # Progress bar initialization
           pb <- progress_bar$new(
             format = "[:bar] :percent [elapsed time: :elapsedfull | remaining: :eta]",
@@ -711,7 +713,7 @@ self_learn_AL = function(testFeatsub, testLabels,
             if (signa < boundMargin[kk]) {
               row_with_distance = c(SVinvarRadi[m, ], distance = signa)
               SVinvar = rbind(SVinvar, row_with_distance)
-              upd_Labels = rbind(upd_Labels, upd_dataCurLabels[m])
+              upd_Labels <- c(upd_Labels, upd_dataCurLabels[m])
             }
             pb$tick()
           }
@@ -1490,7 +1492,7 @@ for (model_prob in model_probs) {
           indexTrainData = list(c(1:countTrainData))
             
           # join of train and test test data (separable through indexTrainData in svmFit)
-          tuneFeat = rbind(trainFeat, testFeatsub)
+          tuneFeat = rbind(setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
           tuneLabel = unlist(list(trainLabels, testLabels))
           
           table_trainLabels = rbind(table_trainLabels,table(trainLabels))  
@@ -2190,9 +2192,9 @@ for (model_prob in model_probs) {
                                                      SVL_variables, validateFeatsub, upd_dataCurLabels
                       )
                       
-                      tmp_new_tunedSVM_SL2 <- sampledResult$bestFittingModel
+                      # tmp_new_tunedSVM_SL2 <- sampledResult$bestFittingModel
                       sampled_data <- sampledResult$sampled_data
-                      ref <- sampledResult$best_updCur_Labels
+                      reference_label <- sampledResult$best_updCur_Labels
                       
                       # # **********************
                       # # **********************
@@ -2201,7 +2203,7 @@ for (model_prob in model_probs) {
                       cat("computing distances required ", d.time,"sec\n",sep="")
                       ALSamplesStart.time <- Sys.time()
                       result <- add_AL_samples(sampled_data,
-                                               ref, sampled_data[,1:numFeat], 
+                                               reference_label, sampled_data[,1:numFeat], 
                                                setNames(trainFeat, names), trainLabels,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
                                                upd_dataCur$ID_unit ) 
@@ -2214,13 +2216,10 @@ for (model_prob in model_probs) {
                       
                       new_trainFeat <- result$new_trainFeatVSVM
                       new_trainLabels <- result$new_trainLabelsVSVM
-                      
-                      
 
-                      
                       # **********************
                       # get original SVs of base SVM
-                      SVindex_ud = tmp_new_tunedSVM_SL2$finalModel@SVindex
+                      SVindex_ud = tmp_new_tunedSVM_ALTrainSLv1$finalModel@SVindex
                       trainFeat = setNames(trainFeat[SVindex_ud,], names)
                       trainLabels = trainLabels[SVindex_ud]
                       
@@ -2274,6 +2273,18 @@ for (model_prob in model_probs) {
                       # tmp_new_tunedSVM_ALTrainSLv12 <- upd_SLresult$bestFittingModel
                       # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
                       # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
+                      
+                      # trainData index to split between train and test in svmFit
+                      countTrainData = nrow(trainFeat)
+                      indexTrainData = list(c(1:countTrainData))
+                      
+                      # join of train and test test data (separable through indexTrainData in svmFit)
+                      tuneFeat = rbind(setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
+                      tuneLabel = unlist(list(trainLabels, testLabels))
+                      
+                      trainStart.time <- Sys.time()
+                      tmp_new_tunedSVM_SL2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
+
                       trainDataCur <- rbind(trainDataCur, upd_dataCur[upd_SVindex_ud, 1:ncol(trainDataCur)])
                       upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       
@@ -2341,7 +2352,7 @@ for (model_prob in model_probs) {
              # AccuracyVSVM_SL_Un_AL_v2,
              AccuracyVSVM_SL_Un_itSL,
              AccuracyVSVM_SL_Un_itTSL,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_ALSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_ALTSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, KappaVSVM_SL,
              KappaVSVM_SL_Un_it, 
              KappaVSVM_SL_Un_random_it,
@@ -2349,7 +2360,7 @@ for (model_prob in model_probs) {
              # KappaVSVM_SL_Un_AL_v2,
              KappaVSVM_SL_Un_itSL,
              KappaVSVM_SL_Un_itTSL,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_ALSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_ALTSL_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             # "\nbest_bound_oa_SL_AL: ", best_bound_oa_SL,        "\nbest_boundMargin_oa_SL_AL: ", best_boundMargin_oa_SL,
             # "\nbest_bound_oa_SL_Un: ", best_bound_oa_SL_Un,  "\nbest_boundMargin_oa_SL_Un: ",best_boundMargin_oa_SL_Un,
