@@ -134,49 +134,57 @@ png(filename=paste0(file_name_acc,".png"),
   lines(x, AccuracyVSVM_SL[1,], type= type ,       col = 3, lwd = 2,lty = 1)
   lines(x, AccuracyVSVM_SL[2,], type= type ,       col = 3, lwd = 2,lty = 2)
   
+  lines(x, (AccuracyVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 2)
+  
   lines(x, (AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 2)
+
+  lines(x, (AccuracyVSVM_SL_Un_it_SL)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un_it_SL)[2,], type= type , col = 5, lwd = 2,lty = 2)
   
-  lines(x, (AccuracyVSVM_SL_Un_it_Tv1)[1,], type= type , col = 4, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_it_Tv1)[2,], type= type , col = 4, lwd = 2,lty = 2)
-  
-  lines(x, (AccuracyVSVM_SL_Un_random_it)[1,], type= type , col = 5, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_random_it)[2,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_it_TSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un_it_TSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
   
 
 
 # # ******************************************************************************************************
-
-legend("bottomright", 
-       c("SVM single-level L4","SVM single-level L4 retrain",
-         "VSVM-SL","VSVM-SL  retrain", 
-         "VSVM-SL + random AL ","VSVM-SL + random AL  retrain",
-         "VSVM-SL + AL","VSVM-SL + AL  retrain",
-         "VSVM-SL + AL Train v1","VSVM-SL + AL Train v1  retrain"
+  legend("bottomright", 
+         c("SVM single-level L4","SVM single-level L4 retrain",
+           "VSVM-SL","VSVM-SL retrain", 
+           "VSVM-SL + random AL ","VSVM-SL + random AL retrain",
+           "VSVM-SL + AL","VSVM-SL + AL retrain",
+           "VSVM-SL + AL T","VSVM-SL + AL T retrain",
+           "VSVM-SL + AL TSL","VSVM-SL + AL TSL retrain"
+           
          ),
-       lty=c(1,
-             2,
-             1,
-             2,
-             1,
-             2,
-             1,
-             2,
-             1,
-             2), 
-       col=c(1,
-             1,
-             3,
-             3,
-             7,
-             7,
-             4,
-             4,
-             5,
-             5)  
-       ) 
-
-dev.off()
+         lty=c(1,
+               2,
+               1,
+               2,
+               1,
+               2,
+               1,
+               2,
+               1,
+               2,
+               1,
+               2), 
+         col=c(1,
+               1,
+               3,
+               3,
+               4,
+               4,
+               7,
+               7,
+               5,
+               5,
+               6,
+               6)  
+  ) 
+  
+  dev.off()
 
 ##########################################################################
 # KAPPA
@@ -249,23 +257,30 @@ png(filename=paste0(file_name_kappa,".png"),
   lines(x, KappaVSVM_SL[1,], type= type ,       col = 3, lwd = 2,lty = 1)
   lines(x, KappaVSVM_SL[2,], type= type ,       col = 3, lwd = 2,lty = 2)
   
+  lines(x, (KappaVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 1)
+  lines(x, (KappaVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 2)
+  
   lines(x, (KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x, (KappaVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 2)
+
+  lines(x, (KappaVSVM_SL_Un_it_SL)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  lines(x, (KappaVSVM_SL_Un_it_SL)[2,], type= type , col = 5, lwd = 2,lty = 2)
   
-  lines(x, (KappaVSVM_SL_Un_it_Tv1)[1,], type= type , col = 4, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_it_Tv1)[2,], type= type , col = 4, lwd = 2,lty = 2)
-  
-  lines(x, (KappaVSVM_SL_Un_random_it)[1,], type= type , col = 5, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_random_it)[2,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_it_TSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
+  lines(x, (KappaVSVM_SL_Un_it_TSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
   
   legend("bottomright", 
          c("SVM single-level L4","SVM single-level L4 retrain",
-           "VSVM-SL","VSVM-SL  retrain", 
-           "VSVM-SL + random AL ","VSVM-SL + random AL  retrain",
-           "VSVM-SL + AL","VSVM-SL + AL  retrain",
-           "VSVM-SL + AL Train v1","VSVM-SL + AL Train v1  retrain"
+           "VSVM-SL","VSVM-SL retrain", 
+           "VSVM-SL + random AL ","VSVM-SL + random AL retrain",
+           "VSVM-SL + AL","VSVM-SL + AL retrain",
+           "VSVM-SL + AL T","VSVM-SL + AL T retrain",
+           "VSVM-SL + AL TSL","VSVM-SL + AL TSL retrain"
+           
          ),
          lty=c(1,
+               2,
+               1,
                2,
                1,
                2,
@@ -279,12 +294,14 @@ png(filename=paste0(file_name_kappa,".png"),
                1,
                3,
                3,
-               7,
-               7,
                4,
                4,
+               7,
+               7,
                5,
-               5)  
+               5,
+               6,
+               6)  
   ) 
   
   dev.off()
