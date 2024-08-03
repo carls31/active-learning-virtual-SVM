@@ -126,27 +126,27 @@ png(filename=paste0(file_name_acc,".png"),
 
   msdSVMPlot = plot(x, (AccuracySVM)[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
+                    pch=20, type= type,                      col = 1, lwd = 2,lty = 2,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, AccuracySVM[2,], type= type ,         col = 1, lwd = 2,lty = 2)
+  lines(x, AccuracySVM[2,], type= type ,                    col = 1, lwd = 2,lty = 1)
   
-  lines(x, AccuracyVSVM_SL[1,], type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x, AccuracyVSVM_SL[2,], type= type ,       col = 3, lwd = 2,lty = 2)
+  lines(x, AccuracyVSVM_SL[1,], type= type ,                col = 3, lwd = 2,lty = 2)
+  lines(x, AccuracyVSVM_SL[2,], type= type ,                col = 3, lwd = 2,lty = 1)
   
-  lines(x, (AccuracyVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 1)
   
-  lines(x, (AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_it)[1,], type= type ,        col = 7, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_it)[2,], type= type ,        col = 7, lwd = 2,lty = 1)
 
-  lines(x, (AccuracyVSVM_SL_Un_itSL)[1,], type= type , col = 5, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_itSL)[2,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_itSL)[1,], type= type ,      col = 5, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_itSL)[2,], type= type ,      col = 5, lwd = 2,lty = 1)
   
-  lines(x, (AccuracyVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
-  lines(x, (AccuracyVSVM_SL_Un_itTSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_itTSL)[1,], type= type ,     col = 6, lwd = 2,lty = 2)
+  lines(x, (AccuracyVSVM_SL_Un_itTSL)[2,], type= type ,     col = 6, lwd = 2,lty = 1)
   
 
 
@@ -156,34 +156,24 @@ png(filename=paste0(file_name_acc,".png"),
            "VSVM-SL","VSVM-SL retrain", 
            "VSVM-SL + random AL ","VSVM-SL + random AL retrain",
            "VSVM-SL + AL","VSVM-SL + AL retrain",
-           "VSVM-SL + AL T","VSVM-SL + AL T retrain",
+           "VSVM-SL + AL SL","VSVM-SL + AL SL retrain",
            "VSVM-SL + AL TSL","VSVM-SL + AL TSL retrain"
            
          ),
-         lty=c(1,
-               2,
-               1,
-               2,
-               1,
-               2,
-               1,
-               2,
-               1,
-               2,
-               1,
-               2), 
-         col=c(1,
-               1,
-               3,
-               3,
-               4,
-               4,
-               7,
-               7,
-               5,
-               5,
-               6,
-               6)  
+         lty=c(2, 1,
+               2, 1,
+               2, 1,
+               2, 1,
+               2, 1,
+               2, 1
+         ), 
+         col=c(1, 1,
+               3, 3,
+               4, 4,
+               7, 7,
+               5, 5,
+               6, 6
+         )  
   ) 
   
   dev.off()
@@ -249,61 +239,51 @@ png(filename=paste0(file_name_kappa,".png"),
 
   msdSVMPlot = plot(x, (KappaSVM)[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                    pch=20, type= type,                   col = 1, lwd=2,lty = 2,
                     xlab= "number of labeled samples per class", 
                     ylab="Kappa-score",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
-  lines(x, KappaSVM[2,], type= type , col = 1, lwd = 2,lty = 2)
+  lines(x, KappaSVM[2,], type= type , col = 1, lwd = 2,lty = 1)
   
-  lines(x, KappaVSVM_SL[1,], type= type , col = 3, lwd = 2,lty = 1)
-  lines(x, KappaVSVM_SL[2,], type= type , col = 3, lwd = 2,lty = 2)
+  lines(x, KappaVSVM_SL[1,], type= type , col = 3, lwd = 2,lty = 2)
+  lines(x, KappaVSVM_SL[2,], type= type , col = 3, lwd = 2,lty = 1)
   
-  lines(x, (KappaVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_random_it)[1,], type= type , col = 4, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_random_it)[2,], type= type , col = 4, lwd = 2,lty = 1)
   
-  lines(x, (KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_it)[2,], type= type , col = 7, lwd = 2,lty = 1)
 
-  lines(x, (KappaVSVM_SL_Un_itSL)[1,], type= type , col = 5, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_itSL)[2,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_itSL)[1,], type= type , col = 5, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_itSL)[2,], type= type , col = 5, lwd = 2,lty = 1)
   
-  lines(x, (KappaVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
-  lines(x, (KappaVSVM_SL_Un_itTSL)[2,], type= type , col = 6, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 2)
+  lines(x, (KappaVSVM_SL_Un_itTSL)[2,], type= type , col = 6, lwd = 2,lty = 1)
   
   legend("bottomright", 
          c("SVM single-level L4","SVM single-level L4 retrain",
            "VSVM-SL","VSVM-SL retrain", 
            "VSVM-SL + random AL ","VSVM-SL + random AL retrain",
            "VSVM-SL + AL","VSVM-SL + AL retrain",
-           "VSVM-SL + AL T","VSVM-SL + AL T retrain",
+           "VSVM-SL + AL SL","VSVM-SL + AL SL retrain",
            "VSVM-SL + AL TSL","VSVM-SL + AL TSL retrain"
            
          ),
-         lty=c(1,
-               2,
-               1,
-               2,
-               1,
-               2,
-               1,
-               2,
-               1,
-               2,
-               1,
-               2), 
-         col=c(1,
-               1,
-               3,
-               3,
-               4,
-               4,
-               7,
-               7,
-               5,
-               5,
-               6,
-               6)  
+         lty=c(2, 1,
+               2, 1,
+               2, 1,
+               2, 1,
+               2, 1,
+               2, 1
+         ), 
+         col=c(1, 1,
+               3, 3,
+               4, 4,
+               7, 7,
+               5, 5,
+               6, 6
+         )   
   ) 
   
   dev.off()
