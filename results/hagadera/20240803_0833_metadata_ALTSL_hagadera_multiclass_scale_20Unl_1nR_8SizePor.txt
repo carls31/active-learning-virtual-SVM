@@ -1,0 +1,11 @@
+OA Execution time: 9.55h
+Realization 1 execution time: 9.4h
+
+best_resample_oa: 
+best_newSize_oa: 
+best_classSize_oa: 
+best_cluster_oa: 
+
+length train Labels: 310
+length SVM SVs: 162
+length new train Labels AL: 310
