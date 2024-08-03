@@ -2,7 +2,7 @@ library(scales)
 
 city = "hagadera"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-class = "binary"     # multiclass or binary
+class = "multiclass"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -14,6 +14,7 @@ file_name_acc = "20240801_1651_cologne_binary_scale_acc_AL+Trainv1_20Unl_1nR_8Si
 file_name_acc = "20240801_1030_hagadera_binary_scale_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240802_1549_hagadera_multiclass_scale_acc_AL+Trainv1_20Unl_1nR_8SizePor"
 file_name_acc = "20240802_2253_hagadera_binary_scale_acc_ALTSL_20Unl_1nR_8SizePor"
+file_name_acc = "20240803_0833_hagadera_multiclass_scale_acc_ALTSL_20Unl_1nR_8SizePor"
 
 
 
@@ -25,6 +26,7 @@ file_name_kappa = "20240801_1651_cologne_binary_scale_Kappa_AL+Trainv1_20Unl_1nR
 file_name_kappa = "20240801_1030_hagadera_binary_scale_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240802_1549_hagadera_multiclass_scale_Kappa_AL+Trainv1_20Unl_1nR_8SizePor"
 file_name_kappa = "20240802_2253_hagadera_binary_scale_Kappa_ALTSL_20Unl_1nR_8SizePor"
+file_name_kappa = "20240803_0833_hagadera_multiclass_scale_Kappa_ALTSL_20Unl_1nR_8SizePor"
 
 
 
@@ -35,6 +37,37 @@ file_name_kappa = "20240802_2253_hagadera_binary_scale_Kappa_ALTSL_20Unl_1nR_8Si
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
 
+# # **********************************************************************************
+# AccuracySVM=AccuracySVM[,1:5]
+# AccuracyVSVM_SL=AccuracyVSVM_SL[,1:5]
+# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[,1:5]
+# AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[,1:5]
+# AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[,1:5]
+# AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[,1:5]
+# 
+# KappaSVM=KappaSVM[,1:5]
+# KappaVSVM_SL=KappaVSVM_SL[,1:5]
+# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[,1:5]
+# KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[,1:5]
+# KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[,1:5]
+# KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[,1:5]
+# # **********************************************************************************
+# 
+# save(AccuracySVM,
+#      AccuracyVSVM_SL,
+#      AccuracyVSVM_SL_Un_it,
+#      AccuracyVSVM_SL_Un_itSL,
+#      AccuracyVSVM_SL_Un_itTSL,
+#      AccuracyVSVM_SL_Un_random_it,
+#      file=paste0(file_name_acc,".RData"))
+# save(KappaSVM,
+#      KappaVSVM_SL,
+#      KappaVSVM_SL_Un_it,
+#      KappaVSVM_SL_Un_itSL,
+#      KappaVSVM_SL_Un_itTSL,
+#      KappaVSVM_SL_Un_random_it,
+#      file=paste0(file_name_kappa,".RData"))
+# # **********************************************************************************
 
 ExCsvMSD = function (datadase, filename = NA){
   
