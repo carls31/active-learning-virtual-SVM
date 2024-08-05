@@ -8,7 +8,7 @@ library(doParallel) # multiple CPU cores
 
 tI = 2                   # Re-training iterations
 nR = 1                   # realizations
-cities = c("hagadera")    # cologne or hagadera
+cities = c("cologne")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
