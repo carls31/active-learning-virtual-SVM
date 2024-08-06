@@ -1,0 +1,14 @@
+OA Execution time: 18.28h
+Realization 1 execution time: 18.24h
+
+best_bound_oa_SL_AL: 
+best_boundMargin_oa_SL_AL: 
+best_resample_oa:  40
+best_newSize_oa:  20
+best_classSize_oa:  200
+best_cluster_oa:  100
+20240805AL_VSVM+SL_cologne_multiclass_scale_32Size_20Unl_130seed.rds: 0.765826806891922
+
+length train Labels: 362
+length SVM SVs: 449
+length new train Labels AL: 
