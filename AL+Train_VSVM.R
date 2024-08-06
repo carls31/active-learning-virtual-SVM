@@ -8,9 +8,9 @@ library(doParallel) # multiple CPU cores
 
 tI = 2                   # Re-training iterations
 nR = 1                   # realizations
-cities = c("cologne")    # cologne or hagadera
+cities = c("hagadera")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
