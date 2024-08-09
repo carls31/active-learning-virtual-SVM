@@ -6,7 +6,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
-nR = 8                   # realizations
+nR = 10                   # realizations
 cities = c("hagadera")    # cologne or hagadera
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
