@@ -14,7 +14,7 @@ model_probs = c("binary")  # multiclass or binary problem
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
-sampleSizePor = c(10) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
+sampleSizePor = c(30) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 # sampleSizePor = c(5,10,20,32,46,62,80,100)
 resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
@@ -1385,7 +1385,14 @@ for (model_prob in model_probs) {
         
         
         # *********************************************************************
-        sampleSize = sampleSizePor[1]
+        if(invariance=="binary"){
+          nclass=2
+        }else if(city=="hagadera"){
+          nclass=5
+        }else {
+          nclass=6
+        }
+        sampleSize = round(sampleSizePor[1]/nclass)
         shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
         
         # set randomized seed for the random sampling procedure
