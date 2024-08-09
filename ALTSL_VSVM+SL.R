@@ -1418,7 +1418,7 @@ for (model_prob in model_probs) {
         trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
         # ************************************************ *******************************************************
         
-        for (sample_size in seq(along=sampleSizePor)) {#}
+        for (sample_size in seq(length(sampleSizePor)-1)) {#}
           
           # cat("realization [",realization,"/",nR,"]\n",sep="")
           cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
@@ -1962,13 +1962,13 @@ for (model_prob in model_probs) {
                     # new_trainLabelsVSVM <- best_trainLabelsVSVM
                     tmp_new_tunedSVM_r <- new_bestTunedVSVM
                     
-                    # newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
+                    # newSize_for_iter = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] #sampleSize/10 # or just 4
                     # num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     trainStart.time <- Sys.time()
                     
                     # Extract new RANDOM datasets 
-                    # randStratSampRemaining = strata(upd_dataCur, size = newSizes[nS4it], method = "srswor")
-                    randStratSampRemaining = strata(upd_dataCur, size = resampledSize[rS], method = "srswor")
+                    # randStratSampRemaining = strata(upd_dataCur, size = sampleSizePor[sample_size+1]-sampleSizePor[sample_size], method = "srswor")
+                    randStratSampRemaining = strata(upd_dataCur, size = sampleSizePor[sample_size+1]-sampleSizePor[sample_size], method = "srswor")
                     
                     # Get new samples from trainDataCurRemaining
                     random_pick = getdata(upd_dataCur, randStratSampRemaining)
@@ -2080,7 +2080,7 @@ for (model_prob in model_probs) {
               for (nS4it in 1:length(newSizes)) {
                 for (cS in 1:length(clusterSizes)) {
                   for (rS in 1:length(resampledSize)) {
-                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",
+                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",sampleSizePor[sample_size+1]-sampleSizePor[sample_size]," [",nS4it,"/",length(newSizes),"] | pool size: ",
                         nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
@@ -2094,7 +2094,7 @@ for (model_prob in model_probs) {
                     # new_trainLabelsVSVM <- best_trainLabelsVSVM
                     tmp_new_tunedSVM <- new_bestTunedVSVM
                     
-                    newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
+                    newSize_for_iter = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
                     trainStart.time <- Sys.time()
@@ -2192,7 +2192,7 @@ for (model_prob in model_probs) {
                         actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                         accVSVM_SL_itAL = tmp_acc
                         best_resample = resampledSize[rS]
-                        best_newSize4iter = newSizes[nS4it]
+                        best_newSize4iter = newSize_for_iter
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
                         train.time = t.time
@@ -2232,7 +2232,7 @@ for (model_prob in model_probs) {
               for (nS4it in 1:length(newSizes)) {
                 for (cS in 1:length(clusterSizes)) {
                   for (rS in 1:length(resampledSize)) {
-                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",
+                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",sampleSizePor[sample_size+1]-sampleSizePor[sample_size]," [",nS4it,"/",length(newSizes),"] | pool size: ",
                         nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
@@ -2246,7 +2246,7 @@ for (model_prob in model_probs) {
                     # new_trainLabelsVSVM <- best_trainLabelsVSVM
                     tmp_new_tunedSVM_SL <- new_bestTunedVSVM
                     
-                    newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
+                    newSize_for_iter = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
                     trainStart.time <- Sys.time()
@@ -2356,7 +2356,7 @@ for (model_prob in model_probs) {
                         actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                         accVSVM_SL_itALSL = tmp_acc
                         best_resample = resampledSize[rS]
-                        best_newSize4iter = newSizes[nS4it]
+                        best_newSize4iter = newSize_for_iter
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
                         train.time = t.time
@@ -2396,7 +2396,7 @@ for (model_prob in model_probs) {
               for (nS4it in 1:length(newSizes)) {
                 for (cS in 1:length(clusterSizes)) {
                   for (rS in 1:length(resampledSize)) {
-                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSizes[nS4it]," [",nS4it,"/",length(newSizes),"] | pool size: ",
+                    cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",sampleSizePor[sample_size+1]-sampleSizePor[sample_size]," [",nS4it,"/",length(newSizes),"] | pool size: ",
                         nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
@@ -2410,7 +2410,7 @@ for (model_prob in model_probs) {
                     # new_trainLabelsVSVM <- best_trainLabelsVSVM
                     tmp_new_tunedSVM_ALTrainSLv1 <- new_bestTunedVSVM
                     
-                    newSize_for_iter = newSizes[nS4it] #sampleSize/10 # or just 4
+                    newSize_for_iter = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] #sampleSize/10 # or just 4
                     num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
                     
                     trainStart.time <- Sys.time()
@@ -2485,7 +2485,7 @@ for (model_prob in model_probs) {
                         actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                         accVSVM_SL_itAL_TSLv1 = tmp_acc
                         best_resample = resampledSize[rS]
-                        best_newSize4iter = newSizes[nS4it]
+                        best_newSize4iter = newSize_for_iter
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
                         train.time = t.time
