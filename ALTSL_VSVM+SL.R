@@ -14,17 +14,15 @@ model_probs = c("binary")  # multiclass or binary problem
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
-sampleSizePor = c(30) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-# sampleSizePor = c(5,10,20,32,46,62,80,100)
+# sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
+# sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200)
+sampleSizePor = c(30, 38, 50, 64, 92, 124, 160, 200)
+
 resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
 clusterSizes = c(5*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 classPor = 30
-
-for(iter in seq(round(resampledSize/newSizes))){
-  sampleSizePor = c(sampleSizePor, sampleSizePor[length(sampleSizePor)]+length(sampleSizePor)*newSizes*0.5)
-}
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing
@@ -984,15 +982,15 @@ for (model_prob in model_probs) {
           
           #########################################################################################
         }  
-        if (model_prob=="multiclass") { 
-          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
-          validateData = cbind(validateFeatsub,validateLabels)
-          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-          validateData = getdata(validateData, val_stratSamp)
-          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-          validateLabels = validateData[,ncol(validateFeatsub)+1]
-          rm(validateData, val_stratSamp) 
-        }
+        # if (model_prob=="multiclass") { 
+        #   lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
+        #   validateData = cbind(validateFeatsub,validateLabels)
+        #   val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+        #   validateData = getdata(validateData, val_stratSamp)
+        #   validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+        #   validateLabels = validateData[,ncol(validateFeatsub)+1]
+        #   rm(validateData, val_stratSamp) 
+        # }
       } else {
         
         numFeat = 26                   # number of features per level (dimensionality)
@@ -1285,15 +1283,15 @@ for (model_prob in model_probs) {
           ##################################################################################################################
           lightC = 4 # lighter validate dataset for running faster prediction
         }
-        if (model_prob=="multiclass") { 
-          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
-          validateData = cbind(validateFeatsub,validateLabels)
-          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-          validateData = getdata(validateData, val_stratSamp)
-          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-          validateLabels = validateData[,ncol(validateFeatsub)+1]
-          rm(validateData, val_stratSamp) 
-        }
+        # if (model_prob=="multiclass") { 
+        #   lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
+        #   validateData = cbind(validateFeatsub,validateLabels)
+        #   val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+        #   validateData = getdata(validateData, val_stratSamp)
+        #   validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+        #   validateLabels = validateData[,ncol(validateFeatsub)+1]
+        #   rm(validateData, val_stratSamp) 
+        # }
       }
 
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1319,10 +1317,6 @@ for (model_prob in model_probs) {
       
       AccuracyVSVM_SL_Un_random_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracyVSVM_SL_Un_random_it) = colheader
-      # AccuracyVSVM_SL_Un_AL_v1 = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(AccuracyVSVM_SL_Un_AL_v1) = colheader
-      # AccuracyVSVM_SL_Un_AL_v2 = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(AccuracyVSVM_SL_Un_AL_v2) = colheader
       
       # ******** KAPPA SCORE
       KappaSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1348,10 +1342,6 @@ for (model_prob in model_probs) {
       
       KappaVSVM_SL_Un_random_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(KappaVSVM_SL_Un_random_it) = colheader
-      # KappaVSVM_SL_Un_AL_v1 = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(KappaVSVM_SL_Un_AL_v1) = colheader
-      # KappaVSVM_SL_Un_AL_v2 = matrix(data = NA, nrow = nR, ncol = length(colheader))
-      # colnames(KappaVSVM_SL_Un_AL_v2) = colheader
 
       # ********
       best_bound_oa_SL = c()
