@@ -1,0 +1,12 @@
+OA Execution time: 20.45h
+Realization 1 execution time: 0.921h
+
+best_resample_oa:  60
+best_newSize_oa:  10
+best_classSize_oa:  600
+best_cluster_oa:  100
+20240809AL_VSVM+SL_r_hagadera_binary_scale_50Size_20Unl_143seed.rds: 0.980953569809536
+
+length train Labels: 16
+length SVM SVs: 12
+length new train Labels AL: 17
