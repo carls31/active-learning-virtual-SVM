@@ -13,7 +13,7 @@ model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
-boundMargin = c(1.5, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
+boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 # sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200)
 sampleSizePor = c(30, 38, 50, 64, 92, 124, 160, 200)
@@ -1353,6 +1353,7 @@ for (model_prob in model_probs) {
       best_model_oa=c()
       time.taken_iter = c()
       table_trainLabels = NULL
+      best_boundMargin = NULL
       best_resample=NA
       best_newSize4iter = NA
       best_classSize=NA
@@ -2251,7 +2252,7 @@ for (model_prob in model_probs) {
                       SVL_variables<-setNames(SVL_variables, objInfoNames)
                       
                       # c(1.5,3)
-                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(1.5,3), SVtotal, objInfoNames,
+                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(best_boundMargin_SL), SVtotal, objInfoNames,
                                                      SVL_variables, validateFeatsub,validateLabels,upd_dataCurFeatsub, upd_dataCurLabels
                       )
                       tmp_new_tunedSVM2 <- sampledResult$bestFittingModel
