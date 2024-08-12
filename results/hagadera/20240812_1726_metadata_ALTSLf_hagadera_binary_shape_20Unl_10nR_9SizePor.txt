@@ -1,0 +1,22 @@
+OA Execution time: 3.01h
+Realization 1 execution time: 8.89h
+Realization 2 execution time: 10.95h
+Realization 3 execution time: 10.76h
+Realization 4 execution time: 11.53h
+Realization 5 execution time: 10.88h
+Realization 6 execution time: 9.87h
+
+best_resample_oa:  60 60 60 60 60 60
+best_newSize_oa:  32 32 32 32 32 32
+best_classSize_oa:  600 600 600 600 600 600
+best_cluster_oa:  100 100 100 100 100 100
+20240809AL+SL_VSVMSL_hagadera_binary_shape_54Size_20Unl_121seed.rds: 0.985717759403373
+20240810VSVM_SLUn_hagadera_binary_shape_54Size_20Unl.rds: 0.989584783436737
+20240810VSVM_SLUn_hagadera_binary_shape_54Size_20Unl.rds: 0.989292405859746
+20240811AL_VSVM+SL_r_hagadera_binary_shape_54Size_20Unl_256seed.rds: 0.986614543139834
+20240811VSVM_SLUn_hagadera_binary_shape_54Size_20Unl.rds: 0.9888562269996
+20240812AL+SL_VSVMSL_hagadera_binary_shape_54Size_20Unl_346seed.rds: 0.988457697262119
+
+length train Labels: 71
+length SVM SVs: 15
+length new train Labels AL: 71

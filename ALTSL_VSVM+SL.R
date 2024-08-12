@@ -2515,10 +2515,10 @@ for (model_prob in model_probs) {
         best_classSize_oa=c(best_classSize_oa," ", best_classSize)
         best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
-        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric(round(Sys.time() - start.time,2), units = "hours"), 3),"h"),"\n")
+        time.taken_iter = c(time.taken_iter, c("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
         cat("\n") ############################## End Realization #########################################
-      }
-      time.taken_oa <- round(Sys.time() - start.time_oa,2)
+      } 
+      time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
       if (length(sampleSizePor)>=4) {
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
         save(AccuracySVM, AccuracySVM_SL_Un, AccuracyVSVM_SL, AccuracyVSVM_SL_Un, AccuracyVSVM_SL_vUn,
