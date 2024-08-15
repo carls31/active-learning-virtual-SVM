@@ -6,7 +6,7 @@ class = "multiclass"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
-setwd(paste0(path,"results/",city))
+setwd(paste0(path,"results/",city,"/old"))
 
 file_name_acc = "20240527_1813_Col_scale_binary_acc_20UnlSamples"
 # file_name_acc = "20240528_0826_Col_scale_binary_acc_20UnlSamples"
@@ -267,7 +267,7 @@ column_names <- colnames(AccuracySVM)
 if(is.null(column_names)){column_names <- names(AccuracySVM)}
 x <- 2*as.integer(column_names)
 
-setwd(paste0(path,"images/",city))
+setwd(paste0(path,"images/",city,"/old"))
 
 if(class == "multiclass"){
   if(city=="hagadera"){
