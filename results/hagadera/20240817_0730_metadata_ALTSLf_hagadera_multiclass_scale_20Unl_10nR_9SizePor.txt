@@ -1,0 +1,15 @@
+OA Execution time: 35.48h
+Realization 1 execution time: 2.94h
+Realization 2 execution time: 2.7h
+Realization 3 execution time: 2.88h
+Realization 4 execution time: 6.96h
+Realization 5 execution time: 2.62h
+Realization 6 execution time: 2.44h
+Realization 7 execution time: 2.4h
+Realization 8 execution time: 3.3h
+Realization 9 execution time: 2.97h
+Realization 10 execution time: 3.1h
+
+final length train Labels: 400
+length SVM SVs: 77
+length new train Labels AL: 420
