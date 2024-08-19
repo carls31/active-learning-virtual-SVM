@@ -65,7 +65,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function} for performa
  55. fix warnings AL_VSVM+SL
  56. build function for full AL procedure
  57. check train test validate sample transformation in the whole pipeline -> DO NOT TRAIN MODEL ON ALREADY SEEN DATA
- 58. check low VSVM_SL accuracy sampleSizePor[1/9] -> due to poor initial train data set spread? (then it gets better) 
+ 58. check low VSVM_SL accuracy sampleSizePor[1/9] -> due to poor initial train data set spread? (then it gets better) -> not really solved
 
 
 

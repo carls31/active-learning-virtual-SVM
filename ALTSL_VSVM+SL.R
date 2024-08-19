@@ -15,12 +15,13 @@ b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-sampleSizePor = c(25, 40, 70, 110, 160, 220, 300, 400, 540)
+# sampleSizePor = c(25, 40, 70, 110, 160, 220, 300, 400, 540)
+sampleSizePor = c(25, 50, 100, 160, 230, 310, 400, 500)
 
 # resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 # newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-# clusterSizes = c(10*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+# clusterSizes = c(6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
 classPor = 30 #  *b*n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
@@ -729,7 +730,6 @@ classificationProblem = function(generalDataPool){
   return(generalDataPool)
 }
 ########################################  Preprocessing  ########################################
-colheader = as.character(sampleSizePor) # corresponding column names
 for (model_prob in model_probs) {
   for (invariance in invariances) {
     for (city in cities) {
@@ -737,6 +737,13 @@ for (model_prob in model_probs) {
       lightC = 2 # lighter validate dataset for running faster prediction 
       lgtS=FALSE
       cat("preprocessing",city,model_prob,invariance,"\n")
+      if(city=="cologne"){
+        sampleSizePor = c(30, 60, 120, 192, 276, 372, 480, 600)
+      }
+      if(model_prob=="binary"){
+        sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200)
+      }
+      colheader = as.character(sampleSizePor) # corresponding column names
       if (city=="cologne") {
         
         inputPath ="cologne_res_100_L2-L13.csv" 

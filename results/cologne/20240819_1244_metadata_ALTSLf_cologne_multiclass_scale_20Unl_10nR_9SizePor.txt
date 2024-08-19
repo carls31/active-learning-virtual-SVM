@@ -1,0 +1,14 @@
+OA Execution time: 53.22h
+Realization 1 execution time: 12.91h
+Realization 2 execution time: 14.1h
+Realization 3 execution time: 13.59h
+Realization 4 execution time: 12.5h
+
+20240817SVM_cologne_multiclass_scale_300Size_20Unl.rds: 0.7963624320865
+20240818SVM_cologne_multiclass_scale_300Size_20Unl.rds: 0.805416073682232
+20240819AL+TrainSL_VSVMSL_cologne_multiclass_scale_300Size_20Unl_233seed.rds: 0.810670139541545
+20240819AL_VSVM+SL_cologne_multiclass_scale_300Size_20Unl_278seed.rds: 0.796290826418911
+
+final length train Labels: 12
+length SVM SVs: 431
+length new train Labels AL: 2557
