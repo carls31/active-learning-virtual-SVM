@@ -736,12 +736,8 @@ for (model_prob in model_probs) {
       lightC = 2 # lighter validate dataset for running faster prediction 
       lgtS=FALSE
       cat("preprocessing",city,model_prob,invariance,"\n")
-      if(city=="cologne"){
-        sampleSizePor = c(30, 38, 60, 70, 120, 134, 192, 212, 276, 304, 372, 410, 480, 530, 600, 664)
-      }
-      if(model_prob=="binary"){
-        sampleSizePor = c(10, 18, 20, 29, 40, 51, 64, 78, 92, 111, 124, 149, 160, 192, 200, 240)
-      }
+      if(city=="cologne"){ sampleSizePor = c(30, 60, 120, 192, 276, 372, 480, 600) }
+      if(model_prob=="binary"){ sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200) }
       colheader = as.character(sampleSizePor) # corresponding column names
       
       if (city=="cologne") {
