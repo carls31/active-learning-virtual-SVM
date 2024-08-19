@@ -10,6 +10,7 @@ setwd(paste0(path,"results/",city))
 
 file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizePor"
 file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
+file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
 
 
 
@@ -17,6 +18,7 @@ file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9S
 
 file_name_kappa = "20240809_1322_hagadera_binary_scale_Kappa_ALTSLf_20Unl_1nR_7SizePor"
 file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1nR_9SizePor"
+file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
 
 
 
@@ -233,7 +235,7 @@ if(nrow(AccuracySVM)>1){
   lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,], type= type , col = 7, lwd = 2,lty = 2)
   lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[1,], type= type , col = 8, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[1,], type= type , col = 9, lwd = 2,lty = 1)
+  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
   
   
   # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
@@ -319,17 +321,17 @@ if(nrow(AccuracySVM)>1){
   avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un)[1,]
   sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un)[2,]
   
-  avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,]
-  sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[2,] 
+  avgVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,]
+  sdVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[2,] 
   
   avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
   sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]  
   
-  avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[1,]
-  sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[2,]  
+  avgVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[1,]
+  sdVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[2,]  
   
-  avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[1,]
-  sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[2,]
+  avgVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[1,]
+  sdVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[2,]
   
   avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn)[1,]
   sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn)[2,]
@@ -364,7 +366,7 @@ if(nrow(AccuracySVM)>1){
   lines(x, avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
   lines(x, avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
   lines(x, avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
-  lines(x, avgVSVM_SL_Un_itSLT, type= type , col = 6, lwd = 2, lty = 1)
+  lines(x, avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)
   # lines(x, avgVSVM_SL_Un_b_ud, type= type , col = 4, lwd=2)
   # lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
   
@@ -485,8 +487,11 @@ if(nrow(KappaSVM)>1){
   lines(x, ExCsvMSD(KappaVSVM_SL_Un)[1,], type= type ,  col = 4, lwd=2,lty = 1)
   lines(x, ExCsvMSD(KappaVSVM_SL_vUn)[1,], type= type , col = 5, lwd=2,lty = 1)
 
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un_random_it)[1,], type= type , col = 7, lwd=2,lty = 2)
   lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
-
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un_itSL)[1,], type= type , col = 8, lwd=2,lty = 1)
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd=2,lty = 1)
+  
   # lines(x, ExCsvMSD(KappaVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
 }else{
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
