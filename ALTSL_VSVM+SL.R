@@ -1407,6 +1407,21 @@ for (model_prob in model_probs) {
         trainFeat_rand = setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1])
         trainLabels_rand = trainLabels
         
+        # sample the test set portion
+        sampleSize = round(sampleSizePor[1]/nclass)
+        shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+
+        stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+        samples = getdata(testDataCurBeg, stratSamp)
+        testDataCur = samples[,1:ncol(testDataAllLev)]
+
+        # split test feat from test label for later join with trainData
+        testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+        testLabels = testDataCur[,ncol(testDataCur)]
+
+        # subset on base level
+        testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
+        
         for (sample_size in seq(length(sampleSizePor)-1)) {#}
           cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples per class: ",round(sampleSizePor[sample_size]/nclass)*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
           
@@ -1415,20 +1430,20 @@ for (model_prob in model_probs) {
           clusterSizes = c(round(newSize*1.5))
           # clusterSizes = c(300)
           
-          # sample the test set portion
-          sampleSize = round(sampleSizePor[sample_size]/nclass)
-          shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
-
-          stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-          samples = getdata(testDataCurBeg, stratSamp)
-          testDataCur = samples[,1:ncol(testDataAllLev)]
-
-          # split test feat from test label for later join with trainData
-          testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-          testLabels = testDataCur[,ncol(testDataCur)]
-
-          # subset on base level
-          testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
+          # # sample the test set portion
+          # sampleSize = round(sampleSizePor[sample_size]/nclass)
+          # shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+          # 
+          # stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+          # samples = getdata(testDataCurBeg, stratSamp)
+          # testDataCur = samples[,1:ncol(testDataAllLev)]
+          # 
+          # # split test feat from test label for later join with trainData
+          # testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+          # testLabels = testDataCur[,ncol(testDataCur)]
+          # 
+          # # subset on base level
+          # testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
           
           # trainData index to split between train and test in svmFit
           countTrainData = nrow(trainFeat)
@@ -1868,6 +1883,22 @@ for (model_prob in model_probs) {
           }
           #######################################################################################################
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
+            
+            # sample the test set portion
+            sampleSize = round(sampleSizePor[sample_size+1]/nclass)
+            shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+
+            stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+            samples = getdata(testDataCurBeg, stratSamp)
+            testDataCur = samples[,1:ncol(testDataAllLev)]
+
+            # split test feat from test label for later join with trainData
+            testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+            testLabels = testDataCur[,ncol(testDataCur)]
+
+            # subset on base level
+            testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
+            
             cat("\n") ############################# AL_VSVMSL RANDOM #######################################
             
             model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_r_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
