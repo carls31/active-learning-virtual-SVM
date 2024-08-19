@@ -1,6 +1,6 @@
 library(scales)
 
-city = "hagadera"    # cologne or hagadera
+city = "cologne"    # cologne or hagadera
 invariance = "scale"     # scale or shape
 class = "multiclass"     # multiclass or binary
 
@@ -11,6 +11,7 @@ setwd(paste0(path,"results/",city))
 file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizePor"
 file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
 file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
+file_name_acc = "20240819_1244_cologne_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
 
 
 
@@ -19,6 +20,7 @@ file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9
 file_name_kappa = "20240809_1322_hagadera_binary_scale_Kappa_ALTSLf_20Unl_1nR_7SizePor"
 file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1nR_9SizePor"
 file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
+file_name_kappa = "20240819_1244_cologne_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
 
 
 
@@ -88,42 +90,46 @@ load(paste0(file_name_kappa,".RData"))
 # file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
 # file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
 # # **********************************************************************************
-# AccuracySVM=AccuracySVM[1,]
-# AccuracySVM_M=AccuracySVM_M[1,]
-# AccuracySVM_SL_Un=AccuracySVM_SL_Un[1,]
-# AccuracyVSVM=AccuracyVSVM[1,]
-# AccuracyVSVM_SL=AccuracyVSVM_SL[1,]
-# AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1,]
-# AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1,]
-# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1,]
+# AccuracySVM=AccuracySVM[1:4,]
+# AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:4,]
+# AccuracyVSVM_SL=AccuracyVSVM_SL[1:4,]
+# AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:4,]
+# AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:4,]
+# AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:4,]
+# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1:4,]
+# AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:4,]
+# AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:4,]
 # 
-# KappaSVM=KappaSVM[1,]
-# KappaSVM_M=KappaSVM_M[1,]
-# KappaSVM_SL_Un=KappaSVM_SL_Un[1,]
-# KappaVSVM=KappaVSVM[1,]
-# KappaVSVM_SL=KappaVSVM_SL[1,]
-# KappaVSVM_SL_Un=KappaVSVM_SL_Un[1,]
-# KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1,]
-# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1,]
+# KappaSVM=KappaSVM[1:4,]
+# KappaSVM_SL_Un=KappaSVM_SL_Un[1:4,]
+# KappaVSVM_SL=KappaVSVM_SL[1:4,]
+# KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:4,]
+# KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:4,]
+# KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:4,]
+# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1:4,]
+# KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:4,]
+# KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:4,]
 # # **********************************************************************************
 # 
 # save(AccuracySVM,
-#      AccuracySVM_M,
 #      AccuracySVM_SL_Un,
-#      AccuracyVSVM,
 #      AccuracyVSVM_SL,
 #      AccuracyVSVM_SL_Un,
 #      AccuracyVSVM_SL_vUn,
+#      AccuracyVSVM_SL_Un_random_it,
 #      AccuracyVSVM_SL_Un_it,
+#      AccuracyVSVM_SL_Un_itSL,
+#      AccuracyVSVM_SL_Un_itTSL,
 #      file=paste0(file_name_acc,".RData"))
 # save(KappaSVM,
-#      KappaSVM_M,
 #      KappaSVM_SL_Un,
-#      KappaVSVM,
 #      KappaVSVM_SL,
 #      KappaVSVM_SL_Un,
 #      KappaVSVM_SL_vUn,
+#      KappaVSVM_SL_Un_random_it,
 #      KappaVSVM_SL_Un_it,
+#      KappaVSVM_SL_Un_itSL,
+#      KappaVSVM_SL_Un_itTSL,
 #      file=paste0(file_name_kappa,".RData"))
 # # **********************************************************************************
 
@@ -169,8 +175,8 @@ if(class == "multiclass"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.76
-      ylowerBound = 0.50
+      yUpperBound = 0.80
+      ylowerBound = 0.45
     }
     if(invariance=="shape"){
       yUpperBound = 0.79
@@ -431,8 +437,8 @@ if(class == "multiclass"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.68
-      ylowerBound = 0.35
+      yUpperBound = 0.73
+      ylowerBound = 0.30
     }
     if(invariance=="shape"){
       yUpperBound = 0.71
