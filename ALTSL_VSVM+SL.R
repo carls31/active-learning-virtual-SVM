@@ -425,7 +425,7 @@ mclp_sampling <- function(org, samp) {
 add_AL_samples = function(distance_data,
                           ref, features=NULL, 
                           new_trainFeatVSVM=NULL, new_trainLabelsVSVM=NULL,
-                          newSize=4, cluster=5, ID_unit=NULL, nFeat=numFeat, PCA_flag=TRUE){
+                          newSize=4, cluster=5, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE){
   if(cluster<newSize){cluster=round(newSize*1.01)}
   if(cluster>nrow(distance_data)){cluster=round(nrow(distance_data)/10)}
 
@@ -1359,7 +1359,7 @@ for (model_prob in model_probs) {
       seed = 98 # 5, 73, 20, 98
       
       nclass=6
-      if(invariance=="binary"){   nclass=2
+      if(model_prob=="binary"){   nclass=2
       }else if(city=="hagadera"){ nclass=5 }
       sampleSize = round(sampleSizePor[1]/nclass)
       shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
@@ -1424,8 +1424,8 @@ for (model_prob in model_probs) {
           
           # get the new size for the active labeling
           newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
-          clusterSizes = c(round(newSize*1.5))
-          # clusterSizes = c(300)
+          clusterSizes = c(max(100,min(120,2*newSize)))
+          # clusterSizes = c(120)
           
           # # sample the test set portion
           # sampleSize = round(sampleSizePor[sample_size]/nclass)

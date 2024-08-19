@@ -1,0 +1,22 @@
+OA Execution time: 6.32h
+Realization 1 execution time: 0.38h
+Realization 2 execution time: 0.37h
+Realization 3 execution time: 0.37h
+Realization 4 execution time: 0.77h
+Realization 5 execution time: 0.93h
+Realization 6 execution time: 0.93h
+Realization 7 execution time: 0.51h
+Realization 8 execution time: 0.77h
+
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_143seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_188seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_233seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_278seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_323seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_368seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_413seed.rds: 0.989351672393517
+20240819AL+TrainSL_VSVMSL_hagadera_binary_scale_200Size_20Unl_458seed.rds: 0.989351672393517
+
+final length train Labels: 120
+length SVM SVs: 40
+length new train Labels AL: 89

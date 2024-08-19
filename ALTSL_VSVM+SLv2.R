@@ -5,9 +5,11 @@ library(progress)   # progress bar visualization
 library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
+library(Rtsne)
+library(umap)
 
 nR = 8                    # realizations
-cities = c("hagadera")    # cologne or hagadera
+cities = c("cologne")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -16,7 +18,7 @@ bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 # sampleSizePor = c(25, 35, 50, 60, 100, 110, 160, 170, 230, 240, 310, 320, 400, 410, 500, 510)
-sampleSizePor = c(25, 33, 50, 60, 100, 114, 160, 180, 230, 258, 310, 348, 400, 450, 500, 564)
+sampleSizePor = c(25,33, 50,60, 100,114, 160,180, 230,258, 310,348, 400,450, 500,564)
 
 # resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 # newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
@@ -425,7 +427,7 @@ mclp_sampling <- function(org, samp) {
 add_AL_samples = function(distance_data,
                           ref, features=NULL, 
                           new_trainFeatVSVM=NULL, new_trainLabelsVSVM=NULL,
-                          newSize=4, cluster=5, ID_unit=NULL, nFeat=numFeat, PCA_flag=TRUE){
+                          newSize=10, cluster=100, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=FALSE){
   if(cluster<newSize){cluster=round(newSize*1.01)}
   if(cluster>nrow(distance_data)){cluster=round(nrow(distance_data)/10)}
 
@@ -444,6 +446,13 @@ add_AL_samples = function(distance_data,
     colnames(pca_data) <- c("PC1", "PC2", "PC3", "PC4", "PC5", "PC6", "PC7", "PC8", "PC9")
     
     ref_data_with_distance <- cbind(pca_data[, 1:9], setNames(ref_added_or$'distance', 'distance'))
+  } else if(tSNE_flag) {
+    # Perform t-SNE
+    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 9, perplexity = 30, verbose = TRUE, max_iter = 500)
+    tsne_data <- data.frame(tsne_result$Y)
+    colnames(tsne_data) <- c("tSNE1", "tSNE2", "tSNE3", "tSNE4", "tSNE5", "tSNE6", "tSNE7", "tSNE8", "tSNE9")
+    
+    ref_data_with_distance <- cbind(tsne_data[, 1:9], setNames(ref_added_or$'distance', 'distance'))
   } else {
     ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
   }
@@ -736,8 +745,8 @@ for (model_prob in model_probs) {
       lightC = 2 # lighter validate dataset for running faster prediction 
       lgtS=FALSE
       cat("preprocessing",city,model_prob,invariance,"\n")
-      if(city=="cologne"){ sampleSizePor = c(30, 60, 120, 192, 276, 372, 480, 600) }
-      if(model_prob=="binary"){ sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200) }
+      if(city=="cologne"){ sampleSizePor = c(30,38, 60,70, 120,134, 192,212, 276,304, 372,410, 480,530, 600,664) }
+      if(model_prob=="binary"){ sampleSizePor = c(10,18, 20,29, 40,51, 64,78, 92,111, 124,149, 160,192, 200,240) }
       colheader = as.character(sampleSizePor) # corresponding column names
       
       if (city=="cologne") {
@@ -1355,7 +1364,7 @@ for (model_prob in model_probs) {
       best_classSize    = NULL
       best_cluster      = NULL
       nclass=6
-      if(invariance=="binary"){   nclass=2
+      if(model_prob=="binary"){   nclass=2
       }else if(city=="hagadera"){ nclass=5 }
       
       # set randomized seed for the random sampling procedure
@@ -1376,16 +1385,16 @@ for (model_prob in model_probs) {
 
         # set randomized seed for the random sampling procedure
         set.seed(seed)
-        
+        sample_size_iter=1
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {#}
-          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples per class: ",round(sampleSizePor[sample_size]/nclass)*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
-          
+          sampleSize = round(sampleSizePor[sample_size]/nclass)
+          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples per class: ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
+          sample_size_iter=sample_size_iter+1
           # get the new size for the active labeling
           newSize = (sampleSizePor[sample_size+1]-sampleSizePor[sample_size])
-          clusterSizes = c(2*newSize)
-          # clusterSizes = c(300)
+          clusterSizes = c(max(100,2*newSize))
+          # clusterSizes = c(120)
           
-          sampleSize = round(sampleSizePor[sample_size]/nclass)
           shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
           
           # definition of sampling configuration (strata:random sampling without replacement)
@@ -1866,7 +1875,7 @@ for (model_prob in model_probs) {
             
             model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_r_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
-            cat("computing uncertainty distance for RANDOM active labeling | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            cat("computing uncertainty distance for RANDOM active labeling | ",sampleSizePor[sample_size]*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
             classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -1978,7 +1987,7 @@ for (model_prob in model_probs) {
             
             model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
-            cat("computing uncertainty distance for active labeling ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            cat("computing uncertainty distance for active labeling ",sampleSizePor[sample_size]*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
             classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2118,7 +2127,7 @@ for (model_prob in model_probs) {
 
             model_name_ALSL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL+SL_VSVMSL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
-            cat("computing uncertainty distance for active labeling + SL | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            cat("computing uncertainty distance for active labeling + SL | ",sampleSizePor[sample_size]*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
             classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2285,7 +2294,7 @@ for (model_prob in model_probs) {
             
             model_name_ALTrainSL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL+TrainSL_VSVMSL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
-            cat("computing uncertainty distance for active labeling + Train SL | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            cat("computing uncertainty distance for active labeling + Train SL | ",sampleSizePor[sample_size]*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
             classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2338,7 +2347,7 @@ for (model_prob in model_probs) {
                                                reference_label, sampled_data[,1:numFeat], 
                                                setNames(trainFeat, names), trainLabels,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit ) 
+                                               upd_dataCur$ID_unit, tSNE_flag=TRUE ) 
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
