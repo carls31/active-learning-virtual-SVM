@@ -15,7 +15,8 @@ b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.01, 0.3, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-sampleSizePor = c(25, 40, 70, 110, 160, 220, 300, 400, 540)
+# sampleSizePor = c(25, 35, 40, 50, 70, 80, 110, 120, 160, 170, 220, 230, 300, 310, 400, 410, 540, 550)
+sampleSizePor = c(25, 35, 50, 60, 100, 110, 160, 170, 160, 230, 240, 230, 310, 320, 400, 410, 500, 510)
 
 # resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
 # newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
@@ -1358,8 +1359,7 @@ for (model_prob in model_probs) {
       nclass=6
       if(invariance=="binary"){   nclass=2
       }else if(city=="hagadera"){ nclass=5 }
-      sampleSize = round(sampleSizePor[1]/nclass)
-      shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+
       
       for (realization in seq(nR)) {#}
         start.time <- Sys.time()
@@ -1377,46 +1377,7 @@ for (model_prob in model_probs) {
         # set randomized seed for the random sampling procedure
         set.seed(seed)
         
-        # definition of sampling configuration (strata:random sampling without replacement)
-        stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
-        #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
-        
-        # get samples of trainDataCur and set trainDataCur new
-        samples = getdata(trainDataCurBeg, stratSamp)
-        
-        samplesID = samples$ID_unit
-        
-        trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
-        trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
-        
-        trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
-        trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
-        # *********************************************************************
-        
-        # subset on L_4 ***************************** SVM base for invariants ************************************
-        trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
-        # ************************************************ *******************************************************
-        
-        # distinguish active train set from random train set
-        trainFeat_rand = setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1])
-        trainLabels_rand = trainLabels
-        
-        # sample the test set portion
-        sampleSize = round(sampleSizePor[1]/nclass)
-        shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
-
-        stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-        samples = getdata(testDataCurBeg, stratSamp)
-        testDataCur = samples[,1:ncol(testDataAllLev)]
-
-        # split test feat from test label for later join with trainData
-        testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-        testLabels = testDataCur[,ncol(testDataCur)]
-
-        # subset on base level
-        testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
-        
-        for (sample_size in seq(length(sampleSizePor)-1)) {#}
+        for (sample_size in seq(1, length(sampleSizePor), by=2)) {#}
           cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples per class: ",round(sampleSizePor[sample_size]/nclass)*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
           
           # get the new size for the active labeling
@@ -1424,20 +1385,43 @@ for (model_prob in model_probs) {
           clusterSizes = c(round(newSize*1.5))
           # clusterSizes = c(300)
           
-          # # sample the test set portion
-          # sampleSize = round(sampleSizePor[sample_size]/nclass)
-          # shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
-          # 
-          # stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-          # samples = getdata(testDataCurBeg, stratSamp)
-          # testDataCur = samples[,1:ncol(testDataAllLev)]
-          # 
-          # # split test feat from test label for later join with trainData
-          # testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-          # testLabels = testDataCur[,ncol(testDataCur)]
-          # 
-          # # subset on base level
-          # testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
+          sampleSize = round(sampleSizePor[sample_size]/nclass)
+          shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+          
+          # definition of sampling configuration (strata:random sampling without replacement)
+          stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
+          #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+          
+          # get samples of trainDataCur and set trainDataCur new
+          samples = getdata(trainDataCurBeg, stratSamp)
+          
+          samplesID = samples$ID_unit
+          
+          trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
+          trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
+          
+          trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
+          trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
+          # *********************************************************************
+          
+          # subset on L_4 ***************************** SVM base for invariants ************************************
+          trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+          # ************************************************ *******************************************************
+          
+          # distinguish active train set from random train set
+          trainFeat_rand = setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1])
+          trainLabels_rand = trainLabels
+          
+          stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+          samples = getdata(testDataCurBeg, stratSamp)
+          testDataCur = samples[,1:ncol(testDataAllLev)]
+          
+          # split test feat from test label for later join with trainData
+          testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+          testLabels = testDataCur[,ncol(testDataCur)]
+          
+          # subset on base level
+          testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
           
           # trainData index to split between train and test in svmFit
           countTrainData = nrow(trainFeat)
@@ -1877,21 +1861,6 @@ for (model_prob in model_probs) {
           }
           #######################################################################################################
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
-            
-            # sample the test set portion
-            sampleSize = round(sampleSizePor[sample_size+1]/nclass)
-            shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
-
-            stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-            samples = getdata(testDataCurBeg, stratSamp)
-            testDataCur = samples[,1:ncol(testDataAllLev)]
-
-            # split test feat from test label for later join with trainData
-            testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-            testLabels = testDataCur[,ncol(testDataCur)]
-
-            # subset on base level
-            testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
             
             cat("\n") ############################# AL_VSVMSL RANDOM #######################################
             
