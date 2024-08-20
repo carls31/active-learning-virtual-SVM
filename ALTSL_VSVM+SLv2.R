@@ -24,10 +24,10 @@ sampleSizePor = c(25,33, 50,60, 100,114, 160,180, 230,258, 310,348, 400,450, 500
 # newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
 # clusterSizes = c(6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
-classPor = 35 #  *b*n_of_class # unlabeled pool samples portion per class
+classPor = 50 #  *b*n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing
+num_cores <- parallel::detectCores()/4 # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -447,12 +447,23 @@ add_AL_samples = function(distance_data,
     
     ref_data_with_distance <- cbind(pca_data[, 1:9], setNames(ref_added_or$'distance', 'distance'))
   } else if(tSNE_flag) {
-    # Perform t-SNE
-    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 9, perplexity = 30, verbose = TRUE, max_iter = 500)
-    tsne_data <- data.frame(tsne_result$Y)
-    colnames(tsne_data) <- c("tSNE1", "tSNE2", "tSNE3", "tSNE4", "tSNE5", "tSNE6", "tSNE7", "tSNE8", "tSNE9")
+    duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
     
-    ref_data_with_distance <- cbind(tsne_data[, 1:9], setNames(ref_added_or$'distance', 'distance'))
+    # Count the number of duplicates
+    num_duplicates <- sum(duplicate_rows)
+    cat("Number of duplicate rows:", num_duplicates, "\n")
+    
+    # If there are duplicates, remove them
+    if (num_duplicates > 0) {
+      ref_added_or <- ref_added_or[!duplicate_rows, ]
+      cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
+    }
+    # Perform t-SNE
+    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 3, perplexity = 30, verbose = TRUE, max_iter = 1000)
+    tsne_data <- data.frame(tsne_result$Y)
+    colnames(tsne_data) <- c("tSNE1", "tSNE2", "tSNE3")
+    
+    ref_data_with_distance <- cbind(tsne_data[, 1:3], setNames(ref_added_or$'distance', 'distance'))
   } else {
     ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
   }
@@ -1368,7 +1379,7 @@ for (model_prob in model_probs) {
       }else if(city=="hagadera"){ nclass=5 }
       
       # set randomized seed for the random sampling procedure
-      seed = 98 # 5, 73, 20, 98, 133
+      seed = 5 # 5, 73, 20, 98, 133
       
       for (realization in seq(nR)) {#}
         start.time <- Sys.time()
@@ -1971,7 +1982,7 @@ for (model_prob in model_probs) {
                     tuneFeat = rbind(setNames(trainFeat_rand,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
                     tuneLabel = unlist(list(trainLabels_rand, testLabels))
 
-                    tmp_new_tunedSVM2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
+                    tmp_new_tunedSVM_r2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                     # **********************
                     
 
@@ -2195,7 +2206,7 @@ for (model_prob in model_probs) {
                                                reference_label, sampled_data[,1:numFeat], 
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=FALSE ) 
+                                               upd_dataCur$ID_unit, tSNE_flag=TRUE ) 
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
