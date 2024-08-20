@@ -7,7 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 
 nR = 1                   # realizations
-cities = c("hagadera","cologne")    # cologne or hagadera
+cities = c("cologne")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -431,6 +431,142 @@ add_AL_samples = function(distance_data,
   
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
+  
+  # Count the number of duplicates
+  num_duplicates <- sum(duplicate_rows)
+  cat("Number of duplicate rows:", num_duplicates, "\n")
+  
+  # If there are duplicates, remove them
+  if (num_duplicates > 0) {
+    ref_added_or <- ref_added_or[!duplicate_rows, ]
+    cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
+  }
+  
+  # Perform PCA
+  pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
+  pca_data <- data.frame(pca_result$x[, 1:2])
+  colnames(pca_data) <- c("PC1", "PC2")
+  
+  # Perform t-SNE
+  tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = TRUE, max_iter = 500)
+  tsne_data <- data.frame(tsne_result$Y)
+  colnames(tsne_data) <- c("tSNE1", "tSNE2")
+  
+  # Perform UMAP
+  umap_result <- umap(ref_added_or[, 1:nFeat], n_neighbors = 15, n_components = 2, metric = "euclidean")
+  umap_data <- data.frame(umap_result$layout)
+  colnames(umap_data) <- c("UMAP1", "UMAP2")
+  
+  # Combine all data with the distance column
+  pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
+  tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
+  umap_data_with_distance <- cbind(umap_data, distance = ref_added_or$distance)
+  
+  # Apply k-means clustering on each
+  cluster <- 14
+  km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  km_umap <- kmeans(umap_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  
+  # Add the cluster assignments
+  pca_data_with_distance$Cluster <- as.factor(km_pca$cluster)
+  tsne_data_with_distance$Cluster <- as.factor(km_tsne$cluster)
+  umap_data_with_distance$Cluster <- as.factor(km_umap$cluster)
+  
+  # Define colors for clusters
+  cluster_colors <- rainbow(cluster)
+  
+  # Set up plotting area with 3 plots in one row
+  # par(mfrow = c(1, 3), mar = c(5, 4, 4, 8), xpd = TRUE)
+  
+  # Plot PCA
+  plot(pca_data_with_distance$PC1, ref_added_or[, 21], col = cluster_colors[pca_data_with_distance$Cluster],
+       pch = 20, cex = 2, main = "K-means Clustering on PCA",
+       xlab = "Principal Component 1", ylab = "Distance")
+  legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
+         col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  
+  # Plot t-SNE
+  plot(tsne_data_with_distance$tSNE1, ref_added_or[, 21], col = cluster_colors[tsne_data_with_distance$Cluster],
+       pch = 20, cex = 2, main = "K-means Clustering on t-SNE",
+       xlab = "t-SNE 1", ylab = "Distance")
+  legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
+         col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  
+  # Plot UMAP
+  plot(umap_data_with_distance$UMAP1, ref_added_or[, 21], col = cluster_colors[umap_data_with_distance$Cluster],
+       pch = 20, cex = 2, main = "K-means Clustering on UMAP",
+       xlab = "UMAP 1", ylab = "Distance")
+  legend("topright", inset = c(-0.2, 0), legend = levels(umap_data_with_distance$Cluster),
+         col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   if(PCA_flag){
     # Perform PCA using prcomp from stats library
     pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)

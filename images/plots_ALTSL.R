@@ -1,8 +1,8 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-class = "multiclass"     # multiclass or binary
+class = "binary"     # multiclass or binary
 
 path="D:/GitHub/active-learning-virtual-SVM/"
 
@@ -12,6 +12,7 @@ file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizeP
 file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
 file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
 file_name_acc = "20240819_1244_cologne_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
+file_name_acc = "20240819_1904_hagadera_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
 
 
 
@@ -21,6 +22,7 @@ file_name_kappa = "20240809_1322_hagadera_binary_scale_Kappa_ALTSLf_20Unl_1nR_7S
 file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1nR_9SizePor"
 file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
 file_name_kappa = "20240819_1244_cologne_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
+file_name_kappa = "20240819_1904_hagadera_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
 
 
 
@@ -222,7 +224,7 @@ png(filename=paste0(file_name_acc,".png"),
 # # ******************************************************************************************************
 
 if(nrow(AccuracySVM)>1){
-  msdSVMPlot = plot(x, ExCsvMSD(AccuracySVM)[1,],log = "x",
+  msdSVMPlot = plot(x[-c(2,4,6,8,10,12,14)], ExCsvMSD(AccuracySVM[,-c(2,4,6,8,10,12,14)])[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples",
@@ -230,18 +232,18 @@ if(nrow(AccuracySVM)>1){
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
-  lines(x, ExCsvMSD(AccuracySVM_SL_Un)[1,], type= type ,   col = 1, lwd = 2,lty = 4)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracySVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[1,], type= type ,   col = 1, lwd = 2,lty = 4)
   
   # lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL)[1,], type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un)[1,], type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_vUn)[1,], type= type , col = 5, lwd = 2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL[,-c(2,4,6,8,10,12,14,16)])[1,], type= type ,       col = 3, lwd = 2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[1,], type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL_vUn[,-c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 5, lwd = 2,lty = 1)
 
   
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,], type= type , col = 7, lwd = 2,lty = 2)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,], type= type , col = 7, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[1,], type= type , col = 8, lwd = 2,lty = 1)
-  lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd = 2,lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 7, lwd = 2,lty = 2)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL_Un_it[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 7, lwd = 2,lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 8, lwd = 2,lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 6, lwd = 2,lty = 1)
   
   
   # lines(x, ExCsvMSD(AccuracyVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
@@ -309,38 +311,38 @@ dev.off()
 
 if(nrow(AccuracySVM)>1){
   
-  avgSVM=ExCsvMSD(AccuracySVM)[1,]
-  sdSVM=ExCsvMSD(AccuracySVM)[2,]
+  avgSVM=ExCsvMSD(AccuracySVM[,-c(2,4,6,8,10,12,14)])[1,]
+  sdSVM=ExCsvMSD(AccuracySVM[,-c(2,4,6,8,10,12,14)])[2,]
   
   # avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
   # sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
   
-  avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un)[1,]
-  sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un)[2,]
+  avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[1,]
+  sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[2,]
   
   # avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
   # sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
   
-  avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[1,]
-  sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL)[2,]
+  avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL[,-c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL[,-c(2,4,6,8,10,12,14,16)])[2,]
   
-  avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un)[1,]
-  sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un)[2,]
+  avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[2,]
   
-  avgVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[1,]
-  sdVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it)[2,] 
+  avgVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,c(2,4,6,8,10,12,14,16)])[2,] 
   
-  avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[1,]
-  sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it)[2,]  
+  avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it[,c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it[,c(2,4,6,8,10,12,14,16)])[2,]  
   
-  avgVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[1,]
-  sdVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL)[2,]  
+  avgVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,c(2,4,6,8,10,12,14,16)])[2,]  
   
-  avgVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[1,]
-  sdVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL)[2,]
+  avgVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,c(2,4,6,8,10,12,14,16)])[2,]
   
-  avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn)[1,]
-  sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn)[2,]
+  avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn[,-c(2,4,6,8,10,12,14,16)])[1,]
+  sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn[,-c(2,4,6,8,10,12,14,16)])[2,]
   
   # *********************************************
   png(filename=paste0(file_name_acc,"_sd.png"),
@@ -350,7 +352,7 @@ if(nrow(AccuracySVM)>1){
       pointsize=12,
       res=96)
   
-  msdSVMPlot = plot(x, avgSVM,log = "x",
+  msdSVMPlot = plot(x[-c(2,4,6,8,10,12,14)], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,   col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples", 
@@ -358,21 +360,21 @@ if(nrow(AccuracySVM)>1){
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
-  lines(x, avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
+  lines(x[-c(2,4,6,8,10,12,14,16)], avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
   
   # lines(x, avgVSVM, type= type ,          col = 3, lwd = 2,lty = 1)
-  lines(x, avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x, avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x, avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
   # lines(x, AccuracyVSVM_SL_Un_mclp, type= type , col = 4, lwd=2,lty=2)
   # lines(x, AccuracyVSVM_SL_Un_mclu, type= type , col = 5, lwd=2)
   # lines(x, AccuracyVSVM_SL_Un_ms, type= type , col = 6, lwd=2)
   
-  lines(x, avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
-  lines(x, avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
-  lines(x, avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
-  lines(x, avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
+  lines(x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)
   # lines(x, avgVSVM_SL_Un_b_ud, type= type , col = 4, lwd=2)
   # lines(x, AccuracyVSVM_SL_vUn_mclp, type= type , col = 8, lwd=2)
   
@@ -381,9 +383,9 @@ if(nrow(AccuracySVM)>1){
   # arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 3,lty=2)
   # arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 1,lty=3)
   # arrows(x, avgSVM_SL_Un_b-sdSVM_SL_Un_b, x, avgSVM_SL_Un_b+sdSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 1,lty=4)
-  arrows(x, avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
-  arrows(x, avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
-  arrows(x, avgVSVM_SL_Un_itSL-sdVSVM_SL_Un_itSL, x, avgVSVM_SL_Un_itSL+sdVSVM_SL_Un_itSL, length=0.075, angle=90, code=3 ,col = 8)
+  arrows(x[-c(2,4,6,8,10,12,14,16)], avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x[-c(2,4,6,8,10,12,14,16)], avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
+  arrows(x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
+  arrows(x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_itSL-sdVSVM_SL_Un_itSL, x[c(2,4,6,8,10,12,14,16)], avgVSVM_SL_Un_itSL+sdVSVM_SL_Un_itSL, length=0.075, angle=90, code=3 ,col = 8)
   
   legend("bottomright", 
          c("SVM single-level L4",
@@ -478,7 +480,7 @@ png(filename=paste0(file_name_kappa,".png"),
     pointsize=12,
     res=96)
 if(nrow(KappaSVM)>1){
-  msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,],log = "x",
+  msdSVMPlot = plot(x[-c(2,4,6,8,10,12,14)], ExCsvMSD(KappaSVM[,-c(2,4,6,8,10,12,14)])[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
                     xlab= "number of labeled samples per class",
@@ -486,17 +488,17 @@ if(nrow(KappaSVM)>1){
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
   # lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
-  lines(x, ExCsvMSD(KappaSVM_SL_Un)[1,], type= type ,   col = 1, lwd=2,lty = 4)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaSVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[1,], type= type ,   col = 1, lwd=2,lty = 4)
 
   # lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
-  lines(x, ExCsvMSD(KappaVSVM_SL)[1,], type= type ,       col = 3, lwd=2,lty = 2)
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un)[1,], type= type ,  col = 4, lwd=2,lty = 1)
-  lines(x, ExCsvMSD(KappaVSVM_SL_vUn)[1,], type= type , col = 5, lwd=2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL[,-c(2,4,6,8,10,12,14,16)])[1,], type= type ,       col = 3, lwd=2,lty = 2)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL_Un[,-c(2,4,6,8,10,12,14,16)])[1,], type= type ,  col = 4, lwd=2,lty = 1)
+  lines(x[-c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL_vUn[,-c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 5, lwd=2,lty = 1)
 
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un_random_it)[1,], type= type , col = 7, lwd=2,lty = 2)
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un_it)[1,], type= type , col = 7, lwd=2,lty = 1)
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un_itSL)[1,], type= type , col = 8, lwd=2,lty = 1)
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un_itTSL)[1,], type= type , col = 6, lwd=2,lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL_Un_random_it[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 7, lwd=2,lty = 2)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL_Un_it[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 7, lwd=2,lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL_Un_itSL[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 8, lwd=2,lty = 1)
+  lines(x[c(2,4,6,8,10,12,14,16)], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,c(2,4,6,8,10,12,14,16)])[1,], type= type , col = 6, lwd=2,lty = 1)
   
   # lines(x, ExCsvMSD(KappaVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
 }else{
