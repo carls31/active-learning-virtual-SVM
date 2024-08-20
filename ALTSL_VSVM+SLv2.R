@@ -1924,11 +1924,11 @@ for (model_prob in model_probs) {
                     
                     # **********************
                     # get original SVs of base SVM
-                    SVindex_ud = tmp_new_tunedSVM_r$finalModel@SVindex
+                    # SVindex_ud = tmp_new_tunedSVM_r$finalModel@SVindex
                     
                     # get new rand train set portion
-                    trainFeat_rand <- rbind(trainFeat_rand[SVindex_ud,], setNames(new_trainFeat, names))
-                    trainLabels_rand <- unlist(list(trainLabels_rand[SVindex_ud], new_trainLabels))
+                    trainFeat_rand <- rbind(trainFeat_rand[,], setNames(new_trainFeat, names))
+                    trainLabels_rand <- unlist(list(trainLabels_rand[], new_trainLabels))
                     
                     # SVtotal = setNames(cbind(trainFeat_rand, trainLabels_rand),c(objInfoNames[-length(objInfoNames)],"REF"))
                     # # **********************
@@ -2072,11 +2072,11 @@ for (model_prob in model_probs) {
                       
                       # **********************
                       # get original SVs of base SVM
-                      SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
+                      # SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
                       
                       # get new al train set portion
-                      new_trainFeatVSVM <- rbind(new_trainFeatVSVM[SVindex_ud,], setNames(new_trainFeat, names))
-                      new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM[SVindex_ud], new_trainLabels))
+                      new_trainFeatVSVM <- rbind(new_trainFeatVSVM[,], setNames(new_trainFeat, names))
+                      new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM[], new_trainLabels))
                       
                       SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
                       # **********************
@@ -2219,11 +2219,11 @@ for (model_prob in model_probs) {
 
                       # **********************
                       # get original SVs of base SVM
-                      SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
+                      # SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
                       
                       # get al train set portion
-                      new_trainFeatVSVM <- rbind(new_trainFeatVSVM[SVindex_ud,], setNames(new_trainFeat, names))
-                      new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM[SVindex_ud], new_trainLabels))
+                      new_trainFeatVSVM <- rbind(new_trainFeatVSVM[,], setNames(new_trainFeat, names))
+                      new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM[], new_trainLabels))
                       
                       SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
                       # **********************
