@@ -17,9 +17,8 @@ b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-sampleSizePor = c(25, 33, 50, 41, 100, 49, 160, 57, 230, 65, 310, 73, 400, 81, 500, 89)
+# sampleSizePor = c(25, 33, 50, 41, 100, 49, 160, 57, 230, 65, 310, 73, 400, 81, 500, 89)
 sampleSizePor = c(25,50, 50,80, 100,125, 160,180, 230,245, 310,320, 400,405, 500,500)
-# sampleSizePor = c(25,33, 50,60, 100,114, 160,180, 230,258, 310,348, 400,450, 500,564)
 
 # resampledSize = c(60)    # total number of relabeled samples # 20, 40, 60, 120
 # newSizes = c(8) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
@@ -758,14 +757,12 @@ for (model_prob in model_probs) {
       lightC = 2 # lighter validate dataset for running faster prediction 
       lgtS=FALSE
       cat("preprocessing",city,model_prob,invariance,"\n")
-      if(city=="cologne"){ # sampleSizePor = c(30,38, 60,70, 120,134, 192,212, 276,304, 372,410, 480,530, 600,664)
-      sampleSizePor = c(30,38, 60,46, 120,54, 192,62, 276,70, 372,78, 480,86, 600,94)
+      if(city=="cologne"){ #sampleSizePor = c(30,38, 60,46, 120,54, 192,62, 276,70, 372,78, 480,86, 600,94)
       sampleSizePor = c(30,60, 60,96, 120,150, 192,216, 276,294, 372,384, 480,486, 600,600)}
-      if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,29, 40,51, 64,78, 92,111, 124,149, 160,192, 200,240) 
-      sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
+      if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
       sampleSizePor = c(10,20, 20,32, 40,50, 64,72, 92,98, 124,128, 160,162, 200,200)}
-      if (num_cores<5) { nR=2
-      sampleSizePor = c(6,12,16)  
+      if (num_cores<5) { nR=1
+      sampleSizePor = c(6,12, 12,20, 20)  
       lgtS=TRUE }
       colheader = as.character(sampleSizePor) # corresponding column names
       
