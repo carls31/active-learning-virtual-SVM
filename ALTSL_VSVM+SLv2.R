@@ -20,11 +20,11 @@ boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(
 # sampleSizePor = c(25, 35, 50, 60, 100, 110, 160, 170, 230, 240, 310, 320, 400, 410, 500, 510)
 sampleSizePor = c(25,33, 50,60, 100,114, 160,180, 230,258, 310,348, 400,450, 500,564)
 
-# resampledSize = c(3*b)    # total number of relabeled samples # b, 2*b, 3*b, 6*b
-# newSizes = c(0.4*b) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
-# classSize = c(100*b) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(100*b,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
-# clusterSizes = c(6*b) #60*b # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
-classPor = 50 #  *b*n_of_class # unlabeled pool samples portion per class
+# resampledSize = c(60)    # total number of relabeled samples # 20, 40, 60, 120
+# newSizes = c(8) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
+# classSize = c(2000) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(2000,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
+# clusterSizes = c(120) #1200 # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
+classPor = 1000 #  *n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()/4 # Numbers of CPU cores for parallel processing
@@ -1384,7 +1384,7 @@ for (model_prob in model_probs) {
       for (realization in seq(nR)) {#}
         start.time <- Sys.time()
         # initial seed value for randomized sampling
-        if (train) {seed = seed + sample(100, 1)}
+        if (train) {seed = seed + sample(1000, 1)}
         cat("CPU cores: ",num_cores," | seed: ",seed,"\n",sep="")
         
         trainDataCurBeg = trainDataPoolAllLev
@@ -1394,8 +1394,6 @@ for (model_prob in model_probs) {
         
         # *********************************************************************
 
-        # set randomized seed for the random sampling procedure
-        set.seed(seed)
         sample_size_iter=1
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {#}
           sampleSize = round(sampleSizePor[sample_size]/nclass)
@@ -1403,11 +1401,13 @@ for (model_prob in model_probs) {
           
           # get the new size for the active labeling
           newSize = (sampleSizePor[sample_size+1]-sampleSizePor[sample_size])
-          clusterSizes = c(max(70,2*newSize))
+          clusterSizes = c(max(100,2*newSize))
           # clusterSizes = c(120)
           
           shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
           
+          # set randomized seed for the random sampling procedure
+          set.seed(seed)
           # definition of sampling configuration (strata:random sampling without replacement)
           stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
           #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
@@ -1888,7 +1888,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for RANDOM active labeling | ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
-            classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2014,7 +2014,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
-            # classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
             # for (clS in 1:length(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2154,7 +2154,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling + SL | ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
-            # classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
             # for (clS in 1:length(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2321,7 +2321,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling + Train SL | ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
             actAcc = -1e-6
-            # classSize=c(min(classPor*b,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
             # for (clS in 1:length(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
