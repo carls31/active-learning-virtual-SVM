@@ -1,3 +1,9 @@
+############################################
+# Author: Lorenzo Carlassara               #
+# lorenzo.carlassara98@gmail.com           #
+# linkedin.com/in/lorenzo-carlassara/      #
+# feel free to contact me for any question #
+############################################
 start.time_oa <- Sys.time()
 library(caret)
 library(kernlab)

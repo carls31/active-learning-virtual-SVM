@@ -1,6 +1,12 @@
+############################################
+# Author: Lorenzo Carlassara               #
+# lorenzo.carlassara98@gmail.com           #
+# linkedin.com/in/lorenzo-carlassara/      #
+# feel free to contact me for any question #
+############################################
 library(scales)
 
-city = "hagadera"    # cologne or hagadera
+city = "cologne"    # cologne or hagadera
 invariance = "scale"     # scale or shape
 class = "binary"     # multiclass or binary
 
@@ -13,6 +19,7 @@ file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9S
 file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
 file_name_acc = "20240819_1244_cologne_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
 file_name_acc = "20240819_1904_hagadera_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
+file_name_acc = "20240821_0601_cologne_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
 
 
 
@@ -23,6 +30,7 @@ file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1n
 file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
 file_name_kappa = "20240819_1244_cologne_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
 file_name_kappa = "20240819_1904_hagadera_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
+file_name_kappa = "20240821_0601_cologne_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
 
 
 
@@ -282,7 +290,7 @@ legend("bottomright",
          # "VSVM",
          "VSVM-SL","VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + RANDOM AL",
+         "VSVM-SL + random AL",
          "VSVM-SL + AL",
          "VSVM-SL + AL SL",
          "VSVM-SL + AL TSL"
@@ -394,7 +402,7 @@ if(nrow(AccuracySVM)>1){
            # "VSVM",
            "VSVM-SL","VSVM-SL + Unlabeled",
            "VSVM-SL + Virtual Unlabeled",
-           "VSVM-SL + RANDOM AL",
+           "VSVM-SL + random AL",
            "VSVM-SL + AL",
            "VSVM-SL + AL SL",
            "VSVM-SL + AL TSL"
@@ -533,7 +541,7 @@ legend("bottomright",
          # "VSVM",
          "VSVM-SL","VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + RANDOM AL",
+         "VSVM-SL + random AL",
          "VSVM-SL + AL",
          "VSVM-SL + AL SL",
          "VSVM-SL + AL TSL"
