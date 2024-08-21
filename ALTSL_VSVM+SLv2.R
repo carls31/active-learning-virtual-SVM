@@ -7,6 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)
 # library(umap)
+script = "ALTSLv2"
 
 nR = 8                    # realizations
 cities = c("cologne")    # cologne or hagadera
@@ -27,7 +28,7 @@ sampleSizePor = c(25,33, 50,60, 100,114, 160,180, 230,258, 310,348, 400,450, 500
 classPor = 1000 #  *n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores()/4 # Numbers of CPU cores for parallel processing
+num_cores <- parallel::detectCores()/2 # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -459,7 +460,7 @@ add_AL_samples = function(distance_data,
       cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
     }
     # Perform t-SNE
-    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 3, perplexity = 30, verbose = TRUE, max_iter = 1000)
+    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 3, perplexity = 30, verbose = TRUE, max_iter = 500)
     tsne_data <- data.frame(tsne_result$Y)
     colnames(tsne_data) <- c("tSNE1", "tSNE2", "tSNE3")
     
@@ -758,8 +759,13 @@ for (model_prob in model_probs) {
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ sampleSizePor = c(30,38, 60,70, 120,134, 192,212, 276,304, 372,410, 480,530, 600,664) }
       if(model_prob=="binary"){ sampleSizePor = c(10,18, 20,29, 40,51, 64,78, 92,111, 124,149, 160,192, 200,240) }
+      if (num_cores<5) { nR=3
+      sampleSizePor = c(6,12, 12,20, 20)
+      classPor = 100
+      lgtS=FALSE
+      bound = c(0.3, 0.9)
+      boundMargin = c(1.5, 0.5)}
       colheader = as.character(sampleSizePor) # corresponding column names
-      
       if (city=="cologne") {
         
         inputPath ="cologne_res_100_L2-L13.csv" 
@@ -1401,7 +1407,7 @@ for (model_prob in model_probs) {
           
           # get the new size for the active labeling
           newSize = (sampleSizePor[sample_size+1]-sampleSizePor[sample_size])
-          clusterSizes = c(max(100,2*newSize))
+          clusterSizes = c(round(max(classPor/10,2*newSize)))
           # clusterSizes = c(120)
           
           shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
@@ -1890,7 +1896,7 @@ for (model_prob in model_probs) {
             actAcc = -1e-6
             classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
-            for (clS in 1:length(classSize)) {
+            clS=1 # for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
               # Definition of sampling configuration (strata:random sampling without replacement)
               stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -2024,7 +2030,7 @@ for (model_prob in model_probs) {
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               # for (nS4it in 1:length(newSizes)) {
-                for (cS in 1:length(clusterSizes)) {
+                cS=1# for (cS in 1:length(clusterSizes)) {
                   # for (rS in 1:length(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("samples: ",newSize," | pool size: ",
@@ -2136,7 +2142,7 @@ for (model_prob in model_probs) {
                       } # else { cat("discarded accuracy: ",sep="")} 
                       # cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
-                }
+                # }
               # }
             # }
             cat("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
@@ -2164,7 +2170,7 @@ for (model_prob in model_probs) {
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               # for (nS4it in 1:length(newSizes)) {
-                for (cS in 1:length(clusterSizes)) {
+                cS=1 # for (cS in 1:length(clusterSizes)) {
                   # for (rS in 1:length(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("samples: ",newSize," | pool size: ",
@@ -2303,7 +2309,7 @@ for (model_prob in model_probs) {
                       } #else { cat("discarded accuracy: ",sep="")} 
                       #cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
-                }
+                # }
               # }
             # }
             cat("VSVM_SL - AL + SL accuracy: ",round(accVSVM_SL_itALSL$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
@@ -2331,7 +2337,7 @@ for (model_prob in model_probs) {
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               # for (nS4it in 1:length(newSizes)) {
-                for (cS in 1:length(clusterSizes)) {
+                cS=1 # for (cS in 1:length(clusterSizes)) {
                   # for (rS in 1:length(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("samples: ",newSize," | pool size: ",
@@ -2464,9 +2470,9 @@ for (model_prob in model_probs) {
                       } #else { cat("discarded accuracy: ",sep="")} 
                       #cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM_SL2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
-                }
+                # }
               # }
-            }
+            # }
             cat("VSVM_SL - AL + Train SL accuracy: ",round(accVSVM_SL_itAL_TSLv1$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
             AccuracyVSVM_SL_Un_itTSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Accuracy"])
@@ -2507,17 +2513,17 @@ for (model_prob in model_probs) {
              AccuracyVSVM_SL_Un_random_it,
              AccuracyVSVM_SL_Un_itSL,
              AccuracyVSVM_SL_Un_itTSL,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_ALTSLf_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, KappaSVM_SL_Un, KappaVSVM_SL, KappaVSVM_SL_Un, KappaVSVM_SL_vUn,
              KappaVSVM_SL_Un_it, 
              KappaVSVM_SL_Un_random_it,
              KappaVSVM_SL_Un_itSL,
              KappaVSVM_SL_Un_itTSL,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_ALTSLf_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             # "\nbest_resample_oa: ", best_resample_oa, "\nbest_newSize_oa: ", best_newSize_oa,"\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
             "\n",best_model_oa,"\nfinal length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(bestFittingModel$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),
-            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_ALTSLf_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
+            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))

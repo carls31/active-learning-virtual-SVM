@@ -7,6 +7,7 @@ library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)
 # library(umap)
+script = "ALTSLv3"
 
 nR = 8                    # realizations
 cities = c("cologne")    # cologne or hagadera
@@ -24,10 +25,10 @@ sampleSizePor = c(25,50, 50,80, 100,125, 160,180, 230,245, 310,320, 400,405, 500
 # newSizes = c(8) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(2000) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(2000,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
 # clusterSizes = c(120) #1200 # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
-classPor = 800 #  *n_of_class # unlabeled pool samples portion per class
+classPor = 1000 #  *n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing
+num_cores <- parallel::detectCores()/2 # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -761,11 +762,13 @@ for (model_prob in model_probs) {
       sampleSizePor = c(30,60, 60,96, 120,150, 192,216, 276,294, 372,384, 480,486, 600,600)}
       if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
       sampleSizePor = c(10,20, 20,32, 40,50, 64,72, 92,98, 124,128, 160,162, 200,200)}
-      if (num_cores<5) { nR=1
-      sampleSizePor = c(6,12, 12,20, 20)  
-      lgtS=TRUE }
+      if (num_cores<5) { nR=3
+      sampleSizePor = c(6,12, 12,20, 20)
+      classPor = 100
+      lgtS=FALSE
+      bound = c(0.3, 0.9)
+      boundMargin = c(1.5, 0.5)}
       colheader = as.character(sampleSizePor) # corresponding column names
-      
       if (city=="cologne") {
         
         inputPath ="cologne_res_100_L2-L13.csv" 
@@ -1408,7 +1411,7 @@ for (model_prob in model_probs) {
           # get the new size for the active labeling
           if(sample_size==1){ newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
           } else {            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size-1] }
-          clusterSizes = c(max(100,2*newSize))
+          clusterSizes = c(round(max(classPor/10,2*newSize)))
           # clusterSizes = c(120)
           
           shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
@@ -2448,7 +2451,6 @@ for (model_prob in model_probs) {
             }
 
           }
-
           sample_size_iter=sample_size_iter+1
           if (realization==1 && sample_size==5) {
             # saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
@@ -2479,17 +2481,17 @@ for (model_prob in model_probs) {
              AccuracyVSVM_SL_Un_random_it,
              AccuracyVSVM_SL_Un_itSL,
              AccuracyVSVM_SL_Un_itTSL,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_ALTSLf_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, KappaSVM_SL_Un, KappaVSVM_SL, KappaVSVM_SL_Un, KappaVSVM_SL_vUn,
              KappaVSVM_SL_Un_it, 
              KappaVSVM_SL_Un_random_it,
              KappaVSVM_SL_Un_itSL,
              KappaVSVM_SL_Un_itTSL,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_ALTSLf_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             # "\nbest_resample_oa: ", best_resample_oa, "\nbest_newSize_oa: ", best_newSize_oa,"\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
             "\n",best_model_oa,"\nfinal length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(bestFittingModel$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),
-            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_ALTSLf_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
+            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
