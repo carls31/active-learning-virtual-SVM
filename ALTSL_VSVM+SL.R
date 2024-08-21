@@ -1,7 +1,10 @@
 ############################################
-# Author: Lorenzo Carlassara               #
+#                                          #
+# Lorenzo Carlassara                       #
+#                                          #
 # lorenzo.carlassara98@gmail.com           #
 # linkedin.com/in/lorenzo-carlassara/      #
+#                                          #
 # feel free to contact me for any question #
 ############################################
 library(caret)
@@ -1456,7 +1459,7 @@ for (model_prob in model_probs) {
           
           # get the new size for the active labeling
           newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
-          clusterSizes = c(round(max(classPor/10,2*newSize)),40)
+          clusterSizes = c(round(max(classPor/10,2*newSize)),200)
           # clusterSizes = c(120)
           
           # # sample the test set portion
@@ -2061,7 +2064,7 @@ for (model_prob in model_probs) {
             
             cat("computing uncertainty distance for active labeling ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
             actAcc = -1e-6
-            classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)),classPor/2)
+            classSize=c(min(classPor,round(as.numeric(table(trainDataCurRemaining$REF)))),min(classPor*5,round(as.numeric(table(trainDataCurRemaining$REF)))))
             if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
             for (clS in 1:length(classSize)) {
               stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
