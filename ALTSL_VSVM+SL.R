@@ -438,7 +438,7 @@ add_AL_samples = function(distance_data,
                           ref, features=NULL, 
                           new_trainFeatVSVM=NULL, new_trainLabelsVSVM=NULL,
                           newSize=10, cluster=100, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=TRUE, 
-                          realiz=realization, s_size=sample_size, semi_size=0,plot_flag=TRUE){
+                          realiz=realization, s_size=sample_size, semi_size=20,plot_flag=TRUE){
   if(cluster<newSize){cluster=round(max(newSize*1.01,nrow(distance_data)/10))}
   # if(cluster>nrow(distance_data)){cluster=round(nrow(distance_data)/10)}
   
@@ -2613,7 +2613,7 @@ for (model_prob in model_probs) {
                                                reference_label, sampled_data[,1:numFeat], 
                                                setNames(trainFeat, names), trainLabels,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, plot_flag=FALSE) 
+                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, semi_size=b[1]*nclass, plot_flag=FALSE) 
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
