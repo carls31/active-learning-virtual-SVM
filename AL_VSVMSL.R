@@ -474,8 +474,23 @@ add_AL_samples = function(distance_data,
   num_duplicates <- sum(duplicate_rows)
   cat("Number of duplicate rows:", num_duplicates, "\n")
   
-  # If there are duplicates, remove them
+  # Show the first five pairs of duplicate rows
   if (num_duplicates > 0) {
+    # Find indices of duplicates
+    duplicate_indices <- which(duplicate_rows)
+    
+    cat("First five pairs of duplicate rows:\n")
+    
+    # Display the first five pairs
+    for (i in seq_len(min(5, num_duplicates))) {
+      original_index <- duplicate_indices[i]
+      duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
+      
+      cat("Pair", i, ":\n")
+      print(ref_added_or[c(duplicate_index, original_index), ])
+    }
+    
+    # Remove duplicates
     ref_added_or <- ref_added_or[!duplicate_rows, ]
     cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
   }
@@ -490,26 +505,25 @@ add_AL_samples = function(distance_data,
   tsne_data <- data.frame(tsne_result$Y)
   colnames(tsne_data) <- c("tSNE1", "tSNE2")
   
-  # Perform UMAP
-  umap_result <- umap(ref_added_or[, 1:nFeat], n_neighbors = 15, n_components = 2, metric = "euclidean")
-  umap_data <- data.frame(umap_result$layout)
-  colnames(umap_data) <- c("UMAP1", "UMAP2")
+  # # Perform UMAP
+  # umap_result <- umap(ref_added_or[, 1:nFeat], n_neighbors = 15, n_components = 2, metric = "euclidean")
+  # umap_data <- data.frame(umap_result$layout)
+  # colnames(umap_data) <- c("UMAP1", "UMAP2")
   
   # Combine all data with the distance column
   pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
   tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
-  umap_data_with_distance <- cbind(umap_data, distance = ref_added_or$distance)
+  # umap_data_with_distance <- cbind(umap_data, distance = ref_added_or$distance)
   
   # Apply k-means clustering on each
-  cluster <- 14
   km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
   km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-  km_umap <- kmeans(umap_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  # km_umap <- kmeans(umap_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
   
   # Add the cluster assignments
   pca_data_with_distance$Cluster <- as.factor(km_pca$cluster)
   tsne_data_with_distance$Cluster <- as.factor(km_tsne$cluster)
-  umap_data_with_distance$Cluster <- as.factor(km_umap$cluster)
+  # umap_data_with_distance$Cluster <- as.factor(km_umap$cluster)
   
   # Define colors for clusters
   cluster_colors <- rainbow(cluster)
@@ -517,28 +531,68 @@ add_AL_samples = function(distance_data,
   # Set up plotting area with 3 plots in one row
   # par(mfrow = c(1, 3), mar = c(5, 4, 4, 8), xpd = TRUE)
   
+  png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_PCA_withDistance_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+      units="in", 
+      width=20, 
+      height=16, 
+      pointsize=12,
+      res=96)
   # Plot PCA
-  plot(pca_data_with_distance$PC1, ref_added_or[, 21], col = cluster_colors[pca_data_with_distance$Cluster],
+  plot(pca_data_with_distance$PC1, ref_added_or$distance, col = cluster_colors[pca_data_with_distance$Cluster],
        pch = 20, cex = 2, main = "K-means Clustering on PCA",
        xlab = "Principal Component 1", ylab = "Distance")
   legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
          col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  dev.off()
   
+  png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_tSNE_withDistance_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+      units="in", 
+      width=20, 
+      height=16, 
+      pointsize=12,
+      res=96)
   # Plot t-SNE
-  plot(tsne_data_with_distance$tSNE1, ref_added_or[, 21], col = cluster_colors[tsne_data_with_distance$Cluster],
+  plot(tsne_data_with_distance$tSNE1, ref_added_or$distance, col = cluster_colors[tsne_data_with_distance$Cluster],
        pch = 20, cex = 2, main = "K-means Clustering on t-SNE",
        xlab = "t-SNE 1", ylab = "Distance")
   legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
          col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  dev.off()
   
-  # Plot UMAP
-  plot(umap_data_with_distance$UMAP1, ref_added_or[, 21], col = cluster_colors[umap_data_with_distance$Cluster],
-       pch = 20, cex = 2, main = "K-means Clustering on UMAP",
-       xlab = "UMAP 1", ylab = "Distance")
-  legend("topright", inset = c(-0.2, 0), legend = levels(umap_data_with_distance$Cluster),
+  png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_PCA_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+      units="in", 
+      width=20, 
+      height=16, 
+      pointsize=12,
+      res=96)
+  # Plot PCA
+  plot(pca_data$PC1, pca_data$PC2, col = cluster_colors[pca_data_with_distance$Cluster],
+       pch = 20, cex = 2, main = "PCA with K-means Clustering",
+       xlab = "Principal Component 1", ylab = "Principal Component 2")
+  legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
          col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  dev.off()
   
+  png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_tSNE_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+      units="in", 
+      width=20, 
+      height=16, 
+      pointsize=12,
+      res=96)
+  # Plot t-SNE
+  plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
+       pch = 20, cex = 2, main = "t-SNE with K-means Clustering",
+       xlab = "t-SNE 1", ylab = "t-SNE 2")
+  legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
+         col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+  dev.off()
   
+  # # Plot UMAP
+  # plot(umap_data_with_distance$UMAP1, ref_added_or[, 21], col = cluster_colors[umap_data_with_distance$Cluster],
+  #      pch = 20, cex = 2, main = "K-means Clustering on UMAP",
+  #      xlab = "UMAP 1", ylab = "Distance")
+  # legend("topright", inset = c(-0.2, 0), legend = levels(umap_data_with_distance$Cluster),
+  #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
   
   
   
