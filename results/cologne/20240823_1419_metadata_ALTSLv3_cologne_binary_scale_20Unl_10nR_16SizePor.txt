@@ -1,0 +1,17 @@
+OA Execution time: 19.22h
+Realization 1 | seed: 18 execution time: 3.64h
+Realization 2 | seed: 63 execution time: 3.55h
+Realization 3 | seed: 108 execution time: 4h
+Realization 4 | seed: 153 execution time: 2.97h
+Realization 5 | seed: 198 execution time: 4.58h
+
+
+20240822VSVM_SLvUn_cologne_binary_scale_200Size_20Unl.rds: 0.943628438190883
+20240823VSVM_SLUn_cologne_binary_scale_200Size_20Unl.rds: 0.944550361161086
+20240823AL_VSVM+SL_cologne_binary_scale_200Size_20Unl_108seed.rds: 0.939855714579809
+20240823SVM_cologne_binary_scale_200Size_20Unl.rds: 0.949473250807801
+20240823SVM_SLUn_cologne_binary_scale_200Size_20Unl.rds: 0.933554415832013
+
+final length train Labels: 20
+length SVM SVs: 30
+length new train Labels AL: 32

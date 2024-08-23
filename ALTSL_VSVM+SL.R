@@ -1,12 +1,12 @@
+
 ############################################
-#                                          #
-# Lorenzo Carlassara                       #
 #                                          #
 # lorenzo.carlassara98@gmail.com           #
 # linkedin.com/in/lorenzo-carlassara/      #
-#                                          #
 # feel free to contact me for any question #
+#                                          #
 ############################################
+
 library(caret)
 library(kernlab)
 library(sampling)
@@ -15,7 +15,6 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)
-# library(umap)
 script = "ALTSLf"
 
 nR = 10                    # realizations
@@ -1558,14 +1557,12 @@ for (model_prob in model_probs) {
 
         # set randomized seed for the random sampling procedure
         set.seed(seed)
-        
         # definition of sampling configuration (strata:random sampling without replacement)
         stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
         #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
         
         # get samples of trainDataCur and set trainDataCur new
         samples = getdata(trainDataCurBeg, stratSamp)
-        
         samplesID = samples$ID_unit
         
         trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
