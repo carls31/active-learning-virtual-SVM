@@ -15,28 +15,28 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)
-script = "ALTSLv3"
+script = "ALTSLf"
 
 nR = 10                    # realizations
 cities = c("cologne")    # cologne or hagadera
 invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-# sampleSizePor = c(25, 33, 50, 41, 100, 49, 160, 57, 230, 65, 310, 73, 400, 81, 500, 89)
-sampleSizePor = c(25,50, 50,80, 100,125, 160,180, 230,245, 310,320, 400,405, 500,500)
+# sampleSizePor = c(25, 40, 70, 110, 160, 220, 300, 400, 540)
+sampleSizePor = c(25, 50, 100, 160, 230, 310, 400, 500)
 
 # resampledSize = c(60)    # total number of relabeled samples # 20, 40, 60, 120
 # newSizes = c(8) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
 # classSize = c(2000) #1200 # number of samples per class # 25, 50, 75, 100, 150, 300, 580 for multiclass #  min(2000,as.numeric(min(table(trainDataCurRemaining$REF)))/3)
 # clusterSizes = c(120) #1200 # number of clusters used to pick samples from different groups # 40, 60, 80, 100, 120, 300
-classPor = 3000 #  *n_of_class # unlabeled pool samples portion per class
+classPor = 1000 #  *n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores()/2 # Numbers of CPU cores for parallel processing
+num_cores <- parallel::detectCores() # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -287,28 +287,27 @@ pred_all = function(modelfin, dataPoint, dataPointLabels, binaryClassProb=binary
   return(distance)   
 }
 
-# # Evaluate the distance between samples and Support Vectors lying in the hyperspace
-# uncertainty_dist_v2_2 = function(org, samp) {
-#   
-#   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
-#   
-#   registerDoParallel(num_cores)
-#   distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
-#     # calculate_margin_distance(k)
-#     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
-#   }
-#   registerDoSEQ()
-#   
-#   scaled_distances <- apply(distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
-#   distance$distance <- scaled_distances
-#   samp <- cbind(samp, distance)
-#   
-#   return(samp)
-# }
+# Evaluate the distance between samples and Support Vectors lying in the hyperspace
+uncertainty_dist_v2_2 = function(org, samp) {
+  
+  distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+  
+  registerDoParallel(num_cores)
+  distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+    # calculate_margin_distance(k)
+    pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
+  }
+  registerDoSEQ()
+  
+  scaled_distances <- apply(distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+  distance$distance <- scaled_distances
+  samp <- cbind(samp, distance)
+  
+  return(samp)
+}
 # margin_sampling(org=tmp_new_tunedSVM, samp=predLabelsVSVM_unc,pred_one,binaryClassProblem, classes=NA)
 # Evaluate Margin Sampling (MS) WITH MULTICORES CPU - PARALLEL COMPUTING new_tunedSVM, predLabelsVSVM_unc
-margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
-                            realiz=realization, s_size=sample_size, plot_flag=FALSE ) {
+margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA) {
   if(is.na(classes)){classes=as.factor(levels(samp[, ncol(samp)]))}
   
   # Initialize data frame to store margin distance for each sample
@@ -322,67 +321,11 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
   }
   registerDoSEQ()
   
-  # scale distances
+  # Apply "range" normalization to mclp_distances
   scaled_distances <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   # Assign scaled distances to probability dataframe
-  # margin_distance$distance <- scaled_distances
-  margin_distance$distance <- log1p(scaled_distances * (exp(1) - 1))
+  margin_distance$distance <- scaled_distances
   merged_data <- cbind(samp, margin_distance)
-  
-  # ***********************************************************************************
-  
-  if (!(is.logical(plot_flag)) && realiz==1 ) {#&& s_size==5
-    setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
-    # Plotting the histogram
-    png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSUD_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
-        units="in", 
-        width=20, 
-        height=16, 
-        pointsize=12,
-        res=96)
-    
-
-    # ***********************************************************************************
-    
-    # Flatten the matrices to vectors for plotting
-    distances_power <- scaled_distances^0.87
-    distances_log <- log1p((scaled_distances) * (exp(1) - 1))
-    # distances_exp <- 1 - exp(-as.vector(scaled_distances))
-
-    # Plotting the histograms
-    par(mfrow=c(2, 2))  # Set up the plotting area to have 4 rows and 1 column
-
-    # Histogram for Standard Scaling of margin_distances
-    hist(as.vector(margin_distances), main="Histogram of Original Margin Distances",
-         xlab="Original Margin Distance", col="black", breaks=500, xlim=c(0, 1))
-
-    # Histogram for Standard Scaling of margin_distances
-    hist(as.vector(scaled_distances), main="Histogram of Scaled Margin Distances",
-         xlab="Scaled Margin Distance", col="purple", breaks=500, xlim=c(0, 1))
-
-    # Histogram for Power transformation
-    hist(as.vector(distances_power), main="Histogram of Power Transformed Distances",
-         xlab="Power Transformed Distance", col="blue", breaks=500, xlim=c(0, 1))
-
-    # Histogram for Logarithmic transformation
-    hist(as.vector(distances_log), main="Histogram of Logarithmic Transformed Distances",
-         xlab="Logarithmic Transformed Distance", col="green", breaks=500, xlim=c(0, 1))
-
-    # # Histogram for Exponential transformation
-    # hist(distances_exp, main="Histogram of Exponential Transformed Distances",
-    #      xlab="Exponential Transformed Distance", col="red", breaks=500, xlim=c(0, 1))
-    
-    # ****************************************************************************************
-
-    
-    # # Histogram for Standard Scaling of mclu_distances
-    # hist(as.vector(margin_distance$distance), main="Histogram of Self-Learning Distances",
-    #      xlab="Margin Distance", col="black", breaks=500, xlim=c(0, 1))
-    dev.off()
-    setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
-  }
-  
-  # ****************************************************************************************
   
   return(merged_data)
 }
@@ -390,8 +333,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
 # mclu_sampling(new_tunedSVM, predLabelsVSVM_unc)
 # mclu_sampling(org=new_tunedVSVM_v1, samp=predLabelsVSVM_unc, pred_all, binaryClassProblem, classes=NA) 
 # Evaluate Multiclass Level Uncertainty (MCLU)
-mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
-                          realiz=realization, s_size=sample_size, plot_flag=FALSE ) {
+mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA) {
   if(is.na(classes)){classes=as.factor(levels(samp[, ncol(samp)]))}
   # Initialize data frame to store uncertainty for each sample
   uncertainty <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
@@ -412,108 +354,126 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
   }
   registerDoSEQ()
   
-  mclu_distances <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+  # ***********************************************************************************
+  
+  # # Flatten the matrices to vectors for plotting
+  # mclu_distances <- as.vector(mclu_distances)
+  # scaled_mclu <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+  # distances_power <- mclu_distances^0.9
+  # distances_log <- log1p(mclu_distances * (exp(1) - 1))
+  # distances_exp <- 1 - exp(-mclu_distances)
+  # 
+  # # Plotting the histograms
+  # par(mfrow=c(3, 2))  # Set up the plotting area to have 4 rows and 1 column
+  # 
+  # # Histogram for Standard Scaling of mclu_distances
+  # hist(mclu_distances, main="Histogram of Original MCLU Distances",
+  #      xlab="Original MCLU Distance", col="black", breaks=500, xlim=c(0, 0.15))
+  # 
+  # # Histogram for Standard Scaling of mclu_distances
+  # hist(scaled_mclu, main="Histogram of Scaled MCLU Distances",
+  #      xlab="Scaled MCLU Distance", col="purple", breaks=500, xlim=c(0, 0.15))
+  # 
+  # # Histogram for Power transformation
+  # hist(distances_power, main="Histogram of Power Transformed Distances",
+  #      xlab="Power Transformed Distance", col="blue", breaks=500, xlim=c(0, 0.15))
+  # 
+  # # Histogram for Logarithmic transformation
+  # hist(distances_log, main="Histogram of Logarithmic Transformed Distances",
+  #      xlab="Logarithmic Transformed Distance", col="green", breaks=500, xlim=c(0, 0.15))
+  # 
+  # # Histogram for Exponential transformation
+  # hist(distances_exp, main="Histogram of Exponential Transformed Distances",
+  #      xlab="Exponential Transformed Distance", col="red", breaks=500, xlim=c(0, 0.15))
+  
+  # ****************************************************************************************
+  
+  # mclu_distances <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   # uncertainty$distance <- mclu_distances
   uncertainty$distance <- log1p(mclu_distances * (exp(1) - 1))
   merged_data <- cbind(samp, uncertainty)
   
-  # ***********************************************************************************
-  
-  if (!(is.logical(plot_flag)) && realiz==1 ) { # && s_size==5
-    setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
-    # Plotting the histogram
-    png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MS_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
-        units="in", 
-        width=20, 
-        height=16, 
-        pointsize=12,
-        res=96)
-    # Histogram for Standard Scaling of mclu_distances
-    hist(as.vector(uncertainty$distance), main="Histogram of Self-Learning Distances",
-         xlab="Margin Distance", col="black", breaks=500, xlim=c(0, 1))
-    dev.off()
-    setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
-  }
-  
-  # ****************************************************************************************
-  
   return(merged_data)
 }
 
-# mclp_sampling <- function(org, samp) {
-#   
-#   # Initialize data frame to store PROBABILITY for each sample
-#   probability <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
-#   
-#   # Define the function to calculate margin distance for a single sample
-#   calculate_mclp_distance <- function(k) {
-#     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
-#     
-#     # Get the two most probable classes
-#     top_classes <- (sort(unlist(probabilities), decreasing = TRUE))[1:2]
-#     
-#     # Calculate the difference between the probabilities for the two most probable classes
-#     return(abs(top_classes[[1]] - top_classes[[2]]))
-#   }
-#   registerDoParallel(num_cores)
-#   
-#   # Use foreach for parallel processing with " %dopar% "
-#   mclp_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
-#     calculate_mclp_distance(k)
-#   }
-#   registerDoSEQ()
-#   # Apply "range" normalization to mclp_distances
-#   scaled_distances <- apply(mclp_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
-#   
-#   # Assign scaled distances to probability dataframe
-#   probability$distance <- scaled_distances
-#   merged_data <- cbind(samp, probability)
-#   
-#   return(merged_data)
-# }
+mclp_sampling <- function(org, samp) {
+  
+  # Initialize data frame to store PROBABILITY for each sample
+  probability <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+  
+  # Define the function to calculate margin distance for a single sample
+  calculate_mclp_distance <- function(k) {
+    probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
+    
+    # Get the two most probable classes
+    top_classes <- (sort(unlist(probabilities), decreasing = TRUE))[1:2]
+    
+    # Calculate the difference between the probabilities for the two most probable classes
+    return(abs(top_classes[[1]] - top_classes[[2]]))
+  }
+  registerDoParallel(num_cores)
+  
+  # Use foreach for parallel processing with " %dopar% "
+  mclp_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+    calculate_mclp_distance(k)
+  }
+  registerDoSEQ()
+  # Apply "range" normalization to mclp_distances
+  scaled_distances <- apply(mclp_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+  
+  # Assign scaled distances to probability dataframe
+  probability$distance <- scaled_distances
+  merged_data <- cbind(samp, probability)
+  
+  return(merged_data)
+}
 # result <- add_AL_samples(distance_data=sampled_data,
 # ref=reference_label, features=sampled_data[,1:numFeat]
-# ref=upd_dataCurLabels, features=upd_dataCurFeatsub, 
+#                          ref=upd_dataCurLabels, features=upd_dataCurFeatsub, 
 #                          new_trainFeatVSVM, new_trainLabelsVSVM,
-#                          newSize=newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), 
-#                          ID_unit=upd_dataCur$ID_unit, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=TRUE, 
-#                          realiz=realization, s_size=sample_size, semi_size=b[1]*nclass, plot_flag=model_name_AL_VSVMSL) 
+#                          newSize=newSize_for_iter, cluster=clusterSizes[cS], 
+#                          ID_unit=upd_dataCur$ID_unit ) 
 add_AL_samples = function(distance_data,
-                          features=NULL, ref, 
+                          ref, features=NULL, 
                           new_trainFeatVSVM=NULL, new_trainLabelsVSVM=NULL,
-                          newSize=10, cluster=100, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=FALSE, 
-                          realiz=realization, s_size=sample_size, semi_size=20*nclass, plot_flag=FALSE, flag_cluster=FALSE){
+                          newSize=10, cluster=100, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=TRUE, 
+                          realiz=realization, s_size=sample_size, semi_size=20,plot_flag=TRUE){
   if(cluster<newSize){cluster=round(max(newSize*1.01,nrow(distance_data)/10))}
   # if(cluster>nrow(distance_data)){cluster=round(nrow(distance_data)/10)}
-
+  
   # merge features and original labels
   # distance_data$label <- factor(distance_data$label, levels = levels(ref)) # solved in self_learn_AL
   ref_added = cbind(distance_data, ref)
-
+  
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
   
-  # ********************** duplicates check
+  
   duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
+  # Count the number of duplicates
   num_duplicates <- sum(duplicate_rows)
+  cat("Number of duplicate rows:", num_duplicates, "\n")
+  
+  # Show the first five pairs of duplicate rows
   if (num_duplicates > 0) {
-    cat("Number of duplicate rows:", num_duplicates, "\n")
     # Find indices of duplicates
     duplicate_indices <- which(duplicate_rows)
+    
     cat("First five pairs of duplicate rows:\n")
     
     # Display the first five pairs
     for (i in seq_len(min(5, num_duplicates))) {
       original_index <- duplicate_indices[i]
       duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
+      
       cat("Pair", i, ":\n")
       print(ref_added_or[c(duplicate_index, original_index), ])
     }
+    
     # Remove duplicates
     ref_added_or <- ref_added_or[!duplicate_rows, ]
     cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
   }
-  # **********************
   
   # Perform PCA
   pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
@@ -521,9 +481,14 @@ add_AL_samples = function(distance_data,
   colnames(pca_data) <- c("PC1", "PC2")
   
   # Perform t-SNE
-  tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
+  tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = TRUE, max_iter = 500)
   tsne_data <- data.frame(tsne_result$Y)
   colnames(tsne_data) <- c("tSNE1", "tSNE2")
+  
+  # # Perform UMAP
+  # umap_result <- umap(ref_added_or[, 1:nFeat], n_neighbors = 15, n_components = 2, metric = "euclidean")
+  # umap_data <- data.frame(umap_result$layout)
+  # colnames(umap_data) <- c("UMAP1", "UMAP2")
   
   # Combine all data with the distance column
   pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
@@ -537,68 +502,110 @@ add_AL_samples = function(distance_data,
   
   # ***********************************************************************************
   
-  if (!(is.logical(plot_flag)) && realiz==1 && s_size==5) {
-  setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
-  # Add the cluster assignments
-  pca_data_with_distance$Cluster <- as.factor(km_pca$cluster)
-  tsne_data_with_distance$Cluster <- as.factor(km_tsne$cluster)
-  # umap_data_with_distance$Cluster <- as.factor(km_umap$cluster)
-  
-  # Define colors for clusters
-  cluster_colors <- rainbow(cluster)
-  
-  png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"), plot_flag, "_cluster_PCA_tSNE_withDistance_", script, "_", city, "_", model_prob, "_", invariance, ".png"),
-      units="in", 
-      width=16, 
-      height=20, 
-      pointsize=12,
-      res=96)
-  par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
-  
-  # Plot PCA with Distance
-  plot(pca_data_with_distance$PC1, ref_added_or$distance, col = cluster_colors[pca_data_with_distance$Cluster],
-       pch = 20, cex = 2, main = "K-means Clustering on PCA + Distance",
-       xlab = "Principal Component 1", ylab = "Distance")
-  # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
-  #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
-  
-  # Plot t-SNE with Distance
-  plot(tsne_data_with_distance$tSNE1, ref_added_or$distance, col = cluster_colors[tsne_data_with_distance$Cluster],
-       pch = 20, cex = 2, main = "K-means Clustering on t-SNE + Distance",
-       xlab = "t-SNE 1", ylab = "Distance")
-  # legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
-  #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
-  
-  dev.off()
-  
-  png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"), plot_flag, "_cluster_PCA_tSNE_", script, "_", city, "_", model_prob, "_", invariance, ".png"),
-      units="in", 
-      width=16, 
-      height=20, 
-      pointsize=12,
-      res=96)
-  par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
-  
-  # Plot PCA
-  plot(pca_data$PC1, pca_data$PC2, col = cluster_colors[pca_data_with_distance$Cluster],
-       pch = 20, cex = 2, main = "PCA with K-means Clustering",
-       xlab = "Principal Component 1", ylab = "Principal Component 2")
-  # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
-  #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
-  
-  # Plot t-SNE
-  plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
-       pch = 20, cex = 2, main = "t-SNE with K-means Clustering",
-       xlab = "t-SNE 1", ylab = "t-SNE 2")
-  # legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
-  #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
-  
-  dev.off()
-  
-  setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+  if (plot_flag && realiz==1 && s_size==5) {
+    # Add the cluster assignments
+    pca_data_with_distance$Cluster <- as.factor(km_pca$cluster)
+    tsne_data_with_distance$Cluster <- as.factor(km_tsne$cluster)
+    # umap_data_with_distance$Cluster <- as.factor(km_umap$cluster)
+    
+    # Define colors for clusters
+    cluster_colors <- rainbow(cluster)
+    
+    # Set up plotting area with 3 plots in one row
+    # par(mfrow = c(1, 3), mar = c(5, 4, 4, 8), xpd = TRUE)
+    
+    png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_PCA_withDistance_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+        units="in", 
+        width=20, 
+        height=16, 
+        pointsize=12,
+        res=96)
+    # Plot PCA
+    plot(pca_data_with_distance$PC1, ref_added_or$distance, col = cluster_colors[pca_data_with_distance$Cluster],
+         pch = 20, cex = 2, main = "K-means Clustering on PCA",
+         xlab = "Principal Component 1", ylab = "Distance")
+    legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
+           col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+    dev.off()
+    
+    png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_tSNE_withDistance_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+        units="in", 
+        width=20, 
+        height=16, 
+        pointsize=12,
+        res=96)
+    # Plot t-SNE
+    plot(tsne_data_with_distance$tSNE1, ref_added_or$distance, col = cluster_colors[tsne_data_with_distance$Cluster],
+         pch = 20, cex = 2, main = "K-means Clustering on t-SNE",
+         xlab = "t-SNE 1", ylab = "Distance")
+    legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
+           col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+    dev.off()
+    
+    png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_PCA_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+        units="in", 
+        width=20, 
+        height=16, 
+        pointsize=12,
+        res=96)
+    # Plot PCA
+    plot(pca_data$PC1, pca_data$PC2, col = cluster_colors[pca_data_with_distance$Cluster],
+         pch = 20, cex = 2, main = "PCA with K-means Clustering",
+         xlab = "Principal Component 1", ylab = "Principal Component 2")
+    legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
+           col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+    dev.off()
+    
+    png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_cluster_tSNE_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+        units="in", 
+        width=20, 
+        height=16, 
+        pointsize=12,
+        res=96)
+    # Plot t-SNE
+    plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
+         pch = 20, cex = 2, main = "t-SNE with K-means Clustering",
+         xlab = "t-SNE 1", ylab = "t-SNE 2")
+    legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
+           col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+    dev.off()
+    
+    # # Plot UMAP
+    # plot(umap_data_with_distance$UMAP1, ref_added_or[, 21], col = cluster_colors[umap_data_with_distance$Cluster],
+    #      pch = 20, cex = 2, main = "K-means Clustering on UMAP",
+    #      xlab = "UMAP 1", ylab = "Distance")
+    # legend("topright", inset = c(-0.2, 0), legend = levels(umap_data_with_distance$Cluster),
+    #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
   }
+  
   # ***********************************************************************************
-
+  
+  # # wss <- (nrow(ref_data_with_distance) - 1) * sum(apply(ref_data_with_distance, 2, var))
+  # # # wss <- sum(kmeans(ref_data_with_distance, centers = 10)$tot.withinss)
+  # # for (i in 1:30) wss[i+1] <- sum(kmeans(ref_data_with_distance, centers = i+1, iter.max = 15, nstart = 50)$tot.withinss)
+  # # plot(1:31, wss, type = "b", xlab = "Number of Clusters", ylab = "Within groups sum of squares")
+  # 
+  # # # Add the cluster assignments to the pca_data dataframe
+  # # pca_data$Cluster <- as.factor(km_result$cluster)
+  # #
+  # # # Plot the first two principal components with k-means clusters
+  # # cluster_colors <- rainbow(length(unique(pca_data$Cluster)))
+  # # # Set up plotting area with more space on the right for the legend
+  # # par(mar = c(5, 4, 4, 8), xpd = TRUE)
+  # # # Plotting PC1 vs PC2 with different colors for each cluster
+  # # plot( pca_data$PC1,ref_added_or[, 21], col = cluster_colors[pca_data$Cluster],
+  # #      pch = 20, cex = 2, main = "K-means Clustering on PCA + distance",
+  # #      xlab = "Principal Component 1", ylab = "Distance")
+  # # # legend("right", legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
+  # # #        title = "Cluster",xpd = TRUE, bty = "n")
+  # # # Adding the legend outside the plot
+  # # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data$Cluster), col = cluster_colors, pch = 20,
+  # #        title = "Cluster", bty = "n")
+  # 
+  # # # Perform k-means clustering
+  # # km_result <- kmeans(ref_added_or[, 1:nFeat], centers = cluster, iter.max = 25, nstart = 200)
+  
+  
   # Add cluster information to the data
   if(tSNE_flag) {
     ref_added_or$cluster <- km_tsne$cluster
@@ -606,43 +613,35 @@ add_AL_samples = function(distance_data,
     ref_added_or$cluster <- km_pca$cluster
   } else {
     ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
+    # Apply k-means clustering
     km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
     ref_added_or$cluster <- km_result$cluster
   }
-
+  
+  
+  
   # Initialize a vector to store selected sample indices
   selected_indices <- c()
   cluster_samples <- c()
   selected_indices_semi <- c()
-  label_samples_semi <- c()
-  labels_in_semi <- c()
+  cluster_samples_semi <- c()
   tmpSize = 0
   # Iterate over clusters and select one sample from each cluster
   for (sample in seq_len(nrow(ref_added_or))) {
     if (!( ref_added_or[sample,]$cluster %in% cluster_samples) && tmpSize < newSize){
-      if(flag_cluster){
-        cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
-      }
+      cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
       tmpSize = tmpSize+1
       
       ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
+      
       selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
     }
-
-    if (tmpSize >= newSize && tmpSize < newSize + semi_size - nclass +1) {
-        tmpSize <- tmpSize + 1
-        selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
-        if (!(ref_added_or[sample,]$label %in% labels_in_semi) ) {
-          labels_in_semi <- c(labels_in_semi, ref_added_or[sample,]$label)
-        }
+    if (!( ref_added_or[sample,]$cluster %in% cluster_samples_semi) && tmpSize >= newSize && tmpSize < newSize+semi_size){
+      cluster_samples_semi <- c(cluster_samples_semi, ref_added_or[sample,]$cluster)
+      tmpSize = tmpSize+1
+      
+      selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
     }
-    if(tmpSize < newSize + semi_size && length(labels_in_semi) < nclass && !(ref_added_or[sample,]$label %in% labels_in_semi)){
-          labels_in_semi <- c(labels_in_semi, ref_added_or[sample,]$label)
-          tmpSize <- tmpSize + 1
-          selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
-    }
-
-    
   }
   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
   
@@ -652,12 +651,12 @@ add_AL_samples = function(distance_data,
     features <- features[!(rownames(features) %in% selected_indices), ]
     reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
     semi_idx <- which(rownames(ref_added_reor) %in% selected_indices_semi)
-
+    
     if(length(ID_unit)>100){
       new_trainFeatVSVM <- ref_added_reor[reor_idx, 1:nFeat]
       new_trainLabelsVSVM <- ref_added_reor[reor_idx, nFeat+1]
       return(list(IDunit=ID_unit[reor_idx], semiIDunit=ID_unit[semi_idx], 
-                  semi_samples = ref_added_reor[semi_idx, 1:nFeat+1],
+                  semi_samples <- ref_added_reor[semi_idx, 1:nFeat+1],
                   # features = features, labels = ref[-reor_idx], 
                   new_trainFeatVSVM = new_trainFeatVSVM, 
                   new_trainLabelsVSVM = new_trainLabelsVSVM))
@@ -671,14 +670,13 @@ add_AL_samples = function(distance_data,
   } 
   return(ref_added_reor[, nFeat+1])
 }
-
 # upd_SLresult <- self_learn(testFeatsub, testLabels, bound = c(0.01, 0.1), boundMargin = c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
 #                            SVL_variables, tmp_new_tunedSVM$finalModel)
 # upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
 #                            SVL_variables=list(list(SVtotal_ud, S01C09=(cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)))))
 self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVtotal, objInfoNames, rem_extrem, rem_extrem_kerneldist, SVL_variables, SVMfinModel=tunedSVM$finalModel, train=TRUE, classProb = FALSE) {
-  if (file.exists(paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")) && !train) {
-    bestFittingModel <- readRDS(paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds"))
+  if (file.exists(model_name) && !train) {
+    bestFittingModel <- readRDS(model_name)
     actKappa = bestFittingModel$resample$Kappa
     cat("Luckily, model already exists!\n")
     return(list(bestFittingModel = bestFittingModel, 
@@ -782,16 +780,18 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
   }
 }
 
-# self_learn_AL(testFeatsub, testLabels, SVtotal, objInfoNames,
-#                                SVinvarRadi=SVL_variables, plot_flag = model_name_ALSL_VSVMSL)
-self_learn_AL = function(
-                         # testFeatsub, testLabels,
-                         SVtotal, objInfoNames, SVinvarRadi, 
-                         # validateFeatsub, validateLabels, 
-                         upd_dataCurFeatsub, upd_dataCurLabels, 
+# self_learn_AL(testFeatsub, testLabels, boundMargin=c(3), model_name=model_name_ALSL_VSVMSL, SVtotal, objInfoNames,
+#                                SVL_variables=SVinvarRadi, validateFeatsub)
+self_learn_AL = function(testFeatsub, testLabels,
+                         boundMargin=c(1), SVtotal, objInfoNames, 
+                         SVinvarRadi, validateFeatsub, validateLabels, upd_dataCurFeatsub, upd_dataCurLabels, 
                          realiz=realization, s_size=sample_size, plot_flag=TRUE) {
-    # actKappa = -1e-6
-    cat("computing margin distance\n",sep="")
+  actKappa = -1e-6
+  cat("applying constraints to VSVs candidates\n")
+  # iterating over boundMargin to test different threshold on margin distance
+  for(kk in seq(along=boundMargin)){
+    cat("tuning bound margin: ",boundMargin[kk]," [",kk,"/",length(boundMargin),"]\n",sep="")
+    
     if (nrow(SVinvarRadi) > 0) { # Check if SVinvarRadi has rows to process
       # Remove VSV which are not located within a certain distance to the decision function
       # data.frame to store elected VSV within the margin
@@ -806,10 +806,11 @@ self_learn_AL = function(
       # Iterate over SVinvarRadi and evaluate distance to hyperplane
       for (m in 1:nrow(SVinvarRadi)) {
         signa = as.numeric(pred_one(tunedSVM$finalModel, unlist(SVinvarRadi[m, -ncol(SVinvarRadi)]), SVinvarRadi[m, ncol(SVinvarRadi)]))
+        
         # if (signa < boundMargin[kk]) {
-          row_with_distance = c(SVinvarRadi[m, ], distance = signa)
-          SVinvar = rbind(SVinvar, row_with_distance)
-          upd_Labels <- c(upd_Labels, upd_dataCurLabels[m])
+        row_with_distance = c(SVinvarRadi[m, ], distance = signa)
+        SVinvar = rbind(SVinvar, row_with_distance)
+        upd_Labels <- c(upd_Labels, upd_dataCurLabels[m])
         # }
         pb$tick()
       }
@@ -824,102 +825,72 @@ self_learn_AL = function(
     
     SVinvar=setNames(SVinvar,c(objInfoNames,"distance"))
     SVinvar$label <- factor(SVinvar$label, levels = levels(upd_Labels))
-
+    
     # ***********************************************************************************
     
-    # Flatten the matrices to vectors for plotting
-    scaled_distances <- (SVinvar$distance - min(SVinvar$distance)) / (max(SVinvar$distance) - min(SVinvar$distance))
-    distances_power <- scaled_distances^0.87
-    distances_log <- log1p((scaled_distances) * (exp(1) - 1))
-    # distances_exp <- 1 - exp(-as.vector(scaled_distances))
-    
-    if (!(is.logical(plot_flag)) && realiz==1 ) { #&& s_size==5
-      setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
-      # Plotting the histogram
-      png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSSL_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
+    if (plot_flag && realiz==1 && s_size==5) {
+      # Flatten the matrices to vectors for plotting
+      # SVinvar_distances <- as.vector(SVinvar$distance)
+      
+      # Plotting the histograms
+      png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_MS_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
           units="in", 
           width=20, 
           height=16, 
           pointsize=12,
           res=96)
-
-      
-      # ***********************************************************************************
-      
-      # Plotting the histograms
-      par(mfrow=c(2, 2))  # Set up the plotting area to have 4 rows and 1 column
-      
-      # Histogram for Standard Scaling of margin_distances
-      hist(as.vector(SVinvar$distance), main="Histogram of Original Margin Distances",
-           xlab="Original Margin Distance", col="black", breaks=500, xlim=c(0, 1))
-      
-      # Histogram for Standard Scaling of margin_distances
-      hist(as.vector(scaled_distances), main="Histogram of Scaled Margin Distances",
-           xlab="Scaled Margin Distance", col="purple", breaks=500, xlim=c(0, 1))
-      
-      # Histogram for Power transformation
-      hist(as.vector(distances_power), main="Histogram of Power Transformed Distances",
-           xlab="Power Transformed Distance", col="blue", breaks=500, xlim=c(0, 1))
-      
-      # Histogram for Logarithmic transformation
-      hist(as.vector(distances_log), main="Histogram of Logarithmic Transformed Distances",
-           xlab="Logarithmic Transformed Distance", col="green", breaks=500, xlim=c(0, 1))
-      
-      # ****************************************************************************************
-      
-
-      # # Histogram for Standard Scaling of mclu_distances
-      # hist(as.vector(SVinvar$distance), main="Histogram of Self-Learning Distances",
-      #      xlab="Margin Distance", col="black", breaks=500, xlim=c(0, 1))
+      # Histogram for Standard Scaling of mclu_distances
+      hist(as.vector(SVinvar$distance), main="Histogram of Self-Learning Distances",
+           xlab="Margin Distance", col="black", breaks=500, xlim=c(0, 1))
       dev.off()
-      setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
     }
-
+    
     # ****************************************************************************************
-    SVinvar$distance <- distances_log
-    # if(length(boundMargin)==1){
+    
+    if(length(boundMargin)==1){
       return(list(sampled_data = SVinvar, 
                   best_updCur_Labels = upd_Labels))
-    # }
-  #   # split for training to feature and label
-  #   trainFeatVSVM = SVinvar_org[,1:(ncol(SVinvar_org)-1)]
-  #   trainLabelsVSVM = SVinvar_org[,ncol(SVinvar_org)]
-  #   
-  #   # get list with index of trainData to split between train and test in svmFit
-  #   countTrainData = nrow(SVinvar_org)
-  #   indexTrainData = list(c(1:countTrainData))
-  #   
-  #   # join of train and test data (through indesTrainData in svmFit seperable)
-  #   names = objInfoNames[1:length(objInfoNames)-1]
-  #   tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
-  #   tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
-  #   
-  #   # *********************** VSVM control parameter tuning ***********************
-  #   tStart.time <- Sys.time()
-  #   tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
-  #   t.time <- round(as.numeric((Sys.time() - tStart.time), units = "secs"), 1)
-  #   
-  #   tmp_pred = predict(tunedVSVM, validateFeatsub)
-  #   tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-  #   if (actKappa < tmp_new_tunedSVM$resample$Kappa) { cat("current best kappa: ",sep="")
-  #     bestFittingModel = tunedVSVM
-  #     actKappa = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
-  #     best_trainAS = SVinvar
-  #     best_upd_Labels = upd_Labels
-  #     # best_resample = resampledSize[rS]
-  #     best_boundMargin = boundMargin[kk]
-  #     if (actKappa == 1) {
-  #       cat(round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
-  #       return(list(sampled_data = best_trainAS, 
-  #                   best_updCur_Labels = best_upd_Labels,
-  #                   best_boundMargin = best_boundMargin))
-  #     }
-  #   } else { cat("discarded kappa: ",sep="")} 
-  #   cat(round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="") #round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",
-  # # } 
-  # return(list(sampled_data = best_trainAS, 
-  #             best_updCur_Labels = best_upd_Labels,
-  #             best_boundMargin = best_boundMargin))
+    }
+    # split for training to feature and label
+    trainFeatVSVM = SVinvar_org[,1:(ncol(SVinvar_org)-1)]
+    trainLabelsVSVM = SVinvar_org[,ncol(SVinvar_org)]
+    
+    # get list with index of trainData to split between train and test in svmFit
+    countTrainData = nrow(SVinvar_org)
+    indexTrainData = list(c(1:countTrainData))
+    
+    # join of train and test data (through indesTrainData in svmFit seperable)
+    names = objInfoNames[1:length(objInfoNames)-1]
+    tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
+    tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
+    
+    # *********************** VSVM control parameter tuning ***********************
+    tStart.time <- Sys.time()
+    tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
+    t.time <- round(as.numeric((Sys.time() - tStart.time), units = "secs"), 1)
+    
+    tmp_pred = predict(tunedVSVM, validateFeatsub)
+    tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+    if (actKappa < tmp_new_tunedSVM$resample$Kappa) { cat("current best kappa: ",sep="")
+      bestFittingModel = tunedVSVM
+      actKappa = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
+      best_trainAS = SVinvar
+      best_upd_Labels = upd_Labels
+      # best_resample = resampledSize[rS]
+      best_boundMargin = boundMargin[kk]
+      if (actKappa == 1) {
+        cat(round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
+        return(list(sampled_data = best_trainAS, 
+                    best_updCur_Labels = best_upd_Labels,
+                    best_boundMargin = best_boundMargin))
+      }
+    } else { cat("discarded kappa: ",sep="")} 
+    cat(round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="") #round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",
+  }
+  # } 
+  return(list(sampled_data = best_trainAS, 
+              best_updCur_Labels = best_upd_Labels,
+              best_boundMargin = best_boundMargin))
 }
 
 
@@ -931,25 +902,23 @@ classificationProblem = function(generalDataPool){
   generalDataPool$REF = as.factor(generalDataPool$REF)
   return(generalDataPool)
 }
-#################################################################################################
-for (model_prob in model_probs) { 
+########################################  Preprocessing  ########################################
+for (model_prob in model_probs) {
   for (invariance in invariances) {
     for (city in cities) {
       start.time_oa <- Sys.time()
-      lgtS=TRUE
+      lightC = 2 # lighter validate dataset for running faster prediction 
+      lgtS=FALSE
       cat("preprocessing",city,model_prob,invariance,"\n")
-      if(city=="cologne"){ #sampleSizePor = c(30,38, 60,46, 120,54, 192,62, 276,70, 372,78, 480,86, 600,94)
-      sampleSizePor = c(30,60, 60,96, 120,150, 192,216, 276,294, 372,384, 480,486, 600,600)}
-      if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
-      sampleSizePor = c(10,20, 20,32, 40,50, 64,72, 92,98, 124,128, 160,162, 200,200)}
-      if (lgtS) { nR=10
-      sampleSizePor = c(30,60, 70,100, 150,150)
-      classPor = 2400
+      if(city=="cologne"){ sampleSizePor = c(30, 60, 120, 192, 276, 372, 480, 600) }
+      if(model_prob=="binary"){ sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200) }
+      if (num_cores<5) { nR=3
+      sampleSizePor = c(6, 12, 20)
+      classPor = 100
+      lgtS=FALSE
       bound = c(0.3, 0.9)
       boundMargin = c(1.5, 0.5)}
       colheader = as.character(sampleSizePor) # corresponding column names
-      ##################################  Preprocessing  #####################################
-      lightC = 2 # lighter validate dataset for running faster prediction 
       if (city=="cologne") {
         
         inputPath ="cologne_res_100_L2-L13.csv" 
@@ -964,7 +933,7 @@ for (model_prob in model_probs) {
                           "label")
         
         #import format; "NULL" for subset of data on only some level (speed up import)
-        columnclass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+        columnClass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                         NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                         NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                         NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
@@ -980,7 +949,7 @@ for (model_prob in model_probs) {
         
         # import data
         setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/scale"))
-        generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnclass)
+        generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnClass)
         
         if (invariance=="scale") {
           ########################################  Input  ########################################
@@ -1061,14 +1030,14 @@ for (model_prob in model_probs) {
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
           
           # import data
-          generalDataPoolOrg_S09C01 = read.csv2("cologne_res_100cm_S09C01_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S07C03 = read.csv2("cologne_res_100cm_S07C03_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S05C07 = read.csv2("cologne_res_100cm_S05C07_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S05C05 = read.csv2("cologne_res_100cm_S05C05_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S05C03 = read.csv2("cologne_res_100cm_S05C03_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S03C07 = read.csv2("cologne_res_100cm_S03C07_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S03C05 = read.csv2("cologne_res_100cm_S03C05_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
-          generalDataPoolOrg_S01C09 = read.csv2("cologne_res_100cm_S01C09_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnclass,22))
+          generalDataPoolOrg_S09C01 = read.csv2("cologne_res_100cm_S09C01_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S07C03 = read.csv2("cologne_res_100cm_S07C03_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S05C07 = read.csv2("cologne_res_100cm_S05C07_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S05C05 = read.csv2("cologne_res_100cm_S05C05_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S05C03 = read.csv2("cologne_res_100cm_S05C03_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S03C07 = read.csv2("cologne_res_100cm_S03C07_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S03C05 = read.csv2("cologne_res_100cm_S03C05_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
+          generalDataPoolOrg_S01C09 = read.csv2("cologne_res_100cm_S01C09_allclass_CSV.csv" ,header = T, sep =";",colClasses=tail(columnClass,22))
           
           #exclude unclassified and delete level of factor
           generalDataPool = subset(generalDataPool, REF != "unclassified")
@@ -1186,15 +1155,15 @@ for (model_prob in model_probs) {
           
           #########################################################################################
         }  
-        # if (lgtS && model_prob=="multiclass") {
-        #   lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
-        #   validateData = cbind(validateFeatsub,validateLabels)
-        #   val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        #   validateData = getdata(validateData, val_stratSamp)
-        #   validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        #   validateLabels = validateData[,ncol(validateFeatsub)+1]
-        #   rm(validateData, val_stratSamp)
-        # }
+        if (lgtS && model_prob=="multiclass") {
+          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
+          validateData = cbind(validateFeatsub,validateLabels)
+          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+          validateData = getdata(validateData, val_stratSamp)
+          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+          validateLabels = validateData[,ncol(validateFeatsub)+1]
+          rm(validateData, val_stratSamp)
+        }
       } else {
         
         numFeat = 26                   # number of features per level (dimensionality)
@@ -1212,7 +1181,7 @@ for (model_prob in model_probs) {
           sindexSVMDATA = 53                                      # start of baseline model with one segmentation scale data
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
           
-          columnclass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+          columnClass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                           NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                           NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
                           NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
@@ -1225,7 +1194,7 @@ for (model_prob in model_probs) {
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
           
           # import data
-          generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnclass)
+          generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnClass)
           colnames(generalDataPool)[209] = "REF"
           
           # exclude unclassified and delete level of factor
@@ -1296,24 +1265,24 @@ for (model_prob in model_probs) {
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
           
           #import format; "NULL" for subset of data on only some level (speed up import)
-          columnclass = c("NULL",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor","integer")
-          columnclass2 = c(NA,NA,"factor",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor")
+          columnClass = c("NULL",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor","integer")
+          columnClass2 = c(NA,NA,"factor",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor")
           
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/shape1"))
           inputPath ="base_level_complete.csv"   
-          generalDataPool_scale = read.csv2(inputPath,header = T, sep =";",colClasses =columnclass)
+          generalDataPool_scale = read.csv2(inputPath,header = T, sep =";",colClasses =columnClass)
           
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
           
           # import data
-          generalDataPoolOrg_S09C01 = read.csv2("hagadera_s25_S09C01_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S07C03 = read.csv2("hagadera_s25_S07C03_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S05C07 = read.csv2("hagadera_s25_S05C07_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S05C05 = read.csv2("hagadera_s25_S05C05_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S05C03 = read.csv2("hagadera_s25_S05C03_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S03C07 = read.csv2("hagadera_s25_S03C07_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S03C05 = read.csv2("hagadera_s25_S03C05_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
-          generalDataPoolOrg_S01C09 = read.csv2("hagadera_s25_S01C09_allclass_use.csv" ,header = T, sep =";",colClasses =columnclass2)#, nrows = 2000000)
+          generalDataPoolOrg_S09C01 = read.csv2("hagadera_s25_S09C01_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S07C03 = read.csv2("hagadera_s25_S07C03_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S05C07 = read.csv2("hagadera_s25_S05C07_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S05C05 = read.csv2("hagadera_s25_S05C05_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S05C03 = read.csv2("hagadera_s25_S05C03_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S03C07 = read.csv2("hagadera_s25_S03C07_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S03C05 = read.csv2("hagadera_s25_S03C05_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
+          generalDataPoolOrg_S01C09 = read.csv2("hagadera_s25_S01C09_allclass_use.csv" ,header = T, sep =";",colClasses =columnClass2)#, nrows = 2000000)
           
           generalDataPoolOrg_S09C01 = cbind(generalDataPoolOrg_S09C01[,1:2],generalDataPoolOrg_S09C01[,4:29],generalDataPoolOrg_S09C01[,3],generalDataPoolOrg_S09C01[,30])
           generalDataPoolOrg_S07C03 = cbind(generalDataPoolOrg_S07C03[,1:2],generalDataPoolOrg_S07C03[,4:29],generalDataPoolOrg_S07C03[,3],generalDataPoolOrg_S07C03[,30])
@@ -1487,26 +1456,17 @@ for (model_prob in model_probs) {
           ##################################################################################################################
           lightC = 4 # lighter validate dataset for running faster prediction
         }
-        # if (lgtS && model_prob=="multiclass") {
-        #   lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
-        #   validateData = cbind(validateFeatsub,validateLabels)
-        #   val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        #   validateData = getdata(validateData, val_stratSamp)
-        #   validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        #   validateLabels = validateData[,ncol(validateFeatsub)+1]
-        #   rm(validateData, val_stratSamp)
-        # }
+        if (lgtS && model_prob=="multiclass") {
+          lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
+          validateData = cbind(validateFeatsub,validateLabels)
+          val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+          validateData = getdata(validateData, val_stratSamp)
+          validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+          validateLabels = validateData[,ncol(validateFeatsub)+1]
+          rm(validateData, val_stratSamp)
+        }
       }
-      if (lgtS) {
-        lightS=as.numeric(min(table(validateLabels)))
-        lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-        validateData = cbind(validateFeatsub,validateLabels)
-        val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        validateData = getdata(validateData, val_stratSamp)
-        validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        validateLabels = validateData[,ncol(validateFeatsub)+1]
-        rm(validateData, val_stratSamp)
-      }
+
       ##################################  Training  ########################################
       
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1559,29 +1519,28 @@ for (model_prob in model_probs) {
       colnames(KappaVSVM_SL_Un_random_it) = colheader
 
       # ********
-      # best_bound_oa_SL       = c()
-      # best_boundMargin_oa_SL = c()
-      # best_resample_oa       = c()
-      # best_newSize_oa        = c()
-      # best_classSize_oa      = c()
-      # best_cluster_oa        = c()
+      best_bound_oa_SL       = c()
+      best_boundMargin_oa_SL = c()
+      best_resample_oa       = c()
+      best_newSize_oa        = c()
+      best_classSize_oa      = c()
+      best_cluster_oa        = c()
       best_model_oa          = c()
       time.taken_iter        = c()
-      # table_trainLabels = NULL
+      table_trainLabels = NULL
       best_boundMargin  = 1
-      # best_resample     = NULL
-      # best_newSize4iter = NULL
-      # best_classSize    = NULL
-      # best_cluster      = NULL
-      trainvUn.time_oa              = NULL
-      train.timeALv1_tSNE_VSVMSL_oa = NULL
-      train.timeALv2_tSNE_VSVMSL_oa = NULL
+      best_resample     = NULL
+      best_newSize4iter = NULL
+      best_classSize    = NULL
+      best_cluster      = NULL
       nclass=6
       if(model_prob=="binary"){   nclass=2
       }else if(city=="hagadera"){ nclass=5 }
+      sampleSize = round(sampleSizePor[1]/nclass)
+      shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
       
       # set randomized seed for the random sampling procedure
-      seed = 5 # 5, 73, 20, 98, 133
+      seed = 98 # 5, 73, 20, 98
       
       for (realization in seq(nR)) {#}
         start.time <- Sys.time()
@@ -1591,71 +1550,74 @@ for (model_prob in model_probs) {
         
         trainDataCurBeg = trainDataPoolAllLev
         testDataCurBeg = testDataAllLev
-        
-        if(lgtS){
-          lightS=as.numeric(min(table(trainDataPoolAllLev$REF)))
-          lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-          train_stratSamp = strata(trainDataPoolAllLev, c("REF"), size = lightS, method = "srswor")
-          trainDataCurBeg = getdata(trainDataPoolAllLev, train_stratSamp)
-          trainDataCurBeg = trainDataCurBeg[,1:ncol(trainDataPoolAllLev)]
-          
-          lightS=as.numeric(min(table(testDataAllLev$REF)))
-          lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-          test_stratSamp = strata(testDataAllLev, c("REF"), size = lightS, method = "srswor")
-          testDataCurBeg = getdata(testDataAllLev, test_stratSamp)
-          testDataCurBeg = testDataCurBeg[,1:ncol(testDataAllLev)]
-        }
-
         # subset for each outer iteration test data to speed up computing
         testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
         
         # *********************************************************************
+
+        # set randomized seed for the random sampling procedure
+        set.seed(seed)
+        # definition of sampling configuration (strata:random sampling without replacement)
+        stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
+        #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
         
-        sample_size_iter=1
-        for (sample_size in seq(1, length(sampleSizePor), by=2)) {
-          cat("\n") ############################### Train/Test Set Size #####################################
+        # get samples of trainDataCur and set trainDataCur new
+        samples = getdata(trainDataCurBeg, stratSamp)
+        samplesID = samples$ID_unit
+        
+        trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
+        trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
+        
+        trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
+        trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
+        # *********************************************************************
+        
+        # subset on L_4 ***************************** SVM base for invariants ************************************
+        trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+        # ************************************************ *******************************************************
+        
+        # distinguish active train set from random train set
+        trainFeat_rand = setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1])
+        trainLabels_rand = trainLabels
+        
+        # sample the test set portion
+        sampleSize = round(sampleSizePor[1]/nclass)
+        shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+
+        stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+        samples = getdata(testDataCurBeg, stratSamp)
+        testDataCur = samples[,1:ncol(testDataAllLev)]
+
+        # split test feat from test label for later join with trainData
+        testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+        testLabels = testDataCur[,ncol(testDataCur)]
+
+        # subset on base level
+        testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
+        
+        for (sample_size in seq(length(sampleSizePor)-1)) {#}
+          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples per class: ",round(sampleSizePor[sample_size]/nclass)*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
           
-          sampleSize = round(sampleSizePor[sample_size]/nclass)
-          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples per class: ",sampleSize*2," [",sample_size_iter,"/",round(length(sampleSizePor)/2),"]\n",sep="")
+          # get the new size for the active labeling
+          newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
+          clusterSizes = c(round(max(classPor/10,2*newSize)),200)
+          # clusterSizes = c(120)
           
-          shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+          # # sample the test set portion
+          # sampleSize = round(sampleSizePor[sample_size]/nclass)
+          # shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+          # 
+          # stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+          # samples = getdata(testDataCurBeg, stratSamp)
+          # testDataCur = samples[,1:ncol(testDataAllLev)]
+          # 
+          # # split test feat from test label for later join with trainData
+          # testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+          # testLabels = testDataCur[,ncol(testDataCur)]
+          # 
+          # # subset on base level
+          # testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
           
-          # set randomized seed for the random sampling procedure
-          set.seed(seed)
-          # definition of sampling configuration (strata:random sampling without replacement)
-          stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
-          #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
-          
-          # get samples of trainDataCur and set trainDataCur new
-          samples = getdata(trainDataCurBeg, stratSamp)
-          samplesID = samples$ID_unit
-          
-          trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
-          trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
-          
-          trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
-          trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
-          # *********************************************************************
-          
-          # subset on L_4 ***************************** SVM base for invariants ************************************
-          trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
-          # ************************************************ *******************************************************
-          
-          if(sample_size==1){
-            sampleSize = round(sampleSizePor[sample_size]/nclass)
-            shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
-            
-            stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-            samples = getdata(testDataCurBeg, stratSamp)
-            testDataCur = samples[,1:ncol(testDataAllLev)]
-            
-            # split test feat from test label for later join with trainData
-            testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-            testLabels = testDataCur[,ncol(testDataCur)]
-            
-            # subset on base level
-            testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
-          }
           # trainData index to split between train and test in svmFit
           countTrainData = nrow(trainFeat)
           indexTrainData = list(c(1:countTrainData))
@@ -1664,25 +1626,23 @@ for (model_prob in model_probs) {
           tuneFeat = rbind(setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
           tuneLabel = unlist(list(trainLabels, testLabels))
           
-          # table_trainLabels = rbind(table_trainLabels,table(trainLabels))  
+          table_trainLabels = rbind(table_trainLabels,table(trainLabels))  
           
           setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
           
-          cat("\n") ############################### SVM #####################################
-          model_name_tunedSVM = "SVM"
-          
           cat("training SVM\n")
+          model_name_tunedSVM = paste0(format(Sys.time(),"%Y%m%d"),"SVM_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (file.exists(model_name_tunedSVM) && !train) {
             tunedSVM <- readRDS(model_name_tunedSVM)
             cat("Luckily, model already exists!\n")
           } else { trainStart.time <- Sys.time()
           tunedSVM = svmFit(tuneFeat, tuneLabel, indexTrainData)
-          trainSVM.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+          train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
           }
           # run classification and accuracy assessment for unmodified SV and predict labels of test data
           predLabelsSVM = predict(tunedSVM, validateFeatsub)
           accSVM = confusionMatrix(predLabelsSVM, validateLabels)
-          cat("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | execution time: ",trainSVM.time,"sec\n",sep="")
+          cat("SVM accuracy: ",round(accSVM$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
           
           AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
           KappaSVM[realization,sample_size] = as.numeric(accSVM$overall["Kappa"])
@@ -1721,96 +1681,93 @@ for (model_prob in model_probs) {
           # ******************************************************
           names = objInfoNames[1:length(objInfoNames)-1]
 
-          # cat("\n") ############################### SVM-SL + semi-labeled samples #####################################
-          # model_name_SVMUn = "SVM_SLUn"
-          # 
-          # trainStart.time <- Sys.time()
-          # # Definition of sampling configuration (strata:random sampling without replacement)
-          # stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
-          # 
-          # # get samples of trainDataCurRemaining and set trainDataCurRemaining new
-          # samplesRemainingSVM = getdata(trainDataCurRemaining, stratSampRemaining)
-          # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemainingSVM$ID_unit), ]
-          # 
-          # trainDataCurRemainingSVM_Un = samplesRemainingSVM[,1:ncol(trainDataPoolAllLev)]
-          # trainDataCurRemainingSVM_Unsub_b = trainDataCurRemainingSVM_Un[sindexSVMDATA:eindexSVMDATA]
-          # 
-          # REFSVM = predict(tunedSVM, trainDataCurRemainingSVM_Unsub_b)
-          # 
-          # # get SV of unlabeled samples
-          # SVindexSVMUn = 1:nrow(trainDataCurRemainingSVM_Unsub_b) 
-          # SVtotalSVMUn = trainDataCurRemainingSVM_Un[SVindexSVMUn ,c(sindexSVMDATA:eindexSVMDATA)]
-          # SVtotalSVMUn = cbind(SVtotalSVMUn, REFSVM)
-          # 
-          # cat("evaluation of SVM with self learning and semi-labeled samples | ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
-          # if (invariance=="scale") {
-          #   SVL_variables = list( 
-          #     list(SVtotalSVMUn, SVL2SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM)),
-          #     list(SVtotalSVMUn, SVL3SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REFSVM)),
-          #     list(SVtotalSVMUn, SVL5SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REFSVM)),
-          #     list(SVtotalSVMUn, SVL6SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REFSVM)),
-          #     list(SVtotalSVMUn, SVL7SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REFSVM)),
-          #     list(SVtotalSVMUn, SVL8SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REFSVM)),
-          #     list(SVtotalSVMUn, SVL9SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REFSVM))
-          #   )
-          #   if (city=="cologne") {# get VSs, means rows of SV but with subset on different level
-          #     cologne_vars = list( 
-          #       list(SVtotalSVMUn, SVL10SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REFSVM)),
-          #       list(SVtotalSVMUn, SVL11SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REFSVM))
-          #     )
-          #     SVL_variables = c(SVL_variables, cologne_vars)
-          #   }
-          # } else {
-          #   SVL_variables = list(
-          #     list(SVtotalSVMUn, S01C09SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((numFeat+1):(2*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S03C05SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((2*numFeat)+1):(3*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S03C07SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((3*numFeat)+1):(4*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S05C03SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((4*numFeat)+1):(5*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S05C05SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((5*numFeat)+1):(6*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S05C07SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((6*numFeat)+1):(7*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S07C03SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((7*numFeat)+1):(8*numFeat))], REFSVM)),
-          #     list(SVtotalSVMUn, S09C01SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((8*numFeat)+1):(9*numFeat))], REFSVM))
-          #   )
-          # }
-          # SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-          #                        SVL_variables)
-          # bestFittingModelSVMUn <- SLresult$bestFittingModel
-          # best_trainFeatSVMUn <- SLresult$best_trainFeatVSVM
-          # best_trainLabelsSVMUn <- SLresult$best_trainLabelsVSVM
-          # best_boundMarginSVMUn <- SLresult$best_boundMargin
-          # # best_boundSVM_SL_Un = SLresult$best_bound
-          # # best_boundMarginSVM_SL_Un = SLresult$best_boundMargin
-          # t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
-          # # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
-          # predLabelsSVMsumUn = predict(bestFittingModelSVMUn, validateFeatsub)
-          # accSVM_SL_Un = confusionMatrix(predLabelsSVMsumUn, validateLabels)
-          # cat("SVM_SL_Un accuracy: ",round(accSVM_SL_Un$overall["Accuracy"],5)," | execution time: ",t.time,"sec\n",sep="")
-          # 
-          # AccuracySVM_SL_Un[realization,sample_size] = as.numeric(accSVM_SL_Un$overall["Accuracy"])
-          # KappaSVM_SL_Un[realization,sample_size] = as.numeric(accSVM_SL_Un$overall["Kappa"])
-          # if (accSVM_SL_Un$overall["Accuracy"]>best_acc) {
-          #   best_acc <- accSVM_SL_Un$overall["Accuracy"]
-          #   new_bestTunedSVM <- bestFittingModelSVMUn
-          #   new_bestTrainFeatSVM <- best_trainFeatSVMUn
-          #   new_bestTrainLabelsSVM <- best_trainLabelsSVMUn
-          #   best_boundMargin <- best_boundMarginSVMUn
-          #   best_model <- model_name_SVMUn
-          # }
-          # 
+          cat("\n") ############################### SVM-SL + semi-labeled samples #####################################
+          trainStart.time <- Sys.time()
+          # Definition of sampling configuration (strata:random sampling without replacement)
+          stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = c(b,b,b,b,b,b), method = "srswor")
+          
+          # get samples of trainDataCurRemaining and set trainDataCurRemaining new
+          samplesRemainingSVM = getdata(trainDataCurRemaining, stratSampRemaining)
+          trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemainingSVM$ID_unit), ]
+          
+          trainDataCurRemainingSVM_Un = samplesRemainingSVM[,1:ncol(trainDataPoolAllLev)]
+          trainDataCurRemainingSVM_Unsub_b = trainDataCurRemainingSVM_Un[sindexSVMDATA:eindexSVMDATA]
+          
+          REFSVM = predict(tunedSVM, trainDataCurRemainingSVM_Unsub_b)
+          
+          # get SV of unlabeled samples
+          SVindexSVMUn = 1:nrow(trainDataCurRemainingSVM_Unsub_b) 
+          SVtotalSVMUn = trainDataCurRemainingSVM_Un[SVindexSVMUn ,c(sindexSVMDATA:eindexSVMDATA)]
+          SVtotalSVMUn = cbind(SVtotalSVMUn, REFSVM)
+          
+          cat("evaluation of SVM with self learning and semi-labeled samples\n")
+          model_name_SVMUn = paste0(format(Sys.time(),"%Y%m%d"),"SVM_SLUn_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
+          if (invariance=="scale") {
+            SVL_variables = list( 
+              list(SVtotalSVMUn, SVL2SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM)),
+              list(SVtotalSVMUn, SVL3SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REFSVM)),
+              list(SVtotalSVMUn, SVL5SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REFSVM)),
+              list(SVtotalSVMUn, SVL6SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REFSVM)),
+              list(SVtotalSVMUn, SVL7SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REFSVM)),
+              list(SVtotalSVMUn, SVL8SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REFSVM)),
+              list(SVtotalSVMUn, SVL9SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REFSVM))
+            )
+            if (city=="cologne") {# get VSs, means rows of SV but with subset on different level
+              cologne_vars = list( 
+                list(SVtotalSVMUn, SVL10SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REFSVM)),
+                list(SVtotalSVMUn, SVL11SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REFSVM))
+              )
+              SVL_variables = c(SVL_variables, cologne_vars)
+            }
+          } else {
+            SVL_variables = list(
+              list(SVtotalSVMUn, S01C09SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((numFeat+1):(2*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S03C05SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((2*numFeat)+1):(3*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S03C07SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((3*numFeat)+1):(4*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S05C03SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((4*numFeat)+1):(5*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S05C05SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((5*numFeat)+1):(6*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S05C07SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((6*numFeat)+1):(7*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S07C03SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((7*numFeat)+1):(8*numFeat))], REFSVM)),
+              list(SVtotalSVMUn, S09C01SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((8*numFeat)+1):(9*numFeat))], REFSVM))
+            )
+          }
+          SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                 SVL_variables)
+          bestFittingModelSVMUn <- SLresult$bestFittingModel
+          best_trainFeatSVMUn <- SLresult$best_trainFeatVSVM
+          best_trainLabelsSVMUn <- SLresult$best_trainLabelsVSVM
+          best_boundMarginSVMUn <- SLresult$best_boundMargin
+          # best_boundSVM_SL_Un = SLresult$best_bound
+          # best_boundMarginSVM_SL_Un = SLresult$best_boundMargin
+          t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+          # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
+          predLabelsSVMsumUn = predict(bestFittingModelSVMUn, validateFeatsub)
+          accSVM_SL_Un = confusionMatrix(predLabelsSVMsumUn, validateLabels)
+          cat("SVM_SL_Un accuracy: ",round(accSVM_SL_Un$overall["Accuracy"],5)," | execution time: ",t.time,"sec\n",sep="")
+          
+          AccuracySVM_SL_Un[realization,sample_size] = as.numeric(accSVM_SL_Un$overall["Accuracy"])
+          KappaSVM_SL_Un[realization,sample_size] = as.numeric(accSVM_SL_Un$overall["Kappa"])
+          if (accSVM_SL_Un$overall["Accuracy"]>best_acc) {
+            best_acc <- accSVM_SL_Un$overall["Accuracy"]
+            new_bestTunedSVM <- bestFittingModelSVMUn
+            new_bestTrainFeatSVM <- best_trainFeatSVMUn
+            new_bestTrainLabelsSVM <- best_trainLabelsSVMUn
+            best_model <- model_name_SVMUn
+            best_boundMargin <- best_boundMarginSVMUn
+          }
+          
           cat("\n") ############################### VSVM-SL ################################################
-          model_name_VSVM_SL = "VSVM_SL"
-
           trainStart.time <- Sys.time()
           if (invariance=="scale") {
             SVL2 = trainDataCur[SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
             SVL3 = trainDataCur[SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
-
+            
             SVL5 = trainDataCur[SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
             SVL6 = trainDataCur[SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
             SVL7 = trainDataCur[SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
             SVL8 = trainDataCur[SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
             SVL9 = trainDataCur[SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
-
+            
             SVinvar = rbind(setNames(SVtotal,objInfoNames),
                             setNames(SVL2,objInfoNames),
                             setNames(SVL3,objInfoNames),
@@ -1823,7 +1780,7 @@ for (model_prob in model_probs) {
             if (city=="cologne") {
               SVL10 = trainDataCur[SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
               SVL11 = trainDataCur[SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
-
+              
               # bind original SV with modified to new train data set
               SVinvar = rbind(setNames(SVinvar,objInfoNames),
                               setNames(SVL10,objInfoNames),
@@ -1839,7 +1796,7 @@ for (model_prob in model_probs) {
             S05C07 = trainDataCur[SVindex,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]
             S07C03 = trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]
             S09C01 = trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]
-
+            
             SVinvar = rbind(setNames(SVtotal,objInfoNames),
                             setNames(S01C09,objInfoNames),
                             setNames(S03C05,objInfoNames),
@@ -1851,7 +1808,8 @@ for (model_prob in model_probs) {
                             setNames(S09C01,objInfoNames)
             )
           }
-          cat("evaluation of VSVM with self learning | ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
+          cat("evaluation of VSVM with self learning\n")
+          model_name_VSVM_SL = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl",".rds")
           if (invariance=="scale") {
             SVL_variables = list(
               list(SVtotal, SVL2),
@@ -1888,13 +1846,13 @@ for (model_prob in model_probs) {
           best_trainLabelsVSVM <- SLresult$best_trainLabelsVSVM
           best_bound_SL = SLresult$best_bound
           best_boundMargin_SL = SLresult$best_boundMargin
-          t.timeVSVM_SL <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
-
+          t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+          
           # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           predLabelsVSVMsum = predict(bestFittingModel, validateFeatsub)
           accVSVM_SL = confusionMatrix(predLabelsVSVMsum, validateLabels)
-          cat("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)," | execution time: ",t.timeVSVM_SL,"sec\n",sep="")
-
+          cat("VSVM_SL accuracy: ",round(accVSVM_SL$overall["Accuracy"],5)," | execution time: ",t.time,"sec\n",sep="")
+          
           AccuracyVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Accuracy"])
           KappaVSVM_SL[realization,sample_size] = as.numeric(accVSVM_SL$overall["Kappa"])
           if (accVSVM_SL$overall["Accuracy"]>best_acc) {
@@ -1905,284 +1863,287 @@ for (model_prob in model_probs) {
             best_boundMargin <- best_boundMargin_SL
             best_model <- model_name_VSVM_SL
           }
-
-
-          # cat("\n") ############################### VSVM-SL + semi-labeled samples #####################################
-          # model_name_Un = "VSVM_SLUn"
-          # 
-          # actAcc_vUn = -1e-6 
-          # bb = 1 # for (bb in seq(along=b)) {
-          #     
-          #   # Definition of sampling configuration (strata:random sampling without replacement)
-          #   stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b[bb],b[bb],b[bb],b[bb],b[bb],b[bb]), method = "srswor")
-          #   
-          #   # get samples of trainDataCurRemaining and set trainDataCurRemaining new
-          #   samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining_b)
-          #   
-          #   trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_b$ID_unit), ]
-          #   
-          #   trainDataCurRemaining_SL = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
-          #   trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
-          #   
-          #   REF_b = predict(bestFittingModel, trainDataCurRemainingsub_SL)
-          #   
-          #   # get SV of unlabeled samples
-          #   indexUn = 1:nrow(trainDataCurRemainingsub_SL) 
-          #   totalUn = trainDataCurRemaining_SL[indexUn ,c(sindexSVMDATA:eindexSVMDATA)]
-          #   totalUn = cbind(totalUn, REF_b)
-          #   
-          #   cat("evaluation of VSVM SL with ",b[bb]," semi-labeled samples | ",sampleSize*2," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="") #  [",bb,"/",length(b),"]","
-          #   if (invariance=="scale") { # get VSs, means rows of SV but with subset on different level
-          #     SVL_variables = list(
-          #       list(SVtotal, SVL2),
-          #       list(SVtotal, SVL3),
-          #       list(SVtotal, SVL5),
-          #       list(SVtotal, SVL6),
-          #       list(SVtotal, SVL7),
-          #       list(SVtotal, SVL8),
-          #       list(SVtotal, SVL9),
-          #       list(totalUn, L2Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_b)),
-          #       list(totalUn, L3Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_b)),
-          #       list(totalUn, L5Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_b)),
-          #       list(totalUn, L6Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_b)),
-          #       list(totalUn, L7Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_b)),
-          #       list(totalUn, L8Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_b)),
-          #       list(totalUn, L9Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_b))
-          #     )
-          #     if (city=="cologne") { 
-          #       cologne_vars = list(
-          #         list(SVtotal, SVL10),
-          #         list(SVtotal, SVL11),
-          #         list(totalUn, L10Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_b)),
-          #         list(totalUn, L11Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_b))
-          #       )
-          #       SVL_variables = c(SVL_variables, cologne_vars)
-          #     } 
-          #   } else {
-          #     SVL_variables=list(
-          #       list(SVtotal, S09C01),
-          #       list(SVtotal, S07C03),
-          #       list(SVtotal, S05C07),
-          #       list(SVtotal, S05C05),
-          #       list(SVtotal, S05C03),
-          #       list(SVtotal, S03C07),
-          #       list(SVtotal, S03C05),
-          #       list(SVtotal, S01C09),
-          #       list(totalUn, S01C09Un = cbind(trainDataCurRemaining_SL[indexUn,c((numFeat+1):(2*numFeat))], REF_b)),
-          #       list(totalUn, S03C05Un = cbind(trainDataCurRemaining_SL[indexUn,c(((2*numFeat)+1):(3*numFeat))], REF_b)),
-          #       list(totalUn, S03C07Un = cbind(trainDataCurRemaining_SL[indexUn,c(((3*numFeat)+1):(4*numFeat))], REF_b)),
-          #       list(totalUn, S05C03Un = cbind(trainDataCurRemaining_SL[indexUn,c(((4*numFeat)+1):(5*numFeat))], REF_b)),
-          #       list(totalUn, S05C05Un = cbind(trainDataCurRemaining_SL[indexUn,c(((5*numFeat)+1):(6*numFeat))], REF_b)),
-          #       list(totalUn, S05C07Un = cbind(trainDataCurRemaining_SL[indexUn,c(((6*numFeat)+1):(7*numFeat))], REF_b)),
-          #       list(totalUn, S07C03Un = cbind(trainDataCurRemaining_SL[indexUn,c(((7*numFeat)+1):(8*numFeat))], REF_b)),
-          #       list(totalUn, S09C01Un = cbind(trainDataCurRemaining_SL[indexUn,c(((8*numFeat)+1):(9*numFeat))], REF_b))
-          #     )
-          #   }
-          #   SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-          #                          SVL_variables)
-          #   bestFittingModelUn <- SLresult$bestFittingModel
-          #   best_trainFeatVSVMUn <- SLresult$best_trainFeatVSVM
-          #   best_trainLabelsVSVMUn <- SLresult$best_trainLabelsVSVM
-          #   # best_bound_SL_Un = SLresult$best_bound
-          #   best_boundMargin_SL_Un = SLresult$best_boundMargin
-          #   trainUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
-          #   # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
-          #   predLabelsVSVMsumUn = predict(bestFittingModelUn, validateFeatsub)
-          #   accVSVM_SL_Un = confusionMatrix(predLabelsVSVMsumUn, validateLabels)
-          #   cat("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un$overall["Accuracy"],5)," | execution time: ",trainUn.time,"sec","\n",sep="")
-          #   
-          #   AccuracyVSVM_SL_Un[realization,sample_size] = as.numeric(accVSVM_SL_Un$overall["Accuracy"])
-          #   KappaVSVM_SL_Un[realization,sample_size] = as.numeric(accVSVM_SL_Un$overall["Kappa"])
-          #   if (accVSVM_SL_Un$overall["Accuracy"] > best_acc) {
-          #     best_acc <- accVSVM_SL_Un$overall["Accuracy"]
-          #     new_bestTunedVSVM <- bestFittingModelUn
-          #     new_bestTrainFeatVSVM <- best_trainFeatVSVMUn
-          #     new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn
-          #     best_boundMargin <- best_boundMargin_SL_Un
-          #     best_model <- model_name_Un
-          #   }
-          # 
-          #   
-          # cat("\n") ############################### VSVM-SL + Virtual semi-labeled samples ##################################
-          #   model_name_vUn = "VSVM_SLvUn"
-          #   
-          #   REF_v = predict(bestFittingModelUn, trainDataCurRemainingsub_SL)
-          #   
-          #   # get SV of unlabeled samples
-          #   indexvUn_v = 1:nrow(trainDataCurRemainingsub_SL) #  bestFittingModelUn$finalModel@SVindex 
-          #   SVtotalvUn_v = trainDataCurRemaining_SL[indexvUn_v ,c(sindexSVMDATA:eindexSVMDATA)] #na.omit(trainDataCurRemaining_SL[indexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_SL))])
-          #   SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
-          #   
-          #   # extracting previously assigned reference column
-          #   SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-1)] # -1)]
-          #   REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
-          #   SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
-          #   
-          #   cat("evaluation of VSVM SL with ",b[bb]," virtual semi-labeled samples\n",sep="") #  [",bb,"/",length(b),"]","
-          #   if (invariance=="scale") {
-          #     SVL_variables = list(
-          #       list(SVtotal, SVL2),
-          #       list(SVtotal, SVL3),
-          #       list(SVtotal, SVL5),
-          #       list(SVtotal, SVL6),
-          #       list(SVtotal, SVL7),
-          #       list(SVtotal, SVL8),
-          #       list(SVtotal, SVL9),
-          #       list(SVtotalvUn_v, SVL2vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)),
-          #       list(SVtotalvUn_v, SVL3vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)),
-          #       list(SVtotalvUn_v, SVL5vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)),
-          #       list(SVtotalvUn_v, SVL6vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)),
-          #       list(SVtotalvUn_v, SVL7vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)),
-          #       list(SVtotalvUn_v, SVL8vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)),
-          #       list(SVtotalvUn_v, SVL9vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v))
-          #     )
-          #     if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
-          #       cologne_vars = list(
-          #         list(SVtotal, SVL10),
-          #         list(SVtotal, SVL11),
-          #         list(SVtotalvUn_v, SVL10vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)),
-          #         list(SVtotalvUn_v, SVL11vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v))
-          #       )
-          #       SVL_variables = c(SVL_variables, cologne_vars)
-          #     }
-          #   } else {
-          #     SVL_variables=list(
-          #       list(SVtotal, S09C01),
-          #       list(SVtotal, S07C03),
-          #       list(SVtotal, S05C07),
-          #       list(SVtotal, S05C05),
-          #       list(SVtotal, S05C03),
-          #       list(SVtotal, S03C07),
-          #       list(SVtotal, S03C05),
-          #       list(SVtotal, S01C09),
-          #       list(SVtotalvUn_v, S01C09vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((numFeat+1):(2*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S03C05vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((2*numFeat)+1):(3*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S03C07vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((3*numFeat)+1):(4*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S05C03vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((4*numFeat)+1):(5*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S05C05vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((5*numFeat)+1):(6*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S05C07vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((6*numFeat)+1):(7*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S07C03vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((7*numFeat)+1):(8*numFeat))], REF_v)),
-          #       list(SVtotalvUn_v, S09C01vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((8*numFeat)+1):(9*numFeat))], REF_v))
-          #     )
-          #   }
-          #   SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-          #                          SVL_variables)
-          #   new_bestFittingModelvUn <- SLresult$bestFittingModel
-          #   new_best_trainFeatVSVMvUn <- SLresult$best_trainFeatVSVM
-          #   new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
-          #   # new_best_bound_SLvUn = SLresult$best_bound
-          #   new_best_boundMargin_SLvUn = SLresult$best_boundMargin
-          #   trainvUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
-          #   # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
-          #   new_predLabelsVSVMvUnsum = predict(new_bestFittingModelvUn, validateFeatsub)
-          #   new_accVSVM_SL_vUn = confusionMatrix(new_predLabelsVSVMvUnsum, validateLabels)
-          #   
-          #   if (new_accVSVM_SL_vUn$overall["Accuracy"] > actAcc_vUn) {
-          #     actAcc_vUn <- new_accVSVM_SL_vUn$overall["Accuracy"]
-          #     bestFittingModelvUn <- new_bestFittingModelvUn
-          #     accVSVM_SL_vUn <- new_accVSVM_SL_vUn
-          #     best_trainFeatVSVMvUn <- new_best_trainFeatVSVMvUn
-          #     best_trainLabelsVSVMvUn <- new_best_trainLabelsVSVMvUn
-          #     # best_bound_SLvUn = new_best_bound_SLvUn
-          #     best_boundMargin_SLvUn = new_best_boundMargin_SLvUn
-          #   }
-          # # }
-          # cat("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn$overall["Accuracy"],5)," | execution time: ",trainvUn.time,"sec","\n",sep="")
-          # 
-          # AccuracyVSVM_SL_vUn[realization,sample_size] = as.numeric(accVSVM_SL_vUn$overall["Accuracy"])
-          # KappaVSVM_SL_vUn[realization,sample_size] = as.numeric(accVSVM_SL_vUn$overall["Kappa"])
-          # if (accVSVM_SL_vUn$overall["Accuracy"] > best_acc){
-          #   best_acc <- accVSVM_SL_vUn$overall["Accuracy"]
-          #   new_bestTunedVSVM <- bestFittingModelvUn
-          #   new_bestTrainFeatVSVM <- best_trainFeatVSVMvUn
-          #   new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn
-          #   best_boundMargin <- best_boundMargin_SLvUn
-          #   best_model <- model_name_vUn
-          # }
-          #######################################################################################################
+          
+          cat("\n") ############################### VSVM-SL + semi-labeled samples #####################################
+          actAcc_vUn = -1e-6 # actAcc_Un = = -1e-6
+          for (bb in seq(along=b)) {
+            # Definition of sampling configuration (strata:random sampling without replacement)
+            stratSampRemaining_b = strata(trainDataCurRemaining, c("REF"), size = c(b[bb],b[bb],b[bb],b[bb],b[bb],b[bb]), method = "srswor")
+            
+            # get samples of trainDataCurRemaining and set trainDataCurRemaining new
+            samplesRemaining_b = getdata(trainDataCurRemaining, stratSampRemaining_b)
+            
+            trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining_b$ID_unit), ]
+            
+            trainDataCurRemaining_SL = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
+            trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
+            
+            REF_b = predict(bestFittingModel, trainDataCurRemainingsub_SL)
+            
+            # get SV of unlabeled samples
+            indexUn = 1:nrow(trainDataCurRemainingsub_SL) 
+            totalUn = trainDataCurRemaining_SL[indexUn ,c(sindexSVMDATA:eindexSVMDATA)]
+            totalUn = cbind(totalUn, REF_b)
+            
+            cat("evaluation of VSVM SL with ",b[bb]," semi-labeled samples\n",sep="") #  [",bb,"/",length(b),"]","
+            model_name_Un = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLUn_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
+            if (invariance=="scale") { # get VSs, means rows of SV but with subset on different level
+              SVL_variables = list(
+                list(SVtotal, SVL2),
+                list(SVtotal, SVL3),
+                list(SVtotal, SVL5),
+                list(SVtotal, SVL6),
+                list(SVtotal, SVL7),
+                list(SVtotal, SVL8),
+                list(SVtotal, SVL9),
+                list(totalUn, L2Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_b)),
+                list(totalUn, L3Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_b)),
+                list(totalUn, L5Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_b)),
+                list(totalUn, L6Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_b)),
+                list(totalUn, L7Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_b)),
+                list(totalUn, L8Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_b)),
+                list(totalUn, L9Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_b))
+              )
+              if (city=="cologne") { 
+                cologne_vars = list(
+                  list(SVtotal, SVL10),
+                  list(SVtotal, SVL11),
+                  list(totalUn, L10Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_b)),
+                  list(totalUn, L11Un = cbind(trainDataCurRemaining_SL[indexUn,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_b))
+                )
+                SVL_variables = c(SVL_variables, cologne_vars)
+              } 
+            } else {
+              SVL_variables=list(
+                list(SVtotal, S09C01),
+                list(SVtotal, S07C03),
+                list(SVtotal, S05C07),
+                list(SVtotal, S05C05),
+                list(SVtotal, S05C03),
+                list(SVtotal, S03C07),
+                list(SVtotal, S03C05),
+                list(SVtotal, S01C09),
+                list(totalUn, S01C09Un = cbind(trainDataCurRemaining_SL[indexUn,c((numFeat+1):(2*numFeat))], REF_b)),
+                list(totalUn, S03C05Un = cbind(trainDataCurRemaining_SL[indexUn,c(((2*numFeat)+1):(3*numFeat))], REF_b)),
+                list(totalUn, S03C07Un = cbind(trainDataCurRemaining_SL[indexUn,c(((3*numFeat)+1):(4*numFeat))], REF_b)),
+                list(totalUn, S05C03Un = cbind(trainDataCurRemaining_SL[indexUn,c(((4*numFeat)+1):(5*numFeat))], REF_b)),
+                list(totalUn, S05C05Un = cbind(trainDataCurRemaining_SL[indexUn,c(((5*numFeat)+1):(6*numFeat))], REF_b)),
+                list(totalUn, S05C07Un = cbind(trainDataCurRemaining_SL[indexUn,c(((6*numFeat)+1):(7*numFeat))], REF_b)),
+                list(totalUn, S07C03Un = cbind(trainDataCurRemaining_SL[indexUn,c(((7*numFeat)+1):(8*numFeat))], REF_b)),
+                list(totalUn, S09C01Un = cbind(trainDataCurRemaining_SL[indexUn,c(((8*numFeat)+1):(9*numFeat))], REF_b))
+              )
+            }
+            SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                   SVL_variables)
+            bestFittingModelUn <- SLresult$bestFittingModel
+            best_trainFeatVSVMUn <- SLresult$best_trainFeatVSVM
+            best_trainLabelsVSVMUn <- SLresult$best_trainLabelsVSVM
+            # best_bound_SL_Un = SLresult$best_bound
+            best_boundMargin_SL_Un = SLresult$best_boundMargin
+            trainUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+            # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
+            predLabelsVSVMsumUn = predict(bestFittingModelUn, validateFeatsub)
+            accVSVM_SL_Un = confusionMatrix(predLabelsVSVMsumUn, validateLabels)
+            cat("VSVM_SL_Un accuracy: ",round(accVSVM_SL_Un$overall["Accuracy"],5)," | execution time: ",trainUn.time,"sec","\n",sep="")
+            
+            AccuracyVSVM_SL_Un[realization,sample_size] = as.numeric(accVSVM_SL_Un$overall["Accuracy"])
+            KappaVSVM_SL_Un[realization,sample_size] = as.numeric(accVSVM_SL_Un$overall["Kappa"])
+            if (accVSVM_SL_Un$overall["Accuracy"] > best_acc) {
+              best_acc <- accVSVM_SL_Un$overall["Accuracy"]
+              new_bestTunedVSVM <- bestFittingModelUn
+              new_bestTrainFeatVSVM <- best_trainFeatVSVMUn
+              new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn
+              best_boundMargin <- best_boundMargin_SL_Un
+              best_model <- model_name_Un
+            }
+            #######################################################################################################
+            
+            cat("\n") ##################### VSVM-SL + Virtual semi-labeled Samples ##################################
+            
+            REF_v = predict(bestFittingModelUn, trainDataCurRemainingsub_SL)
+            
+            # get SV of unlabeled samples
+            indexvUn_v = 1:nrow(trainDataCurRemainingsub_SL) #  bestFittingModelUn$finalModel@SVindex 
+            SVtotalvUn_v = trainDataCurRemaining_SL[indexvUn_v ,c(sindexSVMDATA:eindexSVMDATA)] #na.omit(trainDataCurRemaining_SL[indexvUn_v ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_SL))])
+            SVtotalvUn_v = cbind(SVtotalvUn_v, REF_v)
+            
+            # extracting previously assigned reference column
+            SVtotalvUn_vFeat = SVtotalvUn_v[,1:(ncol(SVtotalvUn_v)-1)] # -1)]
+            REF_v = SVtotalvUn_v[,(ncol(SVtotalvUn_v))]
+            SVtotalvUn_v = cbind(SVtotalvUn_vFeat, REF_v)
+            
+            cat("evaluation of VSVM SL with ",b[bb]," virtual semi-labeled samples\n",sep="") #  [",bb,"/",length(b),"]","
+            model_name_vUn = paste0(format(Sys.time(),"%Y%m%d"),"VSVM_SLvUn_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b[bb],"Unl",".rds")
+            if (invariance=="scale") {
+              SVL_variables = list(
+                list(SVtotal, SVL2),
+                list(SVtotal, SVL3),
+                list(SVtotal, SVL5),
+                list(SVtotal, SVL6),
+                list(SVtotal, SVL7),
+                list(SVtotal, SVL8),
+                list(SVtotal, SVL9),
+                list(SVtotalvUn_v, SVL2vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REF_v)),
+                list(SVtotalvUn_v, SVL3vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))], REF_v)),
+                list(SVtotalvUn_v, SVL5vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))], REF_v)),
+                list(SVtotalvUn_v, SVL6vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))], REF_v)),
+                list(SVtotalvUn_v, SVL7vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))], REF_v)),
+                list(SVtotalvUn_v, SVL8vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))], REF_v)),
+                list(SVtotalvUn_v, SVL9vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))], REF_v))
+              )
+              if (city=="cologne") { # get VSs, means rows of SV but with subset on different level
+                cologne_vars = list(
+                  list(SVtotal, SVL10),
+                  list(SVtotal, SVL11),
+                  list(SVtotalvUn_v, SVL10vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1))], REF_v)),
+                  list(SVtotalvUn_v, SVL11vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1))], REF_v))
+                )
+                SVL_variables = c(SVL_variables, cologne_vars)
+              }
+            } else {
+              SVL_variables=list(
+                list(SVtotal, S09C01),
+                list(SVtotal, S07C03),
+                list(SVtotal, S05C07),
+                list(SVtotal, S05C05),
+                list(SVtotal, S05C03),
+                list(SVtotal, S03C07),
+                list(SVtotal, S03C05),
+                list(SVtotal, S01C09),
+                list(SVtotalvUn_v, S01C09vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((numFeat+1):(2*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S03C05vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((2*numFeat)+1):(3*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S03C07vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((3*numFeat)+1):(4*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S05C03vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((4*numFeat)+1):(5*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S05C05vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((5*numFeat)+1):(6*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S05C07vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((6*numFeat)+1):(7*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S07C03vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((7*numFeat)+1):(8*numFeat))], REF_v)),
+                list(SVtotalvUn_v, S09C01vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((8*numFeat)+1):(9*numFeat))], REF_v))
+              )
+            }
+            SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                   SVL_variables)
+            new_bestFittingModelvUn <- SLresult$bestFittingModel
+            new_best_trainFeatVSVMvUn <- SLresult$best_trainFeatVSVM
+            new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
+            # new_best_bound_SLvUn = SLresult$best_bound
+            new_best_boundMargin_SLvUn = SLresult$best_boundMargin
+            trainvUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+            # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
+            new_predLabelsVSVMvUnsum = predict(new_bestFittingModelvUn, validateFeatsub)
+            new_accVSVM_SL_vUn = confusionMatrix(new_predLabelsVSVMvUnsum, validateLabels)
+            
+            if (new_accVSVM_SL_vUn$overall["Accuracy"] > actAcc_vUn) {print
+              actAcc_vUn <- new_accVSVM_SL_vUn$overall["Accuracy"]
+              bestFittingModelvUn <- new_bestFittingModelvUn
+              accVSVM_SL_vUn <- new_accVSVM_SL_vUn
+              best_trainFeatVSVMvUn <- new_best_trainFeatVSVMvUn
+              best_trainLabelsVSVMvUn <- new_best_trainLabelsVSVMvUn
+              # best_bound_SLvUn = new_best_bound_SLvUn
+              best_boundMargin_SLvUn = new_best_boundMargin_SLvUn
+            }
+          }
+          cat("VSVM_SL_vUn accuracy: ",round(accVSVM_SL_vUn$overall["Accuracy"],5)," | execution time: ",trainvUn.time,"sec","\n",sep="")
+          
+          AccuracyVSVM_SL_vUn[realization,sample_size] = as.numeric(accVSVM_SL_vUn$overall["Accuracy"])
+          KappaVSVM_SL_vUn[realization,sample_size] = as.numeric(accVSVM_SL_vUn$overall["Kappa"])
+          if (accVSVM_SL_vUn$overall["Accuracy"] > best_acc){
+            best_acc <- accVSVM_SL_vUn$overall["Accuracy"]
+            new_bestTunedVSVM <- bestFittingModelvUn
+            new_bestTrainFeatVSVM <- best_trainFeatVSVMvUn
+            new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn
+            best_boundMargin <- best_boundMargin_SLvUn
+            best_model <- model_name_vUn
+          }
+          cat("\n") #############################################################################################
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
-            cat("\n") ############################# Sampling Unlabeled Data #####################################
-
-            # Update test set
-            sampleSize = round(sampleSizePor[sample_size+2]/nclass)
+            
+            # sample the test set portion
+            sampleSize = round(sampleSizePor[sample_size+1]/nclass)
             shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+            if (train) {seed = seed + sample(100, 1)}
+            set.seed(seed)
             stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
             samples = getdata(testDataCurBeg, stratSamp)
             testDataCur = samples[,1:ncol(testDataAllLev)]
+
             # split test feat from test label for later join with trainData
             testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
             testLabels = testDataCur[,ncol(testDataCur)]
+
             # subset on base level
             testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
             
-            # get the new size for the active labeling
-            if(sample_size==1){ trainFeat_AL = setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1])
-                                trainLabels_AL = trainLabels
-                                # distinguish active train set from random train set
-                                trainFeat_rand = setNames(trainFeat,objInfoNames[1:length(objInfoNames)-1])
-                                trainLabels_rand = trainLabels
-                                newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
-            } else {            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size-1] }
-
-            clusterSizes = c(round(max(classPor/50,newSize+b[1])))
-            # clusterSizes = c(120)
-            classSize=c(round(min(classPor/6,as.numeric(min(table(trainDataCurRemaining$REF))))))
-            clS=1
-            cat("Sampling ", classSize," unlabeled data per class\n",sep="")
+            
+            classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
+            clS=1#for (clS in 1:length(classSize)) {
+            # stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
+            # # Definition of sampling configuration (strata:random sampling without replacement)
+            # stratSampRemaining <- strata(trainDataCurRemaining[, c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining))], c("REF"), size = stratSampSize, method = "srswor")
+            # # Get new samples from trainDataCurRemaining
+            # samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
+            # # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
             samplingStart.time <- Sys.time()
-              max_iterations <- 25  # Maximum iterations to prevent infinite loop
-              # Create an empty dataframe to store unique samples
-              samplesRemaining <- data.frame()
-              # Initialize the iteration counter
-              iteration <- 0
-              trainDataCurRemaining_sampl <- trainDataCurRemaining
-              while (nrow(samplesRemaining) < classSize[clS]*nclass && iteration < max_iterations) {
-                iteration <- iteration + 1
-                # Determine how many more samples are needed
-                remaining_needed <- as.numeric(min(table(trainDataCurRemaining_sampl$REF)))
-                # remaining_needed <- round((classSize[clS]*nclass - nrow(samplesRemaining))/nclass)
-                # Sample additional rows
-                stratSampSize <- c(remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed)
-                stratSampRemaining <- strata(trainDataCurRemaining_sampl[, c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_sampl))], c("REF"), size = stratSampSize, method = "srswor")
-                newsamplesRemaining <- getdata(trainDataCurRemaining_sampl, stratSampRemaining)
-                # Extract relevant columns for uniqueness check
-                new_samples <- newsamplesRemaining[, 1:(ncol(trainDataCur) + 1)]
-                # Remove duplicates based on the specified column range
-                unique_new_samples <- new_samples[!duplicated(new_samples[, c(sindexSVMDATA:eindexSVMDATA)]), ]
-                # Add unique rows to the cumulative dataframe
-                samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-                samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]), ]
-                samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
-                cat("[iteration ",iteration,"] number of samples: ",nrow(samplesRemaining), "\n",sep="")
-                # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
-                if (nrow(samplesRemaining) < classSize[clS]*nclass) {
-                  # Remove sampled rows from the remaining pool
-                  trainDataCurRemaining_sampl <- trainDataCurRemaining_sampl[!rownames(trainDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
-                }
+            max_iterations <- 25  # Maximum iterations to prevent infinite loop
+            # Create an empty dataframe to store unique samples
+            samplesRemaining <- data.frame()
+            # Initialize the iteration counter
+            iteration <- 0
+            trainDataCurRemaining_sampl <- trainDataCurRemaining
+            while (nrow(samplesRemaining) < classSize[clS]*nclass && iteration < max_iterations) {
+              iteration <- iteration + 1
+              # Determine how many more samples are needed
+              remaining_needed <- as.numeric(min(table(trainDataCurRemaining_sampl$REF)))
+              # remaining_needed <- round((10*classSize[clS]*nclass - nrow(samplesRemaining))/nclass)
+              # Sample additional rows
+              stratSampSize <- c(remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed)
+              stratSampRemaining <- strata(trainDataCurRemaining_sampl[, c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_sampl))], c("REF"), size = stratSampSize, method = "srswor")
+              newsamplesRemaining <- getdata(trainDataCurRemaining_sampl, stratSampRemaining)
+              # Extract relevant columns for uniqueness check
+              new_samples <- newsamplesRemaining[, 1:(ncol(trainDataCur) + 1)]
+              # Remove duplicates based on the specified column range
+              unique_new_samples <- new_samples[!duplicated(new_samples[, c(sindexSVMDATA:eindexSVMDATA)]), ]
+              # Add unique rows to the cumulative dataframe
+              samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+              samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]), ]
+              samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
+              cat("Number of samples: ",nrow(samplesRemaining), "\n")
+              # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
+              if (nrow(samplesRemaining) < classSize[clS]*nclass) {
+                # Remove sampled rows from the remaining pool
+                trainDataCurRemaining_sampl <- trainDataCurRemaining_sampl[!rownames(trainDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
               }
-              rm(trainDataCurRemaining_sampl,unique_new_samples,new_samples,newsamplesRemaining,stratSampRemaining)
-              
-              # If necessary, trim the dataframe to exactly the desired number of rows
-              if (nrow(samplesRemaining) > classSize[clS]*nclass) {
-                samplesRemaining <- samplesRemaining[1:(classSize[clS]*nclass), ]
-              }
-              # Final check for duplicates
-              final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
-              sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
-              cat("Final number of samples: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
-
-              
-            cat("\n") ############################# RANDOM AL_VSVM #######################################
-              
-              model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_random_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
-              
-              cat("computing uncertainty distance for random active labeling | ",sampleSizePor[sample_size]," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
-              # actAcc = -1e-6
+            }
+            rm(trainDataCurRemaining_sampl,unique_new_samples,new_samples,newsamplesRemaining,stratSampRemaining)
+            # Final check for duplicates
+            final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
+            # If necessary, trim the dataframe to exactly the desired number of rows
+            if (nrow(samplesRemaining) > classSize[clS]*nclass) {
+              samplesRemaining <- samplesRemaining[1:classSize[clS]*nclass, ]
+            }
+            cat("Number of duplicates: ", final_duplicate_count," | sampling required ", round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1),"sec\n",sep="")
+            
+            
+            cat("\n") ############################# AL_VSVMSL RANDOM #######################################
+            
+            model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_r_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
+            
+            cat("computing uncertainty distance for RANDOM active labeling | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            actAcc = -1e-6
+            classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
+            clS=1 # for (clS in 1:length(classSize)) {
+              # stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
+              # # Definition of sampling configuration (strata:random sampling without replacement)
+              # stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
+              # # Get new samples from trainDataCurRemaining
+              # samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
+              # # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               # for (nS4it in 1:length(newSizes)) {
                   # for (rS in 1:length(resampledSize)) {
                     cat("samples: ",newSize," | pool size: ",
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | pool size: ",
-                        nrow(samplesRemaining)," [",clS,"/",length(classSize),"]\n",sep="")
+                        nrow(stratSampRemaining)," [",clS,"/",length(classSize),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
 
@@ -2205,69 +2166,26 @@ for (model_prob in model_probs) {
                     
                     # **********************
                     # get original SVs of base SVM
-                    # SVindex_ud = tmp_new_tunedSVM_r$finalModel@SVindex
+                    # SVindex_ud = tmp_new_tunedSVM_r$finalModel@SVindex # SVs OF THIS MODEL ARE NOT IN new_trainFeatVSVM
                     
                     # get new rand train set portion
                     trainFeat_rand <- rbind(trainFeat_rand[,], setNames(new_trainFeat, names))
                     trainLabels_rand <- unlist(list(trainLabels_rand[], new_trainLabels))
                     
-                    # SVtotal = setNames(cbind(trainFeat_rand, trainLabels_rand),c(objInfoNames[-length(objInfoNames)],"REF"))
-                    # # **********************
-                    # 
-                    # REF_ud = new_trainLabels # real label
-                    # SVtotal_ud = cbind(new_trainFeat, REF_ud)
-                    # 
-                    # if (invariance=="scale") {
-                    #   SVL_variables = list(
-                    #     list(SVtotal_ud, SVL2=cbind(random_pick[c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
-                    #     list(SVtotal_ud, SVL3=cbind(random_pick[c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
-                    #     list(SVtotal_ud, SVL5=cbind(random_pick[c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
-                    #     list(SVtotal_ud, SVL6=cbind(random_pick[c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
-                    #     list(SVtotal_ud, SVL7=cbind(random_pick[c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
-                    #     list(SVtotal_ud, SVL8=cbind(random_pick[c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
-                    #     list(SVtotal_ud, SVL9=cbind(random_pick[c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud))
-                    #   )
-                    #   if (city == "cologne") {
-                    #     cologne_vars = list(
-                    #       list(SVtotal_ud, SVL10=cbind(random_pick[c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))],REF_ud)),
-                    #       list(SVtotal_ud, SVL11=cbind(random_pick[c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))],REF_ud))
-                    #     )
-                    #     SVL_variables = c(SVL_variables, cologne_vars)
-                    #   }
-                    # } else {
-                    #   SVL_variables = list(
-                    #     list(SVtotal_ud, S01C09=cbind(random_pick[c((numFeat+1):(2*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S03C05=cbind(random_pick[c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S03C07=cbind(random_pick[c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S05C03=cbind(random_pick[c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S05C05=cbind(random_pick[c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S05C07=cbind(random_pick[c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S07C03=cbind(random_pick[c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
-                    #     list(SVtotal_ud, S09C01=cbind(random_pick[c(((8*numFeat)+1):(9*numFeat))],REF_ud))
-                    #   )
-                    # } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                    # upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1.5, 0.5), model_name_AL_VSVMSL_r, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                    #                            SVL_variables, tmp_new_tunedSVM_r$finalModel)
-                    # tmp_new_tunedSVM_r2 <- upd_SLresult$bestFittingModel
-                    # # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
-                    # # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
-                    # # upd_dataCur <- upd_dataCur[!rownames(upd_dataCur) %in% rownames(random_pick), ]
-                    
-
                     # **********************
                     # trainData index to split between train and test in svmFit
                     countTrainData = nrow(trainFeat_rand)
                     indexTrainData = list(c(1:countTrainData))
-
+                    
                     # join of train and test test data (separable through indexTrainData in svmFit)
                     tuneFeat = rbind(setNames(trainFeat_rand,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
                     tuneLabel = unlist(list(trainLabels_rand, testLabels))
-
+                    
                     tmp_new_tunedSVM_r2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                     # **********************
                     
-
-                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeVSVM_SL+sampling.time, 1)
+                    
+                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
                     tmp_pred = predict(tmp_new_tunedSVM_r2, validateFeatsub)
                     tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                     # # if(actAcc < tmp_new_tunedSVM_r$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM_r$resample$Kappa,4)))
@@ -2289,12 +2207,13 @@ for (model_prob in model_probs) {
               best_model <- model_name_AL_VSVMSL_r
             }
             
-            cat("\n") ############################# ALv1+tSNE_VSVMSL #######################################
-            model_name_AL_VSVMSL ="ALv1_tSNE_VSVMSL"
+            cat("\n") ############################# AL_VSVMSL #######################################
             
-            cat("computing uncertainty distance for active labeling ",sampleSizePor[sample_size]," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
-            # actAcc = -1e-6
-            # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            model_name_AL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM+SL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
+            
+            cat("computing uncertainty distance for active labeling ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            actAcc = -1e-6
+            # classSize=c(min(classPor,round(as.numeric(table(trainDataCurRemaining$REF)))),min(classPor*5,round(as.numeric(table(trainDataCurRemaining$REF)))))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
             # for (clS in 1:length(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
@@ -2304,18 +2223,18 @@ for (model_prob in model_probs) {
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               # for (nS4it in 1:length(newSizes)) {
-                cS=1#for (cS in 1:length(clusterSizes)) {
+                for (cS in 1:length(clusterSizes)) {
                   # for (rS in 1:length(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("samples: ",newSize," | pool size: ",
-                        nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
+                        nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
                     upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
                     upd_dataCurLabels  <- upd_dataCur[,ncol(trainDataCur)]
                     
-                    new_trainFeatVSVM <- setNames(trainFeat_AL, names)
-                    new_trainLabelsVSVM <- trainLabels_AL
+                    new_trainFeatVSVM <- setNames(trainFeat, names)
+                    new_trainLabelsVSVM <- trainLabels
 
                     tmp_new_tunedSVM <- new_bestTunedVSVM
                     
@@ -2330,16 +2249,18 @@ for (model_prob in model_probs) {
                       predLabelsVSVM_unc = setNames(predLabelsVSVM_unc, objInfoNames)
                       
                       distStart.time <- Sys.time()
-                      if (model_prob=="binary") { sampled_data <- margin_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_one, binaryClassProblem, plot_flag = model_name_AL_VSVMSL)
-                      } else {                    sampled_data <- mclu_sampling(  tmp_new_tunedSVM, predLabelsVSVM_unc, pred_all, binaryClassProblem, plot_flag = model_name_AL_VSVMSL) }
-                      cat("computing distances required ", round(as.numeric((Sys.time() - distStart.time), units = "secs"), 1),"sec\n",sep="")
+                      if (model_prob=="binary") { sampled_data <- margin_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_one, binaryClassProblem)
+                      } else {                    sampled_data <- mclu_sampling(tmp_new_tunedSVM, predLabelsVSVM_unc, pred_all, binaryClassProblem) }
+                      d.time <- round(as.numeric((Sys.time() - distStart.time), units = "secs"), 1)
+                      cat("computing distances required ", d.time,"sec\n",sep="")
                       ALSamplesStart.time <- Sys.time()
                       result <- add_AL_samples(sampled_data,
-                                               upd_dataCurFeatsub, upd_dataCurLabels,
+                                               upd_dataCurLabels, upd_dataCurFeatsub, 
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
-                                               newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, semi_size=b[1]*nclass, plot_flag = model_name_AL_VSVMSL, flag_cluster=TRUE ) 
-                      cat("getting active-labeled samples and updated datasets required ", round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1),"sec\n",sep="")
+                                               newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
+                                               upd_dataCur$ID_unit, semi_size=b[1]*nclass ) 
+                      ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
+                      cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
                       # upd_dataCurFeatsub <- result$features
                       # upd_dataCurLabels <- result$labels
@@ -2358,99 +2279,85 @@ for (model_prob in model_probs) {
                       new_trainFeatVSVM <- rbind(new_trainFeatVSVM[,], setNames(new_trainFeat, names))
                       new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM[], new_trainLabels))
                       
-                      # SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
-                      # # **********************
-                      # 
-                      # REF_ud = new_trainLabels
-                      # SVtotal_ud = cbind(new_trainFeat, REF_ud)
-                      # 
-                      # if (invariance=="scale") {
-                      #   SVL_variables = list(
-                      #     list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud))#,
-                      #     # list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL6=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL7=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL8=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL9=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],semiAL_tot[,length(semiAL_tot)]))
-                      # 
-                      #   )
-                      #   if (city == "cologne") {
-                      #     cologne_vars = list(
-                      #       list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
-                      #       list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud))#,
-                      #       # list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
-                      #       # list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
-                      #     )
-                      #     SVL_variables = c(SVL_variables, cologne_vars)
-                      #   }
-                      # } else {
-                      #   SVL_variables = list(
-                      #     list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))#,
-                      #     # list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s05C03=cbind(upd_dataCur[semiAL_SVindex,c(((4*numFeat)+1):(5*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s05C05=cbind(upd_dataCur[semiAL_SVindex,c(((5*numFeat)+1):(6*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s05C07=cbind(upd_dataCur[semiAL_SVindex,c(((6*numFeat)+1):(7*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s07C03=cbind(upd_dataCur[semiAL_SVindex,c(((7*numFeat)+1):(8*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
-                      #   )
-                      # } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                      # upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                      #                            SVL_variables, tmp_new_tunedSVM$finalModel)
-                      # tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
-                      # # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
-                      # # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
-                      # # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
-                      
+                      SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
                       # **********************
                       
-                      # trainData index to split between train and test in svmFit
-                      countTrainData = nrow(new_trainFeatVSVM)
-                      indexTrainData = list(c(1:countTrainData))
-
-                      # join of train and test test data (separable through indexTrainData in svmFit)
-                      tuneFeat = rbind(setNames(new_trainFeatVSVM,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
-                      tuneLabel = unlist(list(new_trainLabelsVSVM, testLabels))
-
-                      tmp_new_tunedSVM2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
-                      # **********************
+                      REF_ud = new_trainLabels
+                      SVtotal_ud = cbind(new_trainFeat, REF_ud)
                       
-                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeVSVM_SL+sampling.time, 1)
+                      if (invariance=="scale") {
+                        SVL_variables = list(
+                          list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
+                          list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
+                          list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud)),
+                          list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL6=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL7=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL8=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL9=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],semiAL_tot[,length(semiAL_tot)]))
+                        )
+                        if (city == "cologne") {
+                          cologne_vars = list(
+                            list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
+                            list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud)),
+                            list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
+                            list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
+                          )
+                          SVL_variables = c(SVL_variables, cologne_vars)
+                        }
+                      } else {
+                        SVL_variables = list(
+                          list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)),
+                          list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C03=cbind(upd_dataCur[semiAL_SVindex,c(((4*numFeat)+1):(5*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C05=cbind(upd_dataCur[semiAL_SVindex,c(((5*numFeat)+1):(6*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C07=cbind(upd_dataCur[semiAL_SVindex,c(((6*numFeat)+1):(7*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s07C03=cbind(upd_dataCur[semiAL_SVindex,c(((7*numFeat)+1):(8*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
+                        )
+                      } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound=c(0.1, 0.01), boundMargin=c(1.2, 0.7), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                                 SVL_variables, tmp_new_tunedSVM$finalModel)
+                      tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
+                      # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
+                      # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
+                      # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
+                      
+                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                       # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
-                      # if (actAcc < tmp_acc$overall["Accuracy"]) {  # cat("current best accuracy: ",sep="")
+                      if (actAcc < tmp_acc$overall["Accuracy"]) {  cat("current best accuracy: ",sep="")
                         tmp_new_tunedSVM = tmp_new_tunedSVM2
                         actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                         accVSVM_SL_itAL = tmp_acc
-                        # best_resample = resampledSize[rS]
+                        best_resample = resampledSize[rS]
                         best_newSize4iter = newSize_for_iter
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
-                        train.timeALv1_tSNE_VSVMSL = t.time
-                      # } # else { cat("discarded accuracy: ",sep="")} 
-                      # cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
+                        train.time = t.time
+                      } else { cat("discarded accuracy: ",sep="")} 
+                      cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
-                # }
+                }
               # }
             # }
-            cat("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | execution time: ",train.timeALv1_tSNE_VSVMSL,"sec\n",sep="")
+            cat("VSVM_SL - AL accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
             AccuracyVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
@@ -2459,14 +2366,15 @@ for (model_prob in model_probs) {
               best_model <- model_name_AL_VSVMSL
             }
 
-            cat("\n") ############################# ALv2+tSNE_VSVMSL #######################################
-            model_name_ALSL_VSVMSL = "ALv2_tSNE_VSVMSL"
+            cat("\n") ############################# AL_VSVM+SL #######################################
+
+            model_name_ALSL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL+SL_VSVMSL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             
-            cat("computing uncertainty distance for active labeling + SL | ",sampleSizePor[sample_size]," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
-            # actAcc = -1e-6
+            cat("computing uncertainty distance for active labeling + SL | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
-            # for (clS in 1:length(classSize)) {
+            # clS = 1 # for (clS in 1:length(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
             #   # Definition of sampling configuration (strata:random sampling without replacement)
             #   stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
@@ -2474,18 +2382,18 @@ for (model_prob in model_probs) {
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
               # for (nS4it in 1:length(newSizes)) {
-                # for (cS in 1:length(clusterSizes)) {
+                cS=1 # for (cS in 1:length(clusterSizes)) {
                   # for (rS in 1:length(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("samples: ",newSize," | pool size: ",
-                        nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
+                        nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
                     
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
                     upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
                     upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
                     
-                    new_trainFeatVSVM <- setNames(trainFeat_AL, names)
-                    new_trainLabelsVSVM <- trainLabels_AL
+                    new_trainFeatVSVM <- setNames(trainFeat, names)
+                    new_trainLabelsVSVM <- trainLabels
 
                     tmp_new_tunedSVM_SL <- new_bestTunedVSVM
                     
@@ -2500,13 +2408,8 @@ for (model_prob in model_probs) {
                       # Add predicted labels to the features data set
                       SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tmp_new_tunedSVM_SL, upd_dataCurFeatsub)), objInfoNames)
                       
-                      sampledResult <- self_learn_AL(
-                        # testFeatsub, testLabels, boundMargin=c(best_boundMargin), 
-                        SVtotal, objInfoNames, SVL_variables, 
-                        # validateFeatsub,validateLabels, 
-                        upd_dataCurFeatsub,upd_dataCurLabels,
-                        # realiz=1,s_size=5, 
-                        plot_flag = model_name_ALSL_VSVMSL
+                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin=c(best_boundMargin), SVtotal, objInfoNames,
+                                                     SVL_variables, validateFeatsub,validateLabels,upd_dataCurFeatsub, upd_dataCurLabels
                       )
                       sampled_data <- sampledResult$sampled_data
                       reference_label <- sampledResult$best_updCur_Labels
@@ -2518,10 +2421,10 @@ for (model_prob in model_probs) {
                       cat("computing distances required ", d.time,"sec\n",sep="")
                       ALSamplesStart.time <- Sys.time()
                       result <- add_AL_samples(sampled_data,
-                                               sampled_data[,1:numFeat], reference_label, 
+                                               reference_label, sampled_data[,1:numFeat], 
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=FALSE, semi_size=b[1]*nclass, plot_flag = model_name_ALSL_VSVMSL ) 
+                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, semi_size=b[1]*nclass) 
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
@@ -2536,107 +2439,111 @@ for (model_prob in model_probs) {
                       
                       # **********************
                       # get original SVs of base SVM
-                      # SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex
+                      # SVindex_ud = tmp_new_tunedSVM$finalModel@SVindex # SVs OF THIS MODEL ARE NOT IN new_trainFeatVSVM
                       
                       # get al train set portion
                       new_trainFeatVSVM <- rbind(new_trainFeatVSVM[,], setNames(new_trainFeat, names))
                       new_trainLabelsVSVM <- unlist(list(new_trainLabelsVSVM[], new_trainLabels))
                       
-                      # SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
-                      # # **********************
-                      # 
-                      # REF_ud = new_trainLabels
-                      # SVtotal_ud = cbind(new_trainFeat, REF_ud)
-                      # 
-                      # if (invariance=="scale") {
-                      #   SVL_variables = list(
-                      #     list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud))#,
-                      #     # list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL6=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL7=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL8=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, sAL9=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],semiAL_tot[,length(semiAL_tot)]))
-                      #     
-                      #   )
-                      #   if (city == "cologne") {
-                      #     cologne_vars = list(
-                      #       list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
-                      #       list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud))#,
-                      #       # list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
-                      #       # list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
-                      #     )
-                      #     SVL_variables = c(SVL_variables, cologne_vars)
-                      #   }
-                      # } else {
-                      #   SVL_variables = list(
-                      #     list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))#,
-                      #     # list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s05C03=cbind(upd_dataCur[semiAL_SVindex,c(((4*numFeat)+1):(5*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s05C05=cbind(upd_dataCur[semiAL_SVindex,c(((5*numFeat)+1):(6*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s05C07=cbind(upd_dataCur[semiAL_SVindex,c(((6*numFeat)+1):(7*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s07C03=cbind(upd_dataCur[semiAL_SVindex,c(((7*numFeat)+1):(8*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     # list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
-                      #   )
-                      # } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                      # upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                      #                            SVL_variables, tmp_new_tunedSVM$finalModel)
-                      # tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
-                      # # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
-                      # # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
-                      # # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
+                      SVtotal = setNames(cbind(new_trainFeatVSVM, new_trainLabelsVSVM),c(objInfoNames[-length(objInfoNames)],"REF"))
+                      # **********************
                       
-                      # **********************
+                      REF_ud = new_trainLabels
+                      SVtotal_ud = cbind(new_trainFeat, REF_ud)
+                      
+                      if (invariance=="scale") {
+                        SVL_variables = list(
+                          list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
+                          list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
+                          list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud)),
+                          list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL6=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL7=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL8=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL9=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],semiAL_tot[,length(semiAL_tot)]))
+                        )
+                        if (city == "cologne") {
+                          cologne_vars = list(
+                            list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
+                            list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud)),
+                            list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
+                            list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
+                          )
+                          SVL_variables = c(SVL_variables, cologne_vars)
+                        }
+                      } else {
+                        SVL_variables = list(
+                          list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)),
+                          list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C03=cbind(upd_dataCur[semiAL_SVindex,c(((4*numFeat)+1):(5*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C05=cbind(upd_dataCur[semiAL_SVindex,c(((5*numFeat)+1):(6*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C07=cbind(upd_dataCur[semiAL_SVindex,c(((6*numFeat)+1):(7*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s07C03=cbind(upd_dataCur[semiAL_SVindex,c(((7*numFeat)+1):(8*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
+                        )
+                      } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound=c(0.1, 0.3, 0.9), boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                                 SVL_variables, tmp_new_tunedSVM$finalModel)
+                      tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
+                      # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
+                      # new_trainLabelsVSVM <- upd_SLresult$best_trainLabelsVSVM
+                      # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
+                      
+                      # # **********************
+                      # # get original SVs of base SVM
+                      # SVindex_ud = tmp_new_tunedSVM_ALTSL$finalModel@SVindex
+                      # 
+                      # new_trainFeat <- rbind(setNames(trainFeat[SVindex_ud,], names), setNames(new_trainFeat, names))
+                      # new_trainLabels <- unlist(list(trainLabels[SVindex_ud], new_trainLabels))
+                      # 
+                      # # trainData index to split between train and test in svmFit
+                      # countTrainData = nrow(new_trainFeat)
+                      # indexTrainData = list(c(1:countTrainData))
+                      # 
+                      # # join of train and test test data (separable through indexTrainData in svmFit)
+                      # tuneFeat = rbind(setNames(new_trainFeat,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
+                      # tuneLabel = unlist(list(new_trainLabels, testLabels))
+                      # 
+                      # tmp_new_tunedSVM2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
+                      # # **********************
 
-                      # trainData index to split between train and test in svmFit
-                      countTrainData = nrow(new_trainFeatVSVM)
-                      indexTrainData = list(c(1:countTrainData))
-
-                      # join of train and test test data (separable through indexTrainData in svmFit)
-                      tuneFeat = rbind(setNames(new_trainFeatVSVM,objInfoNames[1:length(objInfoNames)-1]), setNames(testFeatsub,objInfoNames[1:length(objInfoNames)-1]))
-                      tuneLabel = unlist(list(new_trainLabelsVSVM, testLabels))
-
-                      tmp_new_tunedSVM2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
-                      # **********************
-
-                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeVSVM_SL+sampling.time, 1)
+                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
                       # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
                       # if(actAcc < tmp_new_tunedSVM_SL$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM_SL$resample$Kappa,4)))
-                      # if (actAcc < tmp_acc$overall["Accuracy"]) { #cat("current best accuracy: ",sep="")
+                      if (actAcc < tmp_acc$overall["Accuracy"]) { #cat("current best accuracy: ",sep="")
                         tmp_new_tunedSVM_SL = tmp_new_tunedSVM2
                         actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
                         accVSVM_SL_itALSL = tmp_acc
-                        # best_resample = resampledSize[rS]
+                        best_resample = resampledSize[rS]
                         best_newSize4iter = newSize_for_iter
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
-                        train.timeALv2_tSNE_VSVMSL = t.time
-                      # } #else { cat("discarded accuracy: ",sep="")} 
+                        train.time = t.time
+                      } #else { cat("discarded accuracy: ",sep="")} 
                       #cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
                 # }
               # }
             # }
-            cat("VSVM_SL - AL + SL accuracy: ",round(accVSVM_SL_itALSL$overall["Accuracy"],5)," | execution time: ",train.timeALv2_tSNE_VSVMSL,"sec\n",sep="")
+            cat("VSVM_SL - AL + SL accuracy: ",round(accVSVM_SL_itALSL$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
             
             AccuracyVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itALSL$overall["Accuracy"])
             KappaVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itALSL$overall["Kappa"])
@@ -2645,145 +2552,142 @@ for (model_prob in model_probs) {
               best_model <- model_name_ALSL_VSVMSL
             }
 
-            # cat("\n") ############################# ALv2+SEMI_VSVMSL+Train #######################################
-            # model_name_ALTrainSL_VSVMSL = "ALv2_SEMI_VSVMSL+Train"
-            # 
-            # cat("computing uncertainty distance for active labeling + Train SL | ",sampleSizePor[sample_size]," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
-            # # actAcc = -1e-6
-            # # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
-            # # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
-            # # for (clS in 1:length(classSize)) {
-            # #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
-            # #   # Definition of sampling configuration (strata:random sampling without replacement)
-            # #   stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
-            # #   # Get new samples from trainDataCurRemaining
-            # #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
-            # #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-            #   # for (nS4it in 1:length(newSizes)) {
-            #     # for (cS in 1:length(clusterSizes)) {
-            #       # for (rS in 1:length(resampledSize)) {
-            #         # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
-            #         cat("samples: ",newSize," | pool size: ",
-            #             nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
-            #         
-            #         upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
-            #         upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
-            #         upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
-            #         
-            #         # new_trainFeatVSVM <- setNames(trainFeat, names)
-            #         # new_trainLabelsVSVM <- trainLabels
-            #         tmp_new_tunedSVM_ALTSL <- new_bestTunedVSVM
-            #         
-            #         newSize_for_iter = newSize #sampleSize/10 # or just 4
-            #         # num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
-            #         
-            #         trainStart.time <- Sys.time()
-            # 
-            #           # # **********************
-            #           # # **********************
-            #           
-            #           # Add predicted labels to the features data set
-            #           SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tmp_new_tunedSVM_ALTSL, upd_dataCurFeatsub)), objInfoNames)
-            #           
-            #           sampledResult <- self_learn_AL(
-            #             # testFeatsub, testLabels, boundMargin=c(best_boundMargin), 
-            #             SVtotal, objInfoNames, SVL_variables, 
-            #             # validateFeatsub,validateLabels,
-            #             upd_dataCurFeatsub, upd_dataCurLabels,
-            #             plot_flag=FALSE
-            #           )
-            #           sampled_data <- sampledResult$sampled_data
-            #           reference_label <- sampledResult$best_updCur_Labels
-            #           
-            #           # # **********************
-            #           # # **********************
-            # 
-            #           d.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
-            #           cat("computing distances required ", d.time,"sec\n",sep="")
-            #           ALSamplesStart.time <- Sys.time()
-            #           result <- add_AL_samples(sampled_data,
-            #                                    sampled_data[,1:numFeat], reference_label, 
-            #                                    setNames(trainFeat, names), trainLabels,
-            #                                    newSize_for_iter, round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-            #                                    upd_dataCur$ID_unit, tSNE_flag=TRUE, semi_size=b[1]*nclass, plot_flag=FALSE ) 
-            #           ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
-            #           cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
-            #           # Extract new datasets
-            #           # upd_dataCurFeatsub <- result$features
-            #           # upd_dataCurLabels <- result$labels
-            #           upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
-            #           
-            #           new_trainFeat <- result$new_trainFeatVSVM
-            #           new_trainLabels <- result$new_trainLabelsVSVM
-            #           semiAL_tot <- result$semi_samples
-            #           semiAL_SVindex <- upd_dataCur$ID_unit %in% result$semiIDunit
-            #           
-            #           # **********************
-            #           # # get original SVs of base SVM
-            #           # SVindex_ud = tmp_new_tunedSVM_ALTSL$finalModel@SVindex
-            #           
-            #           # get new al train set portion
-            #           # trainFeat <- rbind(setNames(trainFeat[SVindex_ud,], names), setNames(new_trainFeat, names))
-            #           trainFeat_AL <- rbind(setNames(trainFeat_AL, names), new_trainFeat)
-            #           trainLabels_AL <- unlist(list(trainLabels_AL, new_trainLabels))
-                      
-                      
-                      # SVtotal = setNames(cbind(trainFeat_AL, trainLabels_AL),c(objInfoNames[-length(objInfoNames)],"REF"))
+            cat("\n") ############################# AL+Train_VSVM+SL #######################################
+            
+            model_name_ALTrainSL_VSVMSL = paste0(format(Sys.time(),"%Y%m%d"),"AL+TrainSL_VSVMSL_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
+            
+            cat("computing uncertainty distance for active labeling + Train SL | ",sampleSizePor[sample_size]*2," [",sample_size,"/",length(sampleSizePor),"]\n",sep="")
+            actAcc = -1e-6
+            # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
+            # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
+            # for (clS in 1:length(classSize)) {
+            #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
+            #   # Definition of sampling configuration (strata:random sampling without replacement)
+            #   stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
+            #   # Get new samples from trainDataCurRemaining
+            #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
+            #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
+              # for (nS4it in 1:length(newSizes)) {
+                cS=1 # for (cS in 1:length(clusterSizes)) {
+                  # for (rS in 1:length(resampledSize)) {
+                    # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
+                    cat("samples: ",newSize," | pool size: ",
+                        nrow(stratSampRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
+                    
+                    upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
+                    upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
+                    upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
+                    
+                    # new_trainFeatVSVM <- setNames(trainFeat, names)
+                    # new_trainLabelsVSVM <- trainLabels
+                    tmp_new_tunedSVM_ALTSL <- new_bestTunedVSVM
+                    
+                    newSize_for_iter = newSize #sampleSize/10 # or just 4
+                    # num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
+                    
+                    trainStart.time <- Sys.time()
+
                       # # **********************
-                      # 
-                      # REF_ud = new_trainLabels
-                      # SVtotal_ud = cbind(new_trainFeat, REF_ud)
-                      # 
-                      # if (invariance=="scale") {
-                      #   SVL_variables = list(
-                      #     list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
-                      #     list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud)),
-                      #     list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, sAL6=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, sAL7=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, sAL8=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, sAL9=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],semiAL_tot[,length(semiAL_tot)]))
-                      # 
-                      #   )
-                      #   if (city == "cologne") {
-                      #     cologne_vars = list(
-                      #       list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
-                      #       list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud)),
-                      #       list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
-                      #       list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
-                      #     )
-                      #     SVL_variables = c(SVL_variables, cologne_vars)
-                      #   }
-                      # } else {
-                      #   SVL_variables = list(
-                      #     list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
-                      #     list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)),
-                      #     list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s05C03=cbind(upd_dataCur[semiAL_SVindex,c(((4*numFeat)+1):(5*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s05C05=cbind(upd_dataCur[semiAL_SVindex,c(((5*numFeat)+1):(6*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s05C07=cbind(upd_dataCur[semiAL_SVindex,c(((6*numFeat)+1):(7*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s07C03=cbind(upd_dataCur[semiAL_SVindex,c(((7*numFeat)+1):(8*numFeat))],semiAL_tot[,length(semiAL_tot)])),
-                      #     list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
-                      #   )
-                      # } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                      # upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                      #                            SVL_variables, tmp_new_tunedSVM$finalModel)
-                      # tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
+                      # # **********************
+                      
+                      # Add predicted labels to the features data set
+                      SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tmp_new_tunedSVM_ALTSL, upd_dataCurFeatsub)), objInfoNames)
+                      
+                      sampledResult <- self_learn_AL(testFeatsub, testLabels, boundMargin, SVtotal, objInfoNames,
+                                                     SVL_variables, validateFeatsub,validateLabels,upd_dataCurFeatsub, upd_dataCurLabels,
+                                                     plot_flag=FALSE
+                      )
+                      sampled_data <- sampledResult$sampled_data
+                      reference_label <- sampledResult$best_updCur_Labels
+                      
+                      # # **********************
+                      # # **********************
+                      
+                      d.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
+                      cat("computing distances required ", d.time,"sec\n",sep="")
+                      ALSamplesStart.time <- Sys.time()
+                      result <- add_AL_samples(sampled_data,
+                                               reference_label, sampled_data[,1:numFeat], 
+                                               setNames(trainFeat, names), trainLabels,
+                                               newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
+                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, semi_size=b[1]*nclass, plot_flag=FALSE) 
+                      ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
+                      cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
+                      # Extract new datasets
+                      # upd_dataCurFeatsub <- result$features
+                      # upd_dataCurLabels <- result$labels
+                      upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
+                      
+                      new_trainFeat <- result$new_trainFeatVSVM
+                      new_trainLabels <- result$new_trainLabelsVSVM
+                      semiAL_tot <- result$semi_samples
+                      semiAL_SVindex <- upd_dataCur$ID_unit %in% result$semiIDunit
+                      
+                      # **********************
+                      # # get original SVs of base SVM
+                      # SVindex_ud = tmp_new_tunedSVM_ALTSL$finalModel@SVindex
+                      
+                      # get new al train set portion
+                      # trainFeat <- rbind(setNames(trainFeat[SVindex_ud,], names), setNames(new_trainFeat, names))
+                      trainFeat <- rbind(setNames(trainFeat, names), new_trainFeat)
+                      trainLabels <- unlist(list(trainLabels, new_trainLabels))
+                      
+                      
+                      SVtotal = setNames(cbind(trainFeat, trainLabels),c(objInfoNames[-length(objInfoNames)],"REF"))
+                      # **********************
+
+                      REF_ud = new_trainLabels
+                      SVtotal_ud = cbind(new_trainFeat, REF_ud)
+
+                      if (invariance=="scale") {
+                        SVL_variables = list(
+                          list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
+                          list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
+                          list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
+                          list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud)),
+                          list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL6=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL7=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL8=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, sAL9=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],semiAL_tot[,length(semiAL_tot)]))
+                        )
+                        if (city == "cologne") {
+                          cologne_vars = list(
+                            list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
+                            list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud)),
+                            list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
+                            list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
+                          )
+                          SVL_variables = c(SVL_variables, cologne_vars)
+                        }
+                      } else {
+                        SVL_variables = list(
+                          list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
+                          list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)),
+                          list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C03=cbind(upd_dataCur[semiAL_SVindex,c(((4*numFeat)+1):(5*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C05=cbind(upd_dataCur[semiAL_SVindex,c(((5*numFeat)+1):(6*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s05C07=cbind(upd_dataCur[semiAL_SVindex,c(((6*numFeat)+1):(7*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s07C03=cbind(upd_dataCur[semiAL_SVindex,c(((7*numFeat)+1):(8*numFeat))],semiAL_tot[,length(semiAL_tot)])),
+                          list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
+                        )
+                      } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1.5, 0.5), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                                                 SVL_variables, tmp_new_tunedSVM$finalModel)
+                      tmp_new_tunedSVM_SL2 <- upd_SLresult$bestFittingModel
                       # **********************
 
                       # # trainData index to split between train and test in svmFit
@@ -2795,49 +2699,50 @@ for (model_prob in model_probs) {
                       # tuneLabel = unlist(list(trainLabels, testLabels))
                       # 
                       # tmp_new_tunedSVM_SL2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
-                      # t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeVSVM_SL+sampling.time, 1)
+                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
 
                       # *********************************************************************
                       trainDataCur <- rbind(trainDataCur, upd_dataCur[upd_SVindex_ud, 1:ncol(trainDataCur)])
                       # *********************************************************************
                       # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       
-                      # tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
-                      # tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      # # if(actAcc < tmp_new_tunedSVM_SL2$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM_SL2$resample$Kappa,4)))
-                      # # if (actAcc < tmp_acc$overall["Accuracy"]) { #cat("current best accuracy: ",sep="")
-                      #   tmp_new_tunedSVM_ALTSL = tmp_new_tunedSVM_SL2
-                      #   actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
-                      #   accVSVM_SL_itAL_TSLv1 = tmp_acc
-                      #   # best_resample = resampledSize[rS]
-                      #   # best_newSize4iter = newSize_for_iter
-                      #   # best_classSize = classSize[clS]
-                      #   # best_cluster = clusterSizes[cS]
-                      #   train.timeALv2_SEMI_VSVMSL = t.time
-                      # # } #else { cat("discarded accuracy: ",sep="")} 
-                      # #cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM_SL2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
+                      tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
+                      tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                      # if(actAcc < tmp_new_tunedSVM_SL2$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM_SL2$resample$Kappa,4)))
+                      if (actAcc < tmp_acc$overall["Accuracy"]) { #cat("current best accuracy: ",sep="")
+                        tmp_new_tunedSVM_ALTSL = tmp_new_tunedSVM_SL2
+                        actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
+                        accVSVM_SL_itAL_TSLv1 = tmp_acc
+                        # best_resample = resampledSize[rS]
+                        # best_newSize4iter = newSize_for_iter
+                        # best_classSize = classSize[clS]
+                        # best_cluster = clusterSizes[cS]
+                        train.time = t.time
+                      } #else { cat("discarded accuracy: ",sep="")} 
+                      #cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM_SL2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
                 # }
               # }
             # }
-            # cat("VSVM_SL - AL + Train SL accuracy: ",round(accVSVM_SL_itAL_TSLv1$overall["Accuracy"],5)," | execution time: ",train.timeALv2_SEMI_VSVMSL,"sec\n",sep="")
-            # 
-            # AccuracyVSVM_SL_Un_itTSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Accuracy"])
-            # KappaVSVM_SL_Un_itTSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Kappa"])
-            # if(actAcc>best_acc){ 
-            #   best_acc <- actAcc 
-            #   best_model <- model_name_ALTrainSL_VSVMSL
-            # }
+            cat("VSVM_SL - AL + Train SL accuracy: ",round(accVSVM_SL_itAL_TSLv1$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
+            
+            AccuracyVSVM_SL_Un_itTSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Accuracy"])
+            KappaVSVM_SL_Un_itTSL[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL_TSLv1$overall["Kappa"])
+            if(actAcc>best_acc){ 
+              best_acc <- actAcc 
+              best_model <- model_name_ALTrainSL_VSVMSL
+            }
 
           }
-          sample_size_iter=sample_size_iter+1
+          
           if (realization==1 && sample_size==5) {
+            # saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
             # saveRDS(tmp_new_tunedSVM_r, model_name_AL_VSVMSL_r)
-            # saveRDS(tmp_new_tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds"))
-            # saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds"))
-            # saveRDS(tmp_new_tunedSVM_ALTSL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds"))
+            # saveRDS(tmp_new_tunedSVM, model_name_AL_VSVMSL)
+            saveRDS(tmp_new_tunedSVM_SL, model_name_ALSL_VSVMSL)
+            saveRDS(tmp_new_tunedSVM_ALTSL, model_name_ALTrainSL_VSVMSL)
           }
-          cat("\n") ############################### End Sample Portion ######################################
+          cat("\n") ############################# End Sample Portion ######################################
         }
         # Store the overall best hyperparameters 
         # best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL_AL)
@@ -2847,45 +2752,33 @@ for (model_prob in model_probs) {
         # best_classSize_oa=c(best_classSize_oa," ", best_classSize)
         # best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
-        # trainvUn.time_oa = trainvUn.time_oa+trainvUn.time
-        train.timeALv1_tSNE_VSVMSL_oa = train.timeALv1_tSNE_VSVMSL_oa+train.timeALv1_tSNE_VSVMSL
-        train.timeALv2_tSNE_VSVMSL_oa = train.timeALv1_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSL
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
         cat("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h\n")
-        cat("\n") ################################# End Realization #########################################
+        cat("\n") ############################## End Realization #########################################
       } 
       time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
       if (length(sampleSizePor)>=4) {
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
-        save(AccuracySVM, 
-             # AccuracySVM_SL_Un, 
-             AccuracyVSVM_SL, 
-             # AccuracyVSVM_SL_Un, AccuracyVSVM_SL_vUn,
+        save(AccuracySVM, AccuracySVM_SL_Un, AccuracyVSVM_SL, AccuracyVSVM_SL_Un, AccuracyVSVM_SL_vUn,
              AccuracyVSVM_SL_Un_it, 
              AccuracyVSVM_SL_Un_random_it,
              AccuracyVSVM_SL_Un_itSL,
-             # AccuracyVSVM_SL_Un_itTSL,
+             AccuracyVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-        save(KappaSVM, 
-             # KappaSVM_SL_Un, 
-             KappaVSVM_SL, 
-             # KappaVSVM_SL_Un, KappaVSVM_SL_vUn,
+        save(KappaSVM, KappaSVM_SL_Un, KappaVSVM_SL, KappaVSVM_SL_Un, KappaVSVM_SL_vUn,
              KappaVSVM_SL_Un_it, 
              KappaVSVM_SL_Un_random_it,
              KappaVSVM_SL_Un_itSL,
-             # KappaVSVM_SL_Un_itTSL,
+             KappaVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
-        cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",
-            # "Avg ",model_name_vUn," training time: ",trainvUn.time_oa/nR, "sec\n",
-            # "Avg ",model_name_AL_VSVMSL," training time: ",train.timeALv1_tSNE_VSVMSL_oa/nR, "sec\n",
-            # "Avg ",model_name_ALSL_VSVMSL," training time: ",train.timeALv2_tSNE_VSVMSL_oa/nR, "sec\n",
+        cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,
             # "\nbest_resample_oa: ", best_resample_oa, "\nbest_newSize_oa: ", best_newSize_oa,"\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
-            # "\n",best_model_oa,"\nlength train Labels ALv2: ",length(new_trainLabelsVSVM),"\nlength ALv1 VSVM SVs: ", length(tmp_new_tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(trainLabels_AL),
+            "\n",best_model_oa,"\nfinal length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(bestFittingModel$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),
             sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
-      cat("length train Labels ALv2: ",length(new_trainLabelsVSVM),"\nlength ALv1 VSVM SVs: ", length(tmp_new_tunedSVM$finalModel@SVindex),"\nlength new train Labels AL: ",length(trainLabels_AL),"\n\n\n",sep="")
+      cat("length train Labels: ",length(trainLabels),"\nlength SVM SVs: ", length(bestFittingModel$finalModel@SVindex),"\nlength new train Labels AL: ",length(new_trainLabelsVSVM),"\n\n\n",sep="")
     }
   }
 }
