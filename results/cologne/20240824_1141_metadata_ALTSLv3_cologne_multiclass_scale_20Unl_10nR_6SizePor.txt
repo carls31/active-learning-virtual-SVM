@@ -1,0 +1,12 @@
+OA Execution time: 19.25h
+Realization 1 | seed: 11 execution time: 0.14h
+Realization 2 | seed: 56 execution time: 0.15h
+Realization 3 | seed: 101 execution time: 0.14h
+Realization 4 | seed: 146 execution time: 0.14h
+Realization 5 | seed: 191 execution time: 0.13h
+Realization 6 | seed: 236 execution time: 0.15h
+Realization 7 | seed: 281 execution time: 0.14h
+Realization 8 | seed: 326 execution time: 0.14h
+Realization 9 | seed: 371 execution time: 0.13h
+Realization 10 | seed: 416 execution time: 0.14h
+
