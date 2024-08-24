@@ -10,10 +10,10 @@ city = "cologne"    # cologne or hagadera
 invariance = "scale"     # scale or shape
 class = "multiclass"     # multiclass or binary
 
-path = '/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/'
-if(!dir.exists(path)){path = "D:/GitHub/active-learning-virtual-SVM/"}
+path = '/home/data1/Lorenzo/'
+if(!dir.exists(path)){path = "D:/"}
 
-setwd(paste0(path,"results/",city))
+setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","results/",city))
 
 file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizePor"
 file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
@@ -175,7 +175,7 @@ column_names <- colnames(AccuracySVM)
 if(is.null(column_names)){column_names <- names(AccuracySVM)}
 x <- as.integer(column_names)
 
-setwd(paste0(path,"images/",city))
+setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
 if(class == "multiclass"){
   if(city=="hagadera"){

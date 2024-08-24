@@ -1497,6 +1497,7 @@ for (model_prob in model_probs) {
         #   rm(validateData, val_stratSamp)
         # }
       }
+      ##################################  Training  ########################################
       if (lgtS) {
         lightS=as.numeric(min(table(validateLabels)))
         lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
@@ -1507,7 +1508,6 @@ for (model_prob in model_probs) {
         validateLabels = validateData[,ncol(validateFeatsub)+1]
         rm(validateData, val_stratSamp)
       }
-      ##################################  Training  ########################################
       
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracySVM) = colheader
