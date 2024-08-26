@@ -23,6 +23,11 @@ file_name_acc = "20240819_1904_hagadera_binary_scale_acc_ALTSLf_20Unl_8nR_16Size
 file_name_acc = "20240821_0601_cologne_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
 file_name_acc = "20240821_2337_cologne_binary_scale_acc_ALTSLv3_20Unl_8nR_16SizePor"
 file_name_acc = "20240824_1141_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_acc = "20240825_1346_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_acc = "20240824_2023_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_acc = "20240825_1615_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_acc = "20240825_1959_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
 
 
 
@@ -36,6 +41,11 @@ file_name_kappa = "20240819_1904_hagadera_binary_scale_Kappa_ALTSLf_20Unl_8nR_16
 file_name_kappa = "20240821_0601_cologne_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
 file_name_kappa = "20240821_2337_cologne_binary_scale_Kappa_ALTSLv3_20Unl_8nR_16SizePor"
 file_name_kappa = "20240824_1141_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_kappa = "20240825_1346_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_kappa = "20240824_2023_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_kappa = "20240825_1615_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_kappa = "20240825_1959_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
 
 
 
@@ -255,9 +265,9 @@ if(nrow(AccuracySVM)>1){
 
   
   lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 2)
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 1)
+  # lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd = 2,lty = 1)
-  # lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd = 2,lty = 1)
+  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd = 2,lty = 1)
   
   }else{
   clms = seq(2,length(AccuracySVM),by=2)
@@ -292,17 +302,17 @@ legend("bottomright",
          # "VSVM-SL + Unlabeled",
          # "VSVM-SL + Virtual Unlabeled",
          "VSVM-SL + random AL",
-         "VSVM-SL + AL",
-         "VSVM-SL + AL SL"#, "VSVM-SL + AL TSL"
+         # "VSVM-SL + AL",
+         "VSVM-SL + AL SL", "VSVM-SL + AL TSL"
        ),
        lty=c(1,
              # 4,
              1,
              # 1,
              # 1,
-             2,1,
+             2,
              # 1,
-             1
+             1, 1
              ), # gives the legend appropriate symbols (lines)
        col=c(1,
              # 1,
@@ -310,8 +320,8 @@ legend("bottomright",
              # 4,
              # 5,
              7,
-             7,
-             8 #,6
+             # 7,
+             8 ,6
              )  # gives the legend lines the correct color and width
        ) 
 
