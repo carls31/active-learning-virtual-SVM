@@ -28,6 +28,7 @@ file_name_acc = "20240824_2023_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6
 file_name_acc = "20240825_1615_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
 file_name_acc = "20240825_1959_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
 file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_acc = "20240826_0827_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 
 
 
@@ -46,6 +47,7 @@ file_name_kappa = "20240824_2023_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10
 file_name_kappa = "20240825_1615_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
 file_name_kappa = "20240825_1959_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
 file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+file_name_kappa = "20240826_0827_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 
 
 
@@ -260,11 +262,11 @@ if(nrow(AccuracySVM)>1){
   
   # lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL[,-clms])[1,], type= type ,       col = 3, lwd = 2,lty = 1)
-  # lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd = 2,lty = 1)
   # lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd = 2,lty = 1)
 
   
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 2)
+  # lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 2)
   # lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 1)
   lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd = 2,lty = 1)
   lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd = 2,lty = 1)
@@ -299,27 +301,27 @@ legend("bottomright",
        c("SVM single-level L4", # "SVM multi-level",
          # "SVM-SL + Unlabeled", # "VSVM",
          "VSVM-SL",
-         # "VSVM-SL + Unlabeled",
+         "VSVM-SL + Unlabeled",
          # "VSVM-SL + Virtual Unlabeled",
-         "VSVM-SL + random AL",
+         # "VSVM-SL + random AL",
          # "VSVM-SL + AL",
          "VSVM-SL + AL SL", "VSVM-SL + AL TSL"
        ),
        lty=c(1,
              # 4,
              1,
+             1,
              # 1,
-             # 1,
-             2,
+             # 2,
              # 1,
              1, 1
              ), # gives the legend appropriate symbols (lines)
        col=c(1,
              # 1,
              3,
-             # 4,
+             4,
              # 5,
-             7,
+             # 7,
              # 7,
              8 ,6
              )  # gives the legend lines the correct color and width
