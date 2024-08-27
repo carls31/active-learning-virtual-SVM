@@ -2002,7 +2002,7 @@ for (model_prob in model_probs) {
           AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
           KappaSVM[realization,sample_size] = as.numeric(accSVM$overall["Kappa"])
           
-          if((realization==1 && sample_size==1) || accSVM$overall["Accuracy"]>best_acc){
+          if(sample_size==1 || accSVM$overall["Accuracy"]>best_acc){
             best_acc <- accSVM$overall["Accuracy"]
             best_model <- model_name_tunedSVM
             new_bestTunedVSVM <- tunedSVM
