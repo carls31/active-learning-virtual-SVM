@@ -539,7 +539,7 @@ add_AL_samples = function(distance_data,
   # km_umap <- kmeans(umap_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
   
   # ***********************************************************************************
-  if (!(is.logical(plot_flag)) && realiz==1 && s_size==5) {
+  if (!(is.logical(plot_flag)) && realiz==1 && s_size==2) {
   setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
 
   # Define colors for clusters
@@ -916,7 +916,7 @@ self_learn_AL = function(
     distances_log <- log1p((scaled_distances) * (exp(1) - 1))
     # distances_exp <- 1 - exp(-as.vector(scaled_distances))
     
-    if (!(is.logical(plot_flag)) && realiz==1 ) { #&& s_size==5
+    if (!(is.logical(plot_flag)) && realiz==1 && s_size==2) { 
       setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
       # Plotting the histogram
       png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSSL_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
@@ -1026,10 +1026,10 @@ for (model_prob in model_probs) {
       if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
       sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
       if (lgtS) { nR=10
-      sampleSizePor = c(30,36, 60,60, 120,120)  #  # c(30,36, 60,60, 120,120, 210,210)
+      sampleSizePor = c(30,36, 60,60, 120,120, 192,192)  #  # c(30,36, 60,60, 120,120, 210,210)
       classPor = 2400
       bound = c(0.3, 0.9)
-      boundMargin = c(1.5, 0.5)}
+      boundMargin = c(1)}
       colheader = as.character(sampleSizePor) # corresponding column names
       ##################################  Preprocessing  #####################################
       lightC = 2 # lighter validate dataset for running faster prediction 
@@ -1585,51 +1585,164 @@ for (model_prob in model_probs) {
       nclass=6
       if(model_prob=="binary"){   nclass=2
       }else if(city=="hagadera"){ nclass=5 }
-      
-      if (lgtS) {
-        # lightS=as.numeric(min(table(validateLabels)))
-        # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-        # validateData = cbind(validateFeatsub,validateLabels)
-        # val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        # validateData = getdata(validateData, val_stratSamp)
-        # validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        # validateLabels = validateData[,ncol(validateFeatsub)+1]
-        # rm(validateData, val_stratSamp)
-        
-        lightS=as.numeric(min(table(validateLabels)))
-        validateData = cbind(validateFeatsub,validateLabels)
-        # Create an empty dataframe to store unique samples
-        samplesRemaining <- data.frame()
-        # Initialize the iteration counter
-        iteration <- 0
-        valDataCurRemaining_sampl <- validateData
-        while (nrow(samplesRemaining) < lightS*nclass && iteration < 1) {
-          iteration <- iteration + 1
 
-          # Sample additional rows
-          stratSampSize <- c(lightS, lightS, lightS, lightS, lightS, lightS)
-          val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-          validateData_sampl = getdata(valDataCurRemaining_sampl, val_stratSamp)
+      if (lgtS) {
+        validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+        validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+        
+        validateData <- cbind(validateFeatsub, validateLabels)
+        finalFeatsub <- data.frame()  # Container for final feature samples
+        finalLabels <- factor()  # Initialize with factor levels
+        
+        # Sort labels by the number of instances (start with the smallest)
+        label_order <- levels(validateLabels)[order(table(validateLabels))]
+        
+        for (label in label_order) {
+          lightS <- sum(validateLabels == label)
           
-          # Remove duplicates based on the specified column range
-          unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[1:ncol(validateFeatsub)]), ]
-          # Add unique rows to the cumulative dataframe
-          samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-          samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[1:ncol(validateFeatsub)]), ]
-          samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
-          cat("[iteration ",iteration,"] number of samples: ",nrow(samplesRemaining), "\n",sep="")
-          # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
-          if (nrow(samplesRemaining) < lightS*nclass) {
-            # Remove sampled rows from the remaining pool
-            valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(samplesRemaining), ]
+          samplesRemaining <- data.frame()  # DataFrame to store unique samples
+          iteration <- 0  # Initialize the iteration counter
+          valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
+          
+          while (nrow(samplesRemaining) < lightS && iteration < 1) {
+            iteration <- iteration + 1
+            
+            # Stratified sampling without replacement
+            stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+            val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+            validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+            
+            # Remove duplicates within the current sample
+            # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
+            unique_new_samples <- validateData_sampl[]
+            
+            # Check for duplicates against all previously collected samples
+            if (nrow(finalFeatsub) > 0) {
+              duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
+              unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
+            }
+            
+            # Add unique rows to the cumulative dataframe
+            samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+            samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
+            
+            # If more samples are needed, update the remaining pool
+            if (nrow(samplesRemaining) < lightS) {
+              valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
+            }
+            
+            cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining)," Number of labels: ", length(as.character(samplesRemaining$validateLabels)), "\n", sep = "")
           }
+          
+          # Append the unique samples to the final containers
+          finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+          finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+                                levels = levels(validateLabels))
+          
+          rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp)
         }
-        # Extract relevant columns for uniqueness check
-        validateFeatsub <- samplesRemaining[, 1:ncol(validateFeatsub)]
-        validateLabels = samplesRemaining[,ncol(validateFeatsub)+1]
-        rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp)
+        
+        # Replace original data with the final sampled data
+        validateFeatsub <- finalFeatsub
+        validateLabels <- finalLabels
       }
-      
+      if (lgtS) {
+        # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+        # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+        # 
+        # validateData = cbind(validateFeatsub,validateLabels)
+        # finalFeatsub <- data.frame()  # Container for final feature samples
+        # finalLabels <- factor()  # Initialize with factor levels
+        # 
+        # for (label in unique(validateLabels)) {
+        #   lightS <- sum(validateLabels == label)
+        # 
+        #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+        #   # iteration <- 0  # Initialize the iteration counter
+        #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
+        # 
+        #   # while (nrow(samplesRemaining) < lightS && iteration < 1) {
+        #   #   iteration <- iteration + 1
+        # 
+        #     # Stratified sampling without replacement
+        #     stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+        #     val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+        #     validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+        # 
+        #     # Remove duplicates
+        #     unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
+        # 
+        #     # Add unique rows to the cumulative dataframe
+        #     samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+        #     samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
+        # 
+        #     # # If more samples are needed, update the remaining pool
+        #     # if (nrow(samplesRemaining) < lightS) {
+        #     #   valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
+        #     # }
+        # 
+        #     cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
+        #   # }
+        # 
+        #   # Extract relevant columns after sampling
+        #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+        #   finalLabels <- unlist(list(finalLabels, samplesRemaining$validateLabels))
+        # 
+        #   rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp)
+        # }
+        # # Replace original data with the final sampled data
+        # validateFeatsub <- finalFeatsub
+        # validateLabels <- finalLabels
+      }
+      if (lgtS) {
+        # # lightS=as.numeric(min(table(validateLabels)))
+        # # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
+        # # validateData = cbind(validateFeatsub,validateLabels)
+        # # val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+        # # validateData = getdata(validateData, val_stratSamp)
+        # # validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+        # # validateLabels = validateData[,ncol(validateFeatsub)+1]
+        # # rm(validateData, val_stratSamp)
+        # 
+        # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+        # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+        # 
+        # validateData = cbind(validateFeatsub,validateLabels)
+        # 
+        # lightS=as.numeric(min(table(validateLabels)))
+        # # validateData = cbind(validateFeatsub,validateLabels)
+        # # Create an empty dataframe to store unique samples
+        # samplesRemaining <- data.frame()
+        # # Initialize the iteration counter
+        # iteration <- 0
+        # valDataCurRemaining_sampl <- cbind(validateFeatsub,validateLabels)
+        # while (nrow(samplesRemaining) < lightS*nclass && iteration < 1) {
+        #   iteration <- iteration + 1
+        # 
+        #   # Sample additional rows
+        #   stratSampSize <- c(lightS, lightS, lightS, lightS, lightS, lightS)
+        #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+        #   validateData_sampl = getdata(valDataCurRemaining_sampl, val_stratSamp)
+        #   
+        #   # Remove duplicates based on the specified column range
+        #   unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[1:ncol(validateFeatsub)]), ]
+        #   # Add unique rows to the cumulative dataframe
+        #   samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+        #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[1:ncol(validateFeatsub)]), ]
+        #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
+        #   cat("[iteration ",iteration,"] number of samples: ",nrow(samplesRemaining), "\n",sep="")
+        #   # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
+        #   if (nrow(samplesRemaining) < lightS*nclass) {
+        #     # Remove sampled rows from the remaining pool
+        #     valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(samplesRemaining), ]
+        #   }
+        # }
+        # # Extract relevant columns for uniqueness check
+        # validateFeatsub <- samplesRemaining[, 1:ncol(validateFeatsub)]
+        # validateLabels = samplesRemaining[,ncol(validateFeatsub)+1]
+        # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp)
+      }
+
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracySVM) = colheader
       AccuracySVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1694,7 +1807,8 @@ for (model_prob in model_probs) {
       # best_newSize4iter = NULL
       # best_classSize    = NULL
       # best_cluster      = NULL
-      trainUn.time_oa               = 0
+      trainSL.time_oa               = 0
+      # trainUn.time_oa               = 0
       # trainvUn.time_oa              = 0
       # train.timeALv1_tSNE_VSVMSL_oa = 0
       train.timeALv2_tSNE_VSVMSL_oa = 0
@@ -1714,17 +1828,99 @@ for (model_prob in model_probs) {
         testDataCurBeg = testDataAllLev
         
         if(lgtS){
-          # lightS=as.numeric(min(table(trainDataPoolAllLev$REF)))
-          # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-          # train_stratSamp = strata(trainDataPoolAllLev, c("REF"), size = lightS, method = "srswor")
-          # trainDataCurBeg = getdata(trainDataPoolAllLev, train_stratSamp)
-          # trainDataCurBeg = trainDataCurBeg[,1:ncol(trainDataPoolAllLev)]
-          # 
-          # lightS=as.numeric(min(table(testDataAllLev$REF)))
-          # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-          # test_stratSamp = strata(testDataAllLev, c("REF"), size = lightS, method = "srswor")
-          # testDataCurBeg = getdata(testDataAllLev, test_stratSamp)
-          # testDataCurBeg = testDataCurBeg[,1:ncol(testDataAllLev)]
+          # Process training data
+          trainDataLabels = trainDataPoolAllLev[ncol(trainDataPoolAllLev)]
+          trainDataFeatsub = trainDataPoolAllLev[, 1:(ncol(trainDataPoolAllLev) - 1)]
+          
+          trainDataCurBeg = cbind(trainDataFeatsub,trainDataLabels)
+          finalFeatsub <- data.frame()  # Container for final feature samples
+          finalLabels <- factor()  # Initialize with factor levels
+          
+          for (label in unique(trainDataLabels)) {
+            lightS <- min(table(trainDataLabels == label))
+            
+            samplesRemaining <- data.frame()  # DataFrame to store unique samples
+            # iteration <- 0  # Initialize the iteration counter
+            valDataCurRemaining_sampl <- trainDataCurBeg[trainDataLabels == label, ]
+            
+            # while (nrow(samplesRemaining) < lightS && iteration < 1) {
+            #   iteration <- iteration + 1
+              
+              # Stratified sampling without replacement
+              stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+              val_stratSamp <- strata(valDataCurRemaining_sampl, c("trainDataLabels"), size = stratSampSize, method = "srswor")
+              validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+              
+              # Remove duplicates
+              unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(trainDataFeatsub)]), ]
+              
+              # Add unique rows to the cumulative dataframe
+              samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+              samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(trainDataFeatsub)]), ]
+              
+              # # If more samples are needed, update the remaining pool
+              # if (nrow(samplesRemaining) < lightS) {
+              #   valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
+              # }
+              
+              cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
+            # }
+            
+            # Extract relevant columns after sampling
+            finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(trainDataFeatsub)])
+            finalLabels <- unlist(list(finalLabels, samplesRemaining[ncol(samplesRemaining)]))
+            
+            rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp)
+          }
+          # Replace original data with the final sampled data
+          trainDataCurBeg <- cbind(finalFeatsub,finalLabels)
+
+          # Process testing data
+          testDataLabels = testDataAllLev[ncol(testDataAllLev)]
+          testDataFeatsub = testDataAllLev[, 1:(ncol(testDataAllLev) - 1)]
+          
+          testDataCurBeg = cbind(testDataFeatsub, testDataLabels)
+          finalFeatsub <- data.frame()  # Container for final feature samples
+          finalLabels <- factor()  # Initialize with factor levels
+          
+          for (label in unique(testDataLabels)) {
+            lightS <- min(table(testDataLabels == label))
+            
+            samplesRemaining <- data.frame()  # DataFrame to store unique samples
+            # iteration <- 0  # Initialize the iteration counter
+            valDataCurRemaining_sampl <- testDataCurBeg[testDataLabels == label, ]
+            
+            # while (nrow(samplesRemaining) < lightS && iteration < 1) {
+            #   iteration <- iteration + 1
+              
+              # Stratified sampling without replacement
+              stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+              val_stratSamp <- strata(valDataCurRemaining_sampl, c("testDataLabels"), size = stratSampSize, method = "srswor")
+              validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+              
+              # Remove duplicates
+              unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(testDataFeatsub)]), ]
+              
+              # Add unique rows to the cumulative dataframe
+              samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+              samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(testDataFeatsub)]), ]
+              
+              # # If more samples are needed, update the remaining pool
+              # if (nrow(samplesRemaining) < lightS) {
+              #   valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
+              # }
+              
+              cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
+            # }
+            
+            # Extract relevant columns after sampling
+            finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(testDataFeatsub)])
+            finalLabels <- unlist(list(finalLabels, samplesRemaining[ncol(samplesRemaining)]))
+            
+            rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp)
+          }
+          # Replace original data with the final sampled data
+          testDataCurBeg <- cbind(finalFeatsub,finalLabels)
         }
 
         # subset for each outer iteration test data to speed up computing
@@ -1785,8 +1981,6 @@ for (model_prob in model_probs) {
           tuneFeat = rbind(setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub,objInfoNames[1:(length(objInfoNames)-1)]))
           tuneLabel = unlist(list(trainLabels, testLabels))
           
-          # table_trainLabels = rbind(table_trainLabels,table(trainLabels))  
-          
           setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
           
           cat("\n") ############################### SVM #####################################
@@ -1807,14 +2001,14 @@ for (model_prob in model_probs) {
           
           AccuracySVM[realization,sample_size] = as.numeric(accSVM$overall["Accuracy"])
           KappaSVM[realization,sample_size] = as.numeric(accSVM$overall["Kappa"])
-          # if (sample_size==4) {
+          
+          if((realization==1 && sample_size==1) || accSVM$overall["Accuracy"]>best_acc){
             best_acc <- accSVM$overall["Accuracy"]
             best_model <- model_name_tunedSVM
-          # }
-          new_bestTunedVSVM <- tunedSVM
-          new_bestTrainFeatVSVM <- trainFeat 
-          new_bestTrainLabelsVSVM <- trainLabels 
-          
+            new_bestTunedVSVM <- tunedSVM
+            new_bestTrainFeatVSVM <- trainFeat 
+            new_bestTrainLabelsVSVM <- trainLabels
+          }
           # get original SVs of base SVM ************************* prevent removing an entire class label
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
           SVtotal = trainDataCur[SVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur))]
@@ -2242,22 +2436,21 @@ for (model_prob in model_probs) {
                                 # # distinguish active train set from random train set
                                 # trainFeat_rand = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
                                 # trainLabels_rand = trainLabels
-                                newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
+                                newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]+1
             } else {            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size-1] }
 
-            clusterSizes = c(round(max(classPor/40,newSize+b[1])))
+            clusterSizes = c(round(max(classPor/40,newSize+1)))
             # clusterSizes = c(120)
             classSize=c(round(min(classPor/6,as.numeric(min(table(trainDataCurRemaining$REF))))))
             clS=1
             cat("Sampling ", classSize," unlabeled data per class\n",sep="")
             samplingStart.time <- Sys.time()
-              max_iterations <- 25  # Maximum iterations to prevent infinite loop
               # Create an empty dataframe to store unique samples
               samplesRemaining <- data.frame()
               # Initialize the iteration counter
               iteration <- 0
               trainDataCurRemaining_sampl <- trainDataCurRemaining
-              while (nrow(samplesRemaining) < classSize[clS]*nclass && iteration < max_iterations) {
+              while (nrow(samplesRemaining) < classSize[clS]*nclass && iteration < 10) {
                 iteration <- iteration + 1
                 # Determine how many more samples are needed
                 remaining_needed <- as.numeric(min(table(trainDataCurRemaining_sampl$REF)))
@@ -2274,7 +2467,7 @@ for (model_prob in model_probs) {
                 samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
                 samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]), ]
                 samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
-                cat("[iteration ",iteration,"] number of samples: ",nrow(samplesRemaining), "\n",sep="")
+                cat("[iteration ",iteration,"/10] number of samples: ",nrow(samplesRemaining), "\n",sep="")
                 # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
                 if (nrow(samplesRemaining) < classSize[clS]*nclass) {
                   # Remove sampled rows from the remaining pool
@@ -2637,7 +2830,7 @@ for (model_prob in model_probs) {
                                                sampled_data[,1:numFeat], reference_label,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, newSize2=20*nclass, flag_cluster=TRUE)
+                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, newSize2=b[bb]*nclass, flag_cluster=TRUE)
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
@@ -2818,7 +3011,7 @@ for (model_prob in model_probs) {
                                      sampled_data[,1:numFeat], reference_label,
                                      new_trainFeatVSVM, new_trainLabelsVSVM,
                                      newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                     upd_dataCur$ID_unit, tSNE_flag=FALSE, newSize2=20*nclass, flag_cluster=TRUE ) #plot_flag = model_name_ALTrainSL_VSVMSL,
+                                     upd_dataCur$ID_unit, tSNE_flag=FALSE, newSize2=b[bb]*nclass, flag_cluster=TRUE ) #plot_flag = model_name_ALTrainSL_VSVMSL,
             ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
             cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
             # Extract new datasets
@@ -2844,13 +3037,13 @@ for (model_prob in model_probs) {
             
             if (invariance=="scale") {
               SVL_variables = list(
-                # list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
-                # list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
-                # list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
-                # list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
-                # list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
-                # list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
-                # list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud)),
+                list(SVtotal_ud, SVL2=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],REF_ud)),
+                list(SVtotal_ud, SVL3=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],REF_ud)),
+                list(SVtotal_ud, SVL5=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],REF_ud)),
+                list(SVtotal_ud, SVL6=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1))],REF_ud)),
+                list(SVtotal_ud, SVL7=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1))],REF_ud)),
+                list(SVtotal_ud, SVL8=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1))],REF_ud)),
+                list(SVtotal_ud, SVL9=cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1))],REF_ud)),
                 list(semiAL_tot, sAL2=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))],semiAL_tot[,length(semiAL_tot)])),
                 list(semiAL_tot, sAL3=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1))],semiAL_tot[,length(semiAL_tot)])),
                 list(semiAL_tot, sAL5=cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1))],semiAL_tot[,length(semiAL_tot)])),
@@ -2862,8 +3055,8 @@ for (model_prob in model_probs) {
               )
               if (city == "cologne") {
                 cologne_vars = list(
-                  # list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
-                  # list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud)),
+                  list(SVtotal_ud, SVL10 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], REF_ud)),
+                  list(SVtotal_ud, SVL11 = cbind(upd_dataCur[upd_SVindex_ud,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], REF_ud)),
                   list(semiAL_tot, sAL10 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)])),
                   list(semiAL_tot, sAL11 = cbind(upd_dataCur[semiAL_SVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat) - 1))], semiAL_tot[,length(semiAL_tot)]))
                 )
@@ -2871,14 +3064,14 @@ for (model_prob in model_probs) {
               }
             } else {
               SVL_variables = list(
-                # list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
-                # list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)),
+                list(SVtotal_ud, S01C09=cbind(upd_dataCur[upd_SVindex_ud,c((numFeat+1):(2*numFeat))],REF_ud)),
+                list(SVtotal_ud, S03C05=cbind(upd_dataCur[upd_SVindex_ud,c(((2*numFeat)+1):(3*numFeat))],REF_ud)),
+                list(SVtotal_ud, S03C07=cbind(upd_dataCur[upd_SVindex_ud,c(((3*numFeat)+1):(4*numFeat))],REF_ud)),
+                list(SVtotal_ud, S05C03=cbind(upd_dataCur[upd_SVindex_ud,c(((4*numFeat)+1):(5*numFeat))],REF_ud)),
+                list(SVtotal_ud, S05C05=cbind(upd_dataCur[upd_SVindex_ud,c(((5*numFeat)+1):(6*numFeat))],REF_ud)),
+                list(SVtotal_ud, S05C07=cbind(upd_dataCur[upd_SVindex_ud,c(((6*numFeat)+1):(7*numFeat))],REF_ud)),
+                list(SVtotal_ud, S07C03=cbind(upd_dataCur[upd_SVindex_ud,c(((7*numFeat)+1):(8*numFeat))],REF_ud)),
+                list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud)),
                 list(semiAL_tot, s01C09=cbind(upd_dataCur[semiAL_SVindex,c((numFeat+1):(2*numFeat))],semiAL_tot[,length(semiAL_tot)])),
                 list(semiAL_tot, s03C05=cbind(upd_dataCur[semiAL_SVindex,c(((2*numFeat)+1):(3*numFeat))],semiAL_tot[,length(semiAL_tot)])),
                 list(semiAL_tot, s03C07=cbind(upd_dataCur[semiAL_SVindex,c(((3*numFeat)+1):(4*numFeat))],semiAL_tot[,length(semiAL_tot)])),
@@ -2919,8 +3112,8 @@ for (model_prob in model_probs) {
             SVindex_ud = tmp_new_tunedSVM_ALT2$finalModel@SVindex
             
             # get new al train set portion
-            trainFeat_AL <- new_trainFeatVSVM[SVindex_ud,]
-            trainLabels_AL <- new_trainLabelsVSVM[SVindex_ud]
+            trainFeat_AL <- new_trainFeatVSVM[,]
+            trainLabels_AL <- new_trainLabelsVSVM[]
             # *********************************************************************
             # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
             
@@ -2952,7 +3145,7 @@ for (model_prob in model_probs) {
 
           }
           sample_size_iter=sample_size_iter+1
-          if (realization==1 && sample_size==5) {
+          if (realization==1 && sample_size==2) {
             # saveRDS(tmp_new_tunedSVM_r, model_name_AL_VSVMSL_r)
             # saveRDS(tmp_new_tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds"))
             # saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds"))
@@ -2969,7 +3162,8 @@ for (model_prob in model_probs) {
         # best_cluster_oa=c(best_cluster_oa," ", best_cluster)
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         # trainvUn.time_oa = trainvUn.time_oa+trainvUn.time
-        trainUn.time_oa = trainUn.time_oa+trainUn.time
+        # trainUn.time_oa = trainUn.time_oa+trainUn.time
+        trainSL.time_oa = trainSL.time_oa+t.timeVSVM_SL
         train.timeALv2_SEMI_VSVMSL_oa = train.timeALv2_SEMI_VSVMSL_oa+train.timeALv2_SEMI_VSVMSL
         train.timeALv2_tSNE_VSVMSL_oa = train.timeALv2_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSL
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
@@ -2981,26 +3175,27 @@ for (model_prob in model_probs) {
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
         save(AccuracySVM, 
              # AccuracySVM_SL_Un, 
-             AccuracyVSVM_SL, 
-             AccuracyVSVM_SL_Un,
+             AccuracyVSVM_SL,
+             # AccuracyVSVM_SL_Un,
              # AccuracyVSVM_SL_vUn,
-             AccuracyVSVM_SL_Un_it, 
+             # AccuracyVSVM_SL_Un_it, 
              # AccuracyVSVM_SL_Un_random_it,
              AccuracyVSVM_SL_Un_itSL,
-             # AccuracyVSVM_SL_Un_itTSL,
+             AccuracyVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, 
              # KappaSVM_SL_Un, 
-             KappaVSVM_SL, 
-             KappaVSVM_SL_Un,
+             KappaVSVM_SL,
+             # KappaVSVM_SL_Un,
              # KappaVSVM_SL_vUn,
-             KappaVSVM_SL_Un_it, 
+             # KappaVSVM_SL_Un_it, 
              # KappaVSVM_SL_Un_random_it,
              KappaVSVM_SL_Un_itSL,
-             # KappaVSVM_SL_Un_itTSL,
+             KappaVSVM_SL_Un_itTSL,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model_oa,
-            "\n",model_name_Un," training time: ",trainUn.time_oa/nR, "sec",
+            "\n",model_name_VSVM_SL," training time: ",trainSL.time_oa/nR, "sec",
+            # "\n",model_name_Un," training time: ",trainUn.time_oa/nR, "sec",
             "\n",model_name_ALSL_VSVMSL," training time: ",train.timeALv2_tSNE_VSVMSL_oa/nR, "sec",
             "\n",model_name_ALTrainSL_VSVMSL," training time: ",train.timeALv2_SEMI_VSVMSL_oa/nR, "sec\n",
             # "\nbest_resample_oa: ", best_resample_oa, "\nbest_newSize_oa: ", best_newSize_oa,"\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
