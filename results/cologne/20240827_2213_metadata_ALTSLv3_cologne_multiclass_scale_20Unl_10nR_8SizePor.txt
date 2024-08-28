@@ -1,0 +1,30 @@
+OA Execution time: 7.93h
+Realization 1 | seed: 50 execution time: 0.94h
+Realization 2 | seed: 95 execution time: 0.94h
+Realization 3 | seed: 140 execution time: 0.95h
+Realization 4 | seed: 185 execution time: 1h
+Realization 5 | seed: 230 execution time: 0.83h
+Realization 6 | seed: 275 execution time: 0.93h
+Realization 7 | seed: 320 execution time: 0.57h
+Realization 8 | seed: 365 execution time: 0.56h
+Realization 9 | seed: 410 execution time: 0.62h
+Realization 10 | seed: 455 execution time: 0.55h
+
+ALv2+Train_semiSL_VSVMSL: 0.738276809609481
+VSVM_SL: 0.746542788861738
+ALv2+Train_semiSL_VSVMSL: 0.74025939153084
+ALv2_semiSL_tSNE_VSVMSL: 0.735291748341881
+ALv2+Train_semiSL_VSVMSL: 0.723893021132623
+VSVM_SL: 0.74888339912104
+VSVM_SL: 0.757247836166233
+VSVM_SL: 0.774119921591794
+ALv2_semiSL_tSNE_VSVMSL: 0.76046114049927
+ALv2+Train_semiSL_VSVMSL: 0.757162804435971
+
+VSVM_SL training time: 190.94sec
+ALv2_semiSL_tSNE_VSVMSL training time: 521.28sec
+ALv2+Train_semiSL_VSVMSL training time: 564.33sec
+
+length ALv2 + semiSL tSNE SVs: 306
+length ALv2 +semi SVs: 606
+length new train Labels AL: 193

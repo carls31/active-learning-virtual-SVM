@@ -30,6 +30,7 @@ file_name_acc = "20240825_1959_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6
 file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
 file_name_acc = "20240826_0827_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_acc = "20240827_1123_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
+file_name_acc = "20240827_2213_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
 
 
 
@@ -50,6 +51,7 @@ file_name_kappa = "20240825_1959_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10
 file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
 file_name_kappa = "20240826_0827_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_1123_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
+file_name_kappa = "20240827_2213_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_8SizePor"
 
 
 
@@ -185,9 +187,13 @@ ExCsvMSD = function (datadase, filename = NA){
   return(MSDdata)
 }
 
+nclass=6
+if(model_prob=="binary"){   nclass=2
+}else if(city=="hagadera"){ nclass=5 }
+
 column_names <- colnames(AccuracySVM)
 if(is.null(column_names)){column_names <- names(AccuracySVM)}
-x <- as.integer(column_names)
+x <- as.integer(column_names)/nclass
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
@@ -255,7 +261,7 @@ if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
-                    xlab= "number of labeled samples",
+                    xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
@@ -379,7 +385,7 @@ if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,   col = 1, lwd = 2,lty = 1,
-                    xlab= "number of labeled samples", 
+                    xlab= "number of labeled samples per class", 
                     ylab="accuracy (%) +/- std dev",
                     main = paste(city,"-", class,"classification problem -", invariance,"invariance")
   )
