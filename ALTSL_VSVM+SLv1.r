@@ -22,7 +22,6 @@ b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-# sampleSizePor = c(25, 33, 50, 41, 100, 49, 160, 57, 230, 65, 310, 73, 400, 81, 500, 89)
 sampleSizePor = c(25, 50, 100, 160, 230, 310, 400, 500)
 
 # resampledSize = c(60)    # total number of relabeled samples # 20, 40, 60, 120
@@ -32,7 +31,7 @@ sampleSizePor = c(25, 50, 100, 160, 230, 310, 400, 500)
 classPor = 2700 #  *n_of_class # unlabeled pool samples portion per class
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- 52 #parallel::detectCores()/2 # Numbers of CPU cores for parallel processing
+num_cores <- 52 #parallel::detectCores() # 28 # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 ########################################  Utils  ########################################
@@ -336,7 +335,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
     png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSUD_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
         units="in", 
         width=20, 
-        height=16, 
+        height=9, 
         pointsize=12,
         res=96)
     
@@ -424,7 +423,7 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
     png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MS_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
         units="in", 
         width=20, 
-        height=16, 
+        height=9, 
         pointsize=12,
         res=96)
     
@@ -930,7 +929,7 @@ self_learn_AL = function(
       png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSSL_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
           units="in", 
           width=20, 
-          height=16, 
+          height=9, 
           pointsize=12,
           res=96)
 
@@ -1028,12 +1027,16 @@ for (model_prob in model_probs) {
       start.time_oa <- Sys.time()
       lgtS=TRUE
       cat("preprocessing",city,model_prob,invariance,"\n")
-      if(city=="cologne"){ #sampleSizePor = c(30,38, 60,46, 120,54, 192,62, 276,70, 372,78, 480,86, 600,94)
-      sampleSizePor = c(30, 60, 120, 192, 276, 372, 480, 600)}
-      if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
+      if(city=="cologne"){ 
+      sampleSizePor = c(30, 60, 120, 192, 276, 372, 480, 600)
+      } else if(model_prob=="binary"){ 
       sampleSizePor = c(10, 20, 40, 64, 92, 124, 160, 200)}
       if (lgtS) { nR=10
-      sampleSizePor = c(10, 20, 40, 64, 92)  
+      sampleSizePor = c(25, 50, 100, 160, 230)  
+      if(city=="cologne"){ 
+      sampleSizePor = c(30, 60, 120, 192, 276)
+      } else if(model_prob=="binary"){ 
+      sampleSizePor = c(10, 20, 40, 64, 92)}
       classPor = 2700
       bound = c(0.3, 0.9)
       boundMargin = c(1)}
@@ -1826,9 +1829,8 @@ for (model_prob in model_probs) {
       
       for (realization in seq(nR)) {
         start.time <- Sys.time()
-        # initial seed value for randomized sampling
-        if (train) {seed = seed + sample(100, 1)}
-        cat("CPU cores: ",num_cores," | seed: ",seed,"\n",sep="")
+
+        cat("CPU cores: ",num_cores,"\n",sep="")
         
         trainDataCurBeg = trainDataPoolAllLev
         testDataCurBeg = testDataAllLev
@@ -1937,12 +1939,13 @@ for (model_prob in model_probs) {
         for (sample_size in seq(length(sampleSizePor))) {
           cat("\n") ############################### Train/Test Set Size #####################################
           
-          sampleSize = round(sampleSizePor[sample_size]/nclass)
-          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]," [",sample_size,"/",round(length(sampleSizePor)/2),"]\n",sep="")
+          # initial seed value for randomized sampling
+          if (train) {seed = seed + sample(100, 1)}
+          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]," [",sample_size,"/",round(length(sampleSizePor)/2),"] | seed: ",seed,"\n",sep="")
           
 
+          sampleSize = round(sampleSizePor[sample_size]/nclass)
           if(sample_size==1){
-            
             
             shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
             
@@ -1967,10 +1970,8 @@ for (model_prob in model_probs) {
             trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
             # ************************************************ *******************************************************
             
-            
-            
-            sampleSize = round(sampleSizePor[sample_size]/nclass)
-            shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
+            # sampleSize = round(sampleSizePor[sample_size]/nclass)
+            # shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
             
             stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
             samples = getdata(testDataCurBeg, stratSamp)
@@ -2018,6 +2019,7 @@ for (model_prob in model_probs) {
             new_bestTunedVSVM <- tunedSVM
             new_bestTrainFeatVSVM <- trainFeat 
             new_bestTrainLabelsVSVM <- trainLabels
+            best_train.time <- trainSVM.time
           }
           # get original SVs of base SVM ************************* prevent removing an entire class label
           SVindex = tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
@@ -2120,6 +2122,7 @@ for (model_prob in model_probs) {
           #   new_bestTrainLabelsSVM <- best_trainLabelsSVMUn
           #   best_boundMargin <- best_boundMarginSVMUn
           #   best_model <- model_name_SVMUn
+          #   best_train.time <- t.time
           # }
           # 
           cat("\n") ############################### VSVM-SL ################################################
@@ -2229,12 +2232,14 @@ for (model_prob in model_probs) {
             new_bestTrainLabelsVSVM <- best_trainLabelsVSVM
             best_boundMargin <- best_boundMargin_SL
             best_model <- model_name_VSVM_SL
+            best_train.time <- t.timeSL
           }
 
 
           cat("\n") ############################### VSVM-SL + semi-labeled samples #####################################
           model_name_Un = "VSVM_SLUn"
 
+          trainStart.timeUn <- Sys.time()
           actAcc_vUn = -1e-6
           bb = 1 # for (bb in seq(along=b)) {
 
@@ -2310,7 +2315,7 @@ for (model_prob in model_probs) {
             best_trainLabelsVSVMUn <- SLresult$best_trainLabelsVSVM
             # best_bound_SL_Un = SLresult$best_bound
             best_boundMargin_SL_Un = SLresult$best_boundMargin
-            trainUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
+            trainUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             predLabelsVSVMsumUn = predict(bestFittingModelUn, validateFeatsub)
             accVSVM_SL_Un = confusionMatrix(predLabelsVSVMsumUn, validateLabels)
@@ -2325,6 +2330,7 @@ for (model_prob in model_probs) {
               new_bestTrainLabelsVSVM <- best_trainLabelsVSVMUn
               best_boundMargin <- best_boundMargin_SL_Un
               best_model <- model_name_Un
+              best_train.time <- trainUn.time
             }
 
 
@@ -2397,7 +2403,7 @@ for (model_prob in model_probs) {
           #   new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
           #   # new_best_bound_SLvUn = SLresult$best_bound
           #   new_best_boundMargin_SLvUn = SLresult$best_boundMargin
-          #   trainvUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
+          #   trainvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
           #   # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           #   new_predLabelsVSVMvUnsum = predict(new_bestFittingModelvUn, validateFeatsub)
           #   new_accVSVM_SL_vUn = confusionMatrix(new_predLabelsVSVMvUnsum, validateLabels)
@@ -2423,13 +2429,27 @@ for (model_prob in model_probs) {
           #   new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn
           #   best_boundMargin <- best_boundMargin_SLvUn
           #   best_model <- model_name_vUn
+          #   best_train.time <- trainvUn.time
           # }
           #######################################################################################################
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
             cat("\n") ############################# Sampling Unlabeled Data #####################################
 
-            # Update test set
+
+            
             sampleSize = round(sampleSizePor[sample_size+1]/nclass) # length(sampleSizePor)  
+            # get the new size for the active labeling
+            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] 
+            if(sample_size==1){ trainFeat_AL = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
+                                trainLabels_AL = trainLabels
+                                # # distinguish active train set from random train set
+                                # trainFeat_rand = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
+                                # trainLabels_rand = trainLabels
+                                newSize = sampleSizePor[sample_size]+nclass+1
+                                sampleSize = round(sampleSizePor[sample_size+2]/nclass) # length(sampleSizePor)  
+            } 
+            
+            # Update test set
             shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
             stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
             samples = getdata(testDataCurBeg, stratSamp)
@@ -2439,20 +2459,16 @@ for (model_prob in model_probs) {
             testLabels = testDataCur[,ncol(testDataCur)]
             # subset on base level
             testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
-            
-            # get the new size for the active labeling
-            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] 
-            if(sample_size==1){ trainFeat_AL = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
-                                trainLabels_AL = trainLabels
-                                # # distinguish active train set from random train set
-                                # trainFeat_rand = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
-                                # trainLabels_rand = trainLabels
-                                newSize = sampleSizePor[sample_size]+nclass+1
-            } 
            
             clusterSizes = c(round(max(classPor/40,newSize+1)))
             # clusterSizes = c(120)
-            classSize=c(round(min((7-nclass)*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))
+
+            classSize=c(round(min(3*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))  
+            if(city=="cologne"){ 
+              classSize=c(round(min(1.5*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))
+            } else if(model_prob=="binary"){ 
+              classSize=c(round(min(4*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))}
+
             clS=1
             cat("Sampling ", classSize," unlabeled data per class\n",sep="")
             samplingStart.time <- Sys.time()
@@ -2751,7 +2767,7 @@ for (model_prob in model_probs) {
             #           # tmp_new_tunedSVM2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
             #           # # **********************
             # 
-            #           t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeSL+sampling.time, 1)
+            #           t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
             #           tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
             #           tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
             #           # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
@@ -2777,6 +2793,7 @@ for (model_prob in model_probs) {
             # if(actAcc>best_acc){
             #   best_acc <- actAcc
             #   best_model <- model_name_AL_VSVMSL
+            #   best_train.time <- train.timeALv1_tSNE_VSVMSL
             # }
 
             cat("\n") ############################# ALv2+tSNE_VSVMSL #######################################
@@ -2915,7 +2932,7 @@ for (model_prob in model_probs) {
                       upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM_SL$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
-                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeSL+sampling.time, 1)
+                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
                       # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc_sl  = confusionMatrix(tmp_pred, validateLabels)
@@ -2958,6 +2975,7 @@ for (model_prob in model_probs) {
             if(accVSVM_ALv2SL_tSNE>best_acc){ 
               best_acc <- accVSVM_ALv2SL_tSNE
               best_model <- model_name_ALSL_VSVMSL
+              best_train.time <- train.timeALv2_tSNE_VSVMSL
             }
 
             cat("\n") ############################# ALv2+SEMI_VSVMSL+Train #######################################
@@ -3098,7 +3116,7 @@ for (model_prob in model_probs) {
             tmp_new_tunedSVM_ALSL2 <- upd_SLresult$bestFittingModel
             tmp_pred = predict(tmp_new_tunedSVM_ALSL2, validateFeatsub)
             tmp_acc_sl  = confusionMatrix(tmp_pred, validateLabels)
-            t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeSL+sampling.time, 1)
+            t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
 
             # **********************
             # trainData index to split between train and test in svmFit
@@ -3156,6 +3174,7 @@ for (model_prob in model_probs) {
             if(accVSVM_ALv2_TSL>best_acc){
               best_acc <- accVSVM_ALv2_TSL
               best_model <- model_name_ALTrainSL_VSVMSL
+              best_train.time <- train.timeALv2_SEMI_VSVMSL
             }
 
           }

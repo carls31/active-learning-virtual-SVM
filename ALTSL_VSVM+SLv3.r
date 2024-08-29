@@ -15,8 +15,8 @@ script = "ALTSLv3"
 
 nR = 10                    # realizations
 cities = c("hagadera")    # cologne or hagadera
-invariances = c("shape")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+invariances = c("scale")   # scale or shape invariance
+model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
@@ -336,11 +336,10 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
     png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSUD_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
         units="in", 
         width=20, 
-        height=16, 
+        height=9, 
         pointsize=12,
         res=96)
     
-
     # ***********************************************************************************
     
     # Flatten the matrices to vectors for plotting
@@ -424,7 +423,7 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
     png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MS_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
         units="in", 
         width=20, 
-        height=16, 
+        height=9, 
         pointsize=12,
         res=96)
     
@@ -930,7 +929,7 @@ self_learn_AL = function(
       png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"),plot_flag,"_MSSL_AL_Distances_",script,"_",city,"_",model_prob,"_",invariance,".png"),
           units="in", 
           width=20, 
-          height=16, 
+          height=9, 
           pointsize=12,
           res=96)
 
@@ -1029,14 +1028,18 @@ for (model_prob in model_probs) {
       lgtS=TRUE
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ #sampleSizePor = c(30,38, 60,46, 120,54, 192,62, 276,70, 372,78, 480,86, 600,94)
-      sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)}
-      if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
+      sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)
+      } else if(model_prob=="binary"){ #sampleSizePor = c(10,18, 20,26, 40,34, 64,42, 92,50, 124,58, 160,66, 200,74)
       sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
       if (lgtS) { nR=10
-      sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92)  # c(30,36, 60,60, 120,120, 192,192)  
+      sampleSizePor = c(25,30, 50,50, 100,100, 160,160, 230,230)
+      if(city=="cologne"){ 
+      sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276) 
+      } else if(model_prob=="binary"){ 
+      sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92)}
       classPor = 2700
-      bound = c(0.3, 0.9)
-      boundMargin = c(1)}
+      bound = c(0.3)
+      boundMargin = c(1.5, 1, 0.5)}
       colheader = as.character(sampleSizePor) # corresponding column names
       ##################################  Preprocessing  #####################################
       lightC = 2 # lighter validate dataset for running faster prediction 
@@ -1730,7 +1733,7 @@ for (model_prob in model_probs) {
         #   stratSampSize <- c(lightS, lightS, lightS, lightS, lightS, lightS)
         #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
         #   validateData_sampl = getdata(valDataCurRemaining_sampl, val_stratSamp)
-        #   
+        # 
         #   # Remove duplicates based on the specified column range
         #   unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[1:ncol(validateFeatsub)]), ]
         #   # Add unique rows to the cumulative dataframe
@@ -1827,9 +1830,8 @@ for (model_prob in model_probs) {
       
       for (realization in seq(nR)) {
         start.time <- Sys.time()
-        # initial seed value for randomized sampling
-        if (train) {seed = seed + sample(100, 1)}
-        cat("CPU cores: ",num_cores," | seed: ",seed,"\n",sep="")
+
+        cat("CPU cores: ",num_cores,"\n",sep="")
         
         trainDataCurBeg = trainDataPoolAllLev
         testDataCurBeg = testDataAllLev
@@ -1939,9 +1941,11 @@ for (model_prob in model_probs) {
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {
           cat("\n") ############################### Train/Test Set Size #####################################
           
-          sampleSize = round(sampleSizePor[sample_size]/nclass)
-          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]," [",sample_size_iter,"/",round(length(sampleSizePor)/2),"]\n",sep="")
+          # initial seed value for randomized sampling
+          if (train) {seed = seed + sample(100, 1)}
+          cat(city," ",model_prob ," ",invariance," | realization [",realization,"/",nR,"] | labeled samples: ",sampleSizePor[sample_size]," [",sample_size_iter,"/",round(length(sampleSizePor)/2),"] | seed: ",seed,"\n",sep="")
           
+          sampleSize = round(sampleSizePor[sample_size]/nclass)
           shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
           
           # set randomized seed for the random sampling procedure
@@ -2233,6 +2237,7 @@ for (model_prob in model_probs) {
           cat("\n") ############################### VSVM-SL + semi-labeled samples #####################################
           model_name_Un = "VSVM_SLUn"
 
+          trainStart.timeUn <- Sys.time()
           actAcc_vUn = -1e-6
           bb = 1 # for (bb in seq(along=b)) {
 
@@ -2308,7 +2313,7 @@ for (model_prob in model_probs) {
             best_trainLabelsVSVMUn <- SLresult$best_trainLabelsVSVM
             # best_bound_SL_Un = SLresult$best_bound
             best_boundMargin_SL_Un = SLresult$best_boundMargin
-            trainUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
+            trainUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
             # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
             predLabelsVSVMsumUn = predict(bestFittingModelUn, validateFeatsub)
             accVSVM_SL_Un = confusionMatrix(predLabelsVSVMsumUn, validateLabels)
@@ -2395,7 +2400,7 @@ for (model_prob in model_probs) {
           #   new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
           #   # new_best_bound_SLvUn = SLresult$best_bound
           #   new_best_boundMargin_SLvUn = SLresult$best_boundMargin
-          #   trainvUn.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
+          #   trainvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
           #   # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
           #   new_predLabelsVSVMvUnsum = predict(new_bestFittingModelvUn, validateFeatsub)
           #   new_accVSVM_SL_vUn = confusionMatrix(new_predLabelsVSVMvUnsum, validateLabels)
@@ -2426,8 +2431,19 @@ for (model_prob in model_probs) {
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
             cat("\n") ############################# Sampling Unlabeled Data #####################################
 
+            sampleSize = round(sampleSizePor[sample_size+1]/nclass) # length(sampleSizePor)  
+            # get the new size for the active labeling
+            if(sample_size==1){ trainFeat_AL = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
+                                trainLabels_AL = trainLabels
+                                # # distinguish active train set from random train set
+                                # trainFeat_rand = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
+                                # trainLabels_rand = trainLabels
+                                sampleSize = round(sampleSizePor[sample_size+2]/nclass) # length(sampleSizePor)  
+                                
+                                newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]+1
+            } else {            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size-1] }
+            
             # Update test set
-            sampleSize = round(sampleSizePor[length(sampleSizePor)]/nclass) #  sample_size+1
             shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
             stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
             samples = getdata(testDataCurBeg, stratSamp)
@@ -2437,19 +2453,16 @@ for (model_prob in model_probs) {
             testLabels = testDataCur[,ncol(testDataCur)]
             # subset on base level
             testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
-            
-            # get the new size for the active labeling
-            if(sample_size==1){ trainFeat_AL = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
-                                trainLabels_AL = trainLabels
-                                # # distinguish active train set from random train set
-                                # trainFeat_rand = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
-                                # trainLabels_rand = trainLabels
-                                newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]+1
-            } else {            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size-1] }
 
             clusterSizes = c(round(max(classPor/40,newSize+1)))
             # clusterSizes = c(120)
-            classSize=c(round(min((7-nclass)*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))
+            
+            classSize=c(round(min(3*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))  
+            if(city=="cologne"){ 
+              classSize=c(round(min(1.5*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))
+            } else if(model_prob=="binary"){ 
+              classSize=c(round(min(4*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))}
+            
             clS=1
             cat("Sampling ", classSize," unlabeled data per class\n",sep="")
             samplingStart.time <- Sys.time()
