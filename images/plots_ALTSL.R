@@ -6,9 +6,9 @@
 ############################################
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-class = "multiclass"     # multiclass or binary
+model_prob = "multiclass"     # multiclass or binary
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
@@ -31,6 +31,7 @@ file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6
 file_name_acc = "20240826_0827_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_acc = "20240827_1123_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_acc = "20240827_2213_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
+file_name_acc = "20240829_1627_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 
 
 
@@ -52,6 +53,7 @@ file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10
 file_name_kappa = "20240826_0827_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_1123_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_2213_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_8SizePor"
+file_name_kappa = "20240829_1627_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 
 
 
@@ -197,7 +199,7 @@ x <- 2*as.integer(column_names)/nclass
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
-if(class == "multiclass"){
+if(model_prob == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.97
@@ -219,7 +221,7 @@ if(class == "multiclass"){
       }
   }
 }
-if(class == "binary"){
+if(model_prob == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.985
@@ -263,7 +265,7 @@ if(nrow(AccuracySVM)>1){
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
-                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
   # lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
   # lines(x[-clms], ExCsvMSD(AccuracySVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd = 2,lty = 4)
@@ -286,7 +288,7 @@ if(nrow(AccuracySVM)>1){
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
-                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
   # lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x, (AccuracySVM_SL_Un), type= type ,   col = 1, lwd = 2,lty = 4)
@@ -387,7 +389,7 @@ if(nrow(AccuracySVM)>1){
                     pch=20, type= type,   col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class", 
                     ylab="accuracy (%) +/- std dev",
-                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
   # lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
@@ -455,7 +457,7 @@ if(nrow(AccuracySVM)>1){
 ##########################################################################
 
 
-if(class == "multiclass"){
+if(model_prob == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.955
@@ -477,7 +479,7 @@ if(class == "multiclass"){
     }
   }
 }
-if(class == "binary"){
+if(model_prob == "binary"){
   if(city=="hagadera"){
     if(invariance=="scale"){
       yUpperBound = 0.96
@@ -514,7 +516,7 @@ if(nrow(KappaSVM)>1){
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab="Kappa-score",
-                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
   # lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
   lines(x[-clms], ExCsvMSD(KappaSVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd=2,lty = 4)
@@ -536,7 +538,7 @@ if(nrow(KappaSVM)>1){
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
                     xlab= "number of labeled samples per class", 
                     ylab="Kappa-score",
-                    main = paste(city,"-", class,"classification problem -", invariance,"invariance")
+                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
   # lines(x, (KappaSVM_M), type= type ,         col = 8, lwd=2,lty = 3)
   lines(x, (KappaSVM_SL_Un), type= type ,   col = 1, lwd=2,lty = 4)
