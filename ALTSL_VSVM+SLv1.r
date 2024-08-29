@@ -563,13 +563,6 @@ add_AL_samples = function(distance_data,
         res=96)
     par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
     
-    # Plot PCA with Distance
-    plot(pca_data_with_distance$PC1, ref_added_or$distance, col = cluster_colors[pca_data_with_distance$Cluster],
-         pch = 20, cex = 2, main = "K-means Clustering on PCA + Distance",
-         xlab = "Principal Component 1", ylab = "Distance")
-    # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
-    #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
-    
     # Plot PCA
     plot(pca_data$PC1, pca_data$PC2, col = cluster_colors[pca_data_with_distance$Cluster],
          pch = 20, cex = 2, main = "PCA with K-means Clustering",
@@ -577,6 +570,13 @@ add_AL_samples = function(distance_data,
     # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
     #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
     dev.off()
+    
+    # Plot PCA with Distance
+    plot(pca_data_with_distance$PC1, ref_added_or$distance, col = cluster_colors[pca_data_with_distance$Cluster],
+         pch = 20, cex = 2, main = "K-means Clustering on PCA + Distance",
+         xlab = "Principal Component 1", ylab = "Distance")
+    # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
+    #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
   }
   
   if(tSNE_flag){
@@ -592,7 +592,7 @@ add_AL_samples = function(distance_data,
     
     # Plot t-SNE
     plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
-         pch = 20, cex = 2, main = "t-SNE with K-means Clustering",
+         pch = 20, cex = 2, main = c("t-SNE with K-means Clustering ", cluster),
          xlab = "t-SNE 1", ylab = "t-SNE 2")
     # legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
     #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
@@ -2435,8 +2435,6 @@ for (model_prob in model_probs) {
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
             cat("\n") ############################# Sampling Unlabeled Data #####################################
 
-
-            
             sampleSize = round(sampleSizePor[sample_size+1]/nclass) # length(sampleSizePor)  
             # get the new size for the active labeling
             newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size] 
@@ -2460,8 +2458,7 @@ for (model_prob in model_probs) {
             # subset on base level
             testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
            
-            clusterSizes = c(round(max(classPor/40,newSize+1)))
-            # clusterSizes = c(120)
+            clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
 
             classSize=c(round(min(3*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))  
             if(city=="cologne"){ 
@@ -2470,7 +2467,7 @@ for (model_prob in model_probs) {
               classSize=c(round(min(4*classPor/nclass,as.numeric(min(table(trainDataCurRemaining$REF))))))}
 
             clS=1
-            cat("Sampling ", classSize," unlabeled data per class\n",sep="")
+            cat("sampling ", classSize," unlabeled data per class\n",sep="")
             samplingStart.time <- Sys.time()
               # Create an empty dataframe to store unique samples
               samplesRemaining <- data.frame()
@@ -2510,10 +2507,10 @@ for (model_prob in model_probs) {
               # Final check for duplicates
               final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
               sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
-              cat("Final number of samples: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
-              cat("Best model: ",best_model," | acuracy: ",best_acc,"\n",sep="")
+              cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
+              cat("using currently best model: ",best_model," | acuracy: ",best_acc,"\n",sep="")
               cS=1  
-            # cat("\n") ############################# RANDOM AL_VSVM #######################################
+            # cat("\n") ############################# RANDOM AL_VSVM-SL-Un #######################################
             #   
             #   model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_random_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             #   
@@ -2626,8 +2623,8 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
             # 
-            # cat("\n") ############################# ALv1+tSNE_VSVMSL #######################################
-            # model_name_AL_VSVMSL ="ALv1_tSNE_VSVMSL"
+            # cat("\n") ############################# ALv1+tSNE_VSVM-SL-Un #######################################
+            # model_name_AL_VSVMSL ="ALv1+tSNE+UnSL_VSVM-SL-Un"
             # 
             # cat("computing uncertainty distance for active labeling | ",length(trainLabels_AL)," [",sample_size,"/",length(sampleSizePor)/2,"]\n",sep="")
             # # actAcc = -1e-6
@@ -2796,8 +2793,8 @@ for (model_prob in model_probs) {
             #   best_train.time <- train.timeALv1_tSNE_VSVMSL
             # }
 
-            cat("\n") ############################# ALv2+tSNE_VSVMSL #######################################
-            model_name_ALSL_VSVMSL = "ALv2_semiSL_tSNE_VSVMSL"
+            cat("\n") ############################# ALv2+tSNE+semiSL_VSVM-SL-Un #######################################
+            model_name_ALSL_VSVMSL = "ALv2+tSNE+UnSL_VSVM-SL-Un"
             
             cat("computing uncertainty distance for active labeling + SL | ",length(trainLabels_AL)," [",sample_size,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
@@ -2975,11 +2972,11 @@ for (model_prob in model_probs) {
             if(accVSVM_ALv2SL_tSNE>best_acc){ 
               best_acc <- accVSVM_ALv2SL_tSNE
               best_model <- model_name_ALSL_VSVMSL
-              best_train.time <- train.timeALv2_tSNE_VSVMSL
+              best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
             }
 
-            cat("\n") ############################# ALv2+SEMI_VSVMSL+Train #######################################
-            model_name_ALTrainSL_VSVMSL = "ALv2+Train_semiSL_VSVMSL"
+            cat("\n") ############################# ALv2+Train+SL_VSVM-SL-Un #######################################
+            model_name_ALTrainSL_VSVMSL = "ALv2+Train+SL_VSVM-SL-Un"
 
             cat("computing uncertainty distance for active labeling + Train SL | ",length(trainLabels_AL)," [",sample_size,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
@@ -3174,7 +3171,7 @@ for (model_prob in model_probs) {
             if(accVSVM_ALv2_TSL>best_acc){
               best_acc <- accVSVM_ALv2_TSL
               best_model <- model_name_ALTrainSL_VSVMSL
-              best_train.time <- train.timeALv2_SEMI_VSVMSL
+              best_train.time <- train.timeALv2_SEMI_VSVMSL-best_train.time
             }
 
           }
