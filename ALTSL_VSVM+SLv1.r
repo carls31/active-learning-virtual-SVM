@@ -2875,7 +2875,7 @@ for (model_prob in model_probs) {
               # validateFeatsub,validateLabels,
               upd_dataCurFeatsub,upd_dataCurLabels,
               # realiz=1,s_size=2, 
-              plot_flag = model_name_ALTrainSL_VSVMSL #
+              # plot_flag = model_name_ALTrainSL_VSVMSL #
             )
             sampled_data <- sampledResult$sampled_data
             reference_label <- sampledResult$best_updCur_Labels
