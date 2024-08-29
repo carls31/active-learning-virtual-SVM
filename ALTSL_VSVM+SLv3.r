@@ -2729,7 +2729,7 @@ for (model_prob in model_probs) {
             #               list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
             #             )
             #           } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-            #           upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+            #           upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1), model_name_AL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
             #                                      SVL_variables, tmp_new_tunedSVM$finalModel)
             #           tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
             #           # new_trainFeatVSVM <- upd_SLresult$best_trainFeatVSVM
@@ -2909,7 +2909,7 @@ for (model_prob in model_probs) {
                           list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
                         )
                       } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM_SL$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeSL+sampling.time, 1)
@@ -3090,7 +3090,7 @@ for (model_prob in model_probs) {
                 # list(semiAL_tot, s09C01=cbind(upd_dataCur[semiAL_SVindex,c(((8*numFeat)+1):(9*numFeat))],semiAL_tot[,length(semiAL_tot)]))
               )
             } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-            upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_ALTrainSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+            upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1), model_name_ALTrainSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                        SVL_variables, tmp_new_tunedSVM_SL$finalModel)
             tmp_new_tunedSVM_ALSL2 <- upd_SLresult$bestFittingModel
             tmp_pred = predict(tmp_new_tunedSVM_ALSL2, validateFeatsub)

@@ -66,7 +66,7 @@ DONE vectorize: apply() {R function} + predict() {kernlab function} for performa
  56. build function for full AL procedure
  57. check train test validate sample transformation in the whole pipeline -> DO NOT TRAIN MODEL ON ALREADY SEEN DATA
  58. check low VSVM_SL accuracy sampleSizePor[1/9] -> due to poor initial train data set spread? (then it gets better) -> not really solved
-
+ 59. boundMargin self_learn after AL is redundant since the samples we got are already the smallest -> just keep boundMargin=c(1)
 
 
 
