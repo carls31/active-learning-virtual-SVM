@@ -313,7 +313,7 @@ legend("bottomright",
          # "VSVM-SL + Virtual Unlabeled",
          # "VSVM-SL + random AL",
          # "VSVM-SL + AL",
-         "ALv2+tSNE+UnSL - VSVM-SL Un", "ALv2+Train+SL - VSVM-SL Un"
+         "ALv2+tSNE+SL - VSVM-SL Un", "ALv2+Train+SL - VSVM-SL Un"
        ),
        lty=c(1,
              # 4,
@@ -426,7 +426,7 @@ if(nrow(AccuracySVM)>1){
            "VSVM-SL + Virtual Unlabeled",
            "VSVM-SL + random AL",
            "VSVM-SL + AL",
-           "ALv2+tSNE+UnSL - VSVM-SL Un", "ALv2+Train+SL - VSVM-SL Un"
+           "ALv2+tSNE+SL - VSVM-SL Un", "ALv2+Train+SL - VSVM-SL Un"
          ),
          lty=c(1,
                4,
@@ -564,7 +564,7 @@ legend("bottomright",
          "VSVM-SL + Virtual Unlabeled",
          "VSVM-SL + random AL",
          "VSVM-SL + AL",
-         "ALv2+tSNE+UnSL - VSVM-SL Un", "ALv2+Train+SL - VSVM-SL Un"
+         "ALv2+tSNE+SL - VSVM-SL Un", "ALv2+Train+SL - VSVM-SL Un"
        ),
        lty=c(1,
              4,
