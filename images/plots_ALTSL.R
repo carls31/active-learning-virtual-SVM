@@ -193,7 +193,7 @@ if(model_prob=="binary"){   nclass=2
 
 column_names <- colnames(AccuracySVM)
 if(is.null(column_names)){column_names <- names(AccuracySVM)}
-x <- as.integer(column_names)/nclass
+x <- 2*as.integer(column_names)/nclass
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
