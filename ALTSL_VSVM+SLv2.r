@@ -11,7 +11,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)
-script = "ALTSLv3"
+script = "ALTSLv2"
 
 nR = 8                    # realizations
 cities = c("hagadera")    # cologne or hagadera
@@ -22,7 +22,7 @@ b = c(20)           # Size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold    # c(0.3, 0.6, 0.9) # c(0.5, 0.8)        
 boundMargin = c(1.5, 1, 0.5)       # distance from hyperplane - threshold   # c(1.5, 1, 0.5) # c(1.5, 1)
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-sampleSizePor = c(25,30, 50,50, 100,100, 160,160, 230,230, 310,310, 400,400, 500,500)
+sampleSizePor = c(25,30, 50,55, 100,105, 160,165, 230,235, 310,315, 400,405, 500,505)
 
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- 52 #parallel::detectCores()/2 # Numbers of CPU cores for parallel processing
@@ -990,11 +990,11 @@ for (model_prob in model_probs) {
       } else if(model_prob=="binary"){ 
       sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
       if (lgtS) {
-      sampleSizePor = c(25,30, 50,50, 100,100, 160,160, 230,230)
+      sampleSizePor = c(25,30, 50,55, 100,105, 160,165, 230,235)
       if(city=="cologne"){ 
-      sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276) 
+      sampleSizePor = c(30,36, 60,66, 120,126, 192,198, 276,282) 
       } else if(model_prob=="binary"){ 
-      sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124)}
+      sampleSizePor = c(10,12, 20,22, 40,42, 64,66, 92,94, 124,126)}
       bound = c(0.3)}
       colheader = as.character(sampleSizePor) # corresponding column names
       ##################################  Preprocessing  #####################################
@@ -2332,16 +2332,11 @@ for (model_prob in model_probs) {
 
             sampleSize = round(sampleSizePor[sample_size+1]/nclass) # length(sampleSizePor)  
             # get the new size for the active labeling
-            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size-1]
             if(sample_size==1){ trainFeat_AL = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
                                 trainLabels_AL = trainLabels
                                 # # distinguish active train set from random train set
                                 # trainFeat_rand = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
-                                # trainLabels_rand = trainLabels
-                                sampleSize = round(sampleSizePor[sample_size+2]/nclass) # length(sampleSizePor)  
-                                
-                                newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]+1} 
-            
+                                # trainLabels_rand = trainLabels } 
             # Update test set
             shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
             stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
@@ -2353,6 +2348,7 @@ for (model_prob in model_probs) {
             # subset on base level
             testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
 
+            newSize = sampleSizePor[sample_size+1]-sampleSizePor[sample_size]
             clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
             
             classSize=c(round(min(1400,as.numeric(min(table(trainDataCurRemaining$REF))))))  

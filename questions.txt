@@ -1,13 +1,3 @@
-CHECK THE VALUES INSIDE THE COMPUTED VECTORS
-
-Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
-
-DONE Inside svm package, check the difference between probability class and distance class -> see both related papers and script function
-DONE check how many CPU cores are present on the RSRG server and how to use them
-DONE vectorize: apply() {R function} + predict() {kernlab function} for performance efficency improvement
-
-********************************************************
-
  1.  DONE try without indexTrain  
  2.  DONE perform PCA for visualization and clustering
  3.  DONE split alter_samples in multiple iterations 
@@ -54,20 +44,30 @@ DONE vectorize: apply() {R function} + predict() {kernlab function} for performa
  44. DONE check if using valid acc instead of test kappa increase performance 
  45. FUTURE -> BAYESIAN OPTIMIZATION FOR HYPERPARAMETERS TUNING  
  46. FUTURE -> try resampledSize proportional to sampleSizePor -> HYPERPARAMETER
- 47. check distance from the margin only for samples from the wrong side of the hyperplane
- 48. check the number of training samples before and after AL iterations -> col+hag MULTICLASS SHAPE
- 49. check SVM+AL again
+ 47. DONE check distance from the margin only for samples from the wrong side of the hyperplane
+ 48. DONE check the number of training samples before and after AL iterations -> col+hag MULTICLASS SHAPE
+ 49. DONE check SVM+AL again
  50. FUTURE -> IMPLEMENT t-SNE CLUSTERING  
  51. DONE progressive AL hyperparameters wrt sampleSizePor
  52. DONE AL on VSVs from SL
- 53. check for strange behaviour in the accuracies results: SVM multilevel, (e.g. general upside-down of the accuracy of the model [some go up while the others go down] -> biased set)
+ 53. DONE check for strange behaviour in the accuracies results: SVM multilevel, (e.g. general upside-down of the accuracy of the model [some go up while the others go down] -> biased set)
  54. FUTURE -> CNN
- 55. fix warnings AL_VSVM+SL
+ 55. DONE fix warnings AL_VSVM+SL
  56. build function for full AL procedure
- 57. check train test validate sample transformation in the whole pipeline -> DO NOT TRAIN MODEL ON ALREADY SEEN DATA
- 58. check low VSVM_SL accuracy sampleSizePor[1/9] -> due to poor initial train data set spread? (then it gets better) -> not really solved
- 59. boundMargin self_learn after AL is redundant since the samples we got are already the smallest -> just keep boundMargin=c(1)
+ 57. DONE check train test validate sample transformation in the whole pipeline -> DO NOT TRAIN MODEL ON ALREADY SEEN DATA
+ 58. DONE check low VSVM_SL accuracy sampleSizePor[1/9] -> due to poor initial train data set spread? (then it gets better) -> not really solved
+ 59. DONE boundMargin self_learn after AL is redundant since the samples we got are already the smallest -> just keep boundMargin=c(1)
+ 60. implement variant with clustering for each class 
+ 61. implement: new train_size -> old train_size + new_train_size VS new train_size_AL -> old train_size_AL + 2/class AL_samples + remaining new_train_size
 
+CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
+Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
 
-  
+DONE Inside svm package, check the difference between probability class and distance class -> see both related papers and script function
+DONE check how many CPU cores are present on the RSRG server and how to use them
+DONE vectorize: apply() {R function} + predict() {kernlab function} for performance efficency improvement
+
+********************************************************
+
+ 
