@@ -265,7 +265,7 @@ if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
-                    xlab= "number of labeled samples per class",
+                    xlab= "number of labeled samples",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
@@ -288,7 +288,7 @@ if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x, (AccuracySVM),log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
-                    xlab= "number of labeled samples per class",
+                    xlab= "number of labeled samples",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
@@ -389,7 +389,7 @@ if(nrow(AccuracySVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,   col = 1, lwd = 2,lty = 1,
-                    xlab= "number of labeled samples per class", 
+                    xlab= "number of labeled samples", 
                     ylab="accuracy (%) +/- std dev",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
@@ -516,7 +516,7 @@ if(nrow(KappaSVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(KappaSVM[,-clms[-length(clms)]])[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
-                    xlab= "number of labeled samples per class",
+                    xlab= "number of labeled samples",
                     ylab="Kappa-score",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
@@ -538,7 +538,7 @@ if(nrow(KappaSVM)>1){
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                   col = 1, lwd=2,lty = 1,
-                    xlab= "number of labeled samples per class", 
+                    xlab= "number of labeled samples", 
                     ylab="Kappa-score",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
