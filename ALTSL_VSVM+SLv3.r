@@ -13,7 +13,7 @@ library(doParallel) # multiple CPU cores
 library(Rtsne)
 script = "ALTSLv3"
 
-nR = 10                    # realizations
+nR = 8                    # realizations
 cities = c("hagadera")    # cologne or hagadera
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
@@ -989,14 +989,13 @@ for (model_prob in model_probs) {
       sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)
       } else if(model_prob=="binary"){ 
       sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
-      if (lgtS) { nR=8
+      if (lgtS) {
       sampleSizePor = c(25,30, 50,50, 100,100, 160,160, 230,230)
       if(city=="cologne"){ 
       sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276) 
       } else if(model_prob=="binary"){ 
       sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124)}
-      bound = c(0.3)
-      boundMargin = c(1.5, 1, 0.5)}
+      bound = c(0.3)}
       colheader = as.character(sampleSizePor) # corresponding column names
       ##################################  Preprocessing  #####################################
       lightC = 2 # lighter validate dataset for running faster prediction 
@@ -1628,8 +1627,8 @@ for (model_prob in model_probs) {
       train.timeALv2_tSNE_VSVMSL_oa = 0
       train.timeALv2_SEMI_VSVMSL_oa = 0
       nclass=6
-      if(model_prob=="binary"){   nclass=2
-      }else if(city=="hagadera"){ nclass=5 }
+      if(city=="hagadera"){ nclass=5
+      }elseif(model_prob=="binary"){ nclass=2  }
       
       start.time_oa <- Sys.time()
       # set randomized seed for the random sampling procedure
@@ -1637,7 +1636,7 @@ for (model_prob in model_probs) {
       
       # *************
       if (lgtS) {
-        if (train) {seed = seed + sample(100, 1)}
+        set.seed(seed)        
         validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
         validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
         
@@ -1682,9 +1681,10 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<-16 # 20
-          if(model_prob=="binary"){   light_factor<-12
-          }else if(city=="hagadera"){ light_factor<-12 }
+          light_factor<- 12
+          if(city=="hagadera"){           light_factor<- 20 # 16 # 20
+          }else if(model_prob=="binary"){ light_factor<- 12 }
+          # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
@@ -1705,7 +1705,7 @@ for (model_prob in model_probs) {
       }
       # *************
       if (lgtS) {
-        # if (train) {seed = seed + sample(100, 1)}
+        # set.seed(seed)
         # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
         # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
         # 
@@ -1766,7 +1766,7 @@ for (model_prob in model_probs) {
         # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
       }
       if (lgtS) {
-        # if (train) {seed = seed + sample(100, 1)}
+        # set.seed(seed)
         # # lightS=as.numeric(min(table(validateLabels)))
         # # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
         # # validateData = cbind(validateFeatsub,validateLabels)
@@ -2406,7 +2406,7 @@ for (model_prob in model_probs) {
             cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
             cat("using currently best model: ",best_model," | accuracy: ",best_acc,"\n",sep="")
             cS=1  
-            # cat("\n") ############################# RANDOM AL_VSVM-SL-Un #######################################
+            # cat("\n") ############################# Random AL_VSVM-SL-Un #######################################
             #   
             #   model_name_AL_VSVMSL_r = paste0(format(Sys.time(),"%Y%m%d"),"AL_VSVM_random_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[sample_size],"Size_",b,"Unl_",seed,"seed.rds")
             #   
@@ -2519,7 +2519,7 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
             # 
-            # cat("\n") ############################# ALv1+tSNE_VSVM-SL-Un #######################################
+            # cat("\n") ############################# ALv1 + tSNE VSVM-SL-Un #######################################
             # model_name_AL_VSVMSL ="ALv1+tSNE+UnSL_VSVM-SL-Un"
             # 
             # cat("computing uncertainty distance for active labeling | ",length(trainLabels_AL)," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
@@ -2689,7 +2689,7 @@ for (model_prob in model_probs) {
             #   best_train.time <- train.timeALv1_tSNE_VSVMSL
             # }
 
-            cat("\n") ############################# ALv2+tSNE+SL_VSVM-SL-Un #######################################
+            cat("\n") ############################# ALv2 + tSNE + SL VSVM-SL-Un #######################################
             model_name_ALSL_VSVMSL = "ALv2+tSNE+SL_VSVM-SL-Un"
             model_name_ALSL_VSVMSL2 = "ALv2+tSNE_VSVM-SL-Un"
             
@@ -2881,7 +2881,7 @@ for (model_prob in model_probs) {
               best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
             }
 
-            cat("\n") ############################# ALv2+Train+semiSL_VSVM-SL-Un #######################################
+            cat("\n") ############################# ALv2 + Train + semiSL VSVM-SL-Un #######################################
             model_name_ALTrainSL_VSVMSL = "ALv2+semiSL_VSVM-SL-Un"
             model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-Un"
             

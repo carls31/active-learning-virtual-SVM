@@ -192,12 +192,12 @@ ExCsvMSD = function (datadase, filename = NA){
 }
 
 nclass=6
-if(model_prob=="binary"){   nclass=2
-}else if(city=="hagadera"){ nclass=5 }
+if(city=="hagadera"){ nclass=5 
+}else if(model_prob=="binary"){ nclass=2 }
 
 column_names <- colnames(AccuracySVM)
 if(is.null(column_names)){column_names <- names(AccuracySVM)}
-x <- 2*as.integer(column_names)/nclass
+x <- 2*as.integer(column_names)/1 # nclass
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
