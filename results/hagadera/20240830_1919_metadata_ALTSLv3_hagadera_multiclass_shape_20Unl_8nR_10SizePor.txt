@@ -1,0 +1,16 @@
+OA Execution time: 1.76h
+Realization 1 | seed: 370 execution time: 0.89h
+Realization 2 | seed: 595 execution time: 0.85h
+
+SVM_SLUn: 0.945577043724939
+VSVM_SL: 0.937912222798069
+
+VSVM_SL training time: 17.225sec
+VSVM_SLUn training time: 30.7375sec
+VSVM_SLvUn training time: 53.05sec
+ALv2+tSNE+SL_VSVM-SL-Un training time: 97.7625sec
+ALv2+semiSL_VSVM-SL-Un training time: 108.9375sec
+
+length ALv2+tSNE_VSVM-SL-Un SVs: 84
+length ALv2+Train_VSVM-SL-Un SVs: 240
+length train Labels AL: 71
