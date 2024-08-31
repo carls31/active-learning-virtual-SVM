@@ -26,7 +26,7 @@ sampleSizePor = c(25,30, 50,50, 100,100, 160,160, 230,230, 310,310, 400,400, 500
 #####################################################  Utils  ####################################################
 
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-
+lgtS=TRUE
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- 48 #parallel::detectCores() # Numbers of CPU cores for parallel processing
 path = '/home/data1/Lorenzo/'
@@ -950,7 +950,7 @@ classificationProblem = function(generalDataPool){
 for (model_prob in model_probs) { 
   for (invariance in invariances) {
     for (city in cities) {
-      lgtS=TRUE
+      
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ 
         sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)
@@ -958,12 +958,14 @@ for (model_prob in model_probs) {
         sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
       if (lgtS) { 
         sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)] 
+        bound = c(0.3, 0.6)
+        boundMargin = c(1.5, 0.5)
         }
       colheader = as.character(sampleSizePor) # corresponding column names
       
       ###############################################  Preprocessing  ############################################
-      lightC = 2 # lighter validate dataset for running faster prediction 
-      if (city=="cologne") {
+
+       if (city=="cologne") {
         
         inputPath ="cologne_res_100_L2-L13.csv" 
         
@@ -1064,7 +1066,7 @@ for (model_prob in model_probs) {
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
           #########################################################################################
-        } else { # seed 47
+        } else { 
           ########################################  Input  ########################################
           sindexSVMDATA = 1   # start of baseline model with one segmentation scale data
           eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
@@ -1199,15 +1201,6 @@ for (model_prob in model_probs) {
           
           #########################################################################################
         }  
-        # if (lgtS && model_prob=="multiclass") {
-        #   lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[6],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[2],table(validateLabels)[3]))/2)
-        #   validateData = cbind(validateFeatsub,validateLabels)
-        #   val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        #   validateData = getdata(validateData, val_stratSamp)
-        #   validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        #   validateLabels = validateData[,ncol(validateFeatsub)+1]
-        #   rm(validateData, val_stratSamp)
-        # }
       } else {
         
         numFeat = 26                   # number of features per level (dimensionality)
@@ -1498,19 +1491,8 @@ for (model_prob in model_probs) {
           trainDataPoolAllLev = trainDataPoolAllLev[order(trainDataPoolAllLev[,ncol(trainDataPoolAllLev)]),]
           
           ##################################################################################################################
-          lightC = 4 # lighter validate dataset for running faster prediction
         }
-        # if (lgtS && model_prob=="multiclass") {
-        #   lightS=round(as.numeric(c(table(validateLabels)[1],table(validateLabels)[2],table(validateLabels)[5],table(validateLabels)[4],table(validateLabels)[3]))/lightC)
-        #   validateData = cbind(validateFeatsub,validateLabels)
-        #   val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-        #   validateData = getdata(validateData, val_stratSamp)
-        #   validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-        #   validateLabels = validateData[,ncol(validateFeatsub)+1]
-        #   rm(validateData, val_stratSamp)
-        # }
       }
-      ###############################################  Training  #################################################
       
       AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(AccuracySVM) = colheader
@@ -1568,12 +1550,12 @@ for (model_prob in model_probs) {
       
       KappaVSVM_SL_Un_random_it = matrix(data = NA, nrow = nR, ncol = length(colheader))
       colnames(KappaVSVM_SL_Un_random_it) = colheader
-
+      
       # ********
-
+      
       best_model_oa          = c()
       time.taken_iter        = c()
-
+      
       best_boundMargin = 1
       trainSL.time_oa  = 0
       trainUn.time_oa  = 0
@@ -1585,11 +1567,13 @@ for (model_prob in model_probs) {
       if(city=="hagadera"){ nclass=5
       }else if(model_prob=="binary"){ nclass=2  }
       
-      start.time_oa <- Sys.time()
-      
       # set randomized seed for the random sampling procedure
-      seed = 5 # 5, 73, 20, 98, 133
+      seed = 5 
       
+      ###############################################  Training  #################################################
+      
+      start.time_oa <- Sys.time()
+
       # *************
       if (lgtS) {
         set.seed(seed)
@@ -1660,7 +1644,7 @@ for (model_prob in model_probs) {
       }
       # *************
       
-      for (realization in seq(7,nR)) {
+      for (realization in seq(8,nR)) {
         start.time <- Sys.time()
 
         cat("CPU cores: ",num_cores,"\n",sep="")
