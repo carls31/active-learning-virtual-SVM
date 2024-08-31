@@ -1,7 +1,7 @@
 ##################################################################################################################
 #                                    lorenzo.carlassara98@gmail.com                                              #
 #                                    linkedin.com/in/lorenzo-carlassara/                                         #
-#                                    feel free to contact me for any question                                    #
+#                                    feel free to reach me out for any question                                  #
 ##################################################################################################################
 library(caret)
 library(kernlab)
@@ -11,10 +11,10 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-script = "ALTSLv2" # -> new train_set_samples are hybrid new_samples + small size of AL_samples AND AL_samples size is small
+script = "ALTSLv2"  # -> new train_samples are hybrid new_samples + small size of AL_samples AND AL_samples size is small
 
 nR = 32                   # number of realizations
-cities = c("hagadera")    # cologne or hagadera
+cities = c("hagadera")    # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
@@ -23,7 +23,7 @@ bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold
 boundMargin = c(1.5, 1, 0.5)  # distance from hyperplane - threshold   
 sampleSizePor = c(25,30, 50,55, 100,105, 160,165, 230,235, 310,315, 400,405, 500,505)
 
-########################################  Utils  ########################################
+#####################################################  Utils  ########################################
 
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 lgtS=TRUE
@@ -1036,7 +1036,7 @@ classificationProblem = function(generalDataPool){
   generalDataPool$REF = as.factor(generalDataPool$REF)
   return(generalDataPool)
 }
-#################################################################################################
+##################################################################################################################
 for (model_prob in model_probs) { 
   for (invariance in invariances) {
     for (city in cities) {
@@ -1053,7 +1053,7 @@ for (model_prob in model_probs) {
       }
       colheader = as.character(sampleSizePor) # corresponding column names
       
-      ##################################  Preprocessing  #####################################
+      ###############################################  Preprocessing  #####################################
 
         if (city=="cologne") {
         
@@ -1669,7 +1669,7 @@ for (model_prob in model_probs) {
       # set randomized seed for the random sampling procedure
       seed = 5 # 5, 73, 20, 98, 133
       
-      ##################################  Training  ########################################
+      ###############################################  Training  #################################################
 
       start.time_oa <- Sys.time()
       
@@ -1758,7 +1758,7 @@ for (model_prob in model_probs) {
         # *********************************************************************
         sample_size_iter=1
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {
-          cat("\n") ############################### Sampling train and test data #####################################
+          cat("\n") ################################# Sampling train and test data #####################################
           
           # initial seed value for randomized sampling
           if (train) {seed = seed + sample(100, 1)}
@@ -1813,7 +1813,7 @@ for (model_prob in model_probs) {
           
           setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
           
-          cat("\n") ############################### SVM #####################################
+          cat("\n") ################################# SVM #####################################
           model_name_tunedSVM = "SVM"
           
           cat("training SVM\n")
@@ -1867,7 +1867,7 @@ for (model_prob in model_probs) {
           # ******************************************************
           names = objInfoNames[1:(length(objInfoNames)-1)]
 
-          cat("\n") ############################### SVM-SL + semi-labeled samples #####################################
+          cat("\n") ################################# SVM-SL + semi-labeled samples #####################################
           model_name_SVMUn = "SVM_SLUn"
 
           trainStart.time <- Sys.time()
@@ -1944,7 +1944,7 @@ for (model_prob in model_probs) {
             best_train.time <- t.time
           }
 
-          cat("\n") ############################### VSVM-SL ################################################
+          cat("\n") ################################# VSVM-SL ################################################
           model_name_VSVM_SL = "VSVM_SL"
 
           trainStart.time <- Sys.time()
@@ -2055,7 +2055,7 @@ for (model_prob in model_probs) {
           }
 
 
-          cat("\n") ############################### VSVM-SL + semi-labeled samples #####################################
+          cat("\n") ################################# VSVM-SL + semi-labeled samples #####################################
           model_name_Un = "VSVM_SLUn"
 
           trainStart.timeUn <- Sys.time()
@@ -2153,7 +2153,7 @@ for (model_prob in model_probs) {
             }
 
 
-          cat("\n") ############################### VSVM-SL + Virtual semi-labeled samples ##################################
+          cat("\n") ################################# VSVM-SL + Virtual semi-labeled samples ##################################
             model_name_vUn = "VSVM_SLvUn"
 
             REF_v = predict(bestFittingModelUn, trainDataCurRemainingsub_SL)
@@ -2250,9 +2250,9 @@ for (model_prob in model_probs) {
             best_boundMargin <- best_boundMargin_SLvUn
             best_model <- model_name_vUn
           }
-          #######################################################################################################
+          ########################################################################################################
           if (num_cores>=4 && sample_size<length(sampleSizePor)) {
-            cat("\n") ############################# Sampling unlabeled data #####################################
+            cat("\n") ############################### Sampling unlabeled data #####################################
 
             # resampledSize = c(60)    # total number of relabeled samples # 20, 40, 60, 120
             # newSizes = c(8) # = resampledSize[rS]       # number of samples picked per iteration # 4, 5, 10, 20, resampledSize
@@ -2331,7 +2331,7 @@ for (model_prob in model_probs) {
             cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
             cat("using currently best model: ",best_model," | accuracy: ",best_acc,"\n",sep="")
             cS=1  
-            # cat("\n") ############################# Random AL_VSVM-SL-vUn #######################################
+            # cat("\n") ############################### Random AL_VSVM-SL-vUn #######################################
             #   
             #   model_name_AL_VSVMSL_r = "AL_random_VSVM-SL-vUn"
             #   
@@ -2444,7 +2444,7 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
             # 
-            # cat("\n") ############################# ALv1 + tSNE VSVM-SL-vUn #######################################
+            # cat("\n") ############################### ALv1 + tSNE VSVM-SL-vUn #######################################
             # model_name_AL_VSVMSL ="ALv1+tSNE+UnSL_VSVM-SL-vUn"
             # 
             # cat("active labeling v1 + tSNE + SL | ",length(trainLabels_AL)," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
@@ -2614,7 +2614,7 @@ for (model_prob in model_probs) {
             #   best_train.time <- train.timeALv1_tSNE_VSVMSL
             # }
 
-            cat("\n") ############################# ALv2 + tSNE + SL VSVM-SL-vUn #######################################
+            cat("\n") ############################### ALv2 + tSNE + SL VSVM-SL-vUn #######################################
             model_name_ALSL_VSVMSL = "ALv2+tSNE+SL_VSVM-SL-vUn"
             model_name_ALSL_VSVMSL2 = "ALv2+tSNE_VSVM-SL-vUn"
             
@@ -2768,7 +2768,7 @@ for (model_prob in model_probs) {
                       tmp_new_tunedSVM_SL2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                       tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      cat("ALv2_tSNE_VSVMSL accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
+                      cat(model_name_ALSL_VSVMSL2," accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
                       # **********************
 
 
@@ -2806,7 +2806,7 @@ for (model_prob in model_probs) {
               best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
             }
 
-            cat("\n") ############################# ALv2 + Train + semi-SL VSVM-SL-vUn #######################################
+            cat("\n") ############################### ALv2 + Train + semi-SL VSVM-SL-vUn #######################################
             model_name_ALTrainSL_VSVMSL = "ALv2+semiSL_VSVM-SL-vUn"
             model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-vUn"
             
@@ -3022,7 +3022,7 @@ for (model_prob in model_probs) {
             # saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             # saveRDS(tmp_new_tunedSVM_ALT2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
           }
-          cat("\n") ############################### End Sample Portion ######################################
+          cat("\n") ################################# End Sample Portion #########################################
         }
         # Store the overall best hyperparameters 
         # best_bound_oa_SL = c(best_bound_oa_SL," ", best_bound_SL_AL)
@@ -3039,7 +3039,7 @@ for (model_prob in model_probs) {
         train.timeALv2_tSNE_VSVMSL_oa = train.timeALv2_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSL
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
         cat("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h\n")
-        cat("\n") ################################# End Realization #########################################
+        cat("\n") ################################### End Realization ############################################
       } 
       time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
       if (length(sampleSizePor)>=4) {

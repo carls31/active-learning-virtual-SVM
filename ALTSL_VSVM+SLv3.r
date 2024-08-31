@@ -1,7 +1,7 @@
 ##################################################################################################################
 #                                    lorenzo.carlassara98@gmail.com                                              #
 #                                    linkedin.com/in/lorenzo-carlassara/                                         #
-#                                    feel free to contact me for any question                                    #
+#                                    feel free to reach me out for any question                                  #
 ##################################################################################################################
 library(caret)
 library(kernlab)
@@ -11,10 +11,10 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-script = "ALTSLv3" # -> AL_samples and train_samples are distinct data
+script = "ALTSLv3"  # -> new train_samples and AL_samples are distinct data
 
 nR = 32                   # number of realizations
-cities = c("hagadera")    # cologne or hagadera
+cities = c("hagadera")    # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
@@ -2879,7 +2879,7 @@ for (model_prob in model_probs) {
                       tmp_new_tunedSVM_SL2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                       tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      cat("ALv2_tSNE_VSVMSL accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
+                      cat(model_name_ALSL_VSVMSL2," accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
                       # **********************
 
 

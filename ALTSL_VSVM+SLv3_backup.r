@@ -1,7 +1,7 @@
 ##################################################################################################################
 #                                    lorenzo.carlassara98@gmail.com                                              #
 #                                    linkedin.com/in/lorenzo-carlassara/                                         #
-#                                    feel free to contact me for any question                                    #
+#                                    feel free to reach me out for any question                                  #
 ##################################################################################################################
 library(caret)
 library(kernlab)
@@ -11,10 +11,10 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-script = "ALTSLv1" # -> new train_set_samples are AL_samples
+script = "ALTSLv1"  # -> new train_samples are AL_samples
 
 nR = 32                   # number of realizations
-cities = c("cologne")     # cologne or hagadera
+cities = c("cologne")     # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -1622,7 +1622,7 @@ for (model_prob in model_probs) {
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
           light_factor<- 12
-          if(city=="hagadera"){           light_factor<- 16 # 16 # 40 ## 20 is just perfect
+          if(city=="hagadera"){           light_factor<- 18 # 16 # 40 ## 20 is just perfect
           }else if(model_prob=="binary"){ light_factor<- 12 }
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
@@ -2636,7 +2636,7 @@ for (model_prob in model_probs) {
                       tmp_new_tunedSVM_SL2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                       tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      cat("ALv2_tSNE_VSVMSL accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
+                      cat(model_name_ALSL_VSVMSL2," accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
                       # **********************
 
 
@@ -2670,7 +2670,7 @@ for (model_prob in model_probs) {
             cat("\n") ############################### ALv2 + Train + semi-SL VSVM-SL-vUn #######################################
             model_name_ALTrainSL_VSVMSL = "ALv2+semiSL_VSVM-SL-vUn"
             model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-vUn"
-            cat("active labeling v2 + Train semi-SL | ",length(trainLabels_AL)," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling v2 + Train + semi-SL | ",length(trainLabels_AL)," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
 
             cat("adding ",newSize," active samples | pool size: ",
                 nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
