@@ -1,7 +1,7 @@
 ##################################################################################################################
 #                                    lorenzo.carlassara98@gmail.com                                              #
 #                                    linkedin.com/in/lorenzo-carlassara/                                         #
-#                                    feel free to reach me out for any question                                  #
+#                                    feel free to contact me for any question                                    #
 ##################################################################################################################
 library(caret)
 library(kernlab)
@@ -11,10 +11,10 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-script = "ALTSLv1"  # -> new train_samples are AL_samples
+script = "ALTSLv1" # -> new train_set_samples are AL_samples
 
 nR = 32                   # number of realizations
-cities = c("cologne")     # cologne or hagadera location
+cities = c("cologne")     # cologne or hagadera
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
@@ -1622,7 +1622,7 @@ for (model_prob in model_probs) {
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
           light_factor<- 12
-          if(city=="hagadera"){           light_factor<- 18 # 16 # 40 ## 20 is just perfect
+          if(city=="hagadera"){           light_factor<- 10 # 16 # 40 ## 20 is just perfect
           }else if(model_prob=="binary"){ light_factor<- 12 }
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
@@ -1644,7 +1644,7 @@ for (model_prob in model_probs) {
       }
       # *************
       
-      for (realization in seq(7,nR)) {
+      for (realization in seq(8,nR)) {
         start.time <- Sys.time()
 
         cat("CPU cores: ",num_cores,"\n",sep="")
@@ -2636,7 +2636,7 @@ for (model_prob in model_probs) {
                       tmp_new_tunedSVM_SL2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                       tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      cat(model_name_ALSL_VSVMSL2," accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
+                      cat("ALv2_tSNE_VSVMSL accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
                       # **********************
 
 
@@ -2670,7 +2670,7 @@ for (model_prob in model_probs) {
             cat("\n") ############################### ALv2 + Train + semi-SL VSVM-SL-vUn #######################################
             model_name_ALTrainSL_VSVMSL = "ALv2+semiSL_VSVM-SL-vUn"
             model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-vUn"
-            cat("active labeling v2 + Train + semi-SL | ",length(trainLabels_AL)," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling v2 + Train semi-SL | ",length(trainLabels_AL)," [",sample_size_iter,"/",length(sampleSizePor)/2,"]\n",sep="")
 
             cat("adding ",newSize," active samples | pool size: ",
                 nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
@@ -2880,7 +2880,7 @@ for (model_prob in model_probs) {
              AccuracyVSVM_SL_Un_itTSL,
              AccuracyVSVM_SL_Un_itSL2,
              AccuracyVSVM_SL_Un_itTSL2,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         save(KappaSVM, 
              KappaSVM_SL_Un,
              KappaVSVM_SL,
@@ -2892,15 +2892,15 @@ for (model_prob in model_probs) {
              KappaVSVM_SL_Un_itTSL,
              KappaVSVM_SL_Un_itSL2,
              KappaVSVM_SL_Un_itTSL2,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData"))
+             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model_oa,
-            "\n",model_name_VSVM_SL," training time: ",trainSL.time_oa/realization, "sec",
-            "\n",model_name_Un," training time: ",trainUn.time_oa/realization, "sec",
-            "\n",model_name_vUn," training time: ",trainvUn.time_oa/realization, "sec",
-            "\n",model_name_ALSL_VSVMSL," training time: ",train.timeALv2_tSNE_VSVMSL_oa/realization, "sec",
-            "\n",model_name_ALTrainSL_VSVMSL," training time: ",train.timeALv2_SEMI_VSVMSL_oa/realization, "sec\n",
+            "\n",model_name_VSVM_SL," training time: ",trainSL.time_oa/nR, "sec",
+            "\n",model_name_Un," training time: ",trainUn.time_oa/nR, "sec",
+            "\n",model_name_vUn," training time: ",trainvUn.time_oa/nR, "sec",
+            "\n",model_name_ALSL_VSVMSL," training time: ",train.timeALv2_tSNE_VSVMSL_oa/nR, "sec",
+            "\n",model_name_ALTrainSL_VSVMSL," training time: ",train.timeALv2_SEMI_VSVMSL_oa/nR, "sec\n",
             "\nlength ALv2 + SL tSNE SVs: ",length(tmp_new_tunedSVM2$finalModel@SVindex),"\nlength ALv2 + SL SVs: ", length(tmp_new_tunedSVM_ALSL2$finalModel@SVindex),"\nlength new train Labels AL: ",length(trainLabels_AL),
-            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.txt"))
+            sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",nR,"nR_",length(sampleSizePor),"SizePor.txt"))
         cat("accuracy results: acquired\n")
       }
       print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))

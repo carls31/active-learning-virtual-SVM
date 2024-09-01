@@ -13,7 +13,7 @@ library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
 script = "ALTSLv2"  # -> new train_samples are hybrid new_samples + small size of AL_samples AND AL_samples size is small
 
-nR = 32                   # number of realizations
+nR = 10                   # number of realizations
 cities = c("hagadera")    # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
@@ -1044,10 +1044,13 @@ for (model_prob in model_probs) {
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ 
       sampleSizePor = c(30,36, 60,66, 120,126, 192,198, 276,282, 372,378, 480,486, 600,606)
-      } else if(model_prob=="binary"){ 
+      } 
+      if(model_prob=="binary"){ 
       sampleSizePor = c(10,12, 20,22, 40,42, 64,66, 92,94, 124,126, 160,162, 200,202)}
       if (lgtS) { 
-        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)] 
+        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2*1)]
+        if(model_prob=="multiclass"){ 
+          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2*2)]}
         bound = c(0.3, 0.6)
         boundMargin = c(1.5, 0.5)
       }
@@ -1720,9 +1723,9 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 14
-          if(city=="hagadera"){           light_factor<- 20 # 16 # 20 # 25 # 35 # 40 # 60 # 80
-          }else if(model_prob=="binary"){ light_factor<- 12 }
+          light_factor<- 20
+          if(city=="hagadera"){           light_factor<- 20 } # 16 # 20 # 25 # 35 # 40 # 60 # 80
+          if(model_prob=="binary"){ light_factor<- 30 }
           # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
@@ -2283,8 +2286,8 @@ for (model_prob in model_probs) {
             
             classSize=c(round(min(1400,as.numeric(min(table(trainDataCurRemaining$REF))))))  
             if(city=="cologne"){ 
-              classSize=c(round(min(700,as.numeric(min(table(trainDataCurRemaining$REF))))))
-            } else if(model_prob=="binary"){ 
+              classSize=c(round(min(700,as.numeric(min(table(trainDataCurRemaining$REF))))))} 
+            if(model_prob=="binary"){ 
               classSize=c(round(min(5400,as.numeric(min(table(trainDataCurRemaining$REF))))))}
             
             clS=1
