@@ -1624,8 +1624,8 @@ for (model_prob in model_probs) {
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
           light_factor<- 12
-          if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 is just perfect 
-          if(model_prob=="binary"){ light_factor<- 25 } ## 25 could be better
+          if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 
+          if(model_prob=="binary"){ light_factor<- 29 } ## 25 
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
@@ -1646,7 +1646,7 @@ for (model_prob in model_probs) {
       }
       # *************
       
-      for (realization in seq(1,nR)) {
+      for (realization in seq(9,nR)) {
         start.time <- Sys.time()
 
         cat("CPU cores: ",num_cores,"\n",sep="")
@@ -2186,7 +2186,7 @@ for (model_prob in model_probs) {
               classSize=c(round(min(1000,as.numeric(min(table(trainDataCurRemaining$REF))))))
             }
             if(model_prob=="binary"){ 
-              classSize=c(round(min(1500,as.numeric(min(table(trainDataCurRemaining$REF))))))}
+              classSize=c(round(min(1600,as.numeric(min(table(trainDataCurRemaining$REF))))))}
 
             clS=1
             cat("sampling ", classSize," unlabeled data per class\n",sep="")
