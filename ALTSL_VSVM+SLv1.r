@@ -16,7 +16,7 @@ script = "ALTSLv1"  # -> new train_samples are AL_samples
 nR = 10                  # number of realizations
 cities = c("cologne")     # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold          
@@ -957,9 +957,9 @@ for (model_prob in model_probs) {
       if(model_prob=="binary"){ 
         sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
       if (lgtS) { 
-        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2*1)]
+        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
         if(model_prob=="multiclass"){ 
-          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2*2)]}
+          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]}
         bound = c(0.3, 0.6)
         boundMargin = c(1.5, 0.5)
         }
@@ -1623,9 +1623,9 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 12
+          light_factor<- 6 ## 9
           if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 
-          if(model_prob=="binary"){ light_factor<- 29 } ## 25 
+          if(model_prob=="binary"){ light_factor<- 29 } ## 25 ## 2 ## 24
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
@@ -1646,7 +1646,7 @@ for (model_prob in model_probs) {
       }
       # *************
       
-      for (realization in seq(9,nR)) {
+      for (realization in seq(1,nR)) {
         start.time <- Sys.time()
 
         cat("CPU cores: ",num_cores,"\n",sep="")
@@ -2183,7 +2183,7 @@ for (model_prob in model_probs) {
 
             classSize=c(round(min(1400,as.numeric(min(table(trainDataCurRemaining$REF))))))  
             if(city=="cologne"){ 
-              classSize=c(round(min(1000,as.numeric(min(table(trainDataCurRemaining$REF))))))
+              classSize=c(round(min(1200,as.numeric(min(table(trainDataCurRemaining$REF))))))
             }
             if(model_prob=="binary"){ 
               classSize=c(round(min(1600,as.numeric(min(table(trainDataCurRemaining$REF))))))}
@@ -2515,7 +2515,7 @@ for (model_prob in model_probs) {
                           list(SVtotal_ud, S09C01=cbind(upd_dataCur[upd_SVindex_ud,c(((8*numFeat)+1):(9*numFeat))],REF_ud))
                         )
                       } #    =c(0.01, 0.3, 0.9)      =c(1.5, 1, 0.5)
-                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(0.75), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
+                      upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM_SL$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
                       t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
