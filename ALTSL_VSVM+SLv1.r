@@ -1624,7 +1624,7 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 6 ## 9 ## 19
+          light_factor<- 2 ## 9 ## 19
           if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 
           if(model_prob=="binary"){ light_factor<- 29 } ## 25 ## 2 ## 24
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
@@ -1647,14 +1647,13 @@ for (model_prob in model_probs) {
       }
       # *************
       
-      for (realization in seq(5,nR)) {
+      for (realization in seq(7,nR)) {
+        
         start.time <- Sys.time()
-
         cat("CPU cores: ",num_cores,"\n",sep="")
         
         trainDataCurBeg = trainDataPoolAllLev
         testDataCurBeg = testDataAllLev
-        
         # subset for each outer iteration test data to speed up computing
         testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
         
@@ -1669,7 +1668,7 @@ for (model_prob in model_probs) {
           set.seed(seed)
           
           if(sample_size==1){
-            
+            if(realization==1){}
             sampleSize = round(sampleSizePor[sample_size]/nclass)
             shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
             
@@ -2241,8 +2240,6 @@ for (model_prob in model_probs) {
 
                     upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
 
-                    tmp_new_tunedSVM_r <- new_bestTunedVSVM
-
                     trainStart.time <- Sys.time()
 
                     # Extract new RANDOM datasets
@@ -2272,15 +2269,10 @@ for (model_prob in model_probs) {
                     tmp_new_tunedSVM_r2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                     # **********************
 
-                    t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+t.timeSL+sampling.time, 1)
+                    train.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+sampling.time, 1)
                     tmp_pred = predict(tmp_new_tunedSVM_r2, validateFeatsub)
-                    tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+                    accVSVM_SL_AL_random  = confusionMatrix(tmp_pred, validateLabels)
  
-                    tmp_new_tunedSVM_r = tmp_new_tunedSVM_r2
-                    actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM_r$resample$Kappa #
-                    accVSVM_SL_AL_random = tmp_acc
-                    train.time = t.time
-
             cat(model_name_AL_VSVMSL_r, " accuracy: ",round(accVSVM_SL_AL_random$overall["Accuracy"],5)," | execution time: ",train.time,"sec\n",sep="")
 
             AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
@@ -2743,16 +2735,16 @@ for (model_prob in model_probs) {
             }
 
           }
-          
+          cat("\n") ################################# End sample portion #########################################
           if (realization==1 && sample_size==3) {
             # saveRDS(tmp_new_tunedSVM_r, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL_r,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds")) 
             # saveRDS(tmp_new_tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             # saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             # saveRDS(tmp_new_tunedSVM_ALT2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
           }
-          cat("\n") ################################# End Sample Portion #########################################
         }
-        # Store the hyperparameters 
+        cat("\n") ################################### End realization ############################################
+        # Store hyperparameters 
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         trainSL.time_oa = trainSL.time_oa+t.timeSL
         trainUn.time_oa = trainUn.time_oa+trainUn.time
@@ -2761,7 +2753,6 @@ for (model_prob in model_probs) {
         train.timeALv2_tSNE_VSVMSL_oa = train.timeALv2_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSL
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
         cat("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h\n")
-        cat("\n") ################################### End Realization ############################################
       } 
       time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
       if (length(sampleSizePor)>=4) {

@@ -1749,13 +1749,12 @@ for (model_prob in model_probs) {
       # *************
       
       for (realization in seq(1,nR)) {
+        
         start.time <- Sys.time()
-
         cat("CPU cores: ",num_cores,"\n",sep="")
         
         trainDataCurBeg = trainDataPoolAllLev
         testDataCurBeg = testDataAllLev
-        
         # subset for each outer iteration test data to speed up computing
         testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
         
@@ -1791,115 +1790,116 @@ for (model_prob in model_probs) {
           # ************************************************ *******************************************************
 
           if(sample_size==1){
-
-            if (lgtS) {
-              # set.seed(seed)
-              # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-              # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
-              # 
-              # validateData <- cbind(validateFeatsub, validateLabels)
-              # finalFeatsub <- data.frame()  # Container for final feature samples
-              # finalLabels <- factor()  # Initialize with factor levels
-              # 
-              # # Sort labels by the number of instances (start with the smallest)
-              # label_order <- levels(validateLabels)[order(table(validateLabels))]
-              # 
-              # for (label in label_order) {
-              #   lightS <- sum(validateLabels == label)
-              # 
-              #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
-              #   iteration <- 0  # Initialize the iteration counter
-              #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
-              # 
-              #   while (nrow(samplesRemaining) < lightS && iteration < 1) {
-              #     iteration <- iteration + 1
-              # 
-              #     # Stratified sampling without replacement
-              #     stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
-              #     val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-              #     validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-              # 
-              #     # Remove duplicates within the current sample
-              #     # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
-              #     unique_new_samples <- validateData_sampl[]
-              # 
-              #     # Check for duplicates against all previously collected samples
-              #     if (nrow(finalFeatsub) > 0) {
-              #       duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
-              #       unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
-              #     }
-              # 
-              #     # Add unique rows to the cumulative dataframe
-              #     samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-              #     samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
-              # 
-              #     # If more samples are needed, update the remaining pool
-              #     if (nrow(samplesRemaining) < lightS) {
-              #       valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
-              #     }
-              # 
-              #     cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining)," Number of labels: ", length(as.character(samplesRemaining$validateLabels)), "\n", sep = "")
-              #   }
-              # 
-              #   # Append the unique samples to the final containers
-              #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-              #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-              #                         levels = levels(validateLabels))
-              # }
-              # 
-              # # Replace original data with the final sampled data
-              # validateFeatsub <- finalFeatsub
-              # validateLabels <- finalLabels
-              # print(length(validateLabels))
-              # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
-            }
-            if (lgtS) {
-              # set.seed(seed)
-              # # lightS=as.numeric(min(table(validateLabels)))
-              # # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
-              # # validateData = cbind(validateFeatsub,validateLabels)
-              # # val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
-              # # validateData = getdata(validateData, val_stratSamp)
-              # # validateFeatsub = validateData[,1:ncol(validateFeatsub)]
-              # # validateLabels = validateData[,ncol(validateFeatsub)+1]
-              # # rm(validateData, val_stratSamp)
-              # 
-              # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-              # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
-              # 
-              # validateData <- cbind(validateFeatsub,validateLabels)
-              # finalFeatsub <- data.frame()  # Container for final feature samples
-              # finalLabels <- factor()  # Initialize with factor levels
-              # 
-              # # Sort labels by the number of instances (start with the smallest)
-              # label_order <- levels(validateLabels)[order(table(validateLabels))]
-              # for (label in label_order) {
-              # 
-              #   lightS <- sum(validateLabels == label)/80
-              #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
-              # 
-              #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
-              # 
-              #   # Stratified sampling without replacement
-              #   stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
-              #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-              #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-              # 
-              #   samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
-              # 
-              #   cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining)," Number of labels: ", length(as.character(samplesRemaining$validateLabels)), "\n", sep = "")
-              # 
-              #   # Append the unique samples to the final containers
-              #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-              #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-              #                         levels = levels(validateLabels))
-              # }
-              # 
-              # # Extract relevant columns for uniqueness check
-              # validateFeatsub <- finalFeatsub
-              # validateLabels = finalLabels
-              # print(length(validateLabels))
-              # rm(valDataCurRemaining_sampl, val_stratSamp, samplesRemaining,finalFeatsub,finalLabels)
+            if(realization==1){
+              if (lgtS) {
+                # set.seed(seed)
+                # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+                # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+                # 
+                # validateData <- cbind(validateFeatsub, validateLabels)
+                # finalFeatsub <- data.frame()  # Container for final feature samples
+                # finalLabels <- factor()  # Initialize with factor levels
+                # 
+                # # Sort labels by the number of instances (start with the smallest)
+                # label_order <- levels(validateLabels)[order(table(validateLabels))]
+                # 
+                # for (label in label_order) {
+                #   lightS <- sum(validateLabels == label)
+                # 
+                #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+                #   iteration <- 0  # Initialize the iteration counter
+                #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
+                # 
+                #   while (nrow(samplesRemaining) < lightS && iteration < 1) {
+                #     iteration <- iteration + 1
+                # 
+                #     # Stratified sampling without replacement
+                #     stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+                #     val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+                #     validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+                # 
+                #     # Remove duplicates within the current sample
+                #     # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
+                #     unique_new_samples <- validateData_sampl[]
+                # 
+                #     # Check for duplicates against all previously collected samples
+                #     if (nrow(finalFeatsub) > 0) {
+                #       duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
+                #       unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
+                #     }
+                # 
+                #     # Add unique rows to the cumulative dataframe
+                #     samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+                #     samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
+                # 
+                #     # If more samples are needed, update the remaining pool
+                #     if (nrow(samplesRemaining) < lightS) {
+                #       valDataCurRemaining_sampl <- valDataCurRemaining_sampl[!rownames(valDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
+                #     }
+                # 
+                #     cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining)," Number of labels: ", length(as.character(samplesRemaining$validateLabels)), "\n", sep = "")
+                #   }
+                # 
+                #   # Append the unique samples to the final containers
+                #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+                #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+                #                         levels = levels(validateLabels))
+                # }
+                # 
+                # # Replace original data with the final sampled data
+                # validateFeatsub <- finalFeatsub
+                # validateLabels <- finalLabels
+                # print(length(validateLabels))
+                # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
+              }
+              if (lgtS) {
+                # set.seed(seed)
+                # # lightS=as.numeric(min(table(validateLabels)))
+                # # lightS=c(lightS,lightS,lightS,lightS,lightS,lightS)
+                # # validateData = cbind(validateFeatsub,validateLabels)
+                # # val_stratSamp = strata(validateData, c("validateLabels"), size = lightS, method = "srswor")
+                # # validateData = getdata(validateData, val_stratSamp)
+                # # validateFeatsub = validateData[,1:ncol(validateFeatsub)]
+                # # validateLabels = validateData[,ncol(validateFeatsub)+1]
+                # # rm(validateData, val_stratSamp)
+                # 
+                # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+                # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+                # 
+                # validateData <- cbind(validateFeatsub,validateLabels)
+                # finalFeatsub <- data.frame()  # Container for final feature samples
+                # finalLabels <- factor()  # Initialize with factor levels
+                # 
+                # # Sort labels by the number of instances (start with the smallest)
+                # label_order <- levels(validateLabels)[order(table(validateLabels))]
+                # for (label in label_order) {
+                # 
+                #   lightS <- sum(validateLabels == label)/80
+                #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+                # 
+                #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
+                # 
+                #   # Stratified sampling without replacement
+                #   stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+                #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+                #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+                # 
+                #   samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
+                # 
+                #   cat("[ ", label, " ] Number of samples: ", nrow(samplesRemaining)," Number of labels: ", length(as.character(samplesRemaining$validateLabels)), "\n", sep = "")
+                # 
+                #   # Append the unique samples to the final containers
+                #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+                #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+                #                         levels = levels(validateLabels))
+                # }
+                # 
+                # # Extract relevant columns for uniqueness check
+                # validateFeatsub <- finalFeatsub
+                # validateLabels = finalLabels
+                # print(length(validateLabels))
+                # rm(valDataCurRemaining_sampl, val_stratSamp, samplesRemaining,finalFeatsub,finalLabels)
+              }
             }
             
             stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
@@ -3126,16 +3126,17 @@ for (model_prob in model_probs) {
             }
 
           }
-          
+          cat("\n") ################################# End sample portion #########################################
           if (realization==1 && sample_size==3) {
             # saveRDS(tmp_new_tunedSVM_r, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL_r,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds")) 
             # saveRDS(tmp_new_tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             # saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             # saveRDS(tmp_new_tunedSVM_ALT2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
           }
-          cat("\n") ################################# End Sample Portion #########################################
+          
         }
-        # Store the hyperparameters 
+        cat("\n") ################################### End realization ############################################
+        # Store hyperparameters 
         best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
         trainSL.time_oa = trainSL.time_oa+t.timeSL
         trainUn.time_oa = trainUn.time_oa+trainUn.time
@@ -3144,7 +3145,6 @@ for (model_prob in model_probs) {
         train.timeALv2_tSNE_VSVMSL_oa = train.timeALv2_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSL
         time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
         cat("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h\n")
-        cat("\n") ################################### End Realization ############################################
       } 
       time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
       if (length(sampleSizePor)>=4) {
