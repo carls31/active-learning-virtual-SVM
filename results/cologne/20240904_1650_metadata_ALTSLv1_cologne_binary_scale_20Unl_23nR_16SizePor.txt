@@ -1,0 +1,56 @@
+OA Execution time: 30.09h
+Realization 1 | seed: 350 execution time: 1.44h
+Realization 2 | seed: 710 execution time: 1.14h
+Realization 3 | seed: 1070 execution time: 1.16h
+Realization 4 | seed: 1430 execution time: 1.43h
+Realization 5 | seed: 1994 execution time: 1.18h
+Realization 6 | seed: 2354 execution time: 1.09h
+Realization 7 | seed: 2714 execution time: 1.13h
+Realization 8 | seed: 3074 execution time: 1.34h
+Realization 9 | seed: 3434 execution time: 1.41h
+Realization 10 | seed: 3794 execution time: 1.33h
+Realization 11 | seed: 4154 execution time: 1.31h
+Realization 12 | seed: 4514 execution time: 1.41h
+Realization 13 | seed: 4874 execution time: 1.34h
+Realization 14 | seed: 5234 execution time: 1.22h
+Realization 15 | seed: 5594 execution time: 1.29h
+Realization 16 | seed: 5954 execution time: 1.31h
+Realization 17 | seed: 6314 execution time: 1.31h
+Realization 18 | seed: 6674 execution time: 1.32h
+Realization 19 | seed: 7034 execution time: 1.34h
+Realization 20 | seed: 7394 execution time: 1.47h
+Realization 21 | seed: 7754 execution time: 1.31h
+Realization 22 | seed: 8114 execution time: 1.37h
+
+VSVM_SLvUn: 0.946264893589081
+VSVM_SLvUn: 0.93915624151908
+VSVM_SL: 0.945669587750707
+SVM_SLUn: 0.94032058970296
+ALv2+tSNE_VSVM-SL-vUn: 0.938911115585632
+VSVM_SLvUn: 0.946597564498761
+ALv2+semiSL_VSVM-SL-vUn: 0.947420487275338
+SVM_SLUn: 0.943078256454253
+ALv2+tSNE_VSVM-SL-vUn: 0.939462648935891
+VSVM_SL: 0.939672756878847
+ALv2+semiSL_VSVM-SL-vUn: 0.939909128314672
+ALv2+semiSL_VSVM-SL-vUn: 0.940189272238613
+ALv2+semiSL_VSVM-SL-vUn: 0.947131588853774
+VSVM_SLUn: 0.94520559937668
+ALv2+tSNE+SL_VSVM-SL-vUn: 0.947674367706409
+ALv2+semiSL_VSVM-SL-vUn: 0.944312640619118
+SVM_SLUn: 0.933483327059277
+SVM_SLUn: 0.944584030045436
+ALv2+semiSL_VSVM-SL-vUn: 0.9474817687587
+SVM_SLUn: 0.939462648935891
+ALv2+semiSL_VSVM-SL-vUn: 0.947297924308614
+ALv2+tSNE+SL_VSVM-SL-vUn: 0.944750365500276
+
+VSVM_SL training time: 117.9826sec
+VSVM_SLUn training time: 155.4174sec
+VSVM_SLvUn training time: 313.5174sec
+ALv2+tSNE+SL_VSVM-SL-vUn training time: 301.3304sec
+ALv2+semiSL_VSVM-SL-vUn training time: 341.0609sec
+
+length ALv2 + SL tSNE SVs: 112
+length ALv2 + SL SVs: 149
+length new train Labels AL: 72

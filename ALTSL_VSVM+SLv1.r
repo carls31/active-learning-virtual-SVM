@@ -10,10 +10,10 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 script = "ALTSLv1"  # -> new train_samples are AL_samples
 ##################################################################################################################
 
-nR = 10                  # number of realizations
-cities = c("cologne")     # cologne or hagadera location
+nR = 16                  # number of realizations
+cities = c("hagadera")     # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold          
@@ -958,7 +958,7 @@ for (model_prob in model_probs) {
       if(model_prob=="binary"){ 
         sampleSizePor = c(6,8, 12,12, 32,32, 52,52, 76,76, 104,104, 136,136, 180,180)}
       if (lgtS) { 
-        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
+        #sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
         if(model_prob=="multiclass"){ 
           sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]}
         bound = c(0.3, 0.6)
@@ -1624,9 +1624,9 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 2 ## 9 ## 19
-          if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 
-          if(model_prob=="binary"){ light_factor<- 29 } ## 25 ## 2 ## 24
+          light_factor<- 10 ## 9 ## 19 ## 2 best one
+          if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 best one
+          if(model_prob=="binary"){ light_factor<- 2 } ## 25 ## 2 ## 24 #29
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
@@ -1647,7 +1647,7 @@ for (model_prob in model_probs) {
       }
       # *************
       
-      for (realization in seq(7,nR)) {
+      for (realization in seq(1,nR)) {
         
         start.time <- Sys.time()
         cat("CPU cores: ",num_cores,"\n",sep="")
@@ -2757,28 +2757,28 @@ for (model_prob in model_probs) {
       time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
       if (length(sampleSizePor)>=4) {
         if(nR>realization){
-          AccuracySVM=AccuracySVM[1:realization,]
-          AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:realization,]
-          AccuracyVSVM_SL=AccuracyVSVM_SL[1:realization,]
-          AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:realization,]
-          AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:realization,]
-          # AccuracyVSVM_SL_Un_it[1:realization,], 
-          AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:realization,]
-          AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:realization,]
-          AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:realization,]
-          AccuracyVSVM_SL_Un_itSL2=AccuracyVSVM_SL_Un_itSL2[1:realization,]
-          AccuracyVSVM_SL_Un_itTSL2=AccuracyVSVM_SL_Un_itTSL2[1:realization,]
-          KappaSVM=KappaSVM[1:realization,]
-          KappaSVM_SL_Un=KappaSVM_SL_Un[1:realization,]
-          KappaVSVM_SL=KappaVSVM_SL[1:realization,]
-          KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:realization,]
-          KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:realization,]
-          # KappaVSVM_SL_Un_it[1:realization,], 
-          KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:realization,]
-          KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:realization,]
-          KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:realization,]
-          KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2[1:realization,]
-          KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2[1:realization,]
+          AccuracySVM=AccuracySVM[1:(realization-1),]
+          AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:(realization-1),]
+          AccuracyVSVM_SL=AccuracyVSVM_SL[1:(realization-1),]
+          AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:(realization-1),]
+          AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:(realization-1),]
+          # AccuracyVSVM_SL_Un_it[1:(realization-1),], 
+          AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:(realization-1),]
+          AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:(realization-1),]
+          AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:(realization-1),]
+          AccuracyVSVM_SL_Un_itSL2=AccuracyVSVM_SL_Un_itSL2[1:(realization-1),]
+          AccuracyVSVM_SL_Un_itTSL2=AccuracyVSVM_SL_Un_itTSL2[1:(realization-1),]
+          KappaSVM=KappaSVM[1:(realization-1),]
+          KappaSVM_SL_Un=KappaSVM_SL_Un[1:(realization-1),]
+          KappaVSVM_SL=KappaVSVM_SL[1:(realization-1),]
+          KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:(realization-1),]
+          KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:(realization-1),]
+          # KappaVSVM_SL_Un_it[1:(realization-1),], 
+          KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:(realization-1),]
+          KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:(realization-1),]
+          KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:(realization-1),]
+          KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2[1:(realization-1),]
+          KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2[1:(realization-1),]
         }
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
         save(AccuracySVM, 
@@ -2786,7 +2786,7 @@ for (model_prob in model_probs) {
              AccuracyVSVM_SL,
              AccuracyVSVM_SL_Un,
              AccuracyVSVM_SL_vUn,
-             # AccuracyVSVM_SL_Un_it[1:realization,], 
+             # AccuracyVSVM_SL_Un_it, 
              AccuracyVSVM_SL_Un_random_it,
              AccuracyVSVM_SL_Un_itSL,
              AccuracyVSVM_SL_Un_itTSL,
@@ -2798,7 +2798,7 @@ for (model_prob in model_probs) {
              KappaVSVM_SL,
              KappaVSVM_SL_Un,
              KappaVSVM_SL_vUn,
-             # KappaVSVM_SL_Un_it[1:realization,], 
+             # KappaVSVM_SL_Un_it, 
              KappaVSVM_SL_Un_random_it,
              KappaVSVM_SL_Un_itSL,
              KappaVSVM_SL_Un_itTSL,

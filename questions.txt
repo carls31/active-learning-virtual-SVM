@@ -59,7 +59,8 @@
  59. DONE boundMargin self_learn after AL is redundant since the samples we got are already the smallest -> just keep boundMargin=c(1)
  60. implement variant with clustering for each class 
  61. implement: new train_size -> old train_size + new_train_size VS new train_size_AL -> old train_size_AL + 2/class AL_samples + remaining new_train_size
-
+ 62. FUTURE -> change policy for active labeling (consider also the numberr of duplicates)
+ 
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
 Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
