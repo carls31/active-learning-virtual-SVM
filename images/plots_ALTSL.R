@@ -6,7 +6,7 @@
 ############################################
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 invariance = "shape"     # scale or shape
 model_prob = "binary"     # multiclass or binary
 
@@ -35,6 +35,9 @@ file_name_acc = "20240829_1627_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_
 file_name_acc = "20240829_2345_hagadera_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_acc = "20240901_0830_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_8nR_10SizePor"
 file_name_acc = "20240901_2028_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_acc = "20240903_1033_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_12SizePor"
+file_name_acc = "20240904_1650_cologne_binary_scale_acc_ALTSLv1_20Unl_23nR_16SizePor"
+file_name_acc = "20240906_1619_hagadera_binary_shape_acc_ALTSLv1_20Unl_16nR_16SizePor"
 
 
 
@@ -60,6 +63,9 @@ file_name_kappa = "20240829_1627_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_1
 file_name_kappa = "20240829_2345_hagadera_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_kappa = "20240901_0833_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_8nR_10SizePor"
 file_name_kappa = "20240901_2028_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_kappa = "20240903_1033_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_12SizePor"
+file_name_kappa = "20240904_1650_cologne_binary_scale_Kappa_ALTSLv1_20Unl_23nR_16SizePor"
+file_name_kappa = "20240906_1619_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_16nR_16SizePor"
 
 
 
@@ -129,25 +135,29 @@ load(paste0(file_name_kappa,".RData"))
 # file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
 # file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
 # # **********************************************************************************
-# AccuracySVM=AccuracySVM[1:5,]
-# AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:5,]
-# AccuracyVSVM_SL=AccuracyVSVM_SL[1:5,]
-# AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:5,]
-# AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:5,]
-# AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:5,]
-# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1:5,]
-# AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:5,]
-# AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:5,]
+# AccuracySVM=AccuracySVM[1:7,]
+# AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:7,]
+# AccuracyVSVM_SL=AccuracyVSVM_SL[1:7,]
+# AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:7,]
+# AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:7,]
+# AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:7,]
+# # AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1:7,]
+# AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:7,]
+# AccuracyVSVM_SL_Un_itSL2=AccuracyVSVM_SL_Un_itSL2[1:7,]
+# AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:7,]
+# AccuracyVSVM_SL_Un_itTSL2=AccuracyVSVM_SL_Un_itTSL2[1:7,]
 # 
-# KappaSVM=KappaSVM[1:5,]
-# KappaSVM_SL_Un=KappaSVM_SL_Un[1:5,]
-# KappaVSVM_SL=KappaVSVM_SL[1:5,]
-# KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:5,]
-# KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:5,]
-# KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:5,]
-# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1:5,]
-# KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:5,]
-# KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:5,]
+# KappaSVM=KappaSVM[1:7,]
+# KappaSVM_SL_Un=KappaSVM_SL_Un[1:7,]
+# KappaVSVM_SL=KappaVSVM_SL[1:7,]
+# KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:7,]
+# KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:7,]
+# KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:7,]
+# # KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1:7,]
+# KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:7,]
+# KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2[1:7,]
+# KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:7,]
+# KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2[1:7,]
 # # **********************************************************************************
 # 
 # save(AccuracySVM,
@@ -196,8 +206,8 @@ ExCsvMSD = function (datadase, filename = NA){
 }
 
 nclass=6
-if(city=="hagadera"){ nclass=5 
-}else if(model_prob=="binary"){ nclass=2 }
+if(city=="hagadera"){ nclass=5 }
+if(model_prob=="binary"){ nclass=2 }
 
 column_names <- colnames(AccuracySVM)
 if(is.null(column_names)){column_names <- names(AccuracySVM)}
