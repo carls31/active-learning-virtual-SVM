@@ -1626,7 +1626,7 @@ for (model_prob in model_probs) {
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
           light_factor<- 10 ## 9 ## 19 ## 2 best one
           if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 best one
-          if(model_prob=="binary"){ light_factor<- 2 } ## 25 ## 2 ## 24 #29
+          if(model_prob=="binary"){ light_factor<- 20 } ## 25 ## 2 ## 24 #29
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
