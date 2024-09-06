@@ -10,10 +10,10 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 script = "ALTSLv1"  # -> new train_samples are AL_samples
 ##################################################################################################################
 
-nR = 16                  # number of realizations
-cities = c("hagadera")     # cologne or hagadera location
-invariances = c("shape")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+nR = 12                  # number of realizations
+cities = c("hagadera","cologne")     # cologne or hagadera location
+invariances = c("scale")   # scale or shape invariance
+model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold          
@@ -955,8 +955,8 @@ for (model_prob in model_probs) {
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ 
         sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)} 
-      if(model_prob=="binary"){ 
-        sampleSizePor = c(6,8, 12,12, 32,32, 52,52, 76,76, 104,104, 136,136, 180,180)}
+      if(model_prob=="binary"){ nR=round(nR*1.6)
+        sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)}
       if (lgtS) { 
         #sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
         if(model_prob=="multiclass"){ 
@@ -1624,9 +1624,9 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 10 ## 9 ## 19 ## 2 best one
-          if(city=="hagadera"){ light_factor<- 19 } # 16 # 40 ## 20 best one
-          if(model_prob=="binary"){ light_factor<- 20 } ## 25 ## 2 ## 24 #29
+          light_factor<- 2 ## 9 ## 19 ## 2 best one
+          if(city=="hagadera"){ light_factor<- 10 } # 16 # 40 ## 20 best one
+          if(model_prob=="binary"){ light_factor<- 2 } ## 25 ## 2 ## 20 #29
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
