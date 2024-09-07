@@ -1,0 +1,12 @@
+OA Execution time: 2.65h
+
+
+VSVM_SL training time: 0sec
+VSVM_SLUn training time: 0sec
+VSVM_SLvUn training time: 0sec
+ALv2+tSNE+SL_VSVM-SL-vUn training time: 0sec
+ALv2+semiSL_VSVM-SL-vUn training time: 0sec
+
+length ALv2 + SL tSNE SVs: 431
+length ALv2 + SL SVs: 661
+length new train Labels AL: 242

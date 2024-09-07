@@ -11,7 +11,7 @@ script = "ALTSLv1"  # -> new train_samples are AL_samples
 ##################################################################################################################
 
 nR = 12                  # number of realizations
-cities = c("hagadera","cologne")     # cologne or hagadera location
+cities = c("cologne")     # cologne or hagadera location
 invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
@@ -19,6 +19,7 @@ b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold          
 boundMargin = c(1.5, 1, 0.5)  # distance from hyperplane - threshold  
 sampleSizePor = c(25,30, 50,50, 100,100, 160,160, 230,230, 310,310, 400,400, 500,500)
+# sampleSizePor = c(25,30, 30,50, 50,100, 100,160, 160,230, 230,310, 310,400, 400,500)
 
 #####################################################  Utils  ####################################################
 # ************************************************************************************************************** #
@@ -1624,9 +1625,9 @@ for (model_prob in model_probs) {
           # ********************************************************************************************************************
           
           samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 2 ## 9 ## 19 ## 2 best one
-          if(city=="hagadera"){ light_factor<- 10 } # 16 # 40 ## 20 best one
-          if(model_prob=="binary"){ light_factor<- 2 } ## 25 ## 2 ## 20 #29
+          light_factor<- 5 ## 9 ## 19 ## 2 best one maybe for col m shape ## 2 seems too low for col m scale
+          if(city=="hagadera"){ light_factor<- 5 } # 16 # 40 ## 20 best one for what? maybe hag m shape ## 10 is too high for hag m scale
+          if(model_prob=="binary"){ light_factor<- 2 } ## 25 ## 2 ## 20 #29 
           stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
           val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
           validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
