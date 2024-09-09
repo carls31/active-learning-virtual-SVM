@@ -513,6 +513,7 @@ add_AL_samples = function(distance_data,
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
   
+  if(tSNE_flag) {
   # ********************** duplicates check
   duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
   num_duplicates <- sum(duplicate_rows)
@@ -533,27 +534,37 @@ add_AL_samples = function(distance_data,
     ref_added_or <- ref_added_or[!duplicate_rows, ]
     cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
   }
-  # **********************
-  
-  # Perform PCA
-  pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
-  pca_data <- data.frame(pca_result$x[, 1:2])
-  colnames(pca_data) <- c("PC1", "PC2")
-  
   # Perform t-SNE
   tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
   tsne_data <- data.frame(tsne_result$Y)
   colnames(tsne_data) <- c("tSNE1", "tSNE2")
   
-  # Combine all data with the distance column
-  pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
   tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
-  # umap_data_with_distance <- cbind(umap_data, distance = ref_added_or$distance)
   
-  # Apply k-means clustering on each
-  km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
   km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-  # km_umap <- kmeans(umap_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  
+  # Add cluster information to the data
+  ref_added_or$cluster <- km_tsne$cluster
+  
+  } else if(PCA_flag){
+    # Perform PCA
+    pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
+    pca_data <- data.frame(pca_result$x[, 1:2])
+    colnames(pca_data) <- c("PC1", "PC2")
+    
+    # Combine all data with the distance column
+    pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
+    
+    # Apply k-means clustering on each
+    km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+    
+    ref_added_or$cluster <- km_pca$cluster
+  } else {
+    ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
+    km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+    ref_added_or$cluster <- km_result$cluster
+  }
+  # **********************
   
   # ***********************************************************************************
   if (!(is.logical(plot_flag)) && realiz==1 && s_size==3) {
@@ -618,17 +629,6 @@ add_AL_samples = function(distance_data,
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
   }
   # ***********************************************************************************
-  
-  # Add cluster information to the data
-  if(tSNE_flag) {
-    ref_added_or$cluster <- km_tsne$cluster
-  } else if(PCA_flag){
-    ref_added_or$cluster <- km_pca$cluster
-  } else {
-    ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
-    km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-    ref_added_or$cluster <- km_result$cluster
-  }
   
   # # Initialize a vector to store selected sample indices
   # selected_indices <- c()
@@ -2396,48 +2396,58 @@ for (model_prob in model_probs) {
             
             classSize=c(round(min(1400,as.numeric(min(table(trainDataCurRemaining$REF))))))  
             if(city=="cologne"){ 
-              classSize=c(round(min(700,as.numeric(min(table(trainDataCurRemaining$REF)))))) } 
+              classSize=c(round(min(1200,as.numeric(min(table(trainDataCurRemaining$REF)))))) } 
             if(model_prob=="binary"){ 
-              classSize=c(round(min(5400,as.numeric(min(table(trainDataCurRemaining$REF))))))}
+              classSize=c(round(min(2500,as.numeric(min(table(trainDataCurRemaining$REF))))))}
             
             clS=1
             cat("sampling ", classSize," unlabeled data per class\n",sep="")
             samplingStart.time <- Sys.time()
-            # Create an empty dataframe to store unique samples
-            samplesRemaining <- data.frame()
-            # Initialize the iteration counter
-            iteration <- 0
-            trainDataCurRemaining_sampl <- trainDataCurRemaining
-            while (nrow(samplesRemaining) < classSize[clS]*nclass && iteration < 10) {
-              iteration <- iteration + 1
-              # Determine how many more samples are needed
-              remaining_needed <- as.numeric(min(table(trainDataCurRemaining_sampl$REF)))
-              # remaining_needed <- round((classSize[clS]*nclass - nrow(samplesRemaining))/nclass)
-              # Sample additional rows
-              stratSampSize <- c(remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed)
-              stratSampRemaining <- strata(trainDataCurRemaining_sampl[, c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_sampl))], c("REF"), size = stratSampSize, method = "srswor")
-              newsamplesRemaining <- getdata(trainDataCurRemaining_sampl, stratSampRemaining)
-              # Extract relevant columns for uniqueness check
-              new_samples <- newsamplesRemaining[, 1:(ncol(trainDataCur) + 1)]
-              # Remove duplicates based on the specified column range
-              unique_new_samples <- new_samples[!duplicated(new_samples[, c(sindexSVMDATA:eindexSVMDATA)]), ]
-              # Add unique rows to the cumulative dataframe
-              samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-              samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]), ]
-              samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
-              cat("[iteration ",iteration,"/10] number of samples: ",nrow(samplesRemaining), "\n",sep="")
-              # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
-              if (nrow(samplesRemaining) < classSize[clS]*nclass) {
-                # Remove sampled rows from the remaining pool
-                trainDataCurRemaining_sampl <- trainDataCurRemaining_sampl[!rownames(trainDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
-              }
-            }
-            rm(trainDataCurRemaining_sampl,unique_new_samples,new_samples,newsamplesRemaining,stratSampRemaining)
+            # # Create an empty dataframe to store unique samples
+            # samplesRemaining <- data.frame()
+            # # Initialize the iteration counter
+            # iteration <- 0
+            # trainDataCurRemaining_sampl <- trainDataCurRemaining
+            # while (nrow(samplesRemaining) < classSize[clS]*nclass && iteration < 10) {
+            #   iteration <- iteration + 1
+            #   # Determine how many more samples are needed
+            #   remaining_needed <- as.numeric(min(table(trainDataCurRemaining_sampl$REF)))
+            #   # remaining_needed <- round((classSize[clS]*nclass - nrow(samplesRemaining))/nclass)
+            #   # Sample additional rows
+            #   stratSampSize <- c(remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed, remaining_needed)
+            #   stratSampRemaining <- strata(trainDataCurRemaining_sampl[, c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining_sampl))], c("REF"), size = stratSampSize, method = "srswor")
+            #   newsamplesRemaining <- getdata(trainDataCurRemaining_sampl, stratSampRemaining)
+            #   # Extract relevant columns for uniqueness check
+            #   new_samples <- newsamplesRemaining[, 1:(ncol(trainDataCur) + 1)]
+            #   
+            #   # Remove duplicates based on the specified column range
+            #   unique_new_samples <- new_samples[!duplicated(new_samples[, c(sindexSVMDATA:eindexSVMDATA)]), ]
+            #   # Add unique rows to the cumulative dataframe
+            #   samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+            #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]), ]
+            #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining$ID_unit), ]
+            #   
+            #   cat("[iteration ",iteration,"/10] number of samples: ",nrow(samplesRemaining), "\n",sep="")
+            #   # If more samples are needed, update trainDataCurRemaining_sampl by excluding the already sampled rows
+            #   if (nrow(samplesRemaining) < classSize[clS]*nclass) {
+            #     # Remove sampled rows from the remaining pool
+            #     trainDataCurRemaining_sampl <- trainDataCurRemaining_sampl[!rownames(trainDataCurRemaining_sampl) %in% rownames(unique_new_samples), ]
+            #   }
+            # }
+            # rm(trainDataCurRemaining_sampl,new_samples,newsamplesRemaining,stratSampRemaining)
+            # 
+            # # If necessary, trim the dataframe to exactly the desired number of rows
+            # if (nrow(samplesRemaining) > classSize[clS]*nclass) {
+            #   samplesRemaining <- samplesRemaining[1:(classSize[clS]*nclass), ]
+            # }
+            # 
+              stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
+              # Definition of sampling configuration (strata:random sampling without replacement)
+              stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
+              # Get new samples from trainDataCurRemaining
+              samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
+              # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
             
-            # If necessary, trim the dataframe to exactly the desired number of rows
-            if (nrow(samplesRemaining) > classSize[clS]*nclass) {
-              samplesRemaining <- samplesRemaining[1:(classSize[clS]*nclass), ]
-            }
             # Final check for duplicates
             final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
             sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
