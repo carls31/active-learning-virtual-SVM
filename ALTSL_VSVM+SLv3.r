@@ -1,3 +1,4 @@
+script = "ALTSLv3"  # -> new train_samples and AL_samples are distinct data
 #####################################################  Libraries  ################################################
 library(caret)
 library(kernlab)
@@ -7,13 +8,12 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-script = "ALTSLv3"  # -> new train_samples and AL_samples are distinct data
 ##################################################################################################################
 
 nR = 10                   # number of realizations
-cities = c("hagadera")    # cologne or hagadera location
-invariances = c("shape")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+cities = c("cologne")    # cologne or hagadera location
+invariances = c("scale")   # scale or shape invariance
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold       
@@ -1049,9 +1049,9 @@ for (model_prob in model_probs) {
       # sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)
       sampleSizePor = c(6,8, 12,12, 32,32, 52,52, 76,76, 104,104, 136,136, 180,180)}
       if (lgtS) { 
-        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2*1)]
+        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
         if(model_prob=="multiclass"){ 
-          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2*2)]}
+          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]}
         bound = c(0.3, 0.6)
         boundMargin = c(1.5, 0.5)
       }
@@ -1679,72 +1679,72 @@ for (model_prob in model_probs) {
       
       # *************
       if (lgtS) {
-        set.seed(seed)        
-        validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-        validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
-        
-        validateData <- cbind(validateFeatsub, validateLabels)
-        finalFeatsub <- data.frame()  # Container for final feature samples
-        finalLabels <- factor()  # Initialize with factor levels
-        
-        # Sort labels by the number of instances (start with the smallest)
-        label_order <- levels(validateLabels)[order(table(validateLabels))]
-        
-        for (label in label_order) {
-          lightS <- sum(validateLabels == label)
-          
-          samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
-          
-          # Stratified sampling without replacement
-          stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
-          val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-          validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-          
-          # Remove duplicates within the current sample
-          # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
-          unique_new_samples <- validateData_sampl[]
-          
-          # Check for duplicates against all previously collected samples
-          if (nrow(finalFeatsub) > 0) {
-            duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
-            unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
-          }
-          
-          # Add unique rows to the cumulative dataframe
-          samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-          samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
-          cat("[ ", label, " 1 ] Number of samples: ", nrow(samplesRemaining),"\n", sep = "")
-          
-          # Append the unique samples to the final containers
-          finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-          finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-                                levels = levels(validateLabels))
-          
-          # ********************************************************************************************************************
-          
-          samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 40
-          if(city=="hagadera"){ light_factor<- 40 } # 16 # 20 # 25 # 35 # 40 # 60 # 80
-          if(model_prob=="binary"){ light_factor<- 40 }
-          # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
-          stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
-          val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-          validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-          
-          samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
-          cat("[ ", label, " 2 ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
-          
-          finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-          finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-                                levels = levels(validateLabels))
-        }
-        
-        # Replace original data with the final sampled data
-        validateFeatsub <- finalFeatsub
-        validateLabels <- finalLabels
-        print(length(validateLabels))
-        rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
+        # set.seed(seed)        
+        # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+        # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+        # 
+        # validateData <- cbind(validateFeatsub, validateLabels)
+        # finalFeatsub <- data.frame()  # Container for final feature samples
+        # finalLabels <- factor()  # Initialize with factor levels
+        # 
+        # # Sort labels by the number of instances (start with the smallest)
+        # label_order <- levels(validateLabels)[order(table(validateLabels))]
+        # 
+        # for (label in label_order) {
+        #   lightS <- sum(validateLabels == label)
+        #   
+        #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+        #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
+        #   
+        #   # Stratified sampling without replacement
+        #   stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+        #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+        #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+        #   
+        #   # Remove duplicates within the current sample
+        #   # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
+        #   unique_new_samples <- validateData_sampl[]
+        #   
+        #   # Check for duplicates against all previously collected samples
+        #   if (nrow(finalFeatsub) > 0) {
+        #     duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
+        #     unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
+        #   }
+        #   
+        #   # Add unique rows to the cumulative dataframe
+        #   samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+        #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
+        #   cat("[ ", label, " 1 ] Number of samples: ", nrow(samplesRemaining),"\n", sep = "")
+        #   
+        #   # Append the unique samples to the final containers
+        #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+        #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+        #                         levels = levels(validateLabels))
+        #   
+        #   # ********************************************************************************************************************
+        #   
+        #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+        #   light_factor<- 40
+        #   if(city=="hagadera"){ light_factor<- 40 } # 16 # 20 # 25 # 35 # 40 # 60 # 80
+        #   if(model_prob=="binary"){ light_factor<- 40 }
+        #   # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
+        #   stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
+        #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+        #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+        #   
+        #   samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
+        #   cat("[ ", label, " 2 ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
+        #   
+        #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+        #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+        #                         levels = levels(validateLabels))
+        # }
+        # 
+        # # Replace original data with the final sampled data
+        # validateFeatsub <- finalFeatsub
+        # validateLabels <- finalLabels
+        # print(length(validateLabels))
+        # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
       }
       # *************
       
@@ -2775,7 +2775,7 @@ for (model_prob in model_probs) {
                         # validateFeatsub,validateLabels,
                         upd_dataCurFeatsub,upd_dataCurLabels,
                         # realiz=1, s_size=3, 
-                        plot_flag = model_name_ALSL_VSVMSL
+                        # plot_flag = model_name_ALSL_VSVMSL
                       )
                       sampled_data <- sampledResult$sampled_data
                       reference_label <- sampledResult$best_updCur_Labels
@@ -2790,7 +2790,7 @@ for (model_prob in model_probs) {
                                                sampled_data[,1:numFeat], reference_label,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, newSize2=b[bb]*nclass, flag_cluster=TRUE, plot_flag = model_name_ALSL_VSVMSL)
+                                               upd_dataCur$ID_unit, newSize2=b[bb]*nclass, flag_cluster=FALSE, plot_flag = FALSE)
                       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
                       cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
                       # Extract new datasets
@@ -2982,7 +2982,7 @@ for (model_prob in model_probs) {
                                      sampled_data[,1:numFeat], reference_label,
                                      new_trainFeatVSVM, new_trainLabelsVSVM,
                                      newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                     upd_dataCur$ID_unit, tSNE_flag=FALSE, newSize2=b[bb]*nclass, flag_cluster=TRUE, plot_flag = model_name_ALTrainSL_VSVMSL ) #,
+                                     upd_dataCur$ID_unit, tSNE_flag=FALSE, newSize2=b[bb]*nclass, flag_cluster=FALSE, plot_flag = FALSE ) #,
             ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
             cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
             # Extract new datasets

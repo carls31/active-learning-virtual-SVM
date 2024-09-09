@@ -1,3 +1,4 @@
+script = "ALTSLv2"  # -> new train_samples are hybrid new_samples + small size of AL_samples AND AL_samples size is small
 #####################################################  Libraries  ################################################
 library(caret)
 library(kernlab)
@@ -7,7 +8,6 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-script = "ALTSLv2"  # -> new train_samples are hybrid new_samples + small size of AL_samples AND AL_samples size is small
 ##################################################################################################################
 
 nR = 10                   # number of realizations
