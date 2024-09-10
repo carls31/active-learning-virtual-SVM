@@ -20,7 +20,7 @@ bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold
 boundMargin = c(1.5, 1, 0.5)  # distance from hyperplane - threshold   
 sampleSizePor = c(25,30, 50,55, 100,105, 160,165, 230,235, 310,315, 400,405, 500,505)
 
-#####################################################  Utils  ########################################
+#####################################################  Utils  ####################################################
 # ************************************************************************************************************** #
 #                                       lorenzo.carlassara98@gmail.com                                           #
 #                                       linkedin.com/in/lorenzo-carlassara/                                      #
@@ -362,11 +362,11 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
     
     # Histogram for Standard Scaling of margin_distances
     hist(as.vector(margin_distances), main="Histogram of Original Margin Sampling Distances",
-         xlab="Original Margin Sampling Distance", col="black", breaks=500)
+         xlab="Original Margin Sampling Distance", col="black", breaks=500 )
     
     # Histogram for Standard Scaling of margin_distances
     hist(as.vector(scaled_distances), main="Histogram of Scaled MS Distances",
-         xlab="Scaled MS Distance", col="purple", breaks=500, xlim=c(0, 1))
+         xlab="Scaled MS Distance", col="purple", breaks=500)
     
     # # Histogram for Power transformation
     # hist(as.vector(distances_power), main="Histogram of Power Transformed Distances",
@@ -374,7 +374,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
     
     # Histogram for Logarithmic transformation
     hist(as.vector(distances_log), main="Histogram of Logarithmic Transformed MS Distances",
-         xlab="Logarithmic Transformed MS Distance", col="green", breaks=500, xlim=c(0, 1))
+         xlab="Logarithmic Transformed MS Distance", col="green", breaks=500)
     
     # # Histogram for Exponential transformation
     # hist(distances_exp, main="Histogram of Exponential Transformed Distances",
@@ -442,15 +442,15 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
     
     # Histogram for Standard Scaling of margin_distances
     hist(as.vector(mclu_distances), main="Histogram of Original MCLU Distances",
-         xlab="Original MCLU Distance", col="black", breaks=500)
+         xlab="Original MCLU Distance", col="black", breaks=500 )
     
     # Histogram for Standard Scaling of margin_distances
     hist(as.vector(mclu_scaled_distances), main="Histogram of Scaled MCLU Distances",
-         xlab="Scaled MCLU Distance", col="purple", breaks=500, xlim=c(0, 1))
+         xlab="Scaled MCLU Distance", col="purple", breaks=500)
     
     # Histogram for Standard Scaling of mclu_distances
     hist(as.vector(uncertainty$distance), main="Histogram of Logarithmic Transformed Distances",
-         xlab="Logarithmic Transformed Distance", col="green", breaks=500, xlim=c(0, 1))
+         xlab="Logarithmic Transformed Distance", col="green", breaks=500)
     dev.off()
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
   }
@@ -513,47 +513,59 @@ add_AL_samples = function(distance_data,
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
   
-  # ********************** duplicates check
-  duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
-  num_duplicates <- sum(duplicate_rows)
-  if (num_duplicates > 0) {
-    cat("Number of duplicate rows:", num_duplicates, "\n")
-    # Find indices of duplicates
-    duplicate_indices <- which(duplicate_rows)
-    cat("First five pairs of duplicate rows:\n")
-    
-    # Display the first five pairs
-    for (i in seq_len(min(5, num_duplicates))) {
-      original_index <- duplicate_indices[i]
-      duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
-      cat("Pair", i, ":\n")
-      print(ref_added_or[c(duplicate_index, original_index), ])
+  if(tSNE_flag) {
+    # ********************** duplicates check
+    duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
+    num_duplicates <- sum(duplicate_rows)
+    if (num_duplicates > 0) {
+      cat("Number of duplicate rows:", num_duplicates, "\n")
+      # Find indices of duplicates
+      duplicate_indices <- which(duplicate_rows)
+      cat("First five pairs of duplicate rows:\n")
+      
+      # Display the first five pairs
+      for (i in seq_len(min(3, num_duplicates))) {
+        original_index <- duplicate_indices[i]
+        duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
+        cat("Pair", i, ":\n")
+        print(ref_added_or[c(duplicate_index, original_index), ])
+      }
+      
+      # Remove duplicates
+      ref_added_or <- ref_added_or[!duplicate_rows, ]
+      cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
     }
-    # Remove duplicates
-    ref_added_or <- ref_added_or[!duplicate_rows, ]
-    cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
+    # Perform t-SNE
+    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
+    tsne_data <- data.frame(tsne_result$Y)
+    colnames(tsne_data) <- c("tSNE1", "tSNE2")
+    
+    tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
+    
+    km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+    
+    # Add cluster information to the data
+    ref_added_or$cluster <- km_tsne$cluster
+    
+  } else if(PCA_flag){
+    # Perform PCA
+    pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
+    pca_data <- data.frame(pca_result$x[, 1:2])
+    colnames(pca_data) <- c("PC1", "PC2")
+    
+    # Combine all data with the distance column
+    pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
+    
+    # Apply k-means clustering on each
+    km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+    
+    ref_added_or$cluster <- km_pca$cluster
+  } else {
+    ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
+    km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+    ref_added_or$cluster <- km_result$cluster
   }
   # **********************
-  
-  # Perform PCA
-  pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
-  pca_data <- data.frame(pca_result$x[, 1:2])
-  colnames(pca_data) <- c("PC1", "PC2")
-  
-  # Perform t-SNE
-  tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
-  tsne_data <- data.frame(tsne_result$Y)
-  colnames(tsne_data) <- c("tSNE1", "tSNE2")
-  
-  # Combine all data with the distance column
-  pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
-  tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
-  # umap_data_with_distance <- cbind(umap_data, distance = ref_added_or$distance)
-  
-  # Apply k-means clustering on each
-  km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-  km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-  # km_umap <- kmeans(umap_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
   
   # ***********************************************************************************
   if (!(is.logical(plot_flag)) && realiz==1 && s_size==3) {
@@ -618,17 +630,6 @@ add_AL_samples = function(distance_data,
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
   }
   # ***********************************************************************************
-  
-  # Add cluster information to the data
-  if(tSNE_flag) {
-    ref_added_or$cluster <- km_tsne$cluster
-  } else if(PCA_flag){
-    ref_added_or$cluster <- km_pca$cluster
-  } else {
-    ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
-    km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-    ref_added_or$cluster <- km_result$cluster
-  }
   
   # # Initialize a vector to store selected sample indices
   # selected_indices <- c()
@@ -957,11 +958,11 @@ self_learn_AL = function(
     par(mfrow=c(1, 3)) 
     # Histogram for Standard Scaling of margin_distances
     hist(as.vector(SVinvar$distance), main="Histogram of Original SL Margin Distances",
-         xlab="Original SL Margin Distance", col="black", breaks=500)
+         xlab="Original SL Margin Distance", col="black", breaks=500 )
     
     # Histogram for Standard Scaling of margin_distances
     hist(as.vector(scaled_distances), main="Histogram of Scaled SL Margin Distances",
-         xlab="Scaled SL Margin Distance", col="purple", breaks=500, xlim=c(0, 1))
+         xlab="Scaled SL Margin Distance", col="purple", breaks=500)
     
     # # Histogram for Power transformation
     # hist(as.vector(distances_power), main="Histogram of Power Transformed Distances",
@@ -969,7 +970,7 @@ self_learn_AL = function(
     
     # Histogram for Logarithmic transformation
     hist(as.vector(distances_log), main="Histogram of Logarithmic Transformed Distances",
-         xlab="Logarithmic Transformed Distance", col="green", breaks=500, xlim=c(0, 1))
+         xlab="Logarithmic Transformed Distance", col="green", breaks=500)
     
     # ****************************************************************************************
     
@@ -1676,78 +1677,7 @@ for (model_prob in model_probs) {
       ###############################################  Training  #################################################
 
       start.time_oa <- Sys.time()
-      
-      # *************
-      if (lgtS) {
-        set.seed(seed)        
-        validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-        validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
-        
-        validateData <- cbind(validateFeatsub, validateLabels)
-        finalFeatsub <- data.frame()  # Container for final feature samples
-        finalLabels <- factor()  # Initialize with factor levels
-        
-        # Sort labels by the number of instances (start with the smallest)
-        label_order <- levels(validateLabels)[order(table(validateLabels))]
-        
-        for (label in label_order) {
-          lightS <- sum(validateLabels == label)
-          
-          samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
-          
-          # Stratified sampling without replacement
-          stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
-          val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-          validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-          
-          # Remove duplicates within the current sample
-          # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
-          unique_new_samples <- validateData_sampl[]
-          
-          # Check for duplicates against all previously collected samples
-          if (nrow(finalFeatsub) > 0) {
-            duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
-            unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
-          }
-          
-          # Add unique rows to the cumulative dataframe
-          samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-          samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
-          cat("[ ", label, " 1 ] Number of samples: ", nrow(samplesRemaining),"\n", sep = "")
-          
-          # Append the unique samples to the final containers
-          finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-          finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-                                levels = levels(validateLabels))
-          
-          # ********************************************************************************************************************
-          
-          samplesRemaining <- data.frame()  # DataFrame to store unique samples
-          light_factor<- 20
-          if(city=="hagadera"){           light_factor<- 20 } # 16 # 20 # 25 # 35 # 40 # 60 # 80
-          if(model_prob=="binary"){ light_factor<- 30 }
-          # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
-          stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
-          val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-          validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-          
-          samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
-          cat("[ ", label, " 2 ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
-          
-          finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-          finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-                                levels = levels(validateLabels))
-        }
-        
-        # Replace original data with the final sampled data
-        validateFeatsub <- finalFeatsub
-        validateLabels <- finalLabels
-        print(length(validateLabels))
-        rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
-      }
-      # *************
-      
+
       for (realization in seq(1,nR)) {
         
         start.time <- Sys.time()
