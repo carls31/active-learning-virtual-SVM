@@ -43,6 +43,7 @@ file_name_acc = "20240909_0607_cologne_multiclass_scale_acc_ALTSLv1_20Unl_12nR_1
 file_name_acc = "20240909_1656_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_14SizePor"
 file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
+# file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 
@@ -76,18 +77,15 @@ file_name_kappa = "20240909_0607_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_12
 file_name_kappa = "20240909_1656_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_14SizePor"
 file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
-
-
-
-
-
+# file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
 
-# # **********************************************************************************
+########################################################################################
+
 # tmp_AccuracySVM = AccuracySVM
 # tmp_AccuracySVM_M = AccuracySVM_M
 # tmp_AccuracySVM_SL_Un = AccuracySVM_SL_Un
@@ -194,7 +192,7 @@ load(paste0(file_name_kappa,".RData"))
 #      KappaVSVM_SL_Un_itTSL,
 #      KappaVSVM_SL_Un_itTSL2,
 #      file=paste0(file_name_kappa,".RData"))
-# # **********************************************************************************
+########################################################################################
 
 ExCsvMSD = function (datadase, filename = NA){
   
@@ -344,8 +342,7 @@ png(filename=paste0(file_name_acc,".png"),
 # # ******************************************************************************************************
 
 if(nrow(AccuracySVM)>1){
-  # clms = seq(2,ncol(AccuracySVM),by=2)
-    
+
   avgSVM           = ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[1,]
   avgSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un[,-clms])[1,]
   avgVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL[,-clms])[1,]
@@ -389,17 +386,13 @@ if(nrow(AccuracySVM)>1){
                     ylab= "accuracy (%)",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  # lines(x, (AccuracySVM_M), type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x, (AccuracySVM_SL_Un), type= type ,   col = 1, lwd = 2,lty = 4)
-
-  # lines(x, (AccuracyVSVM), type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL), type= type ,       col = 3, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un), type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_vUn), type= type , col = 5, lwd = 2,lty = 1)
   
-  
   # lines(x, (AccuracyVSVM_SL_Un_random_it), type= type , col = 7, lwd = 2,lty = 2)
-  # lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
+  lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un_itSL), type= type , col = 8, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un_itSL2), type= type , col = 8, lwd = 2,lty = 4)
   lines(x, (AccuracyVSVM_SL_Un_itTSL), type= type , col = 6, lwd = 2,lty = 1)
@@ -424,7 +417,7 @@ legend("bottomright",
              1,
              1,
              1,
-             # 2, 
+             # 2,
              1,
              1, 4,
              1, 4
