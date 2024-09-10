@@ -6,66 +6,76 @@
 ############################################
 library(scales)
 
-city = "hagadera"    # cologne or hagadera
-invariance = "shape"     # scale or shape
-model_prob = "binary"     # multiclass or binary
+city = "cologne"    # cologne or hagadera
+invariance = "scale"     # scale or shape
+model_prob = "multiclass"     # multiclass or binary
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","results/",city))
 
-file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizePor"
-file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
-file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
-file_name_acc = "20240819_1244_cologne_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
-file_name_acc = "20240819_1904_hagadera_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
-file_name_acc = "20240821_0601_cologne_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
-file_name_acc = "20240821_2337_cologne_binary_scale_acc_ALTSLv3_20Unl_8nR_16SizePor"
-file_name_acc = "20240824_1141_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_acc = "20240825_1346_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_acc = "20240824_2023_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_acc = "20240825_1615_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_acc = "20240825_1959_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_acc = "20240826_0827_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
+# file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizePor"
+# file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
+# file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
+# file_name_acc = "20240819_1244_cologne_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
+# file_name_acc = "20240819_1904_hagadera_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
+# file_name_acc = "20240821_0601_cologne_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
+# file_name_acc = "20240821_2337_cologne_binary_scale_acc_ALTSLv3_20Unl_8nR_16SizePor"
+# file_name_acc = "20240825_1346_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_acc = "20240824_2023_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_acc = "20240825_1615_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_acc = "20240825_1959_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_acc = "20240826_0827_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_acc = "20240827_1123_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_acc = "20240827_2213_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_acc = "20240829_1627_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_acc = "20240829_2345_hagadera_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
+## full benchmark
 file_name_acc = "20240901_0830_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_8nR_10SizePor"
 file_name_acc = "20240901_2028_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_14SizePor"
 file_name_acc = "20240903_1033_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_12SizePor"
 file_name_acc = "20240904_1650_cologne_binary_scale_acc_ALTSLv1_20Unl_23nR_16SizePor"
 file_name_acc = "20240906_1619_hagadera_binary_shape_acc_ALTSLv1_20Unl_16nR_16SizePor"
+file_name_acc = "20240907_1315_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_12nR_14SizePor"
+file_name_acc = "20240909_0607_cologne_multiclass_scale_acc_ALTSLv1_20Unl_12nR_15SizePor"
+file_name_acc = "20240909_1656_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_14SizePor"
+file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
+file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 
 
 
 # ********************************************************************
 
-file_name_kappa = "20240809_1322_hagadera_binary_scale_Kappa_ALTSLf_20Unl_1nR_7SizePor"
-file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1nR_9SizePor"
-file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
-file_name_kappa = "20240819_1244_cologne_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
-file_name_kappa = "20240819_1904_hagadera_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
-file_name_kappa = "20240821_0601_cologne_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
-file_name_kappa = "20240821_2337_cologne_binary_scale_Kappa_ALTSLv3_20Unl_8nR_16SizePor"
-file_name_kappa = "20240824_1141_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_kappa = "20240825_1346_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_kappa = "20240824_2023_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_kappa = "20240825_1615_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_kappa = "20240825_1959_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-file_name_kappa = "20240826_0827_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
+# file_name_kappa = "20240809_1322_hagadera_binary_scale_Kappa_ALTSLf_20Unl_1nR_7SizePor"
+# file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1nR_9SizePor"
+# file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
+# file_name_kappa = "20240819_1244_cologne_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
+# file_name_kappa = "20240819_1904_hagadera_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
+# file_name_kappa = "20240821_0601_cologne_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
+# file_name_kappa = "20240821_2337_cologne_binary_scale_Kappa_ALTSLv3_20Unl_8nR_16SizePor"
+# file_name_kappa = "20240825_1346_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_kappa = "20240824_2023_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_kappa = "20240825_1615_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_kappa = "20240825_1959_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
+# file_name_kappa = "20240826_0827_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_1123_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_2213_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_kappa = "20240829_1627_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240829_2345_hagadera_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
+## full benchmark
 file_name_kappa = "20240901_0833_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_8nR_10SizePor"
 file_name_kappa = "20240901_2028_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
 file_name_kappa = "20240903_1033_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_12SizePor"
 file_name_kappa = "20240904_1650_cologne_binary_scale_Kappa_ALTSLv1_20Unl_23nR_16SizePor"
 file_name_kappa = "20240906_1619_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_16nR_16SizePor"
+file_name_kappa = "20240907_1315_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_12nR_14SizePor"
+file_name_kappa = "20240909_0607_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_12nR_15SizePor"
+file_name_kappa = "20240909_1656_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_14SizePor"
+file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
+file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 
 
 
@@ -168,7 +178,9 @@ load(paste0(file_name_kappa,".RData"))
 #      AccuracyVSVM_SL_Un_random_it,
 #      AccuracyVSVM_SL_Un_it,
 #      AccuracyVSVM_SL_Un_itSL,
+#      AccuracyVSVM_SL_Un_itSL2,
 #      AccuracyVSVM_SL_Un_itTSL,
+#      AccuracyVSVM_SL_Un_itTSL2,
 #      file=paste0(file_name_acc,".RData"))
 # save(KappaSVM,
 #      KappaSVM_SL_Un,
@@ -178,7 +190,9 @@ load(paste0(file_name_kappa,".RData"))
 #      KappaVSVM_SL_Un_random_it,
 #      KappaVSVM_SL_Un_it,
 #      KappaVSVM_SL_Un_itSL,
+#      KappaVSVM_SL_Un_itSL2,
 #      KappaVSVM_SL_Un_itTSL,
+#      KappaVSVM_SL_Un_itTSL2,
 #      file=paste0(file_name_kappa,".RData"))
 # # **********************************************************************************
 
@@ -210,7 +224,62 @@ if(city=="hagadera"){ nclass=5 }
 if(model_prob=="binary"){ nclass=2 }
 
 column_names <- colnames(AccuracySVM)
-if(is.null(column_names)){column_names <- names(AccuracySVM)}
+clms = seq(2,ncol(AccuracySVM),by=2)
+
+if(grepl("v1", file_name_kappa) && as.integer(column_names[3])>as.integer(column_names[2])){
+  column_names[-c(1,clms)]=column_names[clms[-length(clms)]]
+  
+  colnames(AccuracySVM)=column_names
+  colnames(AccuracySVM_SL_Un)=column_names
+  colnames(AccuracyVSVM_SL)=column_names
+  colnames(AccuracyVSVM_SL_Un)=column_names
+  colnames(AccuracyVSVM_SL_vUn)=column_names
+  # colnames(AccuracyVSVM_SL_Un_it)=column_names
+  colnames(AccuracyVSVM_SL_Un_random_it)=column_names
+  colnames(AccuracyVSVM_SL_Un_itSL)=column_names
+  colnames(AccuracyVSVM_SL_Un_itSL2)=column_names
+  colnames(AccuracyVSVM_SL_Un_itTSL)=column_names
+  colnames(AccuracyVSVM_SL_Un_itTSL2)=column_names
+  
+  colnames(KappaSVM)=column_names
+  colnames(KappaSVM_SL_Un)=column_names
+  colnames(KappaVSVM_SL)=column_names
+  colnames(KappaVSVM_SL_Un)=column_names
+  colnames(KappaVSVM_SL_vUn)=column_names
+  # colnames(KappaVSVM_SL_Un_it)=column_names
+  colnames(KappaVSVM_SL_Un_random_it)=column_names
+  colnames(KappaVSVM_SL_Un_itSL)=column_names
+  colnames(KappaVSVM_SL_Un_itSL2)=column_names
+  colnames(KappaVSVM_SL_Un_itTSL)=column_names
+  colnames(KappaVSVM_SL_Un_itTSL2)=column_names
+  
+
+  save(AccuracySVM,
+       AccuracySVM_SL_Un,
+       AccuracyVSVM_SL,
+       AccuracyVSVM_SL_Un,
+       AccuracyVSVM_SL_vUn,
+       AccuracyVSVM_SL_Un_random_it,
+       # AccuracyVSVM_SL_Un_it,
+       AccuracyVSVM_SL_Un_itSL,
+       AccuracyVSVM_SL_Un_itSL2,
+       AccuracyVSVM_SL_Un_itTSL,
+       AccuracyVSVM_SL_Un_itTSL2,
+       file=paste0(file_name_acc,".RData"))
+  save(KappaSVM,
+       KappaSVM_SL_Un,
+       KappaVSVM_SL,
+       KappaVSVM_SL_Un,
+       KappaVSVM_SL_vUn,
+       KappaVSVM_SL_Un_random_it,
+       # KappaVSVM_SL_Un_it,
+       KappaVSVM_SL_Un_itSL,
+       KappaVSVM_SL_Un_itSL2,
+       KappaVSVM_SL_Un_itTSL,
+       KappaVSVM_SL_Un_itTSL2,
+       file=paste0(file_name_kappa,".RData"))
+}
+
 x <- 2*as.integer(column_names)/nclass
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
@@ -275,29 +344,41 @@ png(filename=paste0(file_name_acc,".png"),
 # # ******************************************************************************************************
 
 if(nrow(AccuracySVM)>1){
-  clms = seq(2,ncol(AccuracySVM),by=2)
-  msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[1,],log = "x",
+  # clms = seq(2,ncol(AccuracySVM),by=2)
+    
+  avgSVM           = ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[1,]
+  avgSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un[,-clms])[1,]
+  avgVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL[,-clms])[1,]
+  avgVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,]
+  avgVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,]
+
+  # avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
+  avgVSVM_SL_Un_it        = ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,]
+  avgVSVM_SL_Un_itSL      = ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,]
+  avgVSVM_SL_Un_itTSL     = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,]
+  avgVSVM_SL_Un_itSL2     = ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[1,]
+  avgVSVM_SL_Un_itTSL2    = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[1,]
+
+  # *********************************************
+  
+  msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  # lines(x, ExCsvMSD(AccuracySVM_M)[1,], type= type ,         col = 8, lwd = 2,lty = 3)
-  lines(x[-clms], ExCsvMSD(AccuracySVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd = 2,lty = 4)
+  lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
+  lines(x[-clms], avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 1)
+  lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
+  lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
-  # lines(x, ExCsvMSD(AccuracyVSVM)[1,], type= type ,          col = 3, lwd = 2,lty = 1)
-  lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL[,-clms])[1,], type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x[-clms], ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd = 2,lty = 1)
-
-  
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 2)
-  # lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd = 2,lty = 1)
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd = 2,lty = 1)
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd = 2,lty = 4)
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd = 2,lty = 1)
-  lines(x[clms], ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = 6, lwd = 2,lty = 4)
+  # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2,lty = 2)
+  lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2,lty = 1)
+  lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2,lty = 1)
+  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2,lty = 4)
+  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2,lty = 1)
+  lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2,lty = 4)
   
   }else{
   clms = seq(2,length(AccuracySVM),by=2)
@@ -318,7 +399,7 @@ if(nrow(AccuracySVM)>1){
   
   
   # lines(x, (AccuracyVSVM_SL_Un_random_it), type= type , col = 7, lwd = 2,lty = 2)
-  lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
+  # lines(x, (AccuracyVSVM_SL_Un_it), type= type , col = 7, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un_itSL), type= type , col = 8, lwd = 2,lty = 1)
   lines(x, (AccuracyVSVM_SL_Un_itSL2), type= type , col = 8, lwd = 2,lty = 4)
   lines(x, (AccuracyVSVM_SL_Un_itTSL), type= type , col = 6, lwd = 2,lty = 1)
@@ -333,8 +414,8 @@ legend("bottomright",
          "VSVM-SL",
          "VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
-         "random AL VSVM-SL-vUn",
-         # "ALv1+tSNE VSVM-SL-vUn",
+         # "random AL VSVM-SL-vUn",
+         "ALv1+tSNE VSVM-SL-vUn",
          "ALv2+tSNE+SL VSVM-SL-vUn",  "ALv2+tSNE VSVM-SL-vUn",
          "ALv2+semiSL VSVM-SL-vUn", "ALv2+Train VSVM-SL-vUn"
        ),
@@ -343,7 +424,8 @@ legend("bottomright",
              1,
              1,
              1,
-             2, # 1,
+             # 2, 
+             1,
              1, 4,
              1, 4
              ), # gives the legend appropriate symbols (lines)
@@ -364,44 +446,18 @@ dev.off()
 
 if(nrow(AccuracySVM)>1){
   
-  avgSVM=ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[1,]
-  sdSVM=ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[2,]
+  sdSVM           = ExCsvMSD(AccuracySVM[,-clms[-length(clms)]])[2,]
+  sdSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un[,-clms])[2,]
+  sdVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL[,-clms])[2,]
+  sdVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[2,]
+  sdVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[2,]
   
-  # avgSVM_M=ExCsvMSD(AccuracySVM_M)[1,]
-  # sdSVM_M=ExCsvMSD(AccuracySVM_M)[2,]
-  
-  avgSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un[,-clms])[1,]
-  sdSVM_SL_Un_b=ExCsvMSD(AccuracySVM_SL_Un[,-clms])[2,]
-  
-  # avgVSVM=ExCsvMSD(AccuracyVSVM)[1,]
-  # sdVSVM=ExCsvMSD(AccuracyVSVM)[2,]
-  
-  avgVSVM_SL=ExCsvMSD(AccuracyVSVM_SL[,-clms])[1,]
-  sdVSVM_SL=ExCsvMSD(AccuracyVSVM_SL[,-clms])[2,]
-  
-  avgVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,]
-  sdVSVM_SL_Un_b=ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[2,]
-  
-  # avgVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
-  # sdVSVM_SL_Un_random_it=ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[2,] 
-  
-  # avgVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,]
-  # sdVSVM_SL_Un_it=ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[2,]  
-  
-  avgVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,]
-  sdVSVM_SL_Un_itSL=ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[2,]  
-  
-  avgVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,]
-  sdVSVM_SL_Un_itTSL=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[2,]  
-  
-  avgVSVM_SL_Un_itSL2=ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[1,]
-  sdVSVM_SL_Un_itSL2=ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[2,]  
-  
-  avgVSVM_SL_Un_itTSL2=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[1,]
-  sdVSVM_SL_Un_itTSL2=ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[2,]
-  
-  avgVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,]
-  sdVSVM_SL_vUn_b=ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[2,]
+  sdVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[2,]
+  sdVSVM_SL_Un_it        = ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[2,]
+  sdVSVM_SL_Un_itSL      = ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[2,]  
+  sdVSVM_SL_Un_itTSL     = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[2,]  
+  sdVSVM_SL_Un_itSL2     = ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[2,]  
+  sdVSVM_SL_Un_itTSL2    = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[2,]
   
   # *********************************************
   png(filename=paste0(file_name_acc,"_sd.png"),
@@ -418,16 +474,13 @@ if(nrow(AccuracySVM)>1){
                     ylab="accuracy (%) +/- std dev",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  # lines(x, avgSVM_M, type= type ,         col = 8, lwd = 2,lty = 3)
   lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
-  
-  # lines(x, avgVSVM, type= type ,          col = 3, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
   # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
-  # lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
+  lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)  
   lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2, lty = 4)
@@ -459,15 +512,15 @@ if(nrow(AccuracySVM)>1){
                1,
                1,
                1,
-               # 2, # 1,
+               # 2, 
+               1,
                1,4,
                1,4), # gives the legend appropriate symbols (lines)
          col=c(1, # 8,
                1, # 3,
                3,4,
                5,
-               # 7,
-               # 7,
+               7,# 7,
                8,8,
                6,6)  # gives the legend lines the correct color and width
   ) 
@@ -542,16 +595,13 @@ if(nrow(KappaSVM)>1){
                     ylab="Kappa-score",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  # lines(x, ExCsvMSD(KappaSVM_M)[1,], type= type ,         col = 8, lwd=2,lty = 3)
   lines(x[-clms], ExCsvMSD(KappaSVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd=2,lty = 4)
-
-  # lines(x, ExCsvMSD(KappaVSVM)[1,], type= type ,          col = 3, lwd=2,lty = 1)
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL[,-clms])[1,], type= type ,       col = 3, lwd=2,lty = 1)
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd=2,lty = 1)
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd=2,lty = 1)
 
   # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 2)
-  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
@@ -591,7 +641,7 @@ legend("bottomright",
          "VSVM-SL","VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
          # "random AL VSVM-SL-vUn",
-         # "ALv1+tSNE VSVM-SL-vUn",
+         "ALv1+tSNE VSVM-SL-vUn",
          "ALv2+tSNE+SL VSVM-SL-vUn",  "ALv2+tSNE VSVM-SL-vUn",
          "ALv2+semiSL VSVM-SL-vUn", "ALv2+Train VSVM-SL-vUn"
        ),
@@ -600,14 +650,15 @@ legend("bottomright",
              1,
              1,
              1,
-             # 2,# 1,
+             # 2,
+             1,
              1, 4,
              1, 4), # gives the legend appropriate symbols (lines)
        col=c(1, # 8,
              1, # 3,
              3,4,
              5,
-             # 7, # 7,
+             7, # 7,
              8,8,
              6,6)  # gives the legend lines the correct color and width
 ) 

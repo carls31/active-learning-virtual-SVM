@@ -15,7 +15,7 @@ file_name_acc = "20240801_1030_hagadera_binary_scale_acc_20Unl_1nR_8SizePor"
 file_name_acc = "20240802_1549_hagadera_multiclass_scale_acc_AL+Trainv1_20Unl_1nR_8SizePor"
 file_name_acc = "20240802_2253_hagadera_binary_scale_acc_ALTSL_20Unl_1nR_8SizePor"
 file_name_acc = "20240803_0833_hagadera_multiclass_scale_acc_ALTSL_20Unl_1nR_8SizePor"
-
+# ********************************************************************
 
 
 # ********************************************************************
@@ -27,7 +27,7 @@ file_name_kappa = "20240801_1030_hagadera_binary_scale_Kappa_20Unl_1nR_8SizePor"
 file_name_kappa = "20240802_1549_hagadera_multiclass_scale_Kappa_AL+Trainv1_20Unl_1nR_8SizePor"
 file_name_kappa = "20240802_2253_hagadera_binary_scale_Kappa_ALTSL_20Unl_1nR_8SizePor"
 file_name_kappa = "20240803_0833_hagadera_multiclass_scale_Kappa_ALTSL_20Unl_1nR_8SizePor"
-
+# ********************************************************************
 
 
 
