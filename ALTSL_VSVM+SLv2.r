@@ -2377,7 +2377,7 @@ for (model_prob in model_probs) {
             cat("\n") ############################### ALv1 + tSNE VSVM-SL-vUn #######################################
             # model_name_AL_VSVMSL ="ALv1+tSNE+UnSL_VSVM-SL-vUn"
             # 
-            # cat("active labeling v1 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            # cat("active labeling v1 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"] | [",realization,"/",nR,"]\n",sep="")
             # # actAcc = -1e-6
             # # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2548,7 +2548,7 @@ for (model_prob in model_probs) {
             model_name_ALSL_VSVMSL = "ALv2+tSNE+SL_VSVM-SL-vUn"
             model_name_ALSL_VSVMSL2 = "ALv2+tSNE_VSVM-SL-vUn"
             
-            cat("active labeling v2 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling v2 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"] | [",realization,"/",nR,"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2740,7 +2740,7 @@ for (model_prob in model_probs) {
             model_name_ALTrainSL_VSVMSL = "ALv2+semiSL_VSVM-SL-vUn"
             model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-vUn"
             
-            cat("active labeling v2 + Train + semi-SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling v2 + Train + semi-SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"] | [",realization,"/",nR,"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}

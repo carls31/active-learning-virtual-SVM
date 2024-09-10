@@ -2573,7 +2573,7 @@ for (model_prob in model_probs) {
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
 
             cat("\n") ############################### ALv1 + SL VSVM-SL-vUn #######################################
-            model_name_AL_VSVMSL ="ALv1+SL_VSVM-SL-vUn"
+            model_name_AL_VSVMSL ="ALv1+tSNE_VSVM-SL-vUn"
 
             cat("active labeling v1 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
@@ -2621,7 +2621,7 @@ for (model_prob in model_probs) {
                                                upd_dataCurFeatsub, upd_dataCurLabels,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit)
+                                               upd_dataCur$ID_unit, tSNE_flag = TRUE, flag_cluster = TRUE, flag_class = TRUE, plot_flag = model_name_AL_VSVMSL)
                       cat("getting active-labeled samples and updated datasets required ", round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1),"sec\n",sep="")
                       # Extract new datasets
                       # upd_dataCurFeatsub <- result$features
@@ -2713,7 +2713,7 @@ for (model_prob in model_probs) {
                       tmp_new_tunedSVM2 = svmFit(tuneFeat, tuneLabel, indexTrainData)
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      cat("ALv1_VSVM-SL-vUn accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
+                      cat(model_name_AL_VSVMSL," accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
                       
                       # **********************
                       # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
@@ -2721,8 +2721,8 @@ for (model_prob in model_probs) {
                       # if(actAcc < tmp_new_tunedSVM$resample$Kappa){ print(paste0("current best kappa: ",round(tmp_new_tunedSVM$resample$Kappa,4)))
                       # if (actAcc < tmp_acc$overall["Accuracy"]) {  # cat("current best accuracy: ",sep="")
                       tmp_new_tunedSVM = tmp_new_tunedSVM2
-                      actAcc = max(tmp_acc$overall["Accuracy"],tmp_acc_sl$overall["Accuracy"]) # tmp_new_tunedSVM$resample$Kappa #
-                      accVSVM_SL_itAL = (tmp_acc_sl)
+                      actAcc = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
+                      accVSVM_SL_itAL = (tmp_acc)
                       # best_resample = resampledSize[rS]
                       # best_newSize4iter = newSize_for_iter
                       # best_classSize = classSize[clS]
@@ -2734,10 +2734,10 @@ for (model_prob in model_probs) {
                 # }
               # }
             # }
-            cat(model_name_AL_VSVMSL," accuracy: ",round(accVSVM_SL_itAL$overall["Accuracy"],5)," | execution time: ",train.timeALv1_tSNE_VSVMSL,"sec\n",sep="")
+            cat("ALv1+tSNE+UnSL_VSVM-SL-vUn accuracy: ",round(tmp_acc_sl$overall["Accuracy"],5)," | execution time: ",train.timeALv1_tSNE_VSVMSL,"sec\n",sep="")
 
-            AccuracyVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(actAcc)
-            KappaVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(actAcc)
+            AccuracyVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
+            KappaVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
             if(actAcc>best_acc){
               best_acc <- actAcc
               best_model <- model_name_AL_VSVMSL
