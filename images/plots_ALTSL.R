@@ -1,13 +1,7 @@
-############################################
-# Author: Lorenzo Carlassara               #
-# lorenzo.carlassara98@gmail.com           #
-# linkedin.com/in/lorenzo-carlassara/      #
-# feel free to contact me for any question #
-############################################
 library(scales)
 
-city = "cologne"    # cologne or hagadera
-invariance = "scale"     # scale or shape
+city = "hagadera"    # cologne or hagadera
+invariance = "shape"     # scale or shape
 model_prob = "multiclass"     # multiclass or binary
 
 path = '/home/data1/Lorenzo/'
@@ -15,19 +9,7 @@ if(!dir.exists(path)){path = "D:/"}
 
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","results/",city))
 
-# file_name_acc = "20240809_1322_hagadera_binary_scale_acc_ALTSLf_20Unl_1nR_7SizePor"
-# file_name_acc = "20240809_1706_hagadera_multiclass_scale_acc_ALTSLf_20Unl_1nR_9SizePor"
-# file_name_acc = "20240817_0730_hagadera_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
-# file_name_acc = "20240819_1244_cologne_multiclass_scale_acc_ALTSLf_20Unl_10nR_9SizePor"
-# file_name_acc = "20240819_1904_hagadera_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
-# file_name_acc = "20240821_0601_cologne_binary_scale_acc_ALTSLf_20Unl_8nR_16SizePor"
-# file_name_acc = "20240821_2337_cologne_binary_scale_acc_ALTSLv3_20Unl_8nR_16SizePor"
-# file_name_acc = "20240825_1346_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_acc = "20240824_2023_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_acc = "20240825_1615_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_acc = "20240825_1959_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_acc = "20240825_2358_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_acc = "20240826_0827_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
+
 file_name_acc = "20240827_1123_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_acc = "20240827_2213_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_acc = "20240829_1627_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
@@ -40,29 +22,16 @@ file_name_acc = "20240904_1650_cologne_binary_scale_acc_ALTSLv1_20Unl_23nR_16Siz
 file_name_acc = "20240906_1619_hagadera_binary_shape_acc_ALTSLv1_20Unl_16nR_16SizePor"
 file_name_acc = "20240907_1315_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_12nR_14SizePor"
 file_name_acc = "20240909_0607_cologne_multiclass_scale_acc_ALTSLv1_20Unl_12nR_15SizePor"
+## back from v3
 file_name_acc = "20240909_1656_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_14SizePor"
 file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
-# file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
-
+file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 # ********************************************************************
 
-# file_name_kappa = "20240809_1322_hagadera_binary_scale_Kappa_ALTSLf_20Unl_1nR_7SizePor"
-# file_name_kappa = "20240809_1706_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_1nR_9SizePor"
-# file_name_kappa = "20240817_0730_hagadera_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
-# file_name_kappa = "20240819_1244_cologne_multiclass_scale_Kappa_ALTSLf_20Unl_10nR_9SizePor"
-# file_name_kappa = "20240819_1904_hagadera_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
-# file_name_kappa = "20240821_0601_cologne_binary_scale_Kappa_ALTSLf_20Unl_8nR_16SizePor"
-# file_name_kappa = "20240821_2337_cologne_binary_scale_Kappa_ALTSLv3_20Unl_8nR_16SizePor"
-# file_name_kappa = "20240825_1346_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_kappa = "20240824_2023_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_kappa = "20240825_1615_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_kappa = "20240825_1959_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_kappa = "20240825_2358_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_6SizePor"
-# file_name_kappa = "20240826_0827_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_1123_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240827_2213_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_8SizePor"
 file_name_kappa = "20240829_1627_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
@@ -75,11 +44,12 @@ file_name_kappa = "20240904_1650_cologne_binary_scale_Kappa_ALTSLv1_20Unl_23nR_1
 file_name_kappa = "20240906_1619_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_16nR_16SizePor"
 file_name_kappa = "20240907_1315_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_12nR_14SizePor"
 file_name_kappa = "20240909_0607_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_12nR_15SizePor"
+## back from v3
 file_name_kappa = "20240909_1656_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_14SizePor"
 file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
-# file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 
@@ -87,6 +57,12 @@ load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
 
 ########################################################################################
+# **************************************** #
+# Author: Lorenzo Carlassara               #
+# lorenzo.carlassara98@gmail.com           #
+# linkedin.com/in/lorenzo-carlassara/      #
+# feel free to contact me for any question #
+# **************************************** #
 
 # tmp_AccuracySVM = AccuracySVM
 # tmp_AccuracySVM_M = AccuracySVM_M
@@ -330,7 +306,6 @@ if(model_prob == "binary"){
 }
 
 type = "l"
-# type = "o"
 
 ######################################## Accuracy ##########################################
 
