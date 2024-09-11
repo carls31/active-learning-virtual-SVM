@@ -8,7 +8,7 @@ library(scales)
 
 city = "cologne"    # cologne or hagadera
 invariance = "scale"     # scale or shape
-model_prob = "binary"     # multiclass or binary
+model_prob = "multiclass"     # multiclass or binary
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
@@ -43,8 +43,8 @@ file_name_acc = "20240909_0607_cologne_multiclass_scale_acc_ALTSLv1_20Unl_12nR_1
 file_name_acc = "20240909_1656_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_14SizePor"
 file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
-file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 
@@ -78,8 +78,8 @@ file_name_kappa = "20240909_0607_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_12
 file_name_kappa = "20240909_1656_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_14SizePor"
 file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
-file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 
@@ -409,10 +409,10 @@ legend("bottomright",
          "VSVM-SL",
          "VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
-         # "random AL VSVM-SL-vUn",
-         "ALv1+tSNE VSVM-SL-vUn",
-         "ALv2+tSNE+SL VSVM-SL-vUn",  "ALv2+tSNE VSVM-SL-vUn",
-         "ALv2+semiSL VSVM-SL-vUn", "ALv2+Train VSVM-SL-vUn"
+         # "Random AL SVM",
+         "AL MCLU + tSNE SVM",
+         "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
+         "AL MS + semiSL SVM", "AL MS + Train SVM"
        ),
        lty=c(1,
              4,
@@ -497,10 +497,10 @@ if(nrow(AccuracySVM)>1){
            "VSVM-SL",
            "VSVM-SL + Unlabeled",
            "VSVM-SL + Virtual Unlabeled",
-           # "random AL VSVM-SL-vUn",
-           # "ALv1+tSNE VSVM-SL-vUn",
-           "ALv2+tSNE+SL VSVM-SL-vUn",  "ALv2+tSNE VSVM-SL-vUn",
-           "ALv2+semiSL VSVM-SL-vUn", "ALv2+Train VSVM-SL-vUn"
+           # "Random AL SVM",
+           "AL MCLU + tSNE SVM",
+           "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
+           "AL MS + semiSL SVM", "AL MS + Train SVM"
          ),
          lty=c(1,
                4,
@@ -635,10 +635,9 @@ legend("bottomright",
          # "VSVM",
          "VSVM-SL","VSVM-SL + Unlabeled",
          "VSVM-SL + Virtual Unlabeled",
-         # "random AL VSVM-SL-vUn",
-         "ALv1+tSNE VSVM-SL-vUn",
-         "ALv2+tSNE+SL VSVM-SL-vUn",  "ALv2+tSNE VSVM-SL-vUn",
-         "ALv2+semiSL VSVM-SL-vUn", "ALv2+Train VSVM-SL-vUn"
+         # "Random AL SVM",
+         "AL MCLU + tSNE SVM",
+         "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
        ),
        lty=c(1,
              4,
