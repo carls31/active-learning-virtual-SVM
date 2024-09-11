@@ -917,7 +917,7 @@ for (model_prob in model_probs) {
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ 
         sampleSizePor = c(30,36, 36,60, 60,120, 120,192, 192,276, 276,372, 372,480, 480,600, 600)} 
-      if(model_prob=="binary"){ nR=round(nR*1.6)
+      if(model_prob=="binary"){ 
         sampleSizePor = c(10,12, 12,20, 20,40, 40,64, 64,92, 92,124, 124,160, 160,200, 200)}
       if (lgtS) { 
         sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-4)]
