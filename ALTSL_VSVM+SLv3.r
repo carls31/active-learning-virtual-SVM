@@ -523,11 +523,11 @@ add_AL_samples = function(distance_data,
     duplicate_indices <- which(duplicate_rows)
     cat("First five pairs of duplicate rows:\n")
     
-    # Display the first five pairs
+    # Display the first pairs
     for (i in seq_len(min(3, num_duplicates))) {
       original_index <- duplicate_indices[i]
       duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
-      cat("Pair", i, ":\n")
+      cat("Duplicate pair", i, ":\n")
       print(ref_added_or[c(duplicate_index, original_index), ])
     }
     
@@ -1045,10 +1045,12 @@ for (model_prob in model_probs) {
       
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ 
-      sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)} 
+      sampleSizePor = c(30,36, 60,60, 120,120, 192,192, 276,276, 372,372, 480,480, 600,600)
+      } 
       if(model_prob=="binary"){ 
       # sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200)
-      sampleSizePor = c(6,8, 12,12, 32,32, 52,52, 76,76, 104,104, 136,136, 180,180)}
+      sampleSizePor = c(6,8, 12,12, 32,32, 52,52, 76,76, 104,104, 136,136, 180,180)
+      }
       if (lgtS) { 
         sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-4)]
         if(model_prob=="multiclass"){ 
@@ -2572,7 +2574,7 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
 
-            cat("\n") ############################### ALv1 + SL VSVM-SL-vUn #######################################
+            cat("\n") ############################### ALv1 + tSNE VSVM-SL-vUn #######################################
             model_name_AL_VSVMSL ="ALv1+tSNE_VSVM-SL-vUn"
 
             cat("active labeling v1 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
@@ -2734,7 +2736,7 @@ for (model_prob in model_probs) {
                 # }
               # }
             # }
-            cat("ALv1+tSNE+UnSL_VSVM-SL-vUn accuracy: ",round(tmp_acc_sl$overall["Accuracy"],5)," | execution time: ",train.timeALv1_tSNE_VSVMSL,"sec\n",sep="")
+            cat(model_name_AL_VSVMSL," accuracy: ",round(tmp_acc_sl$overall["Accuracy"],5)," | execution time: ",train.timeALv1_tSNE_VSVMSL,"sec\n",sep="")
 
             AccuracyVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(accVSVM_SL_itAL$overall["Kappa"])
@@ -2936,7 +2938,7 @@ for (model_prob in model_probs) {
               best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
             }
 
-            cat("\n") ############################### ALv2 + Train + SL VSVM-SL-vUn #######################################
+            cat("\n") ############################### ALv2 + Train + semi-SL VSVM-SL-vUn #######################################
             model_name_ALTrainSL_VSVMSL = "ALv2+SL_VSVM-SL-vUn"
             model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-vUn"
             
@@ -3103,7 +3105,7 @@ for (model_prob in model_probs) {
 
             trainDataCur <- rbind(trainDataCur, upd_dataCur[upd_SVindex_ud, 1:ncol(trainDataCur)])
             
-            trainDataCurRemaining <- trainDataCurRemaining[!upd_SVindex_ud, ]
+            trainDataCurBeg <- trainDataCurRemaining[!upd_SVindex_ud, ]
             # *********************************************************************
             # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
 
@@ -3141,16 +3143,13 @@ for (model_prob in model_probs) {
               best_model <- model_name_ALTrainSL_VSVMSL2
               best_train.time <- train.timeALv2_SEMI_VSVMSL-best_train.time
             }
-
           }
           cat("\n") ################################# End sample portion #########################################
-          if (realization==1 && sample_size==3) {
-            # saveRDS(tmp_new_tunedSVM_r, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL_r,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds")) 
-            # saveRDS(tmp_new_tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
-            # saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
-            # saveRDS(tmp_new_tunedSVM_ALT2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
+          if (realization==1 && sample_size==5) {
+            saveRDS(bestFittingModelvUn, paste0(format(Sys.time(),"%Y%m%d"),model_name_vUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
+            saveRDS(tmp_new_tunedSVM2, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
+            saveRDS(tmp_new_tunedSVM_SL2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL2,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
           }
-          
         }
         cat("\n") ################################### End realization ############################################
         # Store hyperparameters 
