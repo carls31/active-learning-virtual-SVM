@@ -2401,14 +2401,14 @@ for (model_prob in model_probs) {
 
             clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
             
-            classSize=c(round(min(2000,as.numeric(min(table(trainDataCurRemaining$REF))))))  
+            classSize=c(round(min(1800,as.numeric(min(table(trainDataCurRemaining$REF))))))  
             if(city=="cologne"){ 
               classSize=c(round(min(1500,as.numeric(min(table(trainDataCurRemaining$REF)))))) } 
             if(model_prob=="binary"){ 
-              classSize=c(round(min(5000,as.numeric(min(table(trainDataCurRemaining$REF))))))}
+              classSize=c(round(min(4500,as.numeric(min(table(trainDataCurRemaining$REF))))))}
             
             clS=1
-            cat("sampling ", classSize," unlabeled data per class\n",sep="")
+            cat("sampling ", classSize[clS]*nclass," unlabeled data\n",sep="")
             samplingStart.time <- Sys.time()
             # # Create an empty dataframe to store unique samples
             # samplesRemaining <- data.frame()
@@ -2448,7 +2448,6 @@ for (model_prob in model_probs) {
             #   samplesRemaining <- samplesRemaining[1:(classSize[clS]*nclass), ]
             # }
             # 
-              stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
               # Definition of sampling configuration (strata:random sampling without replacement)
               stratSampRemaining = strata(trainDataCurRemaining, size = classSize[clS]*nclass, method = "srswor")
               # Get new samples from trainDataCurRemaining
@@ -2461,7 +2460,7 @@ for (model_prob in model_probs) {
             cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
             cat("using currently best model: ",best_model," | accuracy: ",best_acc,"\n",sep="")
             cS=1  
-            cat("\n") ############################### Random AL_VSVM-SL-vUn #######################################
+            cat("\n") ############################### Random AL SVM #######################################
 
             #   model_name_AL_VSVMSL_r = "AL_random_VSVM-SL-vUn"
             # 
@@ -2574,10 +2573,10 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
 
-            cat("\n") ############################### ALv1 + tSNE VSVM-SL-vUn #######################################
-            model_name_AL_VSVMSL ="ALv1+tSNE_VSVM-SL-vUn"
+            cat("\n") ############################### AL MCLU + t-SNE SVM #######################################
+            model_name_AL_VSVMSL ="AL_MCLU+tSNE_SVM"
 
-            cat("active labeling v1 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling MCLU + t-SNE | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2746,11 +2745,11 @@ for (model_prob in model_probs) {
               best_train.time <- train.timeALv1_tSNE_VSVMSL
             }
 
-            cat("\n") ############################### ALv2 + tSNE + SL VSVM-SL-vUn #######################################
-            model_name_ALSL_VSVMSL = "ALv2+tSNE+SL_VSVM-SL-vUn"
-            model_name_ALSL_VSVMSL2 = "ALv2+tSNE_VSVM-SL-vUn"
+            cat("\n") ############################### AL MS + t-SNE + SL SVM #######################################
+            model_name_ALSL_VSVMSL = "AL_MS+tSNE+SL_SVM"
+            model_name_ALSL_VSVMSL2 = "AL_MS+tSNE_SVM"
             
-            cat("active labeling v2 + tSNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling MS + t-SNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2938,11 +2937,11 @@ for (model_prob in model_probs) {
               best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
             }
 
-            cat("\n") ############################### ALv2 + Train + semi-SL VSVM-SL-vUn #######################################
-            model_name_ALTrainSL_VSVMSL = "ALv2+SL_VSVM-SL-vUn"
-            model_name_ALTrainSL_VSVMSL2 = "ALv2+Train_VSVM-SL-vUn"
+            cat("\n") ############################### AL MS + k-means + semi-SL + Train SVM #######################################
+            model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans+semiSL_SVM"
+            model_name_ALTrainSL_VSVMSL2 = "AL_MS+kmeans+Train_SVM"
             
-            cat("active labeling v2 + Train + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling MS + semi-SL + Train | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
