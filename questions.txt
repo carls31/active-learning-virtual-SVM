@@ -60,6 +60,7 @@
  60. implement variant with clustering for each class 
  61. implement: new train_size -> old train_size + new_train_size VS new train_size_AL -> old train_size_AL + 2/class AL_samples + remaining new_train_size
  62. FUTURE -> change policy for active labeling (consider also the numberr of duplicates)
+ 63. limitation of the poolsize
  
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
