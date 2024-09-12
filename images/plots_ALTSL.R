@@ -28,6 +28,7 @@ file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12Siz
 file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 # ********************************************************************
@@ -50,6 +51,7 @@ file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_1
 file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 
@@ -267,8 +269,8 @@ if(model_prob == "multiclass"){
       ylowerBound = 0.82
     }
     if(invariance=="shape"){
-      yUpperBound = 0.97
-      ylowerBound = 0.77
+      yUpperBound = 0.975
+      ylowerBound = 0.83
       }
   }
   if(city=="cologne"){
@@ -326,7 +328,7 @@ if(nrow(AccuracySVM)>1){
   avgVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,]
   avgVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,]
 
-  # avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
+  avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
   avgVSVM_SL_Un_it        = ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,]
   avgVSVM_SL_Un_itSL      = ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,]
   avgVSVM_SL_Un_itTSL     = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,]
@@ -347,7 +349,7 @@ if(nrow(AccuracySVM)>1){
   lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
-  # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2,lty = 2)
+  lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2,lty = 2)
   lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2,lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2,lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2,lty = 4)
@@ -379,22 +381,22 @@ if(nrow(AccuracySVM)>1){
 # # ******************************************************************************************************
 
 legend("bottomright", 
-       c("SVM single-level L4", # "SVM multi-level",
-         "SVM-SL + Unlabeled", # "VSVM",
+       c("SVM single-level L4", 
+         "SVM-SL + semi-labeled", 
          "VSVM-SL",
-         "VSVM-SL + Unlabeled",
-         "VSVM-SL + Virtual Unlabeled",
-         # "Random AL SVM",
+         "VSVM-SL + semi-labeled",
+         "VSVM-SL + virtual semi-labeled",
+         "Random AL SVM",
          "AL MCLU + tSNE SVM",
          "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
-         "AL MS + semiSL SVM", "AL MS + Train SVM"
+         "AL MS + K-means + semi-labeled SL SVM", "AL MS + K-means SVM (new train samples)"
        ),
        lty=c(1,
              4,
              1,
              1,
              1,
-             # 2,
+             2,
              1,
              1, 4,
              1, 4
@@ -404,7 +406,8 @@ legend("bottomright",
              3,
              4,
              5,
-             7, # 7,
+             7, 
+             7,
              8, 8,
              6, 6
              )  # gives the legend lines the correct color and width
@@ -449,33 +452,32 @@ if(nrow(AccuracySVM)>1){
   lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
-  # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
+  lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
   lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)  
   lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2, lty = 4)
   lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2, lty = 4)
   
-  # arrows(x, avgSVM-sdSVM, x, avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
-  # arrows(x, avgSVM_M-sdSVM_M, x, avgSVM_M+sdSVM_M, length=0.075, angle=90, code=3 ,col = 2,lty=2)
-  # arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 3,lty=2)
-  # arrows(x, avgVSVM_SL-sdVSVM_SL, x, avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 1,lty=3)
-  # arrows(x, avgSVM_SL_Un_b-sdSVM_SL_Un_b, x, avgSVM_SL_Un_b+sdSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 1,lty=4)
+  # arrows(x[-clms], avgSVM-sdSVM, x[-clms], avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
+  # arrows(x[-clms], avgSVM_SL_Un_b-sdSVM_SL_Un_b, x[-clms], avgSVM_SL_Un_b+sdSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 1,lty=4)
+  arrows(x[-clms], avgVSVM_SL-sdVSVM_SL, x[-clms], avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 3,lty=1)
   arrows(x[-clms], avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x[-clms], avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
+  
   # arrows(x[clms], avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x[clms], avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
-  arrows(x[clms], avgVSVM_SL_Un_itSL-sdVSVM_SL_Un_itSL, x[clms], avgVSVM_SL_Un_itSL+sdVSVM_SL_Un_itSL, length=0.075, angle=90, code=3 ,col = 8)
+  # arrows(x[clms], avgVSVM_SL_Un_itSL-sdVSVM_SL_Un_itSL, x[clms], avgVSVM_SL_Un_itSL+sdVSVM_SL_Un_itSL, length=0.075, angle=90, code=3 ,col = 8)
   arrows(x[clms], avgVSVM_SL_Un_itTSL-sdVSVM_SL_Un_itTSL, x[clms], avgVSVM_SL_Un_itTSL+sdVSVM_SL_Un_itTSL, length=0.075, angle=90, code=3 ,col = 6)
   
   legend("bottomright", 
-         c("SVM single-level L4", # "SVM multi-level",
-           "SVM-SL + Unlabeled", # "VSVM",
+         c("SVM single-level L4", 
+           "SVM-SL + semi-labeled", 
            "VSVM-SL",
-           "VSVM-SL + Unlabeled",
-           "VSVM-SL + Virtual Unlabeled",
-           # "Random AL SVM",
+           "VSVM-SL + semi-labeled",
+           "VSVM-SL + virtual semi-labeled",
+           "Random AL SVM",
            "AL MCLU + tSNE SVM",
            "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
-           "AL MS + semiSL SVM", "AL MS + Train SVM"
+           "AL MS + K-means + semi-labeled SL SVM", "AL MS + K-means SVM (new train set)"
          ),
          lty=c(1,
                4,
@@ -511,8 +513,8 @@ if(model_prob == "multiclass"){
       ylowerBound = 0.74
     }
     if(invariance=="shape"){
-      yUpperBound = 0.925
-      ylowerBound = 0.685
+      yUpperBound = 0.96
+      ylowerBound = 0.76
     }
   }
   if(city=="cologne"){
@@ -570,7 +572,7 @@ if(nrow(KappaSVM)>1){
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd=2,lty = 1)
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd=2,lty = 1)
 
-  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 2)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 2)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd=2,lty = 1)
@@ -602,32 +604,32 @@ if(nrow(KappaSVM)>1){
   # lines(x, (KappaVSVM_SL_Un_ud), type= type , col = 4, lwd=2)
 }
 
-# "VSVM_SL MCLU", , "VSVM_SL Virtual Unlabeled Balanced Samples MCLP"
 legend("bottomright", 
-       c("SVM single-level L4",
-         # "SVM multi-level",
-         "SVM-SL + Unlabeled",
-         # "VSVM",
-         "VSVM-SL","VSVM-SL + Unlabeled",
-         "VSVM-SL + Virtual Unlabeled",
-         # "Random AL SVM",
+       c("SVM single-level L4", 
+         "SVM-SL + semi-labeled", 
+         "VSVM-SL",
+         "VSVM-SL + semi-labeled",
+         "VSVM-SL + virtual semi-labeled",
+         "Random AL SVM",
          "AL MCLU + tSNE SVM",
          "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
+         "AL MS + K-means + semi-labeled SL SVM", "AL MS + K-means SVM (new train samples)"
        ),
        lty=c(1,
              4,
              1,
              1,
              1,
-             # 2,
+             2,
              1,
              1, 4,
              1, 4), # gives the legend appropriate symbols (lines)
-       col=c(1, # 8,
-             1, # 3,
+       col=c(1, 
+             1, 
              3,4,
              5,
-             7, # 7,
+             7, 
+             7,
              8,8,
              6,6)  # gives the legend lines the correct color and width
 ) 
