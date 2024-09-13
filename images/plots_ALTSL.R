@@ -2,7 +2,7 @@ library(scales)
 
 city = "hagadera"    # cologne or hagadera
 invariance = "shape"     # scale or shape
-model_prob = "multiclass"     # multiclass or binary
+model_prob = "binary"     # multiclass or binary
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
@@ -29,6 +29,7 @@ file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_1
 file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240913_1515_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 # ********************************************************************
@@ -52,6 +53,7 @@ file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10
 file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240913_1515_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 
@@ -291,8 +293,8 @@ if(model_prob == "binary"){
       ylowerBound = 0.67
     }
     if(invariance=="shape"){
-      yUpperBound = 0.985
-      ylowerBound = 0.85
+      yUpperBound = 0.97
+      ylowerBound = 0.82
     }
   }
   if(city=="cologne"){
@@ -328,11 +330,11 @@ if(nrow(AccuracySVM)>1){
   avgVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,]
   avgVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,]
 
-  avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
+  # avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
   avgVSVM_SL_Un_it        = ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,]
   avgVSVM_SL_Un_itSL      = ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,]
   avgVSVM_SL_Un_itTSL     = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,]
-  avgVSVM_SL_Un_itSL2     = ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[1,]
+  # avgVSVM_SL_Un_itSL2     = ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[1,]
   avgVSVM_SL_Un_itTSL2    = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[1,]
 
   # *********************************************
@@ -349,10 +351,10 @@ if(nrow(AccuracySVM)>1){
   lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
-  lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2,lty = 2)
+  # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2,lty = 2)
   lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2,lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2,lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2,lty = 4)
+  # lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2,lty = 4)
   lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2,lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2,lty = 4)
   
@@ -386,32 +388,30 @@ legend("bottomright",
          "VSVM-SL",
          "VSVM-SL + semi-labeled",
          "VSVM-SL + virtual semi-labeled",
-         "Random AL SVM",
-         "AL MCLU + tSNE SVM",
-         "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
-         "AL MS + K-means + semi-labeled SL SVM", "AL MS + K-means SVM (new train samples)"
+         # "Random AL SVM",
+         "AL MCLU + k-means SVM",
+         "AL MS + PCA SVM",
+         # "AL MS + SL SVM",
+         "AL MS + k-means SVM (new train samples)", "AL MS + k-means + semi-labeled SL SVM"
        ),
        lty=c(1,
              4,
              1,
              1,
              1,
-             2,
+             # 2,
              1,
-             1, 4,
-             1, 4
-             ), # gives the legend appropriate symbols (lines)
-       col=c(1,
-             1,
-             3,
-             4,
+             1, # 4,
+             1, 4), # gives the legend appropriate symbols (lines)
+       col=c(1, 
+             1, 
+             3, 4,
              5,
-             7, 
+             # 7, 
              7,
-             8, 8,
-             6, 6
-             )  # gives the legend lines the correct color and width
-       ) 
+             8, # 8,
+             6, 6)  # gives the legend lines the correct color and width
+) 
 
 dev.off()
 
@@ -425,11 +425,11 @@ if(nrow(AccuracySVM)>1){
   sdVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[2,]
   sdVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[2,]
   
-  sdVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[2,]
+  # sdVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[2,]
   sdVSVM_SL_Un_it        = ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[2,]
   sdVSVM_SL_Un_itSL      = ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[2,]  
   sdVSVM_SL_Un_itTSL     = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[2,]  
-  sdVSVM_SL_Un_itSL2     = ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[2,]  
+  # sdVSVM_SL_Un_itSL2     = ExCsvMSD(AccuracyVSVM_SL_Un_itSL2[,clms])[2,]
   sdVSVM_SL_Un_itTSL2    = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL2[,clms])[2,]
   
   # *********************************************
@@ -452,11 +452,11 @@ if(nrow(AccuracySVM)>1){
   lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
   lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
   
-  lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
+  # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
   lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)  
-  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2, lty = 4)
+  # lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2, lty = 4)
   lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2, lty = 4)
   
   # arrows(x[-clms], avgSVM-sdSVM, x[-clms], avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
@@ -474,27 +474,29 @@ if(nrow(AccuracySVM)>1){
            "VSVM-SL",
            "VSVM-SL + semi-labeled",
            "VSVM-SL + virtual semi-labeled",
-           "Random AL SVM",
-           "AL MCLU + tSNE SVM",
-           "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
-           "AL MS + K-means + semi-labeled SL SVM", "AL MS + K-means SVM (new train set)"
+           # "Random AL SVM",
+           "AL MCLU + k-means SVM",
+           "AL MS + PCA SVM",
+           # "AL MS + SL SVM",
+           "AL MS + k-means SVM (new train samples)", "AL MS + k-means + semi-labeled SL SVM"
          ),
          lty=c(1,
                4,
                1,
                1,
                1,
-               # 2, 
+               # 2,
                1,
-               1,4,
-               1,4), # gives the legend appropriate symbols (lines)
-         col=c(1, # 8,
-               1, # 3,
-               3,4,
+               1, # 4,
+               1, 4), # gives the legend appropriate symbols (lines)
+         col=c(1, 
+               1, 
+               3, 4,
                5,
-               7,# 7,
-               8,8,
-               6,6)  # gives the legend lines the correct color and width
+               # 7, 
+               7,
+               8, # 8,
+               6, 6)  # gives the legend lines the correct color and width
   ) 
   
   dev.off()
@@ -535,7 +537,7 @@ if(model_prob == "binary"){
       ylowerBound = 0.40
     }
     if(invariance=="shape"){
-      yUpperBound = 0.963
+      yUpperBound = 0.94
       ylowerBound = 0.57
     }
   }
@@ -572,11 +574,11 @@ if(nrow(KappaSVM)>1){
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd=2,lty = 1)
   lines(x[-clms], ExCsvMSD(KappaVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd=2,lty = 1)
 
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 2)
+  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 2)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd=2,lty = 1)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
+  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = 6, lwd=2,lty = 4)
   
   # lines(x, ExCsvMSD(KappaVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
@@ -610,28 +612,29 @@ legend("bottomright",
          "VSVM-SL",
          "VSVM-SL + semi-labeled",
          "VSVM-SL + virtual semi-labeled",
-         "Random AL SVM",
-         "AL MCLU + tSNE SVM",
-         "AL MS + tSNE + SL SVM",  "AL MS + tSNE SVM",
-         "AL MS + K-means + semi-labeled SL SVM", "AL MS + K-means SVM (new train samples)"
+         # "Random AL SVM",
+         "AL MCLU + k-means SVM",
+         "AL MS + PCA SVM",
+         # "AL MS + SL SVM",
+         "AL MS + k-means SVM (new train samples)", "AL MS + k-means + semi-labeled SL SVM"
        ),
        lty=c(1,
              4,
              1,
              1,
              1,
-             2,
+             # 2,
              1,
-             1, 4,
+             1, # 4,
              1, 4), # gives the legend appropriate symbols (lines)
        col=c(1, 
              1, 
-             3,4,
+             3, 4,
              5,
-             7, 
+             # 7, 
              7,
-             8,8,
-             6,6)  # gives the legend lines the correct color and width
+             8, # 8,
+             6, 6)  # gives the legend lines the correct color and width
 ) 
 
 dev.off()
