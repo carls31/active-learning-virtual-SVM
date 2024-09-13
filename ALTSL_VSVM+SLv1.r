@@ -441,7 +441,7 @@ add_AL_samples = function(distance_data,
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
   
-  if(tSNE_flag) {
+  if(tSNE_flag) { flag_cluster=TRUE
     # ********************** duplicates check
     duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
     num_duplicates <- sum(duplicate_rows)
@@ -474,7 +474,7 @@ add_AL_samples = function(distance_data,
     # Add cluster information to the data
     ref_added_or$cluster <- km_tsne$cluster
     
-  } else if(PCA_flag){
+  } else if(PCA_flag){ flag_cluster=TRUE
     # Perform PCA
     pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
     pca_data <- data.frame(pca_result$x[, 1:2])
@@ -2184,9 +2184,9 @@ for (model_prob in model_probs) {
             AccuracyVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(tmp_acc$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(tmp_acc$overall["Kappa"])
 
-            cat("\n") ############################### AL MS + PCA SVM #######################################
+            cat("\n") ############################### AL MS + PCA&Class SVM #######################################
             model_name_ALSL_VSVMSL = "AL_MS+PCA+SL_SVM"
-            model_name_ALSL_VSVMSL2 = "AL_MS+PCA_SVM"
+            model_name_ALSL_VSVMSL2 = "AL_MS+PCA&Class_SVM"
               
             cat("active labeling MS + PCA + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
             
@@ -2305,7 +2305,7 @@ for (model_prob in model_probs) {
                       
                       tmp_pred = predict(tmp_new_tunedSVM_SL2, validateFeatsub)
                       tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
-                      cat(model_name_ALSL_VSVMSL2," accuracy: ",round(tmp_acc$overall["Accuracy"],5),"\n",sep="")
+                      cat(model_name_ALSL_VSVMSL2," accuracy: ",round(tmp_acc$overall["Accuracy"],5)," | execution time: ",train.timeALv2_tSNE_VSVMSL,"sec\n",sep="")
                       # **********************
 
                         accVSVM_ALv2SL_tSNE2 = (tmp_acc$overall["Accuracy"])
@@ -2318,7 +2318,7 @@ for (model_prob in model_probs) {
             AccuracyVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric((tmp_acc$overall["Accuracy"]))
             KappaVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric((tmp_acc$overall["Kappa"]))
             
-            # cat(model_name_ALSL_VSVMSL," accuracy: ",round(tmp_acc_sl$overall["Accuracy"],5)," | execution time: ",train.timeALv2_tSNE_VSVMSL,"sec\n",sep="")
+            # cat(model_name_ALSL_VSVMSL," accuracy: ",round(tmp_acc_sl$overall["Accuracy"],5),"\n",sep="")
             
             # AccuracyVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Accuracy"]))
             # KappaVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Kappa"]))

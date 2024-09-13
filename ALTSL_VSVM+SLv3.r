@@ -514,7 +514,7 @@ add_AL_samples = function(distance_data,
   # order by most uncertain samples
   ref_added_or = ref_added[order(ref_added$distance),]
   
-  if(tSNE_flag) {
+  if(tSNE_flag) { flag_cluster=TRUE
   # ********************** duplicates check
   duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
   num_duplicates <- sum(duplicate_rows)
@@ -548,7 +548,7 @@ add_AL_samples = function(distance_data,
   # Add cluster information to the data
   ref_added_or$cluster <- km_tsne$cluster
   
-  } else if(PCA_flag){
+  } else if(PCA_flag){ flag_cluster=TRUE
     # Perform PCA
     pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
     pca_data <- data.frame(pca_result$x[, 1:2])

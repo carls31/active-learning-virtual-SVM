@@ -1,0 +1,34 @@
+OA Execution time: 21.66h
+Realization 1 | seed: 372 execution time: 1.81h
+Realization 2 | seed: 687 execution time: 2.01h
+Realization 3 | seed: 1002 execution time: 2.14h
+Realization 4 | seed: 1317 execution time: 2.02h
+Realization 5 | seed: 1632 execution time: 2.44h
+Realization 6 | seed: 1947 execution time: 2.28h
+Realization 7 | seed: 2262 execution time: 2.14h
+Realization 8 | seed: 2577 execution time: 2.18h
+Realization 9 | seed: 2892 execution time: 2.26h
+Realization 10 | seed: 3207 execution time: 2.38h
+
+VSVM_SLUn: 0.988343280660068
+VSVM_SLUn: 0.98270068727096
+VSVM_SLUn: 0.982193434213392
+VSVM_SLvUn: 0.985595812976789
+VSVM_SLUn: 0.991880094339519
+AL_MS+kmeans+semiSL_SVM: 0.984891682555821
+AL_MS+kmeans+semiSL_SVM: 0.988826842318495
+VSVM_SLUn: 0.985166245669892
+AL_MS+PCA_SVM: 0.987369729444222
+AL_MS+PCA_SVM: 0.99008817975491
+
+SVM_SLUn training time: 58.67sec
+VSVM_SL training time: 47.19sec
+VSVM_SLUn training time: 92.29sec
+VSVM_SLvUn training time: 226.75sec
+AL_MCLU+kmeans_SVM training time: 248.7sec
+AL_MS+PCA+SL_SVM training time: 502.67sec
+AL_MS+kmeans+semiSL_SVM training time: 309.11sec
+
+length ALv2 + SL tSNE SVs: 38
+length ALv2 + SL SVs: 210
+length new train Labels AL: 54
