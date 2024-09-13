@@ -2411,8 +2411,8 @@ for (model_prob in model_probs) {
             #   classSize=c(round(min(4500,as.numeric(min(table(trainDataCurRemaining$REF))))))}
 
             # if(realization==1){
-            classSize=c(round(min(30000,as.numeric(min(table(trainDataCurRemaining$REF))))))
-            
+            # classSize=c(round(min(30000,as.numeric(min(table(trainDataCurRemaining$REF))))))
+            classSize=c(25000)            
             clS=1
             cat("sampling ", classSize," unlabeled data\n",sep="")
             samplingStart.time <- Sys.time()
@@ -2473,7 +2473,7 @@ for (model_prob in model_probs) {
 
             #   model_name_AL_VSVMSL_r = "AL_random_VSVM-SL-vUn"
             # 
-            #   cat("random active labeling | ",sampleSizePor[sample_size]," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            #   cat("random active labeling | ",sampleSizePor[sample_size]," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"]\n",sep="")
             #   # actAcc = -1e-6
             #   # for (nS4it in 1:length(newSizes)) {
             #       # for (rS in 1:length(resampledSize)) {
@@ -2884,7 +2884,7 @@ for (model_prob in model_probs) {
                       upd_SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin=c(1), model_name_ALSL_VSVMSL, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                                                  SVL_variables, tmp_new_tunedSVM_SL$finalModel)
                       tmp_new_tunedSVM2 <- upd_SLresult$bestFittingModel
-                      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
+                      train.timeALv2_tSNE_VSVMSL <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
                       # upd_dataCur <- upd_dataCur[!upd_SVindex_ud, ]
                       tmp_pred = predict(tmp_new_tunedSVM2, validateFeatsub)
                       tmp_acc_sl  = confusionMatrix(tmp_pred, validateLabels)
@@ -2915,7 +2915,6 @@ for (model_prob in model_probs) {
                         best_newSize4iter = newSize_for_iter
                         best_classSize = classSize[clS]
                         best_cluster = clusterSizes[cS]
-                        train.timeALv2_tSNE_VSVMSL = t.time
                       # } # else { cat("discarded accuracy: ",sep="")}
                       # cat(round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",round(tmp_new_tunedSVM2$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
                   # }
@@ -2953,13 +2952,13 @@ for (model_prob in model_probs) {
                 nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
             
             trainStart.time <- Sys.time()
+
+            new_trainFeatVSVM <- setNames(trainFeat_AL, names)
+            new_trainLabelsVSVM <- trainLabels_AL
             
             # upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
             # upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
             # upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
-            # 
-            # new_trainFeatVSVM <- setNames(trainFeat_AL, names)
-            # new_trainLabelsVSVM <- trainLabels_AL
             # 
             # tmp_new_tunedSVM_SLT <- new_bestTunedVSVM
             # 

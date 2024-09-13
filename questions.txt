@@ -47,7 +47,7 @@
  47. DONE check distance from the margin only for samples from the wrong side of the hyperplane
  48. DONE check the number of training samples before and after AL iterations -> col+hag MULTICLASS SHAPE
  49. DONE check SVM+AL again
- 50. FUTURE -> IMPLEMENT t-SNE CLUSTERING  
+ 50. DONE -> IMPLEMENT t-SNE CLUSTERING  
  51. DONE progressive AL hyperparameters wrt sampleSizePor
  52. DONE AL on VSVs from SL
  53. DONE check for strange behaviour in the accuracies results: SVM multilevel, (e.g. general upside-down of the accuracy of the model [some go up while the others go down] -> biased set)
@@ -61,7 +61,7 @@
  61. implement: new train_size -> old train_size + new_train_size VS new train_size_AL -> old train_size_AL + 2/class AL_samples + remaining new_train_size
  62. FUTURE -> change policy for active labeling (consider also the numberr of duplicates)
  63. limitation of the poolsize
- 
+
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
 Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning
