@@ -2229,7 +2229,7 @@ for (model_prob in model_probs) {
             cat("\n") ############################### AL MCLU + t-SNE SVM #######################################
             model_name_AL_VSVMSL ="AL_MCLU+tSNE_SVM"
             
-            cat("active labeling MCLU + t-SNE | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
+            cat("active labeling ",model_name_AL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
             
                     cat("adding ",newSize," active samples | pool size: ",
                         nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
@@ -2308,7 +2308,7 @@ for (model_prob in model_probs) {
             model_name_ALSL_VSVMSL = "AL_MS+tSNE+SL_SVM"
             model_name_ALSL_VSVMSL2 = "AL_MS+tSNE_SVM"
             
-            cat("active labeling MS + t-SNE + SL | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
+            cat("active labeling ",model_name_ALSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
            
                     cat("adding ",newSize," active samples | pool size: ",
                         nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
@@ -2452,7 +2452,7 @@ for (model_prob in model_probs) {
             model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans+semiSL_SVM"
             model_name_ALTrainSL_VSVMSL2 = "AL_MS+kmeans+Train_SVM"
             
-            cat("active labeling MS + semi-SL + Train | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
+            cat("active labeling ",model_name_ALTrainSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
             
             cat("adding ",newSize," active samples | pool size: ",
                 nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
@@ -2572,7 +2572,7 @@ for (model_prob in model_probs) {
             tmp_new_tunedSVM_ALSL2 <- upd_SLresult$bestFittingModel
             tmp_pred = predict(tmp_new_tunedSVM_ALSL2, validateFeatsub)
             tmp_acc_sl  = confusionMatrix(tmp_pred, validateLabels)
-            t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time, 1)
+            t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time+d.time, 1)
 
             # **********************
             # trainData index to split between train and test in svmFit
