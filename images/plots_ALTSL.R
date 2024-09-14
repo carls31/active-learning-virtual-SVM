@@ -269,7 +269,7 @@ setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 if(model_prob == "multiclass"){
   if(city=="hagadera"){
     if(invariance=="scale"){
-      yUpperBound = 0.97
+      yUpperBound = 0.98
       ylowerBound = 0.82
     }
     if(invariance=="shape"){
@@ -319,7 +319,7 @@ png(filename=paste0(file_name_acc,".png"),
     units="in", 
     width=20, 
     height=16, 
-    pointsize=12,
+    pointsize=24,
     res=96)
 
 # # ******************************************************************************************************
@@ -343,7 +343,7 @@ if(nrow(AccuracySVM)>1){
   
   msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type= type,                      col = 1, lwd = 2,lty = 1,
+                    pch=20, type= type,       col = 1, lwd = 2,lty = 1,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
@@ -439,7 +439,7 @@ if(nrow(AccuracySVM)>1){
       units="in",
       width=20,
       height=16,
-      pointsize=12,
+      pointsize=24,
       res=96)
   
   msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
@@ -561,7 +561,7 @@ png(filename=paste0(file_name_kappa,".png"),
     units="in", 
     width=20, 
     height=16, 
-    pointsize=12,
+    pointsize=24,
     res=96)
 if(nrow(KappaSVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(KappaSVM[,-clms[-length(clms)]])[1,],log = "x",
