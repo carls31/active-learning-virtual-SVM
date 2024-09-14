@@ -1,8 +1,8 @@
 library(scales)
 
 city = "hagadera"    # cologne or hagadera
-invariance = "shape"     # scale or shape
-model_prob = "binary"     # multiclass or binary
+invariance = "scale"     # scale or shape
+model_prob = "multiclass"     # multiclass or binary
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
@@ -30,6 +30,7 @@ file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_1
 file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_acc = "20240913_1515_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240914_1031_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 # ********************************************************************
@@ -54,6 +55,7 @@ file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10
 file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_kappa = "20240913_1515_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240914_1031_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 
@@ -330,7 +332,7 @@ if(nrow(AccuracySVM)>1){
   avgVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un[,-clms])[1,]
   avgVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn[,-clms])[1,]
 
-  # avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
+  avgVSVM_SL_Un_random_it = ExCsvMSD(AccuracyVSVM_SL_Un_random_it[,clms])[1,]
   avgVSVM_SL_Un_it        = ExCsvMSD(AccuracyVSVM_SL_Un_it[,clms])[1,]
   avgVSVM_SL_Un_itSL      = ExCsvMSD(AccuracyVSVM_SL_Un_itSL[,clms])[1,]
   avgVSVM_SL_Un_itTSL     = ExCsvMSD(AccuracyVSVM_SL_Un_itTSL[,clms])[1,]
@@ -399,7 +401,7 @@ legend("bottomright",
              1,
              1,
              1,
-             # 2,
+             2,
              1,
              1, # 4,
              1, 4), # gives the legend appropriate symbols (lines)
@@ -407,7 +409,7 @@ legend("bottomright",
              1, 
              3, 4,
              5,
-             # 7, 
+             7,
              7,
              8, # 8,
              6, 6)  # gives the legend lines the correct color and width
