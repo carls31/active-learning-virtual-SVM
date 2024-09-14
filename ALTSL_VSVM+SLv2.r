@@ -1537,7 +1537,7 @@ for (model_prob in model_probs) {
 
       for (realization in seq(1,nR)) {
         
-        cat("CPU cores: ",num_cores,"\n",sep="")
+        cat("\n","CPU cores: ",num_cores,sep="")
         start.time <- Sys.time()
         
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {

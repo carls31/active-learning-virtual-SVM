@@ -1508,7 +1508,7 @@ for (model_prob in model_probs) {
 
       for (realization in seq(1,nR)) {
         
-        cat("CPU cores: ",num_cores,"\n",sep="")
+        cat("\n","CPU cores: ",num_cores,sep="")
         start.time <- Sys.time()
         
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {
@@ -2058,7 +2058,7 @@ for (model_prob in model_probs) {
             cS=1  
             cat("\n") ############################### Random AL SVM #######################################
 
-              model_name_AL_VSVMSL_r = "AL_random_VSVM-SL-vUn"
+              model_name_AL_VSVMSL_r = "AL_random_SVM"
 
               cat("random active labeling | ",sampleSizePor[sample_size]," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"]\n",sep="")
 
@@ -2461,7 +2461,7 @@ for (model_prob in model_probs) {
               best_acc <- accVSVM_SL_itAL
               best_model <- model_name_AL_VSVMSL
               new_bestTunedVSVM <- tmp_new_tunedSVM2
-              best_train.time <- train.timeALv1_tSNE_VSVMSL
+              best_train.time <- train.timeALv1_tSNE_VSVMSL-best_train.time
             }
             
             if(accVSVM_ALv2SL_tSNE2>best_acc){ 
@@ -2471,12 +2471,12 @@ for (model_prob in model_probs) {
               best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
             }
             
-            # if(accVSVM_ALv2SL_tSNE>best_acc){ 
-            #   best_acc <- accVSVM_ALv2SL_tSNE
-            #   best_model <- model_name_ALSL_VSVMSL
-            #   new_bestTunedVSVM <- tmp_new_tunedSVM_SL
-            #   best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
-            # }
+            if(accVSVM_ALv2SL_tSNE>best_acc){
+              best_acc <- accVSVM_ALv2SL_tSNE
+              best_model <- model_name_ALSL_VSVMSL
+              new_bestTunedVSVM <- tmp_new_tunedSVM_SL
+              best_train.time <- train.timeALv2_tSNE_VSVMSL-best_train.time
+            }
             
             if(accVSVM_ALv2_TSL2>best_acc){
               best_acc <- accVSVM_ALv2_TSL2
