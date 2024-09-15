@@ -11,9 +11,9 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
 nR = 10                   # number of realizations
-cities = c("cologne")    # cologne or hagadera location
+cities = c("hagadera")    # cologne or hagadera location
 invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("multiclass","binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold       
@@ -522,10 +522,9 @@ add_AL_samples = function(distance_data,
     cat("Number of duplicate rows:", num_duplicates, "\n")
     # Find indices of duplicates
     duplicate_indices <- which(duplicate_rows)
-    cat("First five pairs of duplicate rows:\n")
-    
+
     # Display the first pairs
-    for (i in seq_len(min(3, num_duplicates))) {
+    for (i in seq_len(min(1, num_duplicates))) {
       original_index <- duplicate_indices[i]
       duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
       cat("Duplicate pair", i, ":\n")
@@ -1055,7 +1054,8 @@ for (model_prob in model_probs) {
       if (lgtS) { 
         sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
         if(model_prob=="multiclass"){ 
-          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]}
+          # sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
+          }
         bound = c(0.3, 0.6)
         boundMargin = c(1.5, 0.5)
       }
@@ -2582,8 +2582,8 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
 
-            cat("\n") ############################### AL MCLU + t-SNE SVM #######################################
-            model_name_AL_VSVMSL ="AL_MCLU+tSNE_SVM"
+            cat("\n") ############################### AL MCLU + t-SNE&Class SVM #######################################
+            model_name_AL_VSVMSL ="AL_MCLU+kmeans&Class_SVM"
 
             cat("active labeling ",model_name_AL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
@@ -2630,7 +2630,7 @@ for (model_prob in model_probs) {
                                                upd_dataCurFeatsub, upd_dataCurLabels,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag = TRUE, flag_cluster = TRUE, flag_class = TRUE, plot_flag = model_name_AL_VSVMSL)
+                                               upd_dataCur$ID_unit, tSNE_flag = FALSE, flag_cluster = TRUE, flag_class = TRUE, plot_flag = model_name_AL_VSVMSL)
                       cat("getting active-labeled samples and updated datasets required ", round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1),"sec\n",sep="")
                       # Extract new datasets
                       # upd_dataCurFeatsub <- result$features
@@ -2747,9 +2747,9 @@ for (model_prob in model_probs) {
             AccuracyVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(tmp_acc$overall["Accuracy"])
             KappaVSVM_SL_Un_it[realization,sample_size+1] = as.numeric(tmp_acc$overall["Kappa"])
 
-            cat("\n") ############################### AL MS + t-SNE + SL SVM #######################################
-            model_name_ALSL_VSVMSL = "AL_MS+tSNE+SL_SVM"
-            model_name_ALSL_VSVMSL2 = "AL_MS+tSNE_SVM"
+            cat("\n") ############################### AL MS + t-SNE&Class + SL SVM #######################################
+            model_name_ALSL_VSVMSL = "AL_MS+tSNE&Class+SL_SVM"
+            model_name_ALSL_VSVMSL2 = "AL_MS+tSNE&Class_SVM"
             
             cat("active labeling ",model_name_ALSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
@@ -2929,7 +2929,7 @@ for (model_prob in model_probs) {
             AccuracyVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Accuracy"]))
             KappaVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Kappa"]))
 
-            cat("\n") ############################### AL MS + k-means + semi-SL + Train SVM #######################################
+            cat("\n") ############################### AL MS + semi-SL + Train SVM #######################################
             model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans+semiSL_SVM"
             model_name_ALTrainSL_VSVMSL2 = "AL_MS+kmeans+Train_SVM"
             
@@ -2993,7 +2993,7 @@ for (model_prob in model_probs) {
                                      sampled_data[,1:numFeat], reference_label,
                                      new_trainFeatVSVM, new_trainLabelsVSVM,
                                      newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                     upd_dataCur$ID_unit, newSize2=b[bb]*nclass) #,
+                                     upd_dataCur$ID_unit,flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
             ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
             cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
             # Extract new datasets
@@ -3128,7 +3128,7 @@ for (model_prob in model_probs) {
               best_acc <- accVSVM_SL_itAL
               best_model <- model_name_AL_VSVMSL
               new_bestTunedVSVM <- tmp_new_tunedSVM
-              best_train.time <- train.timeALv1_tSNE_VSVMSL
+              best_train.time <- train.timeALv1_tSNE_VSVMSL-best_train.time
             }
             
             if(accVSVM_ALv2SL_tSNE2>best_acc){ 

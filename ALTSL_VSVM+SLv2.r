@@ -12,7 +12,7 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 
 nR = 10                   # number of realizations
 cities = c("hagadera")    # cologne or hagadera location
-invariances = c("shape")   # scale or shape invariance
+invariances = c("scale")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
@@ -2227,7 +2227,7 @@ for (model_prob in model_probs) {
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
 
             cat("\n") ############################### AL MCLU + t-SNE SVM #######################################
-            model_name_AL_VSVMSL ="AL_MCLU+tSNE_SVM"
+            model_name_AL_VSVMSL ="AL_MCLU+kmeans&Class_SVM"
             
             cat("active labeling ",model_name_AL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
             
@@ -2261,7 +2261,7 @@ for (model_prob in model_probs) {
                                                upd_dataCurFeatsub, upd_dataCurLabels,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=TRUE, plot_flag = model_name_AL_VSVMSL, flag_cluster=TRUE )
+                                               upd_dataCur$ID_unit, tSNE_flag=FALSE, plot_flag = model_name_AL_VSVMSL, flag_cluster=TRUE, flag_class = TRUE )
                       cat("getting active-labeled samples and updated datasets required ", round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1),"sec\n",sep="")
                       # Extract new datasets
                       # upd_dataCurFeatsub <- result$features
