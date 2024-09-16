@@ -1679,11 +1679,6 @@ for (model_prob in model_probs) {
       # set randomized seed for the random sampling procedure
       seed = 5 # 5, 73, 20, 98, 133
       
-      trainDataCurBeg = trainDataPoolAllLev
-      testDataCurBeg = testDataAllLev
-      # subset for each outer iteration test data to speed up computing
-      testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
-      
       ###############################################  Training  #################################################
 
       start.time_oa <- Sys.time()
@@ -1692,7 +1687,7 @@ for (model_prob in model_probs) {
         
         cat("\n","CPU cores: ",num_cores,sep="")
         start.time <- Sys.time()
-        
+
         for (sample_size in seq(1, length(sampleSizePor), by=2)) {
           cat("\n") ################################# Sampling train and test data #####################################
           
@@ -1705,109 +1700,86 @@ for (model_prob in model_probs) {
           
           # set randomized seed for the random sampling procedure
           set.seed(seed)
-          # definition of sampling configuration (strata:random sampling without replacement)
-          stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
-          #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
           
-          # get samples of trainDataCur and set trainDataCur new
-          samples = getdata(trainDataCurBeg, stratSamp)
-          samplesID = samples$ID_unit
-          
-          trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
-          trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
-          
-          trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
-          trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
-          # *********************************************************************
-          
-          # subset on L_4 ***************************** SVM base for invariants ************************************
-          trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
-          # ************************************************ *******************************************************
-          
-          stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-          samples = getdata(testDataCurBeg, stratSamp)
-          testDataCur = samples[,1:ncol(testDataAllLev)]
-          
-          # split test feat from test label for later join with trainData
-          testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-          testLabels = testDataCur[,ncol(testDataCur)]
-          
-          # subset on base level
-          testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
-          
-          if(sample_size==1 && realization==1){
+          if(sample_size==1){
             
-            # *************
-            if (lgtS) {
-              # set.seed(seed)        
-              # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
-              # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
-              # 
-              # validateData <- cbind(validateFeatsub, validateLabels)
-              # finalFeatsub <- data.frame()  # Container for final feature samples
-              # finalLabels <- factor()  # Initialize with factor levels
-              # 
-              # # Sort labels by the number of instances (start with the smallest)
-              # label_order <- levels(validateLabels)[order(table(validateLabels))]
-              # 
-              # for (label in label_order) {
-              #   lightS <- sum(validateLabels == label)
-              #   
-              #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
-              #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
-              #   
-              #   # Stratified sampling without replacement
-              #   stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
-              #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-              #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-              #   
-              #   # Remove duplicates within the current sample
-              #   # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
-              #   unique_new_samples <- validateData_sampl[]
-              #   
-              #   # Check for duplicates against all previously collected samples
-              #   if (nrow(finalFeatsub) > 0) {
-              #     duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
-              #     unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
-              #   }
-              #   
-              #   # Add unique rows to the cumulative dataframe
-              #   samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
-              #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
-              #   cat("[ ", label, " 1 ] Number of samples: ", nrow(samplesRemaining),"\n", sep = "")
-              #   
-              #   # Append the unique samples to the final containers
-              #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-              #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-              #                         levels = levels(validateLabels))
-              #   
-              #   # ********************************************************************************************************************
-              #   
-              #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
-              #   light_factor<- 40
-              #   if(city=="hagadera"){ light_factor<- 40 } # 16 # 20 # 25 # 35 # 40 # 60 # 80
-              #   if(model_prob=="binary"){ light_factor<- 40 }
-              #   # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
-              #   stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
-              #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
-              #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
-              #   
-              #   samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
-              #   cat("[ ", label, " 2 ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
-              #   
-              #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
-              #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
-              #                         levels = levels(validateLabels))
-              # }
-              # 
-              # # Replace original data with the final sampled data
-              # validateFeatsub <- finalFeatsub
-              # validateLabels <- finalLabels
-              # print(length(validateLabels))
-              # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
-            }
-            # *************
+            trainDataCurBeg = trainDataPoolAllLev
+            testDataCurBeg = testDataAllLev
+            # subset for each outer iteration test data to speed up computing
+            testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
             
+            if(realization==11){
+              # *************
+              if (lgtS) {
+                # set.seed(seed)        
+                # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
+                # validateFeatsub = validateDataAllLev[sindexSVMDATA:eindexSVMDATA]
+                # 
+                # validateData <- cbind(validateFeatsub, validateLabels)
+                # finalFeatsub <- data.frame()  # Container for final feature samples
+                # finalLabels <- factor()  # Initialize with factor levels
+                # 
+                # # Sort labels by the number of instances (start with the smallest)
+                # label_order <- levels(validateLabels)[order(table(validateLabels))]
+                # 
+                # for (label in label_order) {
+                #   lightS <- sum(validateLabels == label)
+                #   
+                #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+                #   valDataCurRemaining_sampl <- validateData[validateData$validateLabels == label, ]
+                #   
+                #   # Stratified sampling without replacement
+                #   stratSampSize <- min(lightS, nrow(valDataCurRemaining_sampl))
+                #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+                #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+                #   
+                #   # Remove duplicates within the current sample
+                #   # unique_new_samples <- validateData_sampl[!duplicated(validateData_sampl[, 1:ncol(validateFeatsub)]), ]
+                #   unique_new_samples <- validateData_sampl[]
+                #   
+                #   # Check for duplicates against all previously collected samples
+                #   if (nrow(finalFeatsub) > 0) {
+                #     duplicate_indices <- duplicated(rbind(finalFeatsub[, 1:ncol(validateFeatsub)], unique_new_samples[, 1:ncol(validateFeatsub)]))
+                #     unique_new_samples <- unique_new_samples[!duplicate_indices[(nrow(finalFeatsub) + 1):length(duplicate_indices)], ]
+                #   }
+                #   
+                #   # Add unique rows to the cumulative dataframe
+                #   samplesRemaining <- rbind(samplesRemaining, unique_new_samples)
+                #   samplesRemaining <- samplesRemaining[!duplicated(samplesRemaining[, 1:ncol(validateFeatsub)]), ]
+                #   cat("[ ", label, " 1 ] Number of samples: ", nrow(samplesRemaining),"\n", sep = "")
+                #   
+                #   # Append the unique samples to the final containers
+                #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+                #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+                #                         levels = levels(validateLabels))
+                #   
+                #   # ********************************************************************************************************************
+                #   
+                #   samplesRemaining <- data.frame()  # DataFrame to store unique samples
+                #   light_factor<- 40
+                #   if(city=="hagadera"){ light_factor<- 40 } # 16 # 20 # 25 # 35 # 40 # 60 # 80
+                #   if(model_prob=="binary"){ light_factor<- 40 }
+                #   # print(paste(lightS/light_factor,nrow(valDataCurRemaining_sampl)))
+                #   stratSampSize <- min(lightS/light_factor, nrow(valDataCurRemaining_sampl))  
+                #   val_stratSamp <- strata(valDataCurRemaining_sampl, c("validateLabels"), size = stratSampSize, method = "srswor")
+                #   validateData_sampl <- getdata(valDataCurRemaining_sampl, val_stratSamp)
+                #   
+                #   samplesRemaining <- rbind(samplesRemaining, validateData_sampl)
+                #   cat("[ ", label, " 2 ] Number of samples: ", nrow(samplesRemaining), "\n", sep = "")
+                #   
+                #   finalFeatsub <- rbind(finalFeatsub, samplesRemaining[, 1:ncol(validateFeatsub)])
+                #   finalLabels <- factor(c(as.character(finalLabels), as.character(samplesRemaining$validateLabels)),
+                #                         levels = levels(validateLabels))
+                # }
+                # 
+                # # Replace original data with the final sampled data
+                # validateFeatsub <- finalFeatsub
+                # validateLabels <- finalLabels
+                # print(length(validateLabels))
+                # rm(valDataCurRemaining_sampl, validateData_sampl, unique_new_samples, val_stratSamp,finalFeatsub,finalLabels)
+              }
+              # *************
+              
               if (lgtS) {
                 # set.seed(seed)
                 # validateLabels = validateDataAllLev[,(ncol(validateDataAllLev))]
@@ -1918,6 +1890,37 @@ for (model_prob in model_probs) {
                 # rm(valDataCurRemaining_sampl, val_stratSamp, samplesRemaining,finalFeatsub,finalLabels)
               }
             }
+          }
+          
+          # definition of sampling configuration (strata:random sampling without replacement)
+          stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
+          #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
+          
+          # get samples of trainDataCur and set trainDataCur new
+          samples = getdata(trainDataCurBeg, stratSamp)
+          samplesID = samples$ID_unit
+          
+          trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
+          trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
+          
+          trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
+          trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
+          # *********************************************************************
+          
+          # subset on L_4 ***************************** SVM base for invariants ************************************
+          trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+          # ************************************************ *******************************************************
+          
+          stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
+          samples = getdata(testDataCurBeg, stratSamp)
+          testDataCur = samples[,1:ncol(testDataAllLev)]
+          
+          # split test feat from test label for later join with trainData
+          testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
+          testLabels = testDataCur[,ncol(testDataCur)]
+          
+          # subset on base level
+          testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
 
           # trainData index to split between train and test in svmFit
           countTrainData = nrow(trainFeat)

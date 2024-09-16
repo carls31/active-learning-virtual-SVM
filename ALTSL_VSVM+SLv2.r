@@ -1526,11 +1526,6 @@ for (model_prob in model_probs) {
       # set randomized seed for the random sampling procedure
       seed = 5 # 5, 73, 20, 98, 133
       
-      trainDataCurBeg = trainDataPoolAllLev
-      testDataCurBeg = testDataAllLev
-      # subset for each outer iteration test data to speed up computing
-      testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
-      
       ###############################################  Training  #################################################
 
       start.time_oa <- Sys.time()
@@ -1554,6 +1549,11 @@ for (model_prob in model_probs) {
           shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
 
           if(sample_size==1){
+            
+            trainDataCurBeg = trainDataPoolAllLev
+            testDataCurBeg = testDataAllLev
+            # subset for each outer iteration test data to speed up computing
+            testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
             
             # definition of sampling configuration (strata:random sampling without replacement)
             stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
