@@ -11,9 +11,9 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
 nR = 10                   # number of realizations
-cities = c("hagadera")    # cologne or hagadera location
-invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass","binary")  # multiclass or binary problem
+cities = c("hagadera","cologne")    # cologne or hagadera location
+invariances = c("shape","scale")   # scale or shape invariance
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold       
@@ -2933,8 +2933,8 @@ for (model_prob in model_probs) {
             KappaVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Kappa"]))
 
             cat("\n") ############################### AL MS + semi-SL + Train SVM #######################################
-            model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans+semiSL_SVM"
-            model_name_ALTrainSL_VSVMSL2 = "AL_MS+kmeans+Train_SVM"
+            model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans&Class+semiSL_SVM"
+            model_name_ALTrainSL_VSVMSL2 = "AL_MS+kmeans&Class+Train_SVM"
             
             cat("active labeling ",model_name_ALTrainSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
             # actAcc = -1e-6
@@ -2996,7 +2996,7 @@ for (model_prob in model_probs) {
                                      sampled_data[,1:numFeat], reference_label,
                                      new_trainFeatVSVM, new_trainLabelsVSVM,
                                      newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                     upd_dataCur$ID_unit,flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
+                                     upd_dataCur$ID_unit,flag_cluster = TRUE, flag_class = TRUE, newSize2=b[bb]*nclass) #,
             ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
             cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
             # Extract new datasets
