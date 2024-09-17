@@ -28,8 +28,6 @@ path = '/home/data1/Lorenzo/'
 #                                       feel free to reach me out for any question                               #
 # ************************************************************************************************************** #
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-# sampleSizePor = c(25,30, 30,50, 50,100, 100,160, 160,230, 230,310, 310,400, 400,500, 500)
-# sampleSizePor = c(30,36, 36,60, 60,120, 120,192, 192,276, 276,372, 372,480, 480,600, 600)
 lgtS=TRUE
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- 48 #parallel::detectCores() # Numbers of CPU cores for parallel processing
@@ -298,6 +296,24 @@ pred_all = function(modelfin, dataPoint, dataPointLabels, binaryClassProb=binary
   return(distance)   
 }
 
+# # Evaluate the distance between samples and Support Vectors lying in the hyperspace
+# uncertainty_dist_v2_2 = function(org, samp) {
+#   
+#   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+#   
+#   registerDoParallel(num_cores)
+#   distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+#     # calculate_margin_distance(k)
+#     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
+#   }
+#   registerDoSEQ()
+#   
+#   scaled_distances <- apply(distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+#   distance$distance <- scaled_distances
+#   samp <- cbind(samp, distance)
+#   
+#   return(samp)
+# }
 # margin_sampling(org=tmp_new_tunedSVM, samp=predLabelsVSVM_unc,pred_one,binaryClassProblem, classes=NA)
 # Evaluate Margin Sampling (MS) WITH MULTICORES CPU - PARALLEL COMPUTING new_tunedSVM, predLabelsVSVM_unc
 margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
@@ -353,10 +369,24 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
     hist(as.vector(scaled_distances), main="Histogram of Scaled MS Distances",
          xlab="Scaled MS Distance", col="purple", breaks=500)
     
+    # # Histogram for Power transformation
+    # hist(as.vector(distances_power), main="Histogram of Power Transformed Distances",
+    #      xlab="Power Transformed Distance", col="blue", breaks=500, xlim=c(0, 1))
+    
     # Histogram for Logarithmic transformation
     hist(as.vector(distances_log), main="Histogram of Logarithmic Transformed MS Distances",
          xlab="Logarithmic Transformed MS Distance", col="green", breaks=500)
     
+    # # Histogram for Exponential transformation
+    # hist(distances_exp, main="Histogram of Exponential Transformed Distances",
+    #      xlab="Exponential Transformed Distance", col="red", breaks=500, xlim=c(0, 1))
+    
+    # ****************************************************************************************
+    
+    
+    # # Histogram for Standard Scaling of mclu_distances
+    # hist(as.vector(margin_distance$distance), main="Histogram of Self-Learning Distances",
+    #      xlab="Margin Distance", col="black", breaks=500, xlim=c(0, 1))
     dev.off()
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
   }
@@ -431,6 +461,37 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
   return(merged_data)
 }
 
+# mclp_sampling <- function(org, samp) {
+#   
+#   # Initialize data frame to store PROBABILITY for each sample
+#   probability <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
+#   
+#   # Define the function to calculate margin distance for a single sample
+#   calculate_mclp_distance <- function(k) {
+#     probabilities <- predict(org, newdata = samp[k, -ncol(samp)], type = "prob")
+#     
+#     # Get the two most probable classes
+#     top_classes <- (sort(unlist(probabilities), decreasing = TRUE))[1:2]
+#     
+#     # Calculate the difference between the probabilities for the two most probable classes
+#     return(abs(top_classes[[1]] - top_classes[[2]]))
+#   }
+#   registerDoParallel(num_cores)
+#   
+#   # Use foreach for parallel processing with " %dopar% "
+#   mclp_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
+#     calculate_mclp_distance(k)
+#   }
+#   registerDoSEQ()
+#   # Apply "range" normalization to mclp_distances
+#   scaled_distances <- apply(mclp_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
+#   
+#   # Assign scaled distances to probability dataframe
+#   probability$distance <- scaled_distances
+#   merged_data <- cbind(samp, probability)
+#   
+#   return(merged_data)
+# }
 # result <- add_AL_samples(distance_data=sampled_data,
 # ref=reference_label, features=sampled_data[,1:numFeat]
 # ref=upd_dataCurLabels, features=upd_dataCurFeatsub, 
@@ -454,52 +515,51 @@ add_AL_samples = function(distance_data,
   ref_added_or = ref_added[order(ref_added$distance),]
   
   if(tSNE_flag) { flag_cluster=TRUE
-    # ********************** duplicates check
-    duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
-    num_duplicates <- sum(duplicate_rows)
-    if (num_duplicates > 0) {
-      cat("Number of duplicate rows:", num_duplicates, "\n")
-      # Find indices of duplicates
-      duplicate_indices <- which(duplicate_rows)
-      cat("First five pairs of duplicate rows:\n")
-      
-      # # Display the first pairs
-      # for (i in seq_len(min(3, num_duplicates))) {
-      #   original_index <- duplicate_indices[i]
-      #   duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
-      #   cat("Duplicate pair", i, ":\n")
-      #   print(ref_added_or[c(duplicate_index, original_index), ])
-      # }
-      
-      # Remove duplicates
-      ref_added_or <- ref_added_or[!duplicate_rows, ]
-      cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
+  # ********************** duplicates check
+  duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
+  num_duplicates <- sum(duplicate_rows)
+  if (num_duplicates > 0) {
+    cat("Number of duplicate rows:", num_duplicates, "\n")
+    # Find indices of duplicates
+    duplicate_indices <- which(duplicate_rows)
+    
+    # Display the first pairs
+    for (i in seq_len(min(1, num_duplicates))) {
+      original_index <- duplicate_indices[i]
+      duplicate_index <- which(apply(ref_added_or[, 1:nFeat], 1, function(row) all(row == ref_added_or[original_index, 1:nFeat])))[1]
+      cat("Duplicate pair", i, ":\n")
+      print(ref_added_or[c(duplicate_index, original_index), ])
     }
-    # Perform t-SNE
-    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
-    tsne_data <- data.frame(tsne_result$Y)
-    colnames(tsne_data) <- c("tSNE1", "tSNE2")
     
-    tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
-    
-    km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-    
-    # Add cluster information to the data
-    ref_added_or$cluster <- km_tsne$cluster
-    
+    # Remove duplicates
+    ref_added_or <- ref_added_or[!duplicate_rows, ]
+    cat("Duplicates removed. Number of rows after removing duplicates:", nrow(ref_added_or), "\n")
+  }
+  # Perform t-SNE
+  tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
+  tsne_data <- data.frame(tsne_result$Y)
+  colnames(tsne_data) <- c("tSNE1", "tSNE2")
+  
+  tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
+  
+  km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  
+  # Add cluster information to the data
+  ref_added_or$cluster <- km_tsne$cluster
+  
   } else if(PCA_flag){ flag_cluster=TRUE
-    # Perform PCA
-    pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
-    pca_data <- data.frame(pca_result$x[, 1:2])
-    colnames(pca_data) <- c("PC1", "PC2")
-    
-    # Combine all data with the distance column
-    pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
-    
-    # Apply k-means clustering on each
-    km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
-    
-    ref_added_or$cluster <- km_pca$cluster
+  # Perform PCA
+  pca_result <- prcomp(ref_added_or[, 1:nFeat], center = TRUE, scale. = TRUE)
+  pca_data <- data.frame(pca_result$x[, 1:2])
+  colnames(pca_data) <- c("PC1", "PC2")
+  
+  # Combine all data with the distance column
+  pca_data_with_distance <- cbind(pca_data, distance = ref_added_or$distance)
+  
+  # Apply k-means clustering on each
+  km_pca <- kmeans(pca_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  
+  ref_added_or$cluster <- km_pca$cluster
   } else {
     ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
     km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
@@ -529,13 +589,16 @@ add_AL_samples = function(distance_data,
       plot(pca_data$PC1, pca_data$PC2, col = cluster_colors[pca_data_with_distance$Cluster],
            pch = 20, cex = 2, main = "PCA with K-means Clustering",
            xlab = "Principal Component 1", ylab = "Principal Component 2")
-
+      # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
+      #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
+      
       # Plot PCA with Distance
       plot(pca_data_with_distance$PC1, ref_added_or$distance, col = cluster_colors[pca_data_with_distance$Cluster],
            pch = 20, cex = 2, main = "K-means Clustering on PCA + Distance",
            xlab = "Principal Component 1", ylab = "Distance")
+      # legend("topright", inset = c(-0.2, 0), legend = levels(pca_data_with_distance$Cluster),
+      #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
       dev.off()
-      
     }
     
     if(tSNE_flag){
@@ -553,19 +616,56 @@ add_AL_samples = function(distance_data,
       plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
            pch = 20, cex = 2, main = c("t-SNE with K-means Clustering ", cluster),
            xlab = "t-SNE 1", ylab = "t-SNE 2")
-
+      # legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
+      #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
       
       # Plot t-SNE with Distance
       plot(tsne_data_with_distance$tSNE1, ref_added_or$distance, col = cluster_colors[tsne_data_with_distance$Cluster],
            pch = 20, cex = 2, main = "K-means Clustering on t-SNE + Distance",
            xlab = "t-SNE 1", ylab = "Distance")
-
+      # legend("topright", inset = c(-0.2, 0), legend = levels(tsne_data_with_distance$Cluster),
+      #        col = cluster_colors, pch = 20, title = "Cluster", bty = "n")
       dev.off()
     }
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
   }
   # ***********************************************************************************
-
+  
+  # # Initialize a vector to store selected sample indices
+  # selected_indices <- c()
+  # cluster_samples <- c()
+  # selected_indices_semi <- c()
+  # label_samples_semi <- c()
+  # labels_in_semi <- c()
+  # tmpSize = 0
+  # # Iterate over clusters and select one sample from each cluster
+  # for (sample in seq_len(nrow(ref_added_or))) {
+  #   if (!( ref_added_or[sample,]$cluster %in% cluster_samples) && tmpSize < newSize){
+  #     if(flag_cluster){
+  #       cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
+  #     }
+  #     tmpSize = tmpSize+1
+  #     
+  #     ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
+  #     selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
+  #   }
+  # 
+  #   # if (tmpSize >= newSize && tmpSize < newSize + semi_size - nclass +1) {
+  #   #     tmpSize <- tmpSize + 1
+  #   #     selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
+  #   #     if (!(ref_added_or[sample,]$label %in% labels_in_semi) ) {
+  #   #       labels_in_semi <- c(labels_in_semi, ref_added_or[sample,]$label)
+  #   #     }
+  #   # }
+  #   # if(tmpSize < newSize + semi_size && length(labels_in_semi) < nclass && !(ref_added_or[sample,]$label %in% labels_in_semi)){
+  #   #       labels_in_semi <- c(labels_in_semi, ref_added_or[sample,]$label)
+  #   #       tmpSize <- tmpSize + 1
+  #   #       selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
+  #   # }
+  # 
+  #   
+  # }
+  
   # Initialize vectors to store selected sample indices for two selections
   selected_indices <- c()
   selected_indices2 <- c()
@@ -864,10 +964,20 @@ self_learn_AL = function(
     hist(as.vector(scaled_distances), main="Histogram of Scaled SL Margin Distances",
          xlab="Scaled SL Margin Distance", col="purple", breaks=500)
     
+    # # Histogram for Power transformation
+    # hist(as.vector(distances_power), main="Histogram of Power Transformed Distances",
+    #      xlab="Power Transformed Distance", col="blue", breaks=500, xlim=c(0, 1))
+    
     # Histogram for Logarithmic transformation
     hist(as.vector(distances_log), main="Histogram of Logarithmic Transformed Distances",
          xlab="Logarithmic Transformed Distance", col="green", breaks=500)
     
+    # ****************************************************************************************
+    
+    
+    # # Histogram for Standard Scaling of mclu_distances
+    # hist(as.vector(SVinvar$distance), main="Histogram of Self-Learning Distances",
+    #      xlab="Margin Distance", col="black", breaks=500, xlim=c(0, 1))
     dev.off()
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
   }
@@ -877,7 +987,48 @@ self_learn_AL = function(
   # if(length(boundMargin)==1){
   return(list(sampled_data = SVinvar, 
               best_updCur_Labels = upd_Labels))
+  # }
+  #   # split for training to feature and label
+  #   trainFeatVSVM = SVinvar_org[,1:(ncol(SVinvar_org)-1)]
+  #   trainLabelsVSVM = SVinvar_org[,ncol(SVinvar_org)]
+  #   
+  #   # get list with index of trainData to split between train and test in svmFit
+  #   countTrainData = nrow(SVinvar_org)
+  #   indexTrainData = list(c(1:countTrainData))
+  #   
+  #   # join of train and test data (through indesTrainData in svmFit seperable)
+  #   names = objInfoNames[1:(length(objInfoNames)-1)]
+  #   tuneFeatVSVM = rbind(trainFeatVSVM, setNames(testFeatsub, names))
+  #   tuneLabelsVSVM = unlist(list(trainLabelsVSVM, testLabels))
+  #   
+  #   # *********************** VSVM control parameter tuning ***********************
+  #   tStart.time <- Sys.time()
+  #   tunedVSVM = svmFit(tuneFeatVSVM, tuneLabelsVSVM, indexTrainData)
+  #   t.time <- round(as.numeric((Sys.time() - tStart.time), units = "secs"), 1)
+  #   
+  #   tmp_pred = predict(tunedVSVM, validateFeatsub)
+  #   tmp_acc  = confusionMatrix(tmp_pred, validateLabels)
+  #   if (actKappa < tmp_new_tunedSVM$resample$Kappa) { cat("current best kappa: ",sep="")
+  #     bestFittingModel = tunedVSVM
+  #     actKappa = tmp_acc$overall["Accuracy"] # tmp_new_tunedSVM$resample$Kappa #
+  #     best_trainAS = SVinvar
+  #     best_upd_Labels = upd_Labels
+  #     # best_resample = resampledSize[rS]
+  #     best_boundMargin = boundMargin[kk]
+  #     if (actKappa == 1) {
+  #       cat(round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="")
+  #       return(list(sampled_data = best_trainAS, 
+  #                   best_updCur_Labels = best_upd_Labels,
+  #                   best_boundMargin = best_boundMargin))
+  #     }
+  #   } else { cat("discarded kappa: ",sep="")} 
+  #   cat(round(tunedVSVM$resample$Kappa,4)," | execution time: ",t.time,"sec\n",sep="") #round(tmp_acc$overall["Accuracy"],5)," | related kappa: ",
+  # # } 
+  # return(list(sampled_data = best_trainAS, 
+  #             best_updCur_Labels = best_upd_Labels,
+  #             best_boundMargin = best_boundMargin))
 }
+
 
 classificationProblem = function(generalDataPool){
   cat("note that the first record is of class: ",levels(generalDataPool$REF)[1],"\n",sep="")
@@ -2226,8 +2377,8 @@ for (model_prob in model_probs) {
             # AccuracyVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Accuracy"])
             # KappaVSVM_SL_Un_random_it[realization,sample_size+1] = as.numeric(accVSVM_SL_AL_random$overall["Kappa"])
 
-            cat("\n") ############################### AL MCLU + t-SNE SVM #######################################
-            model_name_AL_VSVMSL ="AL_MCLU+kmeans&Class_SVM"
+            cat("\n") ############################### AL MCLU + k-means SVM #######################################
+            model_name_AL_VSVMSL ="AL_MCLU+kmeans_SVM"
             
             cat("active labeling ",model_name_AL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round(length(sampleSizePor)/2),"] | [",realization,"/",nR,"]\n",sep="")
             
@@ -2261,7 +2412,7 @@ for (model_prob in model_probs) {
                                                upd_dataCurFeatsub, upd_dataCurLabels,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=FALSE, plot_flag = model_name_AL_VSVMSL, flag_cluster=TRUE, flag_class = TRUE )
+                                               upd_dataCur$ID_unit, tSNE_flag=FALSE, plot_flag = model_name_AL_VSVMSL, flag_cluster=TRUE)
                       cat("getting active-labeled samples and updated datasets required ", round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1),"sec\n",sep="")
                       # Extract new datasets
                       # upd_dataCurFeatsub <- result$features
