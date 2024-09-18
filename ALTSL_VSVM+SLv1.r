@@ -2346,13 +2346,13 @@ for (model_prob in model_probs) {
 
             AccuracyVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric((tmp_acc$overall["Accuracy"]))
             KappaVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric((tmp_acc$overall["Kappa"]))
-            SVsVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric((tmp_new_tunedSVM_SL2$finalModel@SVindex))
+            SVsVSVM_SL_Un_itSL[realization,sample_size+1] = as.numeric(length(tmp_new_tunedSVM_SL2$finalModel@SVindex))
             
             cat(model_name_ALSL_VSVMSL," accuracy: ",round(tmp_acc_sl$overall["Accuracy"],5),"\n",sep="")
             
             AccuracyVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Accuracy"]))
             KappaVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric((tmp_acc_sl$overall["Kappa"]))
-            SVsVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric(tmp_new_tunedSVM_SL$finalModel@SVindex)
+            SVsVSVM_SL_Un_itSL2[realization,sample_size+1] = as.numeric(length(tmp_new_tunedSVM_SL$finalModel@SVindex))
             
             cat("\n") ############################### AL MS + k-means + semi-SL + Train SVM #######################################
             model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans+semiSL_SVM"
