@@ -26,18 +26,18 @@ file_name_acc = "20240909_0607_cologne_multiclass_scale_acc_ALTSLv1_20Unl_12nR_1
 file_name_acc = "20240909_1656_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_14SizePor"
 ## back to v3
 file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
-# file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
+file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 ## back from v3
-# file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
-# file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_acc = "20240913_1515_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
-# file_name_acc = "20240914_1031_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_acc = "20240915_0101_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_acc = "20240915_0718_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
-# file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
-# 
-# # file_name_acc = "20240916_1901_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
+file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240913_1515_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240914_1031_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240915_0101_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240915_0718_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+
+# file_name_acc = "20240916_1901_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 
 
 # ********************************************************************
@@ -57,18 +57,18 @@ file_name_kappa = "20240909_0607_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_12
 file_name_kappa = "20240909_1656_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_14SizePor"
 ## back to v3
 file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
-# file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
+file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 ## back from v3
-# file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-# file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_kappa = "20240913_1515_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-# file_name_kappa = "20240914_1031_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_kappa = "20240915_0101_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-# file_name_kappa = "20240915_0718_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-# file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-# 
-# # file_name_kappa = "20240916_1901_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
+file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240913_1515_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240914_1031_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240915_0101_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240915_0718_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+
+# file_name_kappa = "20240916_1901_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 
 
 
