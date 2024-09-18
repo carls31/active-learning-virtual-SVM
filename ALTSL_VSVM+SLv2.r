@@ -2412,7 +2412,7 @@ for (model_prob in model_probs) {
                                                upd_dataCurFeatsub, upd_dataCurLabels,
                                                new_trainFeatVSVM, new_trainLabelsVSVM,
                                                newSize_for_iter, cluster=round(min(clusterSizes[cS],nrow(sampled_data)/20)), # always greater than newSize_for_iter, # 60, 80, 100, 120
-                                               upd_dataCur$ID_unit, tSNE_flag=FALSE, plot_flag = model_name_AL_VSVMSL, flag_cluster=TRUE)
+                                               upd_dataCur$ID_unit, tSNE_flag=FALSE, flag_cluster=TRUE)
                       cat("getting active-labeled samples and updated datasets required ", round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1),"sec\n",sep="")
                       # Extract new datasets
                       # upd_dataCurFeatsub <- result$features
@@ -2617,7 +2617,7 @@ for (model_prob in model_probs) {
             # upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
             # upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
             # 
-            # tmp_new_tunedSVM_SLT <- new_bestTunedVSVM
+            # tmp_new_tunedSVM_ALT <- new_bestTunedVSVM
             # 
             # newSize_for_iter = newSize #sampleSize/10 # or just 4
             # 
@@ -2626,7 +2626,7 @@ for (model_prob in model_probs) {
             # # # **********************
             # 
             # # Add predicted labels to the features data set
-            # SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tmp_new_tunedSVM_SLT, upd_dataCurFeatsub)), objInfoNames)
+            # SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tmp_new_tunedSVM_ALT, upd_dataCurFeatsub)), objInfoNames)
             # 
             # sampledResult <- self_learn_AL(
             #   # testFeatsub, testLabels, boundMargin=c(best_boundMargin),
@@ -2863,7 +2863,17 @@ for (model_prob in model_probs) {
             "\n",model_name_ALSL_VSVMSL," training time: ",train.timeALv2_tSNE_VSVMSL_oa/realization, "sec",
             "\n",model_name_ALTrainSL_VSVMSL," training time: ",train.timeALv2_SEMI_VSVMSL_oa/realization, "sec\n",
             # "\nbest_resample_oa: ", best_resample_oa, "\nbest_newSize_oa: ", best_newSize_oa,"\nbest_classSize_oa: ", best_classSize_oa,  "\nbest_cluster_oa: ",best_cluster_oa,
-            "\nlength of ", model_name_ALTrainSL_VSVMSL ," SVs: ",length(tmp_new_tunedSVM_ALT$finalModel@SVindex),"\nlength of ", model_name_AL_VSVMSL ," SVs: ", length(tmp_new_tunedSVM2$finalModel@SVindex),"\nlength of final train Labels AL: ",length(trainLabels_AL),
+            "\nNumber of ", model_name_tunedSVM ," SVs: ",length(tunedSVM$finalModel@SVindex),
+            "\nNumber of ", model_name_SVMUn ," SVs: ",length(bestFittingModelSVMUn$finalModel@SVindex),
+            "\nNumber of ", model_name_VSVM_SL ," SVs: ",length(bestFittingModel$finalModel@SVindex),
+            "\nNumber of ", model_name_Un ," SVs: ",length(bestFittingModelUn$finalModel@SVindex),
+            "\nNumber of ", model_name_vUn ," SVs: ",length(bestFittingModelvUn$finalModel@SVindex),
+            "\nNumber of ", model_name_ALSL_VSVMSL2 ," SVs: ",length(tmp_new_tunedSVM_SL2$finalModel@SVindex),
+            "\nNumber of ", model_name_ALSL_VSVMSL ," SVs: ",length(tmp_new_tunedSVM_SL$finalModel@SVindex),
+            "\nNumber of ", model_name_ALTrainSL_VSVMSL2 ," SVs: ",length(tmp_new_tunedSVM_ALT2$finalModel@SVindex),
+            "\nNumber of ", model_name_ALTrainSL_VSVMSL ," SVs: ",length(tmp_new_tunedSVM_ALT$finalModel@SVindex),
+            "\nNumber of ", model_name_AL_VSVMSL ," SVs: ", length(tmp_new_tunedSVM2$finalModel@SVindex),
+            "\nNumber of final train Labels AL: ",length(trainLabels_AL),
             sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.txt"))
         print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
         cat("length of ", model_name_ALTrainSL_VSVMSL ," SVs: ",length(tmp_new_tunedSVM_ALT$finalModel@SVindex),"\nlength of ", model_name_AL_VSVMSL ," SVs: ", length(tmp_new_tunedSVM2$finalModel@SVindex),"\nlength of final train Labels AL: ",length(trainLabels_AL),"\n\n",sep="")
