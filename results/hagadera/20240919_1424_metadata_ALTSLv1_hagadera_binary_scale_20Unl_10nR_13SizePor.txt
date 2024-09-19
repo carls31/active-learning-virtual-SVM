@@ -1,0 +1,42 @@
+OA Execution time: 22.28h
+Realization 1 | seed: 320 execution time: 2.41h
+Realization 2 | seed: 635 execution time: 1.95h
+Realization 3 | seed: 950 execution time: 1.94h
+Realization 4 | seed: 1265 execution time: 2.23h
+Realization 5 | seed: 1580 execution time: 2h
+Realization 6 | seed: 1895 execution time: 1.97h
+Realization 7 | seed: 2210 execution time: 2.48h
+Realization 8 | seed: 2525 execution time: 2.42h
+Realization 9 | seed: 2840 execution time: 2.75h
+Realization 10 | seed: 3155 execution time: 2.13h
+
+AL_MCLU+kmeans_SVM: 0.986326187363262
+AL_MS+tSNE_SVM: 0.971205332212053
+AL_MS+tSNE_SVM: 0.983174229831742
+AL_MS+kmeans+semiSL_SVM: 0.983504372335044
+VSVM_SLUn: 0.990764222407642
+SVM_SLUn: 0.984695184846952
+VSVM_SLUn: 0.98242196482422
+AL_MCLU+kmeans_SVM: 0.987277194872772
+AL_MCLU+kmeans_SVM: 0.98466397734664
+AL_MS+tSNE_SVM: 0.989412444894124
+
+SVM_SLUn training time: 59.19sec
+VSVM_SL training time: 74.09sec
+VSVM_SLUn training time: 113.69sec
+VSVM_SLvUn training time: 268.06sec
+AL_MCLU+kmeans_SVM training time: 405.99sec
+AL_MS+tSNE+SL_SVM training time: 1078.57sec
+AL_MS+kmeans+semiSL_SVM training time: 1077.43sec
+
+Number of SVM SVs: 60
+Number of SVM_SLUn SVs: 47
+Number of VSVM_SL SVs: 66
+Number of VSVM_SLUn SVs: 236
+Number of VSVM_SLvUn SVs: 217
+Number of AL_MS+tSNE_SVM SVs: 68
+Number of AL_MS+tSNE+SL_SVM SVs: 163
+Number of AL_MS+kmeans+Train_SVM SVs: 60
+Number of AL_MS+kmeans+semiSL_SVM SVs: 170
+Number of AL_MCLU+kmeans_SVM SVs: 163
+Number of final train Labels AL: 60
