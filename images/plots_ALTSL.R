@@ -1,6 +1,6 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 model_prob = "binary"     # multiclass or binary
 invariance = "scale"     # scale or shape
 
@@ -39,6 +39,8 @@ file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13Si
 
 # file_name_acc = "20240916_1901_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 
+file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+
 
 # ********************************************************************
 
@@ -69,6 +71,8 @@ file_name_kappa = "20240915_0718_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_1
 file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
 # file_name_kappa = "20240916_1901_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
+
+file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 
