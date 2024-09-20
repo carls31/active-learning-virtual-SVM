@@ -283,6 +283,61 @@ if(grepl("v1", file_name_kappa) && as.integer(column_names[3])>as.integer(column
 
 x <- 2*as.integer(column_names)/nclass
 
+lenged_names = c("SVM single-level L4", 
+                 "SVM-SL + semi-labeled", 
+                 "VSVM-SL",
+                 "VSVM-SL + semi-labeled",
+                 "VSVM-SL + virtual semi-labeled",
+                 # "Random AL SVM",
+                 "AL MCLU SVM",
+                 "AL MS + t-SNE SVM",
+                 "AL MS + t-SNE + SL SVM",
+                 "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
+)
+
+SVM_col              =1
+SVM_SL_col           =1
+VSVM_SL_col          =3
+VSVM_SL_Un_col       =4
+VSVM_SL_vUn_col      =5
+AL_MCLU_SVM_col      =7
+AL_MS_tSNE_SVM_col   =8
+AL_MS_tSNE_SL_SVM_col=8
+AL_MS_SVM_col        =6
+AL_MS_UnSL_SVM_col   =6
+
+legend_col = c(SVM_col, 
+               SVM_SL_col, 
+               VSVM_SL_col, VSVM_SL_Un_col,
+               VSVM_SL_vUn_col,
+               # 7,
+               AL_MCLU_SVM_col,
+               AL_MS_tSNE_SVM_col, AL_MS_tSNE_SL_SVM_col,
+               AL_MS_SVM_col, AL_MS_UnSL_SVM_col  # gives the legend lines the correct color and width
+)
+
+SVM_lty              =1
+SVM_SL_lty           =4
+VSVM_SL_lty          =1
+VSVM_SL_Un_lty       =1
+VSVM_SL_vUn_lty      =1
+AL_MCLU_SVM_lty      =1
+AL_MS_tSNE_SVM_lty   =1
+AL_MS_tSNE_SL_SVM_lty=4
+AL_MS_SVM_lty        =1
+AL_MS_UnSL_SVM_lty   =4
+
+lenged_lty = c(SVM_lty,
+               SVM_SL_lty,
+               VSVM_SL_lty,
+               VSVM_SL_Un_lty,
+               VSVM_SL_vUn_lty,
+               # 2,
+               AL_MCLU_SVM_lty,
+               AL_MS_tSNE_SVM_lty, AL_MS_tSNE_SL_SVM_lty,
+               AL_MS_SVM_lty, AL_MS_UnSL_SVM_lty # gives the legend appropriate symbols (lines)
+)
+
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
 if(model_prob == "multiclass"){
@@ -362,22 +417,23 @@ if(nrow(AccuracySVM)>1){
   
   msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type= type,       col = 1, lwd = 2,lty = 1,
+                    pch=20, type= type,       col = SVM_col, lwd = 2,lty = SVM_lty,
                     xlab= "number of labeled samples per class",
                     ylab= "accuracy (%)",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
-  lines(x[-clms], avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
+
+  lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = SVM_SL_col, lwd = 2,lty = SVM_SL_lty)
+  lines(x[-clms], avgVSVM_SL, type= type ,       col = VSVM_SL_col, lwd = 2,lty = VSVM_SL_lty)
+  lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = VSVM_SL_Un_col, lwd = 2,lty = VSVM_SL_Un_lty)
+  lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = VSVM_SL_vUn_col, lwd = 2,lty = VSVM_SL_vUn_lty)
   
   # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2,lty = 2)
-  lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2,lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2,lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2,lty = 4)
-  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2,lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2,lty = 4)
+  lines(x[clms], avgVSVM_SL_Un_it, type= type , col = AL_MCLU_SVM_col, lwd = 2,lty = AL_MCLU_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = AL_MS_tSNE_SVM_col, lwd = 2,lty = AL_MS_tSNE_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = AL_MS_tSNE_SL_SVM_col, lwd = 2,lty = AL_MS_tSNE_SL_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = AL_MS_SVM_col, lwd = 2,lty = AL_MS_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = AL_MS_UnSL_SVM_col, lwd = 2,lty = AL_MS_UnSL_SVM_lty)
   
   }else{
   clms = seq(2,length(AccuracySVM),by=2)
@@ -404,36 +460,9 @@ if(nrow(AccuracySVM)>1){
 # # ******************************************************************************************************
 
 legend("bottomright", 
-       c("SVM single-level L4", 
-         "SVM-SL + semi-labeled", 
-         "VSVM-SL",
-         "VSVM-SL + semi-labeled",
-         "VSVM-SL + virtual semi-labeled",
-         # "Random AL SVM",
-         "AL MCLU + t-SNE SVM",
-         "AL MS + t-SNE SVM",
-         "AL MS + t-SNE + SL SVM",
-         "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
-       ),
-       lty=c(1,
-             4,
-             1,
-             1,
-             1,
-             # 2,
-             1,
-             1, 4,
-             1, 4 # gives the legend appropriate symbols (lines)
-       ),
-       col=c(1, 
-             1, 
-             3, 4,
-             5,
-             # 7,
-             7,
-             8, 8,
-             6, 6  # gives the legend lines the correct color and width
-       )
+       lenged_names,
+       lty = lenged_lty,
+       col= legend_col
 ) 
 
 dev.off()
@@ -511,63 +540,37 @@ if(nrow(AccuracySVM)>1){
   
   msdSVMPlot = plot(x[-clms[-length(clms)]], avgSVM,log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type= type,   col = 1, lwd = 2,lty = 1,
+                    pch=20, type= type,   col = SVM_col, lwd = 2,lty = SVM_lty,
                     xlab= "number of labeled samples per class", 
                     ylab="accuracy (%) +/- std dev",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = 1, lwd = 2,lty = 4)
-  lines(x[-clms], avgVSVM_SL, type= type ,       col = 3, lwd = 2,lty = 1)
-  lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = 4, lwd = 2,lty = 1)
-  lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = 5, lwd = 2,lty = 1)
+
+  lines(x[-clms], avgSVM_SL_Un_b, type= type ,   col = SVM_SL_col, lwd = 2,lty = SVM_SL_lty)
+  lines(x[-clms], avgVSVM_SL, type= type ,       col = VSVM_SL_col, lwd = 2,lty = VSVM_SL_lty)
+  lines(x[-clms], avgVSVM_SL_Un_b, type= type ,  col = VSVM_SL_Un_col, lwd = 2,lty = VSVM_SL_Un_lty)
+  lines(x[-clms], avgVSVM_SL_vUn_b, type= type , col = VSVM_SL_vUn_col, lwd = 2,lty = VSVM_SL_vUn_lty)
   
   # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
-  lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2, lty = 4)
-  lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2, lty = 4)
+  lines(x[clms], avgVSVM_SL_Un_it, type= type , col = AL_MCLU_SVM_col, lwd = 2, lty = AL_MCLU_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = AL_MS_tSNE_SVM_col, lwd = 2, lty = AL_MS_tSNE_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = AL_MS_tSNE_SL_SVM_col, lwd = 2, lty = AL_MS_tSNE_SL_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = AL_MS_SVM_col, lwd = 2, lty = AL_MS_SVM_lty)
+  lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = AL_MS_UnSL_SVM_col, lwd = 2, lty = AL_MS_UnSL_SVM_lty)
   
   # arrows(x[-clms], avgSVM-sdSVM, x[-clms], avgSVM+sdSVM, length=0.075, angle=90, code=3 ,col = 1,lty=1)
   # arrows(x[-clms], avgSVM_SL_Un_b-sdSVM_SL_Un_b, x[-clms], avgSVM_SL_Un_b+sdSVM_SL_Un_b, length=0.075, angle=90, code=3 ,col = 1,lty=4)
-  arrows(x[-clms], avgVSVM_SL-sdVSVM_SL, x[-clms], avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = 3,lty=1)
-  arrows(x[-clms], avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x[-clms], avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3 ,col = 5)
+  arrows(x[-clms], avgVSVM_SL-sdVSVM_SL, x[-clms], avgVSVM_SL+sdVSVM_SL, length=0.075, angle=90, code=3 ,col = VSVM_SL_col,lty=VSVM_SL_lty)
+  arrows(x[-clms], avgVSVM_SL_vUn_b-sdVSVM_SL_vUn_b, x[-clms], avgVSVM_SL_vUn_b+sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3,col = VSVM_SL_vUn_col)
   
-  arrows(x[clms], avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x[clms], avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = 7)
+  arrows(x[clms], avgVSVM_SL_Un_it-sdVSVM_SL_Un_it, x[clms], avgVSVM_SL_Un_it+sdVSVM_SL_Un_it, length=0.075, angle=90, code=3 ,col = AL_MCLU_SVM_col)
   # arrows(x[clms], avgVSVM_SL_Un_itSL-sdVSVM_SL_Un_itSL, x[clms], avgVSVM_SL_Un_itSL+sdVSVM_SL_Un_itSL, length=0.075, angle=90, code=3 ,col = 8)
-  arrows(x[clms], avgVSVM_SL_Un_itTSL-sdVSVM_SL_Un_itTSL, x[clms], avgVSVM_SL_Un_itTSL+sdVSVM_SL_Un_itTSL, length=0.075, angle=90, code=3 ,col = 6)
+  arrows(x[clms], avgVSVM_SL_Un_itTSL-sdVSVM_SL_Un_itTSL, x[clms], avgVSVM_SL_Un_itTSL+sdVSVM_SL_Un_itTSL, length=0.075, angle=90, code=3 ,col = AL_MS_SVM_col)
   
   legend("bottomright", 
-         c("SVM single-level L4", 
-           "SVM-SL + semi-labeled", 
-           "VSVM-SL",
-           "VSVM-SL + semi-labeled",
-           "VSVM-SL + virtual semi-labeled",
-           # "Random AL SVM",
-           "AL MCLU + t-SNE SVM",
-           "AL MS + t-SNE SVM",
-           "AL MS + t-SNE + SL SVM",
-           "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
-         ),
-         lty=c(1,
-               4,
-               1,
-               1,
-               1,
-               # 2,
-               1,
-               1, 4,
-               1, 4 # gives the legend appropriate symbols (lines)
-         ),
-         col=c(1, 
-               1, 
-               3, 4,
-               5,
-               # 7,
-               7,
-               8, 8,
-               6, 6  # gives the legend lines the correct color and width
-         )
+         lenged_names,
+         lty=lenged_lty,
+         col=legend_col
   ) 
   
   dev.off()
@@ -635,22 +638,23 @@ png(filename=paste0(file_name_kappa,".png"),
 if(nrow(KappaSVM)>1){
   msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(KappaSVM[,-clms[-length(clms)]])[1,],log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                    pch=20, type= type,                   col = SVM_col, lwd=2,lty = SVM_lty,
                     xlab= "number of labeled samples per class",
                     ylab="Kappa-score",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  lines(x[-clms], ExCsvMSD(KappaSVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd=2,lty = 4)
-  lines(x[-clms], ExCsvMSD(KappaVSVM_SL[,-clms])[1,], type= type ,       col = 3, lwd=2,lty = 1)
-  lines(x[-clms], ExCsvMSD(KappaVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd=2,lty = 1)
-  lines(x[-clms], ExCsvMSD(KappaVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd=2,lty = 1)
+
+  lines(x[-clms], ExCsvMSD(KappaSVM_SL_Un[,-clms])[1,], type= type ,   col = SVM_SL_col, lwd=2,lty = SVM_SL_lty)
+  lines(x[-clms], ExCsvMSD(KappaVSVM_SL[,-clms])[1,], type= type ,     col = VSVM_SL_col, lwd=2,lty = VSVM_SL_lty)
+  lines(x[-clms], ExCsvMSD(KappaVSVM_SL_Un[,-clms])[1,], type= type ,  col = VSVM_SL_Un_col, lwd=2,lty = VSVM_SL_Un_lty)
+  lines(x[-clms], ExCsvMSD(KappaVSVM_SL_vUn[,-clms])[1,], type= type , col = VSVM_SL_vUn_col, lwd=2,lty = VSVM_SL_vUn_lty)
 
   # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_random_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 2)
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
-  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = 6, lwd=2,lty = 4)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = AL_MCLU_SVM_col, lwd=2,lty = AL_MCLU_SVM_lty)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL[,clms])[1,], type= type , col = AL_MS_tSNE_SVM_col, lwd=2,lty = AL_MS_tSNE_SVM_lty)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = AL_MS_tSNE_SL_SVM_col, lwd=2,lty = AL_MS_tSNE_SL_SVM_lty)
+  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
+  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
   
 }else{
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
@@ -677,36 +681,9 @@ if(nrow(KappaSVM)>1){
 }
 
 legend("bottomright", 
-       c("SVM single-level L4", 
-         "SVM-SL + semi-labeled", 
-         "VSVM-SL",
-         "VSVM-SL + semi-labeled",
-         "VSVM-SL + virtual semi-labeled",
-         # "Random AL SVM",
-         "AL MCLU + t-SNE SVM",
-         "AL MS + t-SNE SVM",
-         "AL MS + t-SNE + SL SVM",
-         "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
-       ),
-       lty=c(1,
-             4,
-             1,
-             1,
-             1,
-             # 2,
-             1,
-             1, 4,
-             1, 4 # gives the legend appropriate symbols (lines)
-       ),
-       col=c(1, 
-             1, 
-             3, 4,
-             5,
-             # 7,
-             7,
-             8, 8,
-             6, 6  # gives the legend lines the correct color and width
-       )
+       lenged_names,
+       lty=lenged_lty,
+       col=legend_col
 ) 
 
 dev.off()
@@ -722,52 +699,28 @@ png(filename=paste0(file_name_SVs,".png"),
 if(nrow(SVsSVM)>1){
   msdSVMPlot = plot(x[-clms], ExCsvMSD(SVsSVM[,-clms])[1,],log = "x",
                     ylim=range(c(10,175)),
-                    pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                    pch=20, type= type,                   col = SVM_col, lwd=2,lty = SVM_lty,
                     xlab= "number of labeled samples per class",
                     ylab="number of support Vectors",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
-  lines(x[-clms], ExCsvMSD(SVsSVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd=2,lty = 4)
-  lines(x[-clms], ExCsvMSD(SVsVSVM_SL[,-clms])[1,], type= type ,       col = 3, lwd=2,lty = 1)
-  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd=2,lty = 1)
-  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd=2,lty = 1)
+  lines(x[-clms], ExCsvMSD(SVsSVM_SL_Un[,-clms])[1,], type= type ,   col = SVM_SL_col, lwd=2,lty = SVM_SL_lty)
+  lines(x[-clms], ExCsvMSD(SVsVSVM_SL[,-clms])[1,], type= type ,     col = VSVM_SL_col, lwd=2,lty = VSVM_SL_lty)
+  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_Un[,-clms])[1,], type= type ,  col = VSVM_SL_Un_col, lwd=2,lty = VSVM_SL_Un_lty)
+  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_vUn[,-clms])[1,], type= type , col = VSVM_SL_vUn_col, lwd=2,lty = VSVM_SL_vUn_lty)
   
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd=2,lty = 1)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = 6, lwd=2,lty = 4)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_it[,clms])[1,], type= type , col = AL_MCLU_SVM_col, lwd=2,lty = AL_MCLU_SVM_lty)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL[,clms])[1,], type= type , col = AL_MS_tSNE_SVM_col, lwd=2,lty = AL_MS_tSNE_SVM_lty)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = AL_MS_tSNE_SL_SVM_col, lwd=2,lty = AL_MS_tSNE_SL_SVM_lty)
+  # lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
+  # lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
   
 }
 
 legend("topleft", 
-       c("SVM single-level L4", 
-         "SVM-SL + semi-labeled", 
-         "VSVM-SL",
-         "VSVM-SL + semi-labeled",
-         "VSVM-SL + virtual semi-labeled",
-         "AL MCLU + t-SNE SVM",
-         "AL MS + t-SNE SVM",
-         "AL MS + t-SNE + SL SVM",
-         "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
-       ),
-       lty=c(1,
-             4,
-             1,
-             1,
-             1,
-             1,
-             1, 4,
-             1, 4 # gives the legend appropriate symbols (lines)
-       ),
-       col=c(1, 
-             1, 
-             3, 4,
-             5,
-             7,
-             8, 8,
-             6, 6  # gives the legend lines the correct color and width
-       )
+       lenged_names,
+       lty=lenged_lty,
+       col=legend_col
 ) 
 
 dev.off()
