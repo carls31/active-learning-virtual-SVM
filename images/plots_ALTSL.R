@@ -710,3 +710,64 @@ legend("bottomright",
 ) 
 
 dev.off()
+
+# *********************************************
+png(filename=paste0(file_name_SVs,".png"),
+    units="in", 
+    width=20, 
+    height=16, 
+    pointsize=24,
+    res=96)
+
+if(nrow(SVsSVM)>1){
+  msdSVMPlot = plot(x[-clms], ExCsvMSD(SVsSVM[,-clms])[1,],log = "x",
+                    ylim=range(c(10,175)),
+                    pch=20, type= type,                   col = 1, lwd=2,lty = 1,
+                    xlab= "number of labeled samples per class",
+                    ylab="number of support Vectors",
+                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
+  )
+  lines(x[-clms], ExCsvMSD(SVsSVM_SL_Un[,-clms])[1,], type= type ,   col = 1, lwd=2,lty = 4)
+  lines(x[-clms], ExCsvMSD(SVsVSVM_SL[,-clms])[1,], type= type ,       col = 3, lwd=2,lty = 1)
+  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_Un[,-clms])[1,], type= type ,  col = 4, lwd=2,lty = 1)
+  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_vUn[,-clms])[1,], type= type , col = 5, lwd=2,lty = 1)
+  
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_it[,clms])[1,], type= type , col = 7, lwd=2,lty = 1)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL[,clms])[1,], type= type , col = 8, lwd=2,lty = 1)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = 6, lwd=2,lty = 1)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = 6, lwd=2,lty = 4)
+  
+}
+
+legend("topleft", 
+       c("SVM single-level L4", 
+         "SVM-SL + semi-labeled", 
+         "VSVM-SL",
+         "VSVM-SL + semi-labeled",
+         "VSVM-SL + virtual semi-labeled",
+         "AL MCLU + t-SNE SVM",
+         "AL MS + t-SNE SVM",
+         "AL MS + t-SNE + SL SVM",
+         "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
+       ),
+       lty=c(1,
+             4,
+             1,
+             1,
+             1,
+             1,
+             1, 4,
+             1, 4 # gives the legend appropriate symbols (lines)
+       ),
+       col=c(1, 
+             1, 
+             3, 4,
+             5,
+             7,
+             8, 8,
+             6, 6  # gives the legend lines the correct color and width
+       )
+) 
+
+dev.off()
