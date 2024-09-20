@@ -74,10 +74,12 @@ file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_
 
 file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
+file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
+load(paste0(file_name_SVs,".RData"))
 
 ########################################################################################
 # **************************************** #
@@ -421,7 +423,8 @@ legend("bottomright",
              # 2,
              1,
              1, 4,
-             1, 4), # gives the legend appropriate symbols (lines)
+             1, 4 # gives the legend appropriate symbols (lines)
+       ),
        col=c(1, 
              1, 
              3, 4,
@@ -429,7 +432,8 @@ legend("bottomright",
              # 7,
              7,
              8, 8,
-             6, 6)  # gives the legend lines the correct color and width
+             6, 6  # gives the legend lines the correct color and width
+       )
 ) 
 
 dev.off()
@@ -520,7 +524,7 @@ if(nrow(AccuracySVM)>1){
   # lines(x[clms], avgVSVM_SL_Un_random_it, type= type , col = 7, lwd = 2, lty = 2)
   lines(x[clms], avgVSVM_SL_Un_it, type= type , col = 7, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL, type= type , col = 8, lwd = 2, lty = 1)
-  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)  
+  lines(x[clms], avgVSVM_SL_Un_itTSL, type= type , col = 6, lwd = 2, lty = 1)
   lines(x[clms], avgVSVM_SL_Un_itSL2, type= type , col = 8, lwd = 2, lty = 4)
   lines(x[clms], avgVSVM_SL_Un_itTSL2, type= type , col = 6, lwd = 2, lty = 4)
   
@@ -553,7 +557,8 @@ if(nrow(AccuracySVM)>1){
                # 2,
                1,
                1, 4,
-               1, 4), # gives the legend appropriate symbols (lines)
+               1, 4 # gives the legend appropriate symbols (lines)
+         ),
          col=c(1, 
                1, 
                3, 4,
@@ -561,7 +566,8 @@ if(nrow(AccuracySVM)>1){
                # 7,
                7,
                8, 8,
-               6, 6)  # gives the legend lines the correct color and width
+               6, 6  # gives the legend lines the correct color and width
+         )
   ) 
   
   dev.off()
@@ -646,7 +652,6 @@ if(nrow(KappaSVM)>1){
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = 8, lwd=2,lty = 4)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = 6, lwd=2,lty = 4)
   
-  # lines(x, ExCsvMSD(KappaVSVM_SL_Un_ud)[1,], type= type , col = 4, lwd=2)
 }else{
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
                     ylim=range(c(ylowerBound,yUpperBound)),
@@ -691,7 +696,8 @@ legend("bottomright",
              # 2,
              1,
              1, 4,
-             1, 4), # gives the legend appropriate symbols (lines)
+             1, 4 # gives the legend appropriate symbols (lines)
+       ),
        col=c(1, 
              1, 
              3, 4,
@@ -699,7 +705,8 @@ legend("bottomright",
              # 7,
              7,
              8, 8,
-             6, 6)  # gives the legend lines the correct color and width
+             6, 6  # gives the legend lines the correct color and width
+       )
 ) 
 
 dev.off()

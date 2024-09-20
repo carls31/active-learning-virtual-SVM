@@ -1,3 +1,6 @@
+kappa and SVs AL_MS+kmeans+Train_SVM  and  AL_MS+kmeans+semiSL_SVM are compromised
+
+
 OA Execution time: 22.28h
 Realization 1 | seed: 320 execution time: 2.41h
 Realization 2 | seed: 635 execution time: 1.95h
