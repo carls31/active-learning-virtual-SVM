@@ -222,7 +222,9 @@ ExCsvMSD = function (datadase, filename = NA){
 
 nclass=6
 if(city=="hagadera"){ nclass=5 }
-if(model_prob=="binary"){ nclass=2 }
+ALv2_name = "AL MCLU SVM"
+if(model_prob=="binary"){ nclass=2 
+ALv2_name = "AL MS SVM"}
 
 column_names <- colnames(AccuracySVM)
 clms = seq(2,ncol(AccuracySVM),by=2)
@@ -289,7 +291,7 @@ lenged_names = c("SVM single-level L4",
                  "VSVM-SL + semi-labeled",
                  "VSVM-SL + virtual semi-labeled",
                  # "Random AL SVM",
-                 "AL MCLU SVM",
+                 ALv2_name,
                  "AL MS + t-SNE SVM",
                  "AL MS + t-SNE + SL SVM",
                  "AL MS SVM (new train samples)", "AL MS + semi-labeled SL SVM"
