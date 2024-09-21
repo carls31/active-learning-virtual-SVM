@@ -1,8 +1,8 @@
 library(scales)
 
-city = "hagadera"    # cologne or hagadera
+city = "cologne"    # cologne or hagadera
 model_prob = "binary"     # multiclass or binary
-invariance = "scale"     # scale or shape
+invariance = "shape"     # scale or shape
 
 
 path = '/home/data1/Lorenzo/'
@@ -40,6 +40,7 @@ file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13Si
 # file_name_acc = "20240916_1901_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 
 file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240921_0351_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 # ********************************************************************
@@ -73,8 +74,14 @@ file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_
 # file_name_kappa = "20240916_1901_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 
 file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+
+
+
+# ********************************************************************
 
 file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_SVs = "20240921_0351_cologne_binary_shape_SVs_ALTSLv1_20Unl_10nR_13SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -224,7 +231,7 @@ nclass=6
 if(city=="hagadera"){ nclass=5 }
 ALv2_name = "AL MCLU SVM"
 if(model_prob=="binary"){ nclass=2 
-ALv2_name = "AL MS SVM"}
+ALv2_name = "AL US SVM"}
 
 column_names <- colnames(AccuracySVM)
 clms = seq(2,ncol(AccuracySVM),by=2)
@@ -623,7 +630,7 @@ if(model_prob == "binary"){
       ylowerBound = 0.51
     }
     if(invariance=="shape"){
-      yUpperBound = 0.78
+      yUpperBound = 0.8
       ylowerBound = 0.47
     }
   }
@@ -655,8 +662,8 @@ if(nrow(KappaSVM)>1){
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_it[,clms])[1,], type= type , col = AL_MCLU_SVM_col, lwd=2,lty = AL_MCLU_SVM_lty)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL[,clms])[1,], type= type , col = AL_MS_tSNE_SVM_col, lwd=2,lty = AL_MS_tSNE_SVM_lty)
   lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = AL_MS_tSNE_SL_SVM_col, lwd=2,lty = AL_MS_tSNE_SL_SVM_lty)
-  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
-  # lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
+  lines(x[clms], ExCsvMSD(KappaVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
   
 }else{
   msdSVMPlot = plot(x, (KappaSVM),log = "x",
@@ -714,8 +721,8 @@ if(nrow(SVsSVM)>1){
   lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_it[,clms])[1,], type= type , col = AL_MCLU_SVM_col, lwd=2,lty = AL_MCLU_SVM_lty)
   lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL[,clms])[1,], type= type , col = AL_MS_tSNE_SVM_col, lwd=2,lty = AL_MS_tSNE_SVM_lty)
   lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = AL_MS_tSNE_SL_SVM_col, lwd=2,lty = AL_MS_tSNE_SL_SVM_lty)
-  # lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
-  # lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
+  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
   
 }
 
