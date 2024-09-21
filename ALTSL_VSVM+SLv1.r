@@ -2574,8 +2574,8 @@ for (model_prob in model_probs) {
             saveRDS(tmp_new_tunedSVM2, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             saveRDS(tmp_new_tunedSVM_SL2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL2,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
             saveRDS(tmp_new_tunedSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
-            saveRDS(model_name_ALTrainSL_VSVMSL2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
-            saveRDS(model_name_ALTrainSL_VSVMSL, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
+            saveRDS(tmp_new_tunedSVM_ALT2, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL2,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
+            saveRDS(tmp_new_tunedSVM_ALT, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
           }
         }
         cat("\n") ################################### End realization ############################################
