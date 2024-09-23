@@ -16,9 +16,9 @@ invariances = c("scale")   # scale or shape invariance
 model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
-bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold          
-boundMargin = c(1.5, 1, 0.5)  # distance from hyperplane - threshold  
-sampleSizePor = c(25,30, 30,40, 40,60, 60,100, 100,180, 180,340, 340,500, 500)
+bound = c(0.3, 0.6)      # radius around SV - threshold          
+boundMargin = c(1.5, 0.5)  # distance from hyperplane - threshold  
+sampleSizePor = c(25,30, 30,40, 40,60, 60,100, 100,180, 180)
 
 path = '/home/data1/Lorenzo/'
 #####################################################  Utils  ####################################################
@@ -28,7 +28,6 @@ path = '/home/data1/Lorenzo/'
 #                                       feel free to reach me out for any question                               #
 # ************************************************************************************************************** #
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
-lgtS=TRUE
 train  = TRUE              # if TRUE, train the models otherwise load them from directory
 num_cores <- 54 # parallel::detectCores() # 48 # Numbers of CPU cores for parallel processing
 
@@ -874,18 +873,9 @@ for (model_prob in model_probs) {
       
       cat("preprocessing",city,model_prob,invariance,"\n")
       if(city=="cologne"){ 
-        # sampleSizePor = c(30,36, 36,60, 60,120, 120,192, 192,276, 276,372, 372,480, 480,600, 600)
-        sampleSizePor = c(30,36, 36,48, 48,72, 72,120, 120,216, 216,408, 408,600, 600)} 
+        sampleSizePor = c(30,36, 36,48, 48,72, 72,120, 120,216, 216)} 
       if(model_prob=="binary"){ 
-        # sampleSizePor = c(10,12, 12,20, 20,40, 40,64, 64,92, 92,124, 124,160, 160,200, 200)
-        sampleSizePor = c(8,10, 10,14, 14,22, 22,38, 38,70, 70,134, 134,200, 200)
-        }
-      if (lgtS) { 
-        sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]
-        if(model_prob=="multiclass"){ 
-          sampleSizePor = sampleSizePor[1:(length(sampleSizePor)-2)]}
-        bound = c(0.3, 0.6)
-        boundMargin = c(1.5, 0.5)
+        sampleSizePor = c(8,10, 10,14, 14,22, 22,38, 38,70, 70,134, 134,200)
         }
       colheader = as.character(sampleSizePor) # corresponding column names
       ###############################################  Preprocessing  ############################################
@@ -2599,7 +2589,6 @@ for (model_prob in model_probs) {
           AccuracyVSVM_SL=AccuracyVSVM_SL[1:(realization-1),]
           AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:(realization-1),]
           AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:(realization-1),]
-          # AccuracyVSVM_SL_Un_it[1:(realization-1),], 
           AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:(realization-1),]
           AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:(realization-1),]
           AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:(realization-1),]
@@ -2610,12 +2599,20 @@ for (model_prob in model_probs) {
           KappaVSVM_SL=KappaVSVM_SL[1:(realization-1),]
           KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:(realization-1),]
           KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:(realization-1),]
-          # KappaVSVM_SL_Un_it[1:(realization-1),], 
           KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:(realization-1),]
           KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:(realization-1),]
           KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:(realization-1),]
           KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2[1:(realization-1),]
           KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2[1:(realization-1),]
+          SVsSVM=SVsSVM[1:(realization-1),]
+          SVsSVM_SL_Un=SVsSVM_SL_Un[1:(realization-1),]
+          SVsVSVM_SL=SVsVSVM_SL[1:(realization-1),]
+          SVsVSVM_SL_Un=SVsVSVM_SL_Un[1:(realization-1),]
+          SVsVSVM_SL_vUn=SVsVSVM_SL_vUn[1:(realization-1),]
+          SVsVSVM_SL_Un_itSL=SVsVSVM_SL_Un_itSL[1:(realization-1),]
+          SVsVSVM_SL_Un_itTSL=SVsVSVM_SL_Un_itTSL[1:(realization-1),]
+          SVsVSVM_SL_Un_itSL2=SVsVSVM_SL_Un_itSL2[1:(realization-1),]
+          SVsVSVM_SL_Un_itTSL2=SVsVSVM_SL_Un_itTSL2[1:(realization-1),]
         }
         setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city))
         save(AccuracySVM, AccuracySVM_SL_Un,AccuracyVSVM_SL,AccuracyVSVM_SL_Un,AccuracyVSVM_SL_vUn,
@@ -2627,10 +2624,10 @@ for (model_prob in model_probs) {
         save(SVsSVM, SVsSVM_SL_Un,SVsVSVM_SL,SVsVSVM_SL_Un,SVsVSVM_SL_vUn,
              SVsVSVM_SL_Un_it,SVsVSVM_SL_Un_itSL,SVsVSVM_SL_Un_itTSL,SVsVSVM_SL_Un_itSL2,SVsVSVM_SL_Un_itTSL2,
              file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_SVs_",script,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData"))
-        save(tr.timeSVM, tr.timeSVM_SL_Un,tr.timeVSVM_SL,tr.timeVSVM_SL_Un,tr.timeVSVM_SL_vUn,
-             tr.timeVSVM_SL_Un_it,# tr.timeVSVM_SL_Un_itSL,# tr.timeVSVM_SL_Un_itTSL,
-             tr.timeVSVM_SL_Un_itSL2,tr.timeVSVM_SL_Un_itTSL2,
-             file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_trainTime_",script,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData"))
+        # save(tr.timeSVM, tr.timeSVM_SL_Un,tr.timeVSVM_SL,tr.timeVSVM_SL_Un,tr.timeVSVM_SL_vUn,
+        #      tr.timeVSVM_SL_Un_it,# tr.timeVSVM_SL_Un_itSL,# tr.timeVSVM_SL_Un_itTSL,
+        #      tr.timeVSVM_SL_Un_itSL2,tr.timeVSVM_SL_Un_itTSL2,
+        #      file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_trainTime_",script,"_",b,"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData"))
         cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model_oa,
             "\n",model_name_SVMUn," training time: ",trainSVMUn.time_oa/realization, "sec",
             "\n",model_name_VSVM_SL," training time: ",trainSL.time_oa/realization, "sec",
