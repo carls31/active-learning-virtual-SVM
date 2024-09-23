@@ -347,7 +347,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
         units="in", 
         width=20, 
         height=9, 
-        pointsize=12,
+        pointsize=24,
         res=96)
     
     
@@ -435,7 +435,7 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
         units="in", 
         width=20, 
         height=9, 
-        pointsize=12,
+        pointsize=24,
         res=96)
     
     # Plotting the histograms
@@ -581,7 +581,7 @@ add_AL_samples = function(distance_data,
           units="in", 
           width=16, 
           height=20, 
-          pointsize=12,
+          pointsize=24,
           res=96)
       par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
       
@@ -608,7 +608,7 @@ add_AL_samples = function(distance_data,
           units="in", 
           width=16, 
           height=20, 
-          pointsize=12,
+          pointsize=24,
           res=96)
       par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
       
@@ -948,7 +948,7 @@ self_learn_AL = function(
         units="in", 
         width=20, 
         height=9, 
-        pointsize=12,
+        pointsize=24,
         res=96)
     
     

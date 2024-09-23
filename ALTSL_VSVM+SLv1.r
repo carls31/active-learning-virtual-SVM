@@ -11,9 +11,9 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
 nR = 10                  # number of realizations
-cities = c("cologne","hagadera")     # cologne or hagadera location
+cities = c("cologne")     # cologne or hagadera location
 invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)      # radius around SV - threshold          
@@ -325,7 +325,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
         units="in", 
         width=20, 
         height=9, 
-        pointsize=12,
+        pointsize=24,
         res=96)
     
 
@@ -395,7 +395,7 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
         units="in", 
         width=20, 
         height=9, 
-        pointsize=12,
+        pointsize=24,
         res=96)
     
     # Plotting the histograms
@@ -508,7 +508,7 @@ add_AL_samples = function(distance_data,
           units="in", 
           width=16, 
           height=20, 
-          pointsize=12,
+          pointsize=24,
           res=96)
       par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
       
@@ -532,7 +532,7 @@ add_AL_samples = function(distance_data,
           units="in", 
           width=16, 
           height=20, 
-          pointsize=12,
+          pointsize=24,
           res=96)
       par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
       
@@ -828,7 +828,7 @@ self_learn_AL = function(
           units="in", 
           width=20, 
           height=9, 
-          pointsize=12,
+          pointsize=24,
           res=96)
 
       # ***********************************************************************************
