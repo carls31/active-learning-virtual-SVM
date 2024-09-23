@@ -1,8 +1,8 @@
 library(scales)
 
 city = "cologne"    # cologne or hagadera
-model_prob = "binary"     # multiclass or binary
-invariance = "shape"     # scale or shape
+model_prob = "multiclass"     # multiclass or binary
+invariance = "scale"     # scale or shape
 
 
 path = '/home/data1/Lorenzo/'
@@ -41,6 +41,7 @@ file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13Si
 
 file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_acc = "20240921_0351_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_acc = "20240923_0143_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 # ********************************************************************
@@ -75,6 +76,7 @@ file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_
 
 file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_kappa = "20240923_0143_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 
@@ -82,6 +84,7 @@ file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_1
 
 file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_SVs = "20240921_0351_cologne_binary_shape_SVs_ALTSLv1_20Unl_10nR_13SizePor"
+file_name_SVs = "20240923_0143_cologne_multiclass_scale_SVs_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -707,7 +710,7 @@ png(filename=paste0(file_name_SVs,".png"),
 
 if(nrow(SVsSVM)>1){
   msdSVMPlot = plot(x[-clms], ExCsvMSD(SVsSVM[,-clms])[1,],log = "x",
-                    ylim=range(c(10,175)),
+                    ylim=range(c(10,350)),
                     pch=20, type= type,                   col = SVM_col, lwd=2,lty = SVM_lty,
                     xlab= "number of labeled samples per class",
                     ylab="number of support Vectors",
