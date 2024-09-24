@@ -1,7 +1,7 @@
 library(scales)
 
 city = "cologne"    # cologne or hagadera
-model_prob = "multiclass"     # multiclass or binary
+model_prob = "binary"     # multiclass or binary
 invariance = "scale"     # scale or shape
 
 
@@ -42,6 +42,7 @@ file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13Si
 file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_acc = "20240921_0351_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_acc = "20240923_0143_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_acc = "20240924_0014_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_14SizePor"
 
 
 # ********************************************************************
@@ -77,6 +78,7 @@ file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_
 file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_kappa = "20240923_0143_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_kappa = "20240924_0014_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
 
 
 
@@ -85,6 +87,7 @@ file_name_kappa = "20240923_0143_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10
 file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_SVs = "20240921_0351_cologne_binary_shape_SVs_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_SVs = "20240923_0143_cologne_multiclass_scale_SVs_ALTSLv1_20Unl_10nR_11SizePor"
+file_name_SVs = "20240924_0014_cologne_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
@@ -240,57 +243,57 @@ column_names <- colnames(AccuracySVM)
 clms = seq(2,ncol(AccuracySVM),by=2)
 
 if(grepl("v1", file_name_kappa) && as.integer(column_names[3])>as.integer(column_names[2])){
-  column_names[-c(1,clms)]=column_names[clms[-length(clms)]]
-  
-  colnames(AccuracySVM)=column_names
-  colnames(AccuracySVM_SL_Un)=column_names
-  colnames(AccuracyVSVM_SL)=column_names
-  colnames(AccuracyVSVM_SL_Un)=column_names
-  colnames(AccuracyVSVM_SL_vUn)=column_names
-  # colnames(AccuracyVSVM_SL_Un_it)=column_names
-  colnames(AccuracyVSVM_SL_Un_random_it)=column_names
-  colnames(AccuracyVSVM_SL_Un_itSL)=column_names
-  colnames(AccuracyVSVM_SL_Un_itSL2)=column_names
-  colnames(AccuracyVSVM_SL_Un_itTSL)=column_names
-  colnames(AccuracyVSVM_SL_Un_itTSL2)=column_names
-  
-  colnames(KappaSVM)=column_names
-  colnames(KappaSVM_SL_Un)=column_names
-  colnames(KappaVSVM_SL)=column_names
-  colnames(KappaVSVM_SL_Un)=column_names
-  colnames(KappaVSVM_SL_vUn)=column_names
-  # colnames(KappaVSVM_SL_Un_it)=column_names
-  colnames(KappaVSVM_SL_Un_random_it)=column_names
-  colnames(KappaVSVM_SL_Un_itSL)=column_names
-  colnames(KappaVSVM_SL_Un_itSL2)=column_names
-  colnames(KappaVSVM_SL_Un_itTSL)=column_names
-  colnames(KappaVSVM_SL_Un_itTSL2)=column_names
-  
-
-  save(AccuracySVM,
-       AccuracySVM_SL_Un,
-       AccuracyVSVM_SL,
-       AccuracyVSVM_SL_Un,
-       AccuracyVSVM_SL_vUn,
-       AccuracyVSVM_SL_Un_random_it,
-       # AccuracyVSVM_SL_Un_it,
-       AccuracyVSVM_SL_Un_itSL,
-       AccuracyVSVM_SL_Un_itSL2,
-       AccuracyVSVM_SL_Un_itTSL,
-       AccuracyVSVM_SL_Un_itTSL2,
-       file=paste0(file_name_acc,".RData"))
-  save(KappaSVM,
-       KappaSVM_SL_Un,
-       KappaVSVM_SL,
-       KappaVSVM_SL_Un,
-       KappaVSVM_SL_vUn,
-       KappaVSVM_SL_Un_random_it,
-       # KappaVSVM_SL_Un_it,
-       KappaVSVM_SL_Un_itSL,
-       KappaVSVM_SL_Un_itSL2,
-       KappaVSVM_SL_Un_itTSL,
-       KappaVSVM_SL_Un_itTSL2,
-       file=paste0(file_name_kappa,".RData"))
+  # column_names[-c(1,clms)]=column_names[clms[-length(clms)]]
+  # 
+  # colnames(AccuracySVM)=column_names
+  # colnames(AccuracySVM_SL_Un)=column_names
+  # colnames(AccuracyVSVM_SL)=column_names
+  # colnames(AccuracyVSVM_SL_Un)=column_names
+  # colnames(AccuracyVSVM_SL_vUn)=column_names
+  # # colnames(AccuracyVSVM_SL_Un_it)=column_names
+  # colnames(AccuracyVSVM_SL_Un_random_it)=column_names
+  # colnames(AccuracyVSVM_SL_Un_itSL)=column_names
+  # colnames(AccuracyVSVM_SL_Un_itSL2)=column_names
+  # colnames(AccuracyVSVM_SL_Un_itTSL)=column_names
+  # colnames(AccuracyVSVM_SL_Un_itTSL2)=column_names
+  # 
+  # colnames(KappaSVM)=column_names
+  # colnames(KappaSVM_SL_Un)=column_names
+  # colnames(KappaVSVM_SL)=column_names
+  # colnames(KappaVSVM_SL_Un)=column_names
+  # colnames(KappaVSVM_SL_vUn)=column_names
+  # # colnames(KappaVSVM_SL_Un_it)=column_names
+  # colnames(KappaVSVM_SL_Un_random_it)=column_names
+  # colnames(KappaVSVM_SL_Un_itSL)=column_names
+  # colnames(KappaVSVM_SL_Un_itSL2)=column_names
+  # colnames(KappaVSVM_SL_Un_itTSL)=column_names
+  # colnames(KappaVSVM_SL_Un_itTSL2)=column_names
+  # 
+  # 
+  # save(AccuracySVM,
+  #      AccuracySVM_SL_Un,
+  #      AccuracyVSVM_SL,
+  #      AccuracyVSVM_SL_Un,
+  #      AccuracyVSVM_SL_vUn,
+  #      AccuracyVSVM_SL_Un_random_it,
+  #      # AccuracyVSVM_SL_Un_it,
+  #      AccuracyVSVM_SL_Un_itSL,
+  #      AccuracyVSVM_SL_Un_itSL2,
+  #      AccuracyVSVM_SL_Un_itTSL,
+  #      AccuracyVSVM_SL_Un_itTSL2,
+  #      file=paste0(file_name_acc,".RData"))
+  # save(KappaSVM,
+  #      KappaSVM_SL_Un,
+  #      KappaVSVM_SL,
+  #      KappaVSVM_SL_Un,
+  #      KappaVSVM_SL_vUn,
+  #      KappaVSVM_SL_Un_random_it,
+  #      # KappaVSVM_SL_Un_it,
+  #      KappaVSVM_SL_Un_itSL,
+  #      KappaVSVM_SL_Un_itSL2,
+  #      KappaVSVM_SL_Un_itTSL,
+  #      KappaVSVM_SL_Un_itTSL2,
+  #      file=paste0(file_name_kappa,".RData"))
 }
 
 x <- 2*as.integer(column_names)/nclass
@@ -701,6 +704,14 @@ legend("bottomright",
 dev.off()
 
 # *********************************************
+
+if(model_prob == "multiclass"){
+  yUpperBound = 350
+}
+if(model_prob == "binary"){
+  yUpperBound = 150
+}
+
 png(filename=paste0(file_name_SVs,".png"),
     units="in", 
     width=20, 
@@ -709,11 +720,11 @@ png(filename=paste0(file_name_SVs,".png"),
     res=96)
 
 if(nrow(SVsSVM)>1){
-  msdSVMPlot = plot(x[-clms], ExCsvMSD(SVsSVM[,-clms])[1,],log = "x",
-                    ylim=range(c(10,350)),
+  msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(SVsSVM[,-clms[-length(clms)]])[1,],log = "x",
+                    ylim=range(c(10,yUpperBound)),
                     pch=20, type= type,                   col = SVM_col, lwd=2,lty = SVM_lty,
                     xlab= "number of labeled samples per class",
-                    ylab="number of support Vectors",
+                    ylab="number of support vectors",
                     main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
   )
   lines(x[-clms], ExCsvMSD(SVsSVM_SL_Un[,-clms])[1,], type= type ,   col = SVM_SL_col, lwd=2,lty = SVM_SL_lty)
