@@ -1,8 +1,8 @@
 library(scales)
 
 city = "cologne"    # cologne or hagadera
-model_prob = "binary"     # multiclass or binary
-invariance = "scale"     # scale or shape
+model_prob = "multiclass"     # multiclass or binary
+invariance = "shape"     # scale or shape
 
 
 path = '/home/data1/Lorenzo/'
@@ -43,6 +43,7 @@ file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13Si
 file_name_acc = "20240921_0351_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_acc = "20240923_0143_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_acc = "20240924_0014_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_acc = "20240924_1544_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 # ********************************************************************
@@ -79,6 +80,7 @@ file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_
 file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_kappa = "20240923_0143_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_kappa = "20240924_0014_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_kappa = "20240924_1544_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 
@@ -88,6 +90,7 @@ file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13Si
 file_name_SVs = "20240921_0351_cologne_binary_shape_SVs_ALTSLv1_20Unl_10nR_13SizePor"
 file_name_SVs = "20240923_0143_cologne_multiclass_scale_SVs_ALTSLv1_20Unl_10nR_11SizePor"
 file_name_SVs = "20240924_0014_cologne_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_SVs = "20240924_1544_cologne_multiclass_shape_SVs_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
