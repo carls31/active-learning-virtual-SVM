@@ -11,9 +11,9 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
 nR = 10                  # number of realizations
-cities = c("cologne")     # cologne or hagadera location
+cities = c("hagadera")     # cologne or hagadera location
 invariances = c("shape")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary","multiclass")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6)      # radius around SV - threshold          
