@@ -10,9 +10,9 @@ library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
-nR = 10                  # number of realizations
+nR = 8                  # number of realizations
 cities = c("hagadera")     # cologne or hagadera location
-invariances = c("scale")   # scale or shape invariance
+invariances = c("shape")   # scale or shape invariance
 model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class

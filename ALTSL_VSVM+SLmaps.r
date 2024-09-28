@@ -19,13 +19,21 @@ sampleSizePor = c(40)
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
-#####################################################  Utils  ####################################################
+###############################################  Preprocessing  ############################################
+
 # ************************************************************************************************************** #
 #                                       lorenzo.carlassara98@gmail.com                                           #
 #                                       linkedin.com/in/lorenzo-carlassara/                                      #
 #                                       feel free to reach me out for any question                               #
 # ************************************************************************************************************** #
 
+cat("preprocessing",city,model_prob,invariance,"\n")
+
+if(city=="cologne"){ 
+  sampleSizePor = c(48)} 
+if(model_prob=="binary"){ 
+  sampleSizePor = c(14)
+}
 
 classificationProblem = function(generalDataPool){
   cat("note that the first record is of class: ",levels(generalDataPool$REF)[1],"\n",sep="")
@@ -35,16 +43,6 @@ classificationProblem = function(generalDataPool){
   generalDataPool$REF = as.factor(generalDataPool$REF)
   return(generalDataPool)
 }
-##################################################################################################################
-
-
-cat("preprocessing",city,model_prob,invariance,"\n")
-if(city=="cologne"){ 
-  sampleSizePor = c(48)} 
-if(model_prob=="binary"){ 
-  sampleSizePor = c(14)
-}
-###############################################  Preprocessing  ############################################
 
 if (city=="cologne") {
   
@@ -78,69 +76,32 @@ if (city=="cologne") {
   setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/scale"))
   generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnclass)
   
-  if (invariance=="scale") {
-    ########################################  Input  ########################################
-    
-    sindexSVMDATA = 37        # start of baseline model with one segmentation scale data
-    eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
-    
-    # exclude unclassified and delete level of factor
-    # generalDataPool = subset(generalDataPool, REF != "unclassified")
-    generalDataPool$REF <- factor(generalDataPool$REF)
-    # generalDataPool <- na.omit(generalDataPool) 
-    
-    if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
-      generalDataPool=classificationProblem(generalDataPool)
-    }
-    ###################################################  Scaling  ################################################
-    
-    normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
-    normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
-    
-    preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
-    normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-    # **************************************** data for map visualization ****************************************
-    normalized_data = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-    # ************************************************************************************************************
-    
-    #########################################################################################
-  } else { 
-    ########################################  Input  ########################################
-    sindexSVMDATA = 1   # start of baseline model with one segmentation scale data
-    eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
-    
-    generalDataPool = cbind(generalDataPool[,37:54], generalDataPool[,(ncol(generalDataPool)-1):ncol(generalDataPool)])
-    
-    #exclude unclassified and delete level of factor
-    # generalDataPool = subset(generalDataPool, REF != "unclassified")
-    generalDataPool$REF = factor(generalDataPool$REF)
-    
-    recordCount_shape = nrow(generalDataPool)
-    
-    generalDataPool_shape = setNames(generalDataPool[,1:20],c(objInfoNames[-length(objInfoNames)],"REF","use" ))
-    
-    
-    if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
-      generalDataPool_shape=classificationProblem(generalDataPool_shape)
-    }
-    ########################################  Scaling  ########################################
-    
-    normalizedFeat = generalDataPool_shape[,sindexSVMDATA:eindexSVMDATA]
-    normalizedLabelUSE = generalDataPool_shape[1:nrow(generalDataPool),19:20]
-    rm(generalDataPool_shape)
-    
-    normalizedFeat = normalizedFeat[1:recordCount_shape,]
-    
-    # normalization of  data ("range" scales the data to the interval [0, 1]; c("center", "scale") centers and scales the input data)
-    preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
-    normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-    
-    # **************************************** data for map visualization ****************************************
-    normalized_data = predict(preProc, setNames(generalDataPool[1:18],objInfoNames[-length(objInfoNames)]))
-    # ************************************************************************************************************
-    
-    #########################################################################################
-  }  
+  ########################################  Input  ########################################
+  
+  sindexSVMDATA = 37        # start of baseline model with one segmentation scale data
+  eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
+  
+  # exclude unclassified and delete level of factor
+  # generalDataPool = subset(generalDataPool, REF != "unclassified")
+  generalDataPool$REF <- factor(generalDataPool$REF)
+  # generalDataPool <- na.omit(generalDataPool) 
+  
+  if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
+    generalDataPool=classificationProblem(generalDataPool)
+  }
+  ###################################################  Scaling  ################################################
+  
+  normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
+  normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
+  
+  preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
+  normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
+  # **************************************** data for map visualization ****************************************
+  normalized_data = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
+  # ************************************************************************************************************
+  
+  #########################################################################################
+  
 } else {
   
   numFeat = 26                   # number of features per level (dimensionality)
@@ -151,108 +112,57 @@ if (city=="cologne") {
                     "Lx_s_cb","Lx_s_bl","Lx_s_gr","Lx_s_y","Lx_s_reg","Lx_s_nir2","Lx_s_ndvi","Lx_s_nir","Lx_s_re",
                     "Lx_t_diss","Lx_t_hom","Lx_t_mean",
                     "label")
-  if (invariance=="scale") {
-    ########################################  Input  ########################################
-    inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
-    
-    sindexSVMDATA = 53                                      # start of baseline model with one segmentation scale data
-    eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
-    
-    columnclass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
-                    "factor","integer")
-    
-    setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
-    
-    # import data
-    generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnclass)
-    colnames(generalDataPool)[209] = "REF"
-    
-    # exclude unclassified and delete level of factor
-    # generalDataPool = subset(generalDataPool, REF != "unclassified")
-    generalDataPool$REF <- factor(generalDataPool$REF)
-    generalDataPool <- na.omit(generalDataPool)
-    
-    char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
-    generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
-    unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
-    
-    if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
-      generalDataPool=classificationProblem(generalDataPool)
-    }
-    ###################################################  Scaling  ################################################
-    
-    normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
-    normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
-    
-    preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
-    # # *************************************** data for map visualization *****************************************
-    normalized_data = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-    # # ************************************************************************************************************
-    
-    #############################################################################################################
-  } else {
-    ##################################################  Input  ##################################################
-    
-    sindexSVMDATA = 1                                       # start of baseline model with one segmentation scale data
-    eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
-    
-    #import format; "NULL" for subset of data on only some level (speed up import)
-    columnclass = c("NULL",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor","integer")
-    columnclass2 = c(NA,NA,"factor",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,"factor")
-    
-    setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/shape1"))
-    inputPath ="base_level_complete.csv"   
-    generalDataPool_scale = read.csv2(inputPath,header = T, sep =";",colClasses =columnclass)
-    
-    setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
-    
-    
-    
-    #exclude unclassified and delete level of factor
-    # generalDataPool_scale = subset(generalDataPool_scale, REF != "unclassified")
-    generalDataPool_scale$REF = factor(generalDataPool_scale$REF)
-    
-   
-    
-    recordCount_shape = nrow(generalDataPool_scale)
-    
-    generalDataPool = setNames(generalDataPool_scale[,1:28],c(objInfoNames[-length(objInfoNames)],"REF","use" ))
-    
-    char_columns <- which(sapply(generalDataPool[,1:26], class) == "character")
-    generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
-    unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
-    
-    if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
-      generalDataPool=classificationProblem(generalDataPool)
-    }
-    ########################################  Scaling  ########################################
-    
-    normalizedFeat = generalDataPool[,sindexSVMDATA:eindexSVMDATA]
-    normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):ncol(generalDataPool)]
-    rm(generalDataPool)
-    
-    normalizedFeat = normalizedFeat[1:recordCount_shape,]
-    
-    #normalization of  data ("range" scales the data to the interval [0, 1]; c("center", "scale") centers and scales the input data)
-    preProc = preProcess(setNames(normalizedFeat,objInfoNames[-length(objInfoNames)]), method = "range")
-    
-    # **************************************** data for map visualization ****************************************
-    normalized_data = predict(preProc, setNames(generalDataPool_scale[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
-    # ************************************************************************************************************
+  
+  ########################################  Input  ########################################
+  inputPath ="hagadera_all_level_scale_specgeomtex.csv"  
+  
+  sindexSVMDATA = 53                                      # start of baseline model with one segmentation scale data
+  eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
+  
+  columnclass = c(NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,
+                  "factor","integer")
+  
+  setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
+  
+  # import data
+  generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnclass)
+  colnames(generalDataPool)[209] = "REF"
+  
+  # exclude unclassified and delete level of factor
+  # generalDataPool = subset(generalDataPool, REF != "unclassified")
+  generalDataPool$REF <- factor(generalDataPool$REF)
+  generalDataPool <- na.omit(generalDataPool)
+  
+  char_columns <- which(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class) == "character")
+  generalDataPool[char_columns] <- lapply(generalDataPool[char_columns], function(x) as.numeric(as.character(x)))
+  unique(sapply(generalDataPool[,1:(ncol(generalDataPool)-2)], class))
+  
+  if (model_prob=="binary") { #transform to 2-Class-Case "bushes trees" [cologne] or "bare soil" [hagadera] VS rest 
+    generalDataPool=classificationProblem(generalDataPool)
   }
+  ###################################################  Scaling  ################################################
+  
+  normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
+  normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
+  
+  preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
+  # *************************************** data for map visualization *****************************************
+  normalized_data = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
+  # ************************************************************************************************************
+  
+  #############################################################################################################
 }
 
 ###############################################  Map Prediction  #################################################
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
-
 
 ############################################################
 ############################################################
@@ -262,6 +172,13 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "SVM"
 
 tunedSVM <- readRDS("20240924SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924SVM_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927SVM_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -273,12 +190,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply SVM_SL_Un                     
+##                      apply SVM_SL_Un                   ##  
 ############################################################
 ############################################################
 model_name = "SVM_SL_Un"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924SVM_SLUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923SVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921SVM_SLUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920SVM_SLUn_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926SVM_SLUn_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925SVM_SLUn_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924SVM_SLUn_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927SVM_SLUn_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -290,13 +214,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply VSVM_SL                         ##
+##                      apply VSVM_SL                     ##
 ############################################################
 ############################################################
 model_name = "VSVM_SL"
 
-tunedSVM <- readRDS("")
-
+tunedSVM <- readRDS("20240924VSVM_SL_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923VSVM_SL_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921VSVM_SL_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920VSVM_SL_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926VSVM_SL_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925VSVM_SL_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924VSVM_SL_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927VSVM_SL_hagadera_binary_scale")
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
 cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
@@ -307,12 +237,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply VSVM_SL_Un                         ##
+##                      apply VSVM_SL_Un                  ##
 ############################################################
 ############################################################
 model_name = "VSVM_SL_Un"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924VSVM_SLUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923VSVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921VSVM_SLUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920VSVM_SLUn_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926VSVM_SLUn_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925VSVM_SLUn_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924VSVM_SLUn_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927VSVM_SLUn_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -324,12 +261,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply VSVM_SL_vUn                         ##
+##                      apply VSVM_SL_vUn                 ##
 ############################################################
 ############################################################
 model_name = "VSVM_SL_vUn"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924VSVM_SLvUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923VSVM_SLvUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921VSVM_SLvUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920VSVM_SLvUn_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926VSVM_SLvUn_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925VSVM_SLvUn_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924VSVM_SLvUn_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927VSVM_SLvUn_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -341,12 +285,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_SVM                         ##
+##                      apply AL_MS_SVM                   ##
 ############################################################
 ############################################################
 model_name = "AL_MS_SVM"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924AL_MS+kmeans+Train_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923AL_MS+kmeans+Train_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921AL_MS+kmeans+Train_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920AL_MS+kmeans+Train_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926AL_MS+kmeans+Train_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925AL_MS+kmeans+Train_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924AL_MS+kmeans+Train_SVM_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927AL_MS+kmeans+Train_SVM_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -358,12 +309,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_tSNE_SVM                         ##
+##                      apply AL_MS_tSNE_SVM              ##
 ############################################################
 ############################################################
 model_name = "AL_MS_tSNE_SVM"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924AL_MS+tSNE_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923AL_MS+tSNE_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921AL_MS+tSNE_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920AL_MS+tSNE_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926AL_MS+tSNE_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925AL_MS+tSNE_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924AL_MS+tSNE_SVM_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927AL_MS+tSNE_SVM_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -375,12 +333,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_tSNE_SL_SVM                         ##
+##                      apply AL_MS_tSNE_SL_SVM           ##
 ############################################################
 ############################################################
 model_name = "AL_MS_tSNE_SL_SVM"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924AL_MS+tSNE+SL_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923AL_MS+tSNE+SL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921AL_MS+tSNE+SL_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920AL_MS+tSNE+SL_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926AL_MS+tSNE+SL_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925AL_MS+tSNE+SL_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924AL_MS+tSNE+SL_SVM_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927AL_MS+tSNE+SL_SVM_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -392,12 +357,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_semiSL_SVM                         ##
+##                      apply AL_MS_semiSL_SVM            ##
 ############################################################
 ############################################################
 model_name = "AL_MS_semiSL_SVM"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924AL_MS+kmeans+semiSL_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923AL_MS+kmeans+semiSL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921AL_MS+kmeans+semiSL_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920AL_MS+kmeans+semiSL_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926AL_MS+kmeans+semiSL_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925AL_MS+kmeans+semiSL_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924AL_MS+kmeans+semiSL_SVM_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927AL_MS+kmeans+semiSL_SVM_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
@@ -409,12 +381,19 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MCLU_tSNE_SVM                         ##
+##                      apply AL_MCLU_tSNE_SVM            ##
 ############################################################
 ############################################################
 model_name = "AL_MCLU_tSNE_SVM"
 
-tunedSVM <- readRDS("")
+tunedSVM <- readRDS("20240924AL_MCLU+kmeans_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240923AL_MCLU+kmeans_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
+tunedSVM <- readRDS("20240921AL_MCLU+kmeans_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240920AL_MCLU+kmeans_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
+tunedSVM <- readRDS("20240926AL_MCLU+kmeans_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
+tunedSVM <- readRDS("20240925AL_MCLU+kmeans_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240924AL_MCLU+kmeans_SVM_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
+tunedSVM <- readRDS("20240927AL_MCLU+kmeans_SVM_hagadera_binary_scale")
 
 start.time <- Sys.time()
 predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
