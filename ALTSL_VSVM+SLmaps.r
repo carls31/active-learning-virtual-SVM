@@ -10,8 +10,8 @@ library(sampling)
 # library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
-city = "cologne"    # cologne or hagadera location
-invariance = "shape"   # scale or shape invariance
+city = "hagadera"    # cologne or hagadera location
+invariance = "scale"   # scale or shape invariance
 model_prob = "multiclass"  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
@@ -190,10 +190,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply SVM_SL_Un                   ##  
+##                      apply SVM_SLUn                   ##  
 ############################################################
 ############################################################
-model_name = "SVM_SL_Un"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "SVM_SLUn"
 
 tunedSVM <- readRDS("20240924SVM_SLUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923SVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -217,6 +219,8 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 ##                      apply VSVM_SL                     ##
 ############################################################
 ############################################################
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
 model_name = "VSVM_SL"
 
 tunedSVM <- readRDS("20240924VSVM_SL_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
@@ -237,10 +241,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply VSVM_SL_Un                  ##
+##                      apply VSVM_SLUn                  ##
 ############################################################
 ############################################################
-model_name = "VSVM_SL_Un"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "VSVM_SLUn"
 
 tunedSVM <- readRDS("20240924VSVM_SLUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923VSVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -261,10 +267,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply VSVM_SL_vUn                 ##
+##                      apply VSVM_SLvUn                 ##
 ############################################################
 ############################################################
-model_name = "VSVM_SL_vUn"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "VSVM_SLvUn"
 
 tunedSVM <- readRDS("20240924VSVM_SLvUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923VSVM_SLvUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -285,10 +293,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_SVM                   ##
+##                      apply AL_MS+kmeans+Train_SVM                   ##
 ############################################################
 ############################################################
-model_name = "AL_MS_SVM"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "AL_MS+kmeans+Train_SVM"
 
 tunedSVM <- readRDS("20240924AL_MS+kmeans+Train_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923AL_MS+kmeans+Train_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -309,10 +319,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_tSNE_SVM              ##
+##                      apply AL_MS+tSNE_SVM              ##
 ############################################################
 ############################################################
-model_name = "AL_MS_tSNE_SVM"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "AL_MS+tSNE_SVM"
 
 tunedSVM <- readRDS("20240924AL_MS+tSNE_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923AL_MS+tSNE_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -333,10 +345,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_tSNE_SL_SVM           ##
+##                      apply AL_MS+tSNE+SL_SVM           ##
 ############################################################
 ############################################################
-model_name = "AL_MS_tSNE_SL_SVM"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "AL_MS+tSNE+SL_SVM"
 
 tunedSVM <- readRDS("20240924AL_MS+tSNE+SL_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923AL_MS+tSNE+SL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -357,10 +371,12 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS_semiSL_SVM            ##
+##                      apply AL_MS+kmeans+semiSL_SVM            ##
 ############################################################
 ############################################################
-model_name = "AL_MS_semiSL_SVM"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "AL_MS+kmeans+semiSL_SVM"
 
 tunedSVM <- readRDS("20240924AL_MS+kmeans+semiSL_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923AL_MS+kmeans+semiSL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
@@ -381,10 +397,14 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MCLU_tSNE_SVM            ##
+##                      apply AL_MCLU+kmeans_SVM            ##
 ############################################################
 ############################################################
-model_name = "AL_MCLU_tSNE_SVM"
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
+model_name = "AL_MCLU+kmeans_SVM"
+# name_prova = "20240924AL_MCLU+kmeans_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds"
+# name_prova2 = paste0("20240924",model_name,"_",city,"_",model_prob,"_",invariance,"_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 
 tunedSVM <- readRDS("20240924AL_MCLU+kmeans_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 tunedSVM <- readRDS("20240923AL_MCLU+kmeans_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_191seed.rds")
