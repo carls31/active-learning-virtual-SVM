@@ -11,7 +11,7 @@ library(sampling)
 ##################################################################################################################
 
 city = "hagadera"    # cologne or hagadera location
-invariance = "shape"   # scale or shape invariance
+invariance = "scale"   # scale or shape invariance
 model_prob = "binary"  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
