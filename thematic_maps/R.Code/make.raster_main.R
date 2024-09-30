@@ -2,7 +2,8 @@
 # library(gdalUtils)
 # library(stringr)
 # library(raster)
-setwd("/home/data1/Lorenzo/tunc_oz/thematic_maps")
+# setwd("/home/data1/Lorenzo/tunc_oz/thematic_maps")
+setwd("/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/thematic_maps")
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++ Cologne +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -71,14 +72,16 @@ library(terra)
 
   # new.dbf<-read.dbf("./shape_files/cologne_prova/cologne_label_prova.dbf")
 
-  new.shp<-vect("./shape_files/cologne_prova/cologne_frame.shp")
+  new.shp<-vect("./shape_files/cologne/cologne_frame.shp")
   # nrow(new.dbf)
   nrow(new.shp)
   
+  model_name <- "VSVM_SLUn_col_mul_sc"
   # new.shp$ALv1tcmsc <- new.dbf$ALv1tcmsc
-  ALv1tcmsc <-read.csv2("./shape_files/cologne_prova/20240928AL_MS+tSNE_SVM_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2]
+  ALv1tcmsc <-read.csv2("./cologne/20240928VSVM_SLUn_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2]
   length(ALv1tcmsc)
   new.shp$ALv1tcmsc <- as.numeric(as.factor(ALv1tcmsc))
+  
   # load reference raster
 ref.raster <- rast("./raster/col_referenz.tif")
 
@@ -96,12 +99,24 @@ ext(ref.raster)
 # Rasterize the vector data onto the raster template
 rasterized <- rasterize(new.shp, ref.raster, field = "ALv1tcmsc")
 
-setwd("/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/thematic_maps")
 # Save the rasterized output
-writeRaster(rasterized, paste0("./raster/cologne/","ALv1tcmsc",".tif"), overwrite = TRUE)
+writeRaster(rasterized, paste0("./raster/cologne/",model_name,".tif"), overwrite = TRUE)
+
+info_levels <- levels(as.factor(ALv1tcmsc))
+colors <- viridis(length(info_levels))
+
+# > colors
+# [1] "#440154FF" "#414487FF"
+# [3] "#2A788EFF" "#22A884FF"
+# [5] "#7AD151FF" "#FDE725FF"
 
 plot(rasterized)
-
+# Add a legend with the factor levels
+legend("topright",        # Position of the legend
+       legend = info_levels,  # Use the factor levels from the data
+       fill = colors,     # Use the corresponding colors
+       # title = "Classes",  # Title of the legend
+       cex = 0.7)         # Adjust the size of the legend text
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -138,10 +153,5 @@ rasterized <- rasterize(new.shp, ref.raster, field = "model_pred")
 writeRaster(rasterized, paste0("./raster/hagadera/",model_name,".tif"), overwrite = TRUE)
 
 plot(rasterized)
-
-
-
-
-
 
 
