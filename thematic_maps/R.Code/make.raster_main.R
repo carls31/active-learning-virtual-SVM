@@ -1,4 +1,4 @@
-library(foreign)
+# library(foreign)
 # library(gdalUtils)
 # library(stringr)
 # library(raster)
@@ -45,7 +45,7 @@ library(terra)
 
 # load shapefile database
 # dbf <- read.dbf("./shape_files/cologne_prova/cologne_frame.dbf")
-dbf <- vect("./shape_files/cologne_prova/cologne_frame.dbf")
+# dbf <- vect("./shape_files/cologne_prova/cologne_frame.dbf")
 
 ###### be careful!!! a .dbf file cannot have attribute names longer than 10 characters.
 # it will be cut after the 10th character without a warning when writing  
@@ -53,29 +53,32 @@ dbf <- vect("./shape_files/cologne_prova/cologne_frame.dbf")
 
 #### get necessary info and write new dbf file
 ############## col and hag
-new.dbf <- data.frame("reference"=dbf[,19])
+# new.dbf <- data.frame("reference"=dbf[,19])
 
 ####+++++++++++++++ here we need to include col and hag in one dbf file
 
   # append a column for every csv file to the dbf and write it out
-  new.dbf <- cbind(new.dbf,name=read.csv2("./shape_files/cologne_prova/20240928AL_MS+tSNE_SVM_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2])
+  # new.dbf <- cbind(new.dbf,name=read.csv2("./shape_files/cologne_prova/20240928AL_MS+tSNE_SVM_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2])
   
   #create column name
-  colnames(new.dbf)[2] <- "ALv1tcmsc"
+  # colnames(new.dbf)[2] <- "ALv1tcmsc"
 
-  new.dbf$ALv1tcmsc <- as.numeric(as.factor(new.dbf$ALv1tcmsc))
+  # new.dbf$ALv1tcmsc <- as.numeric(as.factor(new.dbf$ALv1tcmsc))
 
 ###### be careful!!! a .dbf file cannot have attribute names longer than 10 characters.
 # it will be cut after the 10th character without a warning when writing  
-  write.dbf(new.dbf,"./shape_files/cologne_prova/cologne_label_prova.dbf",factor2char = F)
-  # writeVector(new.dbf,"./shape_files/cologne_prova/cologne_label_prova.dbf",factor2char = F)
-  new.dbf<-read.dbf("./shape_files/cologne_prova/cologne_label_prova.dbf")
-  # new.dbf<-vect("./shape_files/cologne_prova/cologne_label_prova.dbf")
+  # write.dbf(new.dbf,"./shape_files/cologne_prova/cologne_label_prova.dbf",factor2char = F)
+
+  # new.dbf<-read.dbf("./shape_files/cologne_prova/cologne_label_prova.dbf")
+
   new.shp<-vect("./shape_files/cologne_prova/cologne_frame.shp")
-  nrow(new.dbf)
+  # nrow(new.dbf)
   nrow(new.shp)
   
-  new.shp$ALv1tcmsc <- new.dbf$ALv1tcmsc
+  # new.shp$ALv1tcmsc <- new.dbf$ALv1tcmsc
+  ALv1tcmsc <-read.csv2("./shape_files/cologne_prova/20240928AL_MS+tSNE_SVM_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2]
+  length(ALv1tcmsc)
+  new.shp$ALv1tcmsc <- as.numeric(as.factor(ALv1tcmsc))
   # load reference raster
 ref.raster <- rast("./raster/col_referenz.tif")
 
@@ -93,18 +96,11 @@ ext(ref.raster)
 # Rasterize the vector data onto the raster template
 rasterized <- rasterize(new.shp, ref.raster, field = "ALv1tcmsc")
 
+setwd("/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/thematic_maps")
 # Save the rasterized output
 writeRaster(rasterized, paste0("./raster/cologne/","ALv1tcmsc",".tif"), overwrite = TRUE)
 
 plot(rasterized)
-
-
-# use gdal to rasterize extremly fast
-
-  writeRaster(ref.raster,paste0("./raster/cologne/",colnames(new.dbf)[2],".tif"),overwrite=TRUE)
-  gdal_rasterize(src_datasource ="./shape_files/cologne/final_cologne_frame.shp",
-                 dst_filename = paste0("./raster/cologne/",colnames(new.dbf)[2],".tif"),
-                 a=colnames(new.dbf)[2])
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -115,47 +111,33 @@ plot(rasterized)
 #-------------------------- Hagadera ----------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------
 
-# load shapefile database
-dbf <- read.dbf("./shape_files/hagadera/hagadera_frame_new.dbf")
+setwd("/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/thematic_maps")
 
-###### be careful!!! a .dbf file cannot have attribute names longer than 10 characters.
-# it will be cut after the 10th character without a warning when writing  
+new.shp<-vect("./shape_files/hagadera/hagaderarasteizeready.shp")
+nrow(new.shp)
 
-
-#### get necessary info and write new dbf file
-############## col and hag
-new.dbf <- data.frame("Referenz"=dbf[,1])
-
-####+++++++++++++++ here we need to include col and hag in one dbf file
-for(i in 1:length(hag)){
-  
-  # append a column for every csv file to the dbf and write it out
-  new.dbf <- cbind(new.dbf,name=read.csv2(hag[i])[,2])
-  
-  #create column name
-  colnames(new.dbf)[i+1]<- gsub("[a-z_]*","",gsub("_[0-9]*[a-z]*.csv$","",gsub("^.+/","",ifelse(grepl("Shape",hag[i]),sub("Shape","SHape",hag[i]),sub("Scale","SCale",hag[i])))))
-}
-
-
-###### be careful!!! a .dbf file cannot have attribute names longer than 10 characters.
-# it will be cut after the 10th character without a warning when writing  
-write.dbf(new.dbf,"./shape_files/hagadera/final_hagadera_frame_new.dbf",factor2char = F)
-
-# create attribute file
-y <- cbind("Value"=1:5,replicate(4,rep(255,5)),levels(new.dbf[,12]))
-write.table(y,"./Referenz_hag.txt",sep=",", quote=F,row.names=F)
+model_name <- "AL_MCLU+kmeans_SVM_hag_bin_sc"
+model_pred <-read.csv2("./hagadera/20240928AL_MCLU+kmeans_SVM_hagadera_binary_scale_14Size_20Unl_samples.csv")[,2]
+length(model_pred)
+new.shp$model_pred <- as.numeric(as.factor(model_pred))
 
 # load reference raster
-ref.raster <- raster("./raster/hag_referenz.tif")
+ref.raster <- rast("./raster/hag_referenz.tif")
 
-# use gdal to rasterize extremly fast
+crs(new.shp)  # Check the CRS of the SpatVector
+crs(ref.raster)  # Check the CRS of the reference raster
 
-for(i in 2:ncol(new.dbf)){
-  writeRaster(ref.raster,paste0("./raster/hagadera/new/",colnames(new.dbf)[i],".tif"))
-  gdal_rasterize(src_datasource ="./shape_files/hagadera/final_hagadera_frame_new.dbf",
-                 dst_filename = paste0("./raster/hagadera/new/",colnames(new.dbf)[i],".tif"),
-                 a=colnames(new.dbf)[i])
-}
+ext(new.shp)
+ext(ref.raster)
+# ext(new.shp)<-ext(ref.raster)
+ext(ref.raster)<-ext(new.shp)
+# Rasterize the vector data onto the raster template
+rasterized <- rasterize(new.shp, ref.raster, field = "model_pred")
+
+# Save the rasterized output
+writeRaster(rasterized, paste0("./raster/hagadera/",model_name,".tif"), overwrite = TRUE)
+
+plot(rasterized)
 
 
 
