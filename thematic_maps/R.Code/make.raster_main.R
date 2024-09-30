@@ -69,25 +69,29 @@ new.dbf <- data.frame("reference"=dbf[,19])
 # it will be cut after the 10th character without a warning when writing  
   write.dbf(new.dbf,"./shape_files/cologne_prova/cologne_label_prova.dbf",factor2char = F)
   # writeVector(new.dbf,"./shape_files/cologne_prova/cologne_label_prova.dbf",factor2char = F)
-  new.dbf<-vect("./shape_files/cologne_prova/cologne_label_prova.dbf")
-  # new.dbf<-vect("./shape_files/cologne_prova/cologne_label_prova.shp")
+  new.dbf<-read.dbf("./shape_files/cologne_prova/cologne_label_prova.dbf")
+  # new.dbf<-vect("./shape_files/cologne_prova/cologne_label_prova.dbf")
+  new.shp<-vect("./shape_files/cologne_prova/cologne_frame.shp")
+  nrow(new.dbf)
+  nrow(new.shp)
   
+  new.shp$ALv1tcmsc <- new.dbf$ALv1tcmsc
   # load reference raster
 ref.raster <- rast("./raster/col_referenz.tif")
 
-crs(new.dbf)  # Check the CRS of the SpatVector
+crs(new.shp)  # Check the CRS of the SpatVector
 crs(ref.raster)  # Check the CRS of the reference raster
-crs(new.dbf) <- crs(ref.raster)
-ext(new.dbf)
+# crs(new.dbf) <- crs(ref.raster)
+ext(new.shp)
 ext(ref.raster)
-ext(new.dbf)<-ext(ref.raster)
+# ext(new.dbf)<-ext(ref.raster)
 
 
 # If they are different, project new.dbf to match ref.raster
 # new.dbf <- project(new.dbf, crs(ref.raster))
 
 # Rasterize the vector data onto the raster template
-rasterized <- rasterize(new.dbf, ref.raster, field = "ALv1tcmsc")
+rasterized <- rasterize(new.shp, ref.raster, field = "ALv1tcmsc")
 
 # Save the rasterized output
 writeRaster(rasterized, paste0("./raster/cologne/","ALv1tcmsc",".tif"), overwrite = TRUE)
