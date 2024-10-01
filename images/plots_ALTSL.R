@@ -86,16 +86,16 @@ file_name_kappa = "20240924_1544_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10
 
 # ********************************************************************
 
-file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_SVs = "20240921_0351_cologne_binary_shape_SVs_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_SVs = "20240923_0143_cologne_multiclass_scale_SVs_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_SVs = "20240924_0014_cologne_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
-file_name_SVs = "20240924_1544_cologne_multiclass_shape_SVs_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_SVs = "20240919_1424_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_SVs = "20240921_0351_cologne_binary_shape_SVs_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_SVs = "20240923_0143_cologne_multiclass_scale_SVs_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_SVs = "20240924_0014_cologne_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
+# file_name_SVs = "20240924_1544_cologne_multiclass_shape_SVs_ALTSLv1_20Unl_10nR_11SizePor"
 
 
 load(paste0(file_name_acc,".RData"))
 load(paste0(file_name_kappa,".RData"))
-load(paste0(file_name_SVs,".RData"))
+# load(paste0(file_name_SVs,".RData"))
 
 ########################################################################################
 # **************************************** #
@@ -104,63 +104,74 @@ load(paste0(file_name_SVs,".RData"))
 # linkedin.com/in/lorenzo-carlassara/      #
 # feel free to contact me for any question #
 # **************************************** #
-
 # tmp_AccuracySVM = AccuracySVM
-# tmp_AccuracySVM_M = AccuracySVM_M
 # tmp_AccuracySVM_SL_Un = AccuracySVM_SL_Un
-# tmp_AccuracyVSVM = AccuracyVSVM
+# tmp_AccuracyVSVM_SL_Un_random_it = AccuracyVSVM_SL_Un_random_it
 # tmp_AccuracyVSVM_SL = AccuracyVSVM_SL
 # tmp_AccuracyVSVM_SL_Un = AccuracyVSVM_SL_Un
 # tmp_AccuracyVSVM_SL_vUn = AccuracyVSVM_SL_vUn
-# tmp_AccuracyVSVM_SL_Un_it = AccuracyVSVM_SL_Un_it
+# tmp_AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL
+# tmp_AccuracyVSVM_SL_Un_itSL2=AccuracyVSVM_SL_Un_itSL2
+# tmp_AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL
+# tmp_AccuracyVSVM_SL_Un_itTSL2=AccuracyVSVM_SL_Un_itTSL2
 # 
 # tmp_KappaSVM = KappaSVM
-# tmp_KappaSVM_M = KappaSVM_M
 # tmp_KappaSVM_SL_Un = KappaSVM_SL_Un
-# tmp_KappaVSVM = KappaVSVM
+# tmp_KappaVSVM_SL_Un_random_it = KappaVSVM_SL_Un_random_it
 # tmp_KappaVSVM_SL = KappaVSVM_SL
 # tmp_KappaVSVM_SL_Un = KappaVSVM_SL_Un
 # tmp_KappaVSVM_SL_vUn = KappaVSVM_SL_vUn
-# tmp_KappaVSVM_SL_Un_it = KappaVSVM_SL_Un_it
+# tmp_KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL
+# tmp_KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2
+# tmp_KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL
+# tmp_KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2
 # # **********************************************************************************
 # tmp_AccuracySVM=rbind(tmp_AccuracySVM,AccuracySVM)
-# tmp_AccuracySVM_M=rbind(tmp_AccuracySVM_M,AccuracySVM_M)
 # tmp_AccuracySVM_SL_Un=rbind(tmp_AccuracySVM_SL_Un,AccuracySVM_SL_Un)
-# tmp_AccuracyVSVM=rbind(tmp_AccuracyVSVM,AccuracyVSVM)
+# tmp_AccuracyVSVM_SL_Un_random_it=rbind(tmp_AccuracyVSVM_SL_Un_random_it,AccuracyVSVM_SL_Un_random_it)
 # tmp_AccuracyVSVM_SL=rbind(tmp_AccuracyVSVM_SL,AccuracyVSVM_SL)
 # tmp_AccuracyVSVM_SL_Un=rbind(tmp_AccuracyVSVM_SL_Un,AccuracyVSVM_SL_Un)
 # tmp_AccuracyVSVM_SL_vUn=rbind(tmp_AccuracyVSVM_SL_vUn,AccuracyVSVM_SL_vUn)
-# tmp_AccuracyVSVM_SL_Un_it=rbind(tmp_AccuracyVSVM_SL_Un_it,AccuracyVSVM_SL_Un_it)
+# tmp_AccuracyVSVM_SL_Un_itSL=rbind(tmp_AccuracyVSVM_SL_Un_itSL,AccuracyVSVM_SL_Un_itSL)
+# tmp_AccuracyVSVM_SL_Un_itSL2=rbind(tmp_AccuracyVSVM_SL_Un_itSL2,AccuracyVSVM_SL_Un_itSL2)
+# tmp_AccuracyVSVM_SL_Un_itTSL=rbind(tmp_AccuracyVSVM_SL_Un_itTSL,AccuracyVSVM_SL_Un_itTSL)
+# tmp_AccuracyVSVM_SL_Un_itTSL2=rbind(tmp_AccuracyVSVM_SL_Un_itTSL2,AccuracyVSVM_SL_Un_itTSL2)
 # 
 # tmp_KappaSVM=rbind(tmp_KappaSVM,KappaSVM)
-# tmp_KappaSVM_M=rbind(tmp_KappaSVM_M,KappaSVM_M)
 # tmp_KappaSVM_SL_Un=rbind(tmp_KappaSVM_SL_Un,KappaSVM_SL_Un)
-# tmp_KappaVSVM=rbind(tmp_KappaVSVM,KappaVSVM)
+# tmp_KappaVSVM_SL_Un_random_it=rbind(tmp_KappaVSVM_SL_Un_random_it,KappaVSVM_SL_Un_random_it)
 # tmp_KappaVSVM_SL=rbind(tmp_KappaVSVM_SL,KappaVSVM_SL)
 # tmp_KappaVSVM_SL_Un=rbind(tmp_KappaVSVM_SL_Un,KappaVSVM_SL_Un)
 # tmp_KappaVSVM_SL_vUn=rbind(tmp_KappaVSVM_SL_vUn,KappaVSVM_SL_vUn)
-# tmp_KappaVSVM_SL_Un_it=rbind(tmp_KappaVSVM_SL_Un_it,KappaVSVM_SL_Un_it)
+# tmp_KappaVSVM_SL_Un_itSL=rbind(tmp_KappaVSVM_SL_Un_itSL,KappaVSVM_SL_Un_itSL)
+# tmp_KappaVSVM_SL_Un_itSL2=rbind(tmp_KappaVSVM_SL_Un_itSL2,KappaVSVM_SL_Un_itSL2)
+# tmp_KappaVSVM_SL_Un_itTSL=rbind(tmp_KappaVSVM_SL_Un_itTSL,KappaVSVM_SL_Un_itTSL)
+# tmp_KappaVSVM_SL_Un_itTSL2=rbind(tmp_KappaVSVM_SL_Un_itTSL2,KappaVSVM_SL_Un_itTSL2)
 # # **********************************************************************************
 # AccuracySVM=tmp_AccuracySVM
-# AccuracySVM_M=tmp_AccuracySVM_M
+# AccuracyVSVM_SL_Un_random_it = tmp_AccuracyVSVM_SL_Un_random_it
 # AccuracySVM_SL_Un=tmp_AccuracySVM_SL_Un
-# AccuracyVSVM=tmp_AccuracyVSVM
 # AccuracyVSVM_SL=tmp_AccuracyVSVM_SL
 # AccuracyVSVM_SL_Un=tmp_AccuracyVSVM_SL_Un
 # AccuracyVSVM_SL_vUn=tmp_AccuracyVSVM_SL_vUn
-# AccuracyVSVM_SL_Un_it=tmp_AccuracyVSVM_SL_Un_it
+# AccuracyVSVM_SL_Un_itSL=tmp_AccuracyVSVM_SL_Un_itSL
+# AccuracyVSVM_SL_Un_itSL2=tmp_AccuracyVSVM_SL_Un_itSL2
+# AccuracyVSVM_SL_Un_itTSL=tmp_AccuracyVSVM_SL_Un_itTSL
+# AccuracyVSVM_SL_Un_itTSL2=tmp_AccuracyVSVM_SL_Un_itTSL2
 # 
 # KappaSVM=tmp_KappaSVM
-# KappaSVM_M=tmp_KappaSVM_M
+# KappaVSVM_SL_Un_random_it = tmp_KappaVSVM_SL_Un_random_it
 # KappaSVM_SL_Un=tmp_KappaSVM_SL_Un
-# KappaVSVM=tmp_KappaVSVM
 # KappaVSVM_SL=tmp_KappaVSVM_SL
 # KappaVSVM_SL_Un=tmp_KappaVSVM_SL_Un
 # KappaVSVM_SL_vUn=tmp_KappaVSVM_SL_vUn
-# KappaVSVM_SL_Un_it=tmp_KappaVSVM_SL_Un_it
+# KappaVSVM_SL_Un_itSL=tmp_KappaVSVM_SL_Un_itSL
+# KappaVSVM_SL_Un_itSL2=tmp_KappaVSVM_SL_Un_itSL2
+# KappaVSVM_SL_Un_itTSL=tmp_KappaVSVM_SL_Un_itTSL
+# KappaVSVM_SL_Un_itTSL2=tmp_KappaVSVM_SL_Un_itTSL2
 # 
-# file_name_acc = "20240711_cologne_multiclass_shape_acc_20Unl_5nR_8SizePor"
-# file_name_kappa = "20240711_cologne_multiclass_shape_Kappa_20Unl_5nR_8SizePor"
+# file_name_acc = "20240925_cologne_multiclass_shape_acc_20Unl_20nR_13SizePor"
+# file_name_kappa = "20240925_cologne_multiclass_shape_Kappa_20Unl_20nR_13SizePor"
 # # **********************************************************************************
 # AccuracySVM=AccuracySVM[1:7,]
 # AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:7,]
@@ -186,7 +197,6 @@ load(paste0(file_name_SVs,".RData"))
 # KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:7,]
 # KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2[1:7,]
 # # **********************************************************************************
-# 
 # save(AccuracySVM,
 #      AccuracySVM_SL_Un,
 #      AccuracyVSVM_SL,
@@ -375,7 +385,7 @@ if(model_prob == "multiclass"){
       ylowerBound = 0.54
     }
     if(invariance=="shape"){
-      yUpperBound = 0.71
+      yUpperBound = 0.75
       ylowerBound = 0.565
       }
   }
@@ -613,11 +623,11 @@ if(model_prob == "multiclass"){
   }
   if(city=="cologne"){
     if(invariance=="scale"){
-      yUpperBound = 0.74
+      yUpperBound = 0.65
       ylowerBound = 0.41
     }
     if(invariance=="shape"){
-      yUpperBound = 0.61
+      yUpperBound = 0.64
       ylowerBound = 0.44
     }
   }
@@ -706,7 +716,9 @@ legend("bottomright",
 
 dev.off()
 
-# *********************************************
+##########################################################################
+# SVs
+##########################################################################
 
 if(model_prob == "multiclass"){
   yUpperBound = 350
