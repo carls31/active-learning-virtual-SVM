@@ -3,7 +3,9 @@
 # library(stringr)
 # library(raster)
 # setwd("/home/data1/Lorenzo/tunc_oz/thematic_maps")
-setwd("/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/thematic_maps")
+# setwd("/home/data1/Lorenzo/GitHub/active-learning-virtual-SVM/thematic_maps")
+setwd("D:/GitHub/active-learning-virtual-SVM/thematic_maps")
+
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++ Cologne +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -75,10 +77,13 @@ library(terra)
   new.shp<-vect("./shape_files/cologne/cologne_frame.shp")
   # nrow(new.dbf)
   nrow(new.shp)
+
+  # model_name <- "VSVM_SLUn_col_mul_sc"
+  model_name <- "SVM_col_mul_sh"
   
-  model_name <- "VSVM_SLUn_col_mul_sc"
   # new.shp$ALv1tcmsc <- new.dbf$ALv1tcmsc
-  ALv1tcmsc <-read.csv2("./cologne/20240928VSVM_SLUn_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2]
+  # ALv1tcmsc <-read.csv2("./cologne/20240928VSVM_SLUn_cologne_multiclass_scale_48Size_20Unl_samples.csv")[,2]
+  ALv1tcmsc <-read.csv2("./cologne/20240926SVM_cologne_multiclass_shape_48Size_20Unl_samples.csv")[,2]
   length(ALv1tcmsc)
   new.shp$ALv1tcmsc <- as.numeric(as.factor(ALv1tcmsc))
   

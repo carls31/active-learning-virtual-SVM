@@ -1,6 +1,6 @@
 library(scales)
 
-city = "cologne"    # cologne or hagadera
+city = "hagadera"    # cologne or hagadera
 model_prob = "multiclass"     # multiclass or binary
 invariance = "shape"     # scale or shape
 
@@ -29,21 +29,32 @@ file_name_acc = "20240909_2329_cologne_binary_scale_acc_ALTSLv3_20Unl_10nR_12Siz
 file_name_acc = "20240910_1114_cologne_multiclass_scale_acc_ALTSLv3_20Unl_10nR_10SizePor"
 ## back from v3
 file_name_acc = "20240910_2128_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_acc = "20240913_1515_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_acc = "20240914_1031_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_acc = "20240915_0101_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_acc = "20240915_0718_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240911_0402_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240912_1339_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240913_1515_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240914_1031_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240915_0101_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240915_0718_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240915_1607_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
 
-# file_name_acc = "20240916_1901_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
+file_name_acc = "20240916_1901_hagadera_multiclass_scale_acc_ALTSLv3_20Unl_10nR_12SizePor"
 
-file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_acc = "20240921_0351_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_acc = "20240923_0143_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_acc = "20240924_0014_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_14SizePor"
-file_name_acc = "20240924_1544_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240919_1424_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240921_0351_cologne_binary_shape_acc_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_acc = "20240923_0143_cologne_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240924_0014_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_14SizePor"
+# file_name_acc = "20240924_1544_cologne_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+
+### last dance
+# file_name_acc = "20240925_cologne_multiclass_shape_acc_20Unl_20nR_13SizePor"
+# file_name_acc = "20240925_cologne_binary_shape_acc_20Unl_20nR_13SizePor"
+# file_name_acc = "20240928_0348_cologne_binary_scale_acc_ALTSLv1_20Unl_10nR_14SizePor"
+# file_name_acc = "20240923_1630_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_8nR_7SizePor" # too few size por
+# file_name_acc = "20240925_1554_hagadera_binary_shape_acc_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_acc = "20240927_0854_hagadera_multiclass_scale_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_acc = "20240927_1937_hagadera_binary_scale_acc_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_acc = "20240929_2003_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_8nR_11SizePor"
+# file_name_acc = "20241010_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor" # less informative than the previous one
 
 
 # ********************************************************************
@@ -66,23 +77,35 @@ file_name_kappa = "20240909_2329_cologne_binary_scale_Kappa_ALTSLv3_20Unl_10nR_1
 file_name_kappa = "20240910_1114_cologne_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_10SizePor"
 ## back from v3
 file_name_kappa = "20240910_2128_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_kappa = "20240913_1515_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_kappa = "20240914_1031_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_kappa = "20240915_0101_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_kappa = "20240915_0718_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240911_0402_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240912_1339_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240913_1515_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240914_1031_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240915_0101_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240915_0718_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240915_1607_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
 
-# file_name_kappa = "20240916_1901_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
+file_name_kappa = "20240916_1901_hagadera_multiclass_scale_Kappa_ALTSLv3_20Unl_10nR_12SizePor"
 
-file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
-file_name_kappa = "20240923_0143_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
-file_name_kappa = "20240924_0014_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
-file_name_kappa = "20240924_1544_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240919_1424_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240921_0351_cologne_binary_shape_Kappa_ALTSLv1_20Unl_10nR_13SizePor"
+# file_name_kappa = "20240923_0143_cologne_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240924_0014_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
+# file_name_kappa = "20240924_1544_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
 
+### last dance
+# file_name_kappa = "20240925_cologne_multiclass_shape_Kappa_20Unl_20nR_13SizePor"
+# file_name_kappa = "20240925_cologne_binary_shape_Kappa_20Unl_20nR_13SizePor"
+# file_name_kappa = "20240928_0348_cologne_binary_scale_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
+# file_name_kappa = "20240923_1630_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_8nR_7SizePor" # too few size por
+# file_name_kappa = "20240925_1554_hagadera_binary_shape_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_kappa = "20240927_0854_hagadera_multiclass_scale_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20240927_1937_hagadera_binary_scale_Kappa_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_kappa = "20240929_2003_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_8nR_11SizePor"
+# file_name_kappa = "20241010_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"  # less informative than the previous one
 
+load(paste0(file_name_acc,".RData"))
+load(paste0(file_name_kappa,".RData"))
 
 # ********************************************************************
 
@@ -92,11 +115,17 @@ file_name_kappa = "20240924_1544_cologne_multiclass_shape_Kappa_ALTSLv1_20Unl_10
 # file_name_SVs = "20240924_0014_cologne_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
 # file_name_SVs = "20240924_1544_cologne_multiclass_shape_SVs_ALTSLv1_20Unl_10nR_11SizePor"
 
+### last dance
+# file_name_SVs = "20240928_0348_cologne_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
+# file_name_SVs = "20240923_1630_hagadera_multiclass_scale_SVs_ALTSLv1_20Unl_8nR_7SizePor" # too few size por
+# file_name_SVs = "20240925_1554_hagadera_binary_shape_SVs_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_SVs = "20240927_0854_hagadera_multiclass_scale_SVs_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_SVs = "20240927_1937_hagadera_binary_scale_SVs_ALTSLv1_20Unl_10nR_14SizePor"
+file_name_SVs = "20240929_2003_hagadera_multiclass_shape_SVs_ALTSLv1_20Unl_8nR_11SizePor"
 
-load(paste0(file_name_acc,".RData"))
-load(paste0(file_name_kappa,".RData"))
-# load(paste0(file_name_SVs,".RData"))
-
+if(exists("file_name_SVs")){
+  load(paste0(file_name_SVs,".RData"))
+}
 ########################################################################################
 # **************************************** #
 # Author: Lorenzo Carlassara               #
@@ -104,6 +133,7 @@ load(paste0(file_name_kappa,".RData"))
 # linkedin.com/in/lorenzo-carlassara/      #
 # feel free to contact me for any question #
 # **************************************** #
+
 # tmp_AccuracySVM = AccuracySVM
 # tmp_AccuracySVM_SL_Un = AccuracySVM_SL_Un
 # tmp_AccuracyVSVM_SL_Un_random_it = AccuracyVSVM_SL_Un_random_it
@@ -125,7 +155,9 @@ load(paste0(file_name_kappa,".RData"))
 # tmp_KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2
 # tmp_KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL
 # tmp_KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2
+
 # # **********************************************************************************
+
 # tmp_AccuracySVM=rbind(tmp_AccuracySVM,AccuracySVM)
 # tmp_AccuracySVM_SL_Un=rbind(tmp_AccuracySVM_SL_Un,AccuracySVM_SL_Un)
 # tmp_AccuracyVSVM_SL_Un_random_it=rbind(tmp_AccuracyVSVM_SL_Un_random_it,AccuracyVSVM_SL_Un_random_it)
@@ -147,7 +179,9 @@ load(paste0(file_name_kappa,".RData"))
 # tmp_KappaVSVM_SL_Un_itSL2=rbind(tmp_KappaVSVM_SL_Un_itSL2,KappaVSVM_SL_Un_itSL2)
 # tmp_KappaVSVM_SL_Un_itTSL=rbind(tmp_KappaVSVM_SL_Un_itTSL,KappaVSVM_SL_Un_itTSL)
 # tmp_KappaVSVM_SL_Un_itTSL2=rbind(tmp_KappaVSVM_SL_Un_itTSL2,KappaVSVM_SL_Un_itTSL2)
+
 # # **********************************************************************************
+
 # AccuracySVM=tmp_AccuracySVM
 # AccuracyVSVM_SL_Un_random_it = tmp_AccuracyVSVM_SL_Un_random_it
 # AccuracySVM_SL_Un=tmp_AccuracySVM_SL_Un
@@ -170,8 +204,9 @@ load(paste0(file_name_kappa,".RData"))
 # KappaVSVM_SL_Un_itTSL=tmp_KappaVSVM_SL_Un_itTSL
 # KappaVSVM_SL_Un_itTSL2=tmp_KappaVSVM_SL_Un_itTSL2
 # 
-# file_name_acc = "20240925_cologne_multiclass_shape_acc_20Unl_20nR_13SizePor"
-# file_name_kappa = "20240925_cologne_multiclass_shape_Kappa_20Unl_20nR_13SizePor"
+# file_name_acc = "20241010_hagadera_multiclass_shape_acc_ALTSLv1_20Unl_10nR_11SizePor"
+# file_name_kappa = "20241010_hagadera_multiclass_shape_Kappa_ALTSLv1_20Unl_10nR_11SizePor"
+
 # # **********************************************************************************
 # AccuracySVM=AccuracySVM[1:7,]
 # AccuracySVM_SL_Un=AccuracySVM_SL_Un[1:7,]
@@ -179,7 +214,7 @@ load(paste0(file_name_kappa,".RData"))
 # AccuracyVSVM_SL_Un=AccuracyVSVM_SL_Un[1:7,]
 # AccuracyVSVM_SL_vUn=AccuracyVSVM_SL_vUn[1:7,]
 # AccuracyVSVM_SL_Un_random_it=AccuracyVSVM_SL_Un_random_it[1:7,]
-# # AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1:7,]
+# AccuracyVSVM_SL_Un_it=AccuracyVSVM_SL_Un_it[1:7,]
 # AccuracyVSVM_SL_Un_itSL=AccuracyVSVM_SL_Un_itSL[1:7,]
 # AccuracyVSVM_SL_Un_itSL2=AccuracyVSVM_SL_Un_itSL2[1:7,]
 # AccuracyVSVM_SL_Un_itTSL=AccuracyVSVM_SL_Un_itTSL[1:7,]
@@ -191,18 +226,20 @@ load(paste0(file_name_kappa,".RData"))
 # KappaVSVM_SL_Un=KappaVSVM_SL_Un[1:7,]
 # KappaVSVM_SL_vUn=KappaVSVM_SL_vUn[1:7,]
 # KappaVSVM_SL_Un_random_it=KappaVSVM_SL_Un_random_it[1:7,]
-# # KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1:7,]
+# KappaVSVM_SL_Un_it=KappaVSVM_SL_Un_it[1:7,]
 # KappaVSVM_SL_Un_itSL=KappaVSVM_SL_Un_itSL[1:7,]
 # KappaVSVM_SL_Un_itSL2=KappaVSVM_SL_Un_itSL2[1:7,]
 # KappaVSVM_SL_Un_itTSL=KappaVSVM_SL_Un_itTSL[1:7,]
 # KappaVSVM_SL_Un_itTSL2=KappaVSVM_SL_Un_itTSL2[1:7,]
+
 # # **********************************************************************************
+
 # save(AccuracySVM,
 #      AccuracySVM_SL_Un,
 #      AccuracyVSVM_SL,
 #      AccuracyVSVM_SL_Un,
 #      AccuracyVSVM_SL_vUn,
-#      AccuracyVSVM_SL_Un_random_it,
+#      # AccuracyVSVM_SL_Un_random_it,
 #      AccuracyVSVM_SL_Un_it,
 #      AccuracyVSVM_SL_Un_itSL,
 #      AccuracyVSVM_SL_Un_itSL2,
@@ -214,13 +251,14 @@ load(paste0(file_name_kappa,".RData"))
 #      KappaVSVM_SL,
 #      KappaVSVM_SL_Un,
 #      KappaVSVM_SL_vUn,
-#      KappaVSVM_SL_Un_random_it,
+#      # KappaVSVM_SL_Un_random_it,
 #      KappaVSVM_SL_Un_it,
 #      KappaVSVM_SL_Un_itSL,
 #      KappaVSVM_SL_Un_itSL2,
 #      KappaVSVM_SL_Un_itTSL,
 #      KappaVSVM_SL_Un_itTSL2,
 #      file=paste0(file_name_kappa,".RData"))
+
 ########################################################################################
 
 ExCsvMSD = function (datadase, filename = NA){
@@ -369,47 +407,29 @@ lenged_lty = c(SVM_lty,
 setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 
 if(model_prob == "multiclass"){
+  
   if(city=="hagadera"){
-    if(invariance=="scale"){
       yUpperBound = 0.972
-      ylowerBound = 0.835
+      ylowerBound = 0.81
     }
-    if(invariance=="shape"){
-      yUpperBound = 0.975
-      ylowerBound = 0.85
-      }
-  }
+  
   if(city=="cologne"){
-    if(invariance=="scale"){
-      yUpperBound = 0.77
+      yUpperBound = 0.76
       ylowerBound = 0.54
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.75
-      ylowerBound = 0.565
-      }
+
   }
 }
 if(model_prob == "binary"){
+  
   if(city=="hagadera"){
-    if(invariance=="scale"){
-      yUpperBound = 0.97
-      ylowerBound = 0.72
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.97
+      yUpperBound = 0.975
       ylowerBound = 0.79
-    }
+
   }
   if(city=="cologne"){
-    if(invariance=="scale"){
       yUpperBound = 0.935
-      ylowerBound = 0.835
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.93
       ylowerBound = 0.81
-    }
+
   }
 }
 
@@ -498,47 +518,29 @@ dev.off()
 ######################################## Accuracy +/- std dev ##########################################
 
 if(model_prob == "multiclass"){
+
   if(city=="hagadera"){
-    if(invariance=="scale"){
-      yUpperBound = 0.975
-      ylowerBound = 0.82
-    }
-    if(invariance=="shape"){
       yUpperBound = 0.978
-      ylowerBound = 0.813
-    }
+      ylowerBound = 0.81
+
   }
   if(city=="cologne"){
-    if(invariance=="scale"){
-      yUpperBound = 0.78
-      ylowerBound = 0.52
-    }
-    if(invariance=="shape"){
       yUpperBound = 0.785
-      ylowerBound = 0.535
-    }
+      ylowerBound = 0.52
+
   }
 }
 if(model_prob == "binary"){
+  
   if(city=="hagadera"){
-    if(invariance=="scale"){
       yUpperBound = 0.99
-      ylowerBound = 0.695
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.99
-      ylowerBound = 0.78
-    }
+      ylowerBound = 0.73
+
   }
   if(city=="cologne"){
-    if(invariance=="scale"){
       yUpperBound = 0.955
-      ylowerBound = 0.81
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.95
       ylowerBound = 0.79
-    }
+
   }
 }
 
@@ -611,47 +613,27 @@ if(nrow(AccuracySVM)>1){
 
 
 if(model_prob == "multiclass"){
+  
   if(city=="hagadera"){
-    if(invariance=="scale"){
       yUpperBound = 0.96
-      ylowerBound = 0.77
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.96
-      ylowerBound = 0.78
-    }
+      ylowerBound = 0.73
+    
   }
   if(city=="cologne"){
-    if(invariance=="scale"){
-      yUpperBound = 0.65
+      yUpperBound = 0.66
       ylowerBound = 0.41
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.64
-      ylowerBound = 0.44
-    }
+
   }
 }
 if(model_prob == "binary"){
+  
   if(city=="hagadera"){
-    if(invariance=="scale"){
       yUpperBound = 0.94
-      ylowerBound = 0.405
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.93
-      ylowerBound = 0.58
-    }
+      ylowerBound = 0.44
   }
   if(city=="cologne"){
-    if(invariance=="scale"){
       yUpperBound = 0.80
       ylowerBound = 0.51
-    }
-    if(invariance=="shape"){
-      yUpperBound = 0.8
-      ylowerBound = 0.47
-    }
   }
 }
 
@@ -719,46 +701,64 @@ dev.off()
 ##########################################################################
 # SVs
 ##########################################################################
-
-if(model_prob == "multiclass"){
-  yUpperBound = 350
-}
-if(model_prob == "binary"){
-  yUpperBound = 150
-}
-
-png(filename=paste0(file_name_SVs,".png"),
-    units="in", 
-    width=20, 
-    height=16, 
-    pointsize=24,
-    res=96)
-
-if(nrow(SVsSVM)>1){
-  msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(SVsSVM[,-clms[-length(clms)]])[1,],log = "x",
-                    ylim=range(c(10,yUpperBound)),
-                    pch=20, type= type,                   col = SVM_col, lwd=2,lty = SVM_lty,
-                    xlab= "number of labeled samples per class",
-                    ylab="number of support vectors",
-                    main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
+if(exists("file_name_SVs")){
+    
+  if(model_prob == "multiclass"){
+    
+    if(city=="hagadera"){
+      yUpperBound = 225
+      
+    }
+    if(city=="cologne"){
+      yUpperBound = 400
+      
+    }
+  }
+  if(model_prob == "binary"){
+    
+    if(city=="hagadera"){
+      yUpperBound = 150
+      
+    }
+    if(city=="cologne"){
+      yUpperBound = 150
+      
+    }
+  }
+  
+  png(filename=paste0(file_name_SVs,".png"),
+      units="in", 
+      width=20, 
+      height=16, 
+      pointsize=24,
+      res=96)
+  
+  if(nrow(SVsSVM)>1){
+    msdSVMPlot = plot(x[-clms[-length(clms)]], ExCsvMSD(SVsSVM[,-clms[-length(clms)]])[1,],log = "x",
+                      ylim=range(c(10,yUpperBound)),
+                      pch=20, type= type,                   col = SVM_col, lwd=2,lty = SVM_lty,
+                      xlab= "number of labeled samples per class",
+                      ylab="number of support vectors",
+                      main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
+    )
+    lines(x[-clms], ExCsvMSD(SVsSVM_SL_Un[,-clms])[1,], type= type ,   col = SVM_SL_col, lwd=2,lty = SVM_SL_lty)
+    lines(x[-clms], ExCsvMSD(SVsVSVM_SL[,-clms])[1,], type= type ,     col = VSVM_SL_col, lwd=2,lty = VSVM_SL_lty)
+    lines(x[-clms], ExCsvMSD(SVsVSVM_SL_Un[,-clms])[1,], type= type ,  col = VSVM_SL_Un_col, lwd=2,lty = VSVM_SL_Un_lty)
+    lines(x[-clms], ExCsvMSD(SVsVSVM_SL_vUn[,-clms])[1,], type= type , col = VSVM_SL_vUn_col, lwd=2,lty = VSVM_SL_vUn_lty)
+    
+    lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_it[,clms])[1,], type= type , col = AL_MCLU_SVM_col, lwd=2,lty = AL_MCLU_SVM_lty)
+    lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL[,clms])[1,], type= type , col = AL_MS_tSNE_SVM_col, lwd=2,lty = AL_MS_tSNE_SVM_lty)
+    lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = AL_MS_tSNE_SL_SVM_col, lwd=2,lty = AL_MS_tSNE_SL_SVM_lty)
+    lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
+    lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
+    
+  }
+  
+  legend("topleft",
+         lenged_names,
+         lty=lenged_lty,
+         col=legend_col
   )
-  lines(x[-clms], ExCsvMSD(SVsSVM_SL_Un[,-clms])[1,], type= type ,   col = SVM_SL_col, lwd=2,lty = SVM_SL_lty)
-  lines(x[-clms], ExCsvMSD(SVsVSVM_SL[,-clms])[1,], type= type ,     col = VSVM_SL_col, lwd=2,lty = VSVM_SL_lty)
-  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_Un[,-clms])[1,], type= type ,  col = VSVM_SL_Un_col, lwd=2,lty = VSVM_SL_Un_lty)
-  lines(x[-clms], ExCsvMSD(SVsVSVM_SL_vUn[,-clms])[1,], type= type , col = VSVM_SL_vUn_col, lwd=2,lty = VSVM_SL_vUn_lty)
   
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_it[,clms])[1,], type= type , col = AL_MCLU_SVM_col, lwd=2,lty = AL_MCLU_SVM_lty)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL[,clms])[1,], type= type , col = AL_MS_tSNE_SVM_col, lwd=2,lty = AL_MS_tSNE_SVM_lty)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itSL2[,clms])[1,], type= type , col = AL_MS_tSNE_SL_SVM_col, lwd=2,lty = AL_MS_tSNE_SL_SVM_lty)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL[,clms])[1,], type= type , col = AL_MS_SVM_col, lwd=2,lty = AL_MS_SVM_lty)
-  lines(x[clms], ExCsvMSD(SVsVSVM_SL_Un_itTSL2[,clms])[1,], type= type , col = AL_MS_UnSL_SVM_col, lwd=2,lty = AL_MS_UnSL_SVM_lty)
-  
+  dev.off()
 }
-
-legend("topleft", 
-       lenged_names,
-       lty=lenged_lty,
-       col=legend_col
-) 
-
-dev.off()
