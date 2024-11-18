@@ -3,11 +3,14 @@ script = "ALTSLmaps"  #
 library(caret)
 library(kernlab)
 library(sampling)
+
+library(ggplot2)
+library(dplyr)
 ##################################################################################################################
 
 city = "cologne"    # cologne or hagadera location
 invariance = "scale"   # scale or shape invariance
-model_prob = "binary"  # multiclass or binary problem
+model_prob = "multiclass"  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 sampleSizePor = c(40)
@@ -38,6 +41,31 @@ classificationProblem = function(generalDataPool){
   generalDataPool$REF = as.factor(generalDataPool$REF)
   return(generalDataPool)
 }
+
+plot_confusion_matrix <- function(cm, filename = "confusion_matrix.png") {
+  # Extract confusion matrix as a table
+  cm_table <- as.table(cm$table)
+  
+  # Convert table to data frame for ggplot
+  cm_df <- as.data.frame(cm_table)
+  colnames(cm_df) <- c("Reference", "Prediction", "Frequency")
+  
+  # Create the plot
+  p <- ggplot(data = cm_df, aes(x = Reference, y = Prediction, fill = Frequency)) +
+    geom_tile(color = "white") +
+    scale_fill_gradient(low = "white", high = "blue") +
+    geom_text(aes(label = Frequency), vjust = 1) +
+    labs(title = "Confusion Matrix", fill = "Frequency") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      plot.title = element_text(hjust = 0.5, size = 15)
+    )
+  
+  # Save the plot as a PNG file
+  ggsave(filename = filename, plot = p, width = 7, height = 6, dpi = 300)
+}
+
 
 if (city=="cologne") {
   
@@ -86,13 +114,13 @@ if (city=="cologne") {
   }
   ###################################################  Scaling  ################################################
   
-  normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
-  normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
+  dataFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
+  dataLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
   
-  preProc = preProcess(setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
-  normalizedFeatBase = predict(preProc, setNames(normalizedFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
+  preProc = preProcess(setNames(dataFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
+  dataFeatBase = predict(preProc, setNames(dataFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
   # **************************************** data for map visualization ****************************************
-  normalized_data = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
+  normalized_feat = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
   # ************************************************************************************************************
   
   #########################################################################################
@@ -146,44 +174,70 @@ if (city=="cologne") {
     generalDataPool=classificationProblem(generalDataPool)
   }
   ###################################################  Scaling  ################################################
-  
-  normalizedFeat = generalDataPool[,1:(ncol(generalDataPool)-1)]
-  
-  normalizedLabelUSE = generalDataPool[,(ncol(generalDataPool))]
+
+  dataFeat = generalDataPool[,1:(ncol(generalDataPool)-2)]
+  dataLabelUSE = generalDataPool[,(ncol(generalDataPool)-1):(ncol(generalDataPool))]
   rm(generalDataPool)
-  preProc = preProcess(setNames(normalizedFeat,objInfoNames[-length(objInfoNames)]), method = "range")
-  # *************************************** data for map visualization *****************************************
-  normalized_data = predict(preProc, setNames(normalizedFeat,objInfoNames[-length(objInfoNames)]))
+  
+  preProc = preProcess(setNames(dataFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]), method = "range")
+  dataFeatBase = predict(preProc, setNames(dataFeat[sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
+  # **************************************** data for map visualization ****************************************
+  normalized_feat = predict(preProc, setNames(generalDataPool[,sindexSVMDATA:eindexSVMDATA],objInfoNames[-length(objInfoNames)]))
   # ************************************************************************************************************
-  rm(normalizedFeat)
+  rm(dataFeat)
+  
   #############################################################################################################
 }
-if(sum(is.na(normalized_data))>0){
-  cat(sum(is.na(normalized_data)))
-  # Loop through all columns in normalized_data and apply mean imputation
-  for (col in names(normalized_data)) {
-    # Check if there are any missing values in the column
-    if (any(is.na(normalized_data[[col]]))) {
-      # Replace NA with the mean of the column (excluding NA values)
-      normalized_data[[col]][is.na(normalized_data[[col]])] <- mean(normalized_data[[col]], na.rm = TRUE)
-    }
-  }
-}
-cat(sum(is.na(normalized_data)))
+
+
+############################################# Splitting & Sampling #############################################
+# Split data in test, train and validate data
+normalized_dataPool <- cbind(normalized_feat , dataLabelUSE)
+
+normalized_dataPool = subset(normalized_dataPool, REF != "unclassified")
+normalized_dataPool$REF <- factor(normalized_dataPool$REF)
+split_normalized_dataPool <- split(normalized_dataPool, dataLabelUSE$USE)
+
+validateDataPool = as.data.frame(split_normalized_dataPool[[3]])
+
+validateFeat = validateDataPool[,1:(ncol(validateDataPool)-2)]
+validateLabel = validateDataPool[,(ncol(validateDataPool)-1)]
+
+rm(split_normalized_dataPool,normalized_dataPool,validateDataPool)
+
+
+# if(sum(is.na(normalized_feat ))>0){
+#   cat(sum(is.na(normalized_feat )))
+#   # Loop through all columns in normalized_feat and apply mean imputation
+#   for (col in names(normalized_feat )) {
+#     # Check if there are any missing values in the column
+#     if (any(is.na(normalized_feat [[col]]))) {
+#       # Replace NA with the mean of the column (excluding NA values)
+#       normalized_feat [[col]][is.na(normalized_feat [[col]])] <- mean(normalized_feat [[col]], na.rm = TRUE)
+#     }
+#   }
+#   cat(sum(is.na(normalized_feat )))
+# }
+
+
+dataLabel <- dataLabelUSE[dataLabelUSE$REF != "unclassified", ]
+dataLabel <- droplevels(dataLabel[,1])
+rm(dataLabelUSE)
 ###############################################  Map Prediction  #################################################
 
-setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 
 ############################################################
 ############################################################
 ##                      apply SVM                         ##
 ############################################################
 ############################################################
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
+
 model_name = "SVM"
 
 # tunedSVM <- readRDS("20240924SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedSVM <- readRDS("20240927SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedSVM <- readRDS("20240921SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedSVM <- readRDS("20240927SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVM <- readRDS("20240921SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedSVM <- readRDS("20240920SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedSVM <- readRDS("20240926SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedSVM <- readRDS("20240925SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -191,12 +245,27 @@ tunedSVM <- readRDS("20240927SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20
 # tunedSVM <- readRDS("20240927SVM_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedSVM, normalized_data)
-cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+predLabels_data_modell_apply = predict(tunedSVM, normalized_feat )
+cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")    
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accSVM_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedSVM, validateFeat)
+accSVM = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accSVM_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accSVM, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
 write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = T ,col.names = F)
+
 
 ############################################################
 ############################################################
@@ -208,8 +277,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "SVM_SLUn"
 
 # tunedSVMUn <- readRDS("20240924SVM_SLUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedSVMUn <- readRDS("20240927SVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedSVMUn <- readRDS("20240921SVM_SLUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedSVMUn <- readRDS("20240927SVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedSVMUn <- readRDS("20240921SVM_SLUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedSVMUn <- readRDS("20240920SVM_SLUn_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedSVMUn <- readRDS("20240926SVM_SLUn_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedSVMUn <- readRDS("20240925SVM_SLUn_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -217,8 +286,22 @@ tunedSVMUn <- readRDS("20240927SVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSiz
 # tunedSVMUn <- readRDS("20240927SVM_SLUn_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedSVMUn, normalized_data)
-cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+predLabels_data_modell_apply = predict(tunedSVMUn, normalized_feat )
+cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")  
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accSVM_SLUn_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedSVMUn, validateFeat)
+accSVM_SLUn = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accSVM_SLUn_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accSVM_SLUn, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
@@ -234,20 +317,35 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "VSVM_SL"
 
 # tunedVSVMSL <- readRDS("20240924VSVM_SL_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedVSVMSL <- readRDS("20240927VSVM_SL_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedVSVMSL <- readRDS("20240921VSVM_SL_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedVSVMSL <- readRDS("20240927VSVM_SL_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedVSVMSL <- readRDS("20240921VSVM_SL_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedVSVMSL <- readRDS("20240920VSVM_SL_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedVSVMSL <- readRDS("20240926VSVM_SL_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedVSVMSL <- readRDS("20240925VSVM_SL_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
 # tunedVSVMSL <- readRDS("20240924VSVM_SL_hagadera_binary_shape_ALTSLv1_14sampleSizePor_20Unl_170seed.rds")
 # tunedVSVMSL <- readRDS("20240927VSVM_SL_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedVSVMSL, normalized_data)
+predLabels_data_modell_apply = predict(tunedVSVMSL, normalized_feat )
 cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accVSVM_SL_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedVSVMSL, validateFeat)
+accVSVM_SL = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accVSVM_SL_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accVSVM_SL, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
 write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = T ,col.names = F)
+
 
 ############################################################
 ############################################################
@@ -259,8 +357,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "VSVM_SLUn"
 
 # tunedVSVMSLUn <- readRDS("20240924VSVM_SLUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedVSVMSLUn <- readRDS("20240927VSVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedVSVMSLUn <- readRDS("20240921VSVM_SLUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedVSVMSLUn <- readRDS("20240927VSVM_SLUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedVSVMSLUn <- readRDS("20240921VSVM_SLUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedVSVMSLUn <- readRDS("20240920VSVM_SLUn_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedVSVMSLUn <- readRDS("20240926VSVM_SLUn_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedVSVMSLUn <- readRDS("20240925VSVM_SLUn_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -268,12 +366,27 @@ tunedVSVMSLUn <- readRDS("20240927VSVM_SLUn_cologne_binary_scale_ALTSLv1_14sampl
 # tunedVSVMSLUn <- readRDS("20240927VSVM_SLUn_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedVSVMSLUn, normalized_data)
+predLabels_data_modell_apply = predict(tunedVSVMSLUn, normalized_feat )
 cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accVSVM_SLUn_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedVSVMSLUn, validateFeat)
+accVSVM_SLUn = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accVSVM_SLUn_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accVSVM_SLUn, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
 write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = T ,col.names = F)
+
 
 ############################################################
 ############################################################
@@ -285,8 +398,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "VSVM_SLvUn"
 
 # tunedVSVMSLvUn <- readRDS("20240924VSVM_SLvUn_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedVSVMSLvUn <- readRDS("20240927VSVM_SLvUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedVSVMSLvUn <- readRDS("20240921VSVM_SLvUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedVSVMSLvUn <- readRDS("20240927VSVM_SLvUn_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedVSVMSLvUn <- readRDS("20240921VSVM_SLvUn_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedVSVMSLvUn <- readRDS("20240920VSVM_SLvUn_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedVSVMSLvUn <- readRDS("20240926VSVM_SLvUn_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedVSVMSLvUn <- readRDS("20240925VSVM_SLvUn_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -294,8 +407,22 @@ tunedVSVMSLvUn <- readRDS("20240927VSVM_SLvUn_cologne_binary_scale_ALTSLv1_14sam
 # tunedVSVMSLvUn <- readRDS("20240927VSVM_SLvUn_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedVSVMSLvUn, normalized_data)
+predLabels_data_modell_apply = predict(tunedVSVMSLvUn, normalized_feat )
 cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accVSVM_SLvUn_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedVSVMSLvUn, validateFeat)
+accVSVM_SLvUn = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accVSVM_SLvUn_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accVSVM_SLvUn, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
@@ -303,7 +430,7 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS+kmeans+Train_SVM                   ##
+##              apply AL_MS+kmeans+Train_SVM              ##
 ############################################################
 ############################################################
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
@@ -311,8 +438,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "AL_MS+kmeans+Train_SVM"
 
 # tunedALTSVM <- readRDS("20240924AL_MS+kmeans+Train_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedALTSVM <- readRDS("20240927AL_MS+kmeans+Train_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedALTSVM <- readRDS("20240921AL_MS+kmeans+Train_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedALTSVM <- readRDS("20240927AL_MS+kmeans+Train_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedALTSVM <- readRDS("20240921AL_MS+kmeans+Train_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedALTSVM <- readRDS("20240920AL_MS+kmeans+Train_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedALTSVM <- readRDS("20240926AL_MS+kmeans+Train_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedALTSVM <- readRDS("20240925AL_MS+kmeans+Train_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -320,8 +447,22 @@ tunedALTSVM <- readRDS("20240927AL_MS+kmeans+Train_SVM_cologne_binary_scale_ALTS
 # tunedALTSVM <- readRDS("20240927AL_MS+kmeans+Train_SVM_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedALTSVM, normalized_data)
+predLabels_data_modell_apply = predict(tunedALTSVM, normalized_feat )
 cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accALTSVM_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedALTSVM, validateFeat)
+accALTSVM = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accALTSVM_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accALTSVM, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
@@ -337,8 +478,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "AL_MS+tSNE_SVM"
 
 # tunedALtSNESVM <- readRDS("20240924AL_MS+tSNE_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedALtSNESVM <- readRDS("20240927AL_MS+tSNE_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedALtSNESVM <- readRDS("20240921AL_MS+tSNE_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedALtSNESVM <- readRDS("20240927AL_MS+tSNE_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedALtSNESVM <- readRDS("20240921AL_MS+tSNE_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedALtSNESVM <- readRDS("20240920AL_MS+tSNE_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedALtSNESVM <- readRDS("20240926AL_MS+tSNE_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedALtSNESVM <- readRDS("20240925AL_MS+tSNE_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -346,8 +487,22 @@ tunedALtSNESVM <- readRDS("20240927AL_MS+tSNE_SVM_cologne_binary_scale_ALTSLv1_1
 # tunedALtSNESVM <- readRDS("20240927AL_MS+tSNE_SVM_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedALtSNESVM, normalized_data)
-cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+predLabels_data_modell_apply = predict(tunedALtSNESVM, normalized_feat )
+cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")  
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accALtSNESVM_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedALtSNESVM, validateFeat)
+accALtSNESVM = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accALtSNESVM_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accALtSNESVM, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
@@ -363,8 +518,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "AL_MS+tSNE+SL_SVM"
 
 # tunedALtSNESLSVM <- readRDS("20240924AL_MS+tSNE+SL_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedALtSNESLSVM <- readRDS("20240927AL_MS+tSNE+SL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedALtSNESLSVM <- readRDS("20240921AL_MS+tSNE+SL_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedALtSNESLSVM <- readRDS("20240927AL_MS+tSNE+SL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedALtSNESLSVM <- readRDS("20240921AL_MS+tSNE+SL_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedALtSNESLSVM <- readRDS("20240920AL_MS+tSNE+SL_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedALtSNESLSVM <- readRDS("20240926AL_MS+tSNE+SL_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedALtSNESLSVM <- readRDS("20240925AL_MS+tSNE+SL_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -372,8 +527,22 @@ tunedALtSNESLSVM <- readRDS("20240927AL_MS+tSNE+SL_SVM_cologne_binary_scale_ALTS
 # tunedALtSNESLSVM <- readRDS("20240927AL_MS+tSNE+SL_SVM_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedALtSNESLSVM, normalized_data)
-cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+predLabels_data_modell_apply = predict(tunedALtSNESLSVM, normalized_feat )
+cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")     
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accALtSNESLSVM_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedALtSNESLSVM, validateFeat)
+accALtSNESLSVM = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accALtSNESLSVM_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accALtSNESLSVM, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
@@ -381,7 +550,7 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MS+kmeans+semiSL_SVM            ##
+##               apply AL_MS+kmeans+semiSL_SVM            ##
 ############################################################
 ############################################################
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
@@ -389,8 +558,8 @@ setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
 model_name = "AL_MS+kmeans+semiSL_SVM"
 
 # tunedALsemiSLSVM <- readRDS("20240924AL_MS+kmeans+semiSL_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedALsemiSLSVM <- readRDS("20240927AL_MS+kmeans+semiSL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedALsemiSLSVM <- readRDS("20240921AL_MS+kmeans+semiSL_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedALsemiSLSVM <- readRDS("20240927AL_MS+kmeans+semiSL_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedALsemiSLSVM <- readRDS("20240921AL_MS+kmeans+semiSL_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedALsemiSLSVM <- readRDS("20240920AL_MS+kmeans+semiSL_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedALsemiSLSVM <- readRDS("20240926AL_MS+kmeans+semiSL_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedALsemiSLSVM <- readRDS("20240925AL_MS+kmeans+semiSL_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -398,8 +567,22 @@ tunedALsemiSLSVM <- readRDS("20240927AL_MS+kmeans+semiSL_SVM_cologne_binary_scal
 # tunedALsemiSLSVM <- readRDS("20240927AL_MS+kmeans+semiSL_SVM_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedALsemiSLSVM, normalized_data)
+predLabels_data_modell_apply = predict(tunedALsemiSLSVM, normalized_feat )
 cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accALsemiSLSVM_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedALsemiSLSVM, validateFeat)
+accALsemiSLSVM = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accALsemiSLSVM_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accALsemiSLSVM, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
@@ -407,7 +590,7 @@ write.csv2(predLabels_data_modell_apply, file = outputfile, sep=";",row.names = 
 
 ############################################################
 ############################################################
-##                      apply AL_MCLU+kmeans_SVM            ##
+##                  apply AL_MCLU+kmeans_SVM              ##
 ############################################################
 ############################################################
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city))
@@ -417,8 +600,8 @@ model_name = "AL_MCLU+kmeans_SVM"
 # name_prova2 = paste0("20240924",model_name,"_",city,"_",model_prob,"_",invariance,"_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 
 # tunedALMCLUSVM <- readRDS("20240924AL_MCLU+kmeans_SVM_cologne_multiclass_shape_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
-tunedALMCLUSVM <- readRDS("20240927AL_MCLU+kmeans_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
-# tunedALMCLUSVM <- readRDS("20240921AL_MCLU+kmeans_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
+# tunedALMCLUSVM <- readRDS("20240927AL_MCLU+kmeans_SVM_cologne_binary_scale_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
+tunedALMCLUSVM <- readRDS("20240921AL_MCLU+kmeans_SVM_cologne_multiclass_scale_ALTSLv1_48sampleSizePor_20Unl_140seed.rds")
 # tunedALMCLUSVM <- readRDS("20240920AL_MCLU+kmeans_SVM_cologne_binary_shape_ALTSLv1_14sampleSizePor_20Unl_342seed.rds")
 # tunedALMCLUSVM <- readRDS("20240926AL_MCLU+kmeans_SVM_hagadera_multiclass_scale_ALTSLv1_40sampleSizePor_20Unl_129seed.rds")
 # tunedALMCLUSVM <- readRDS("20240925AL_MCLU+kmeans_SVM_hagadera_multiclass_shape_ALTSLv1_14sampleSizePor_20Unl_140seed.rds")
@@ -426,8 +609,22 @@ tunedALMCLUSVM <- readRDS("20240927AL_MCLU+kmeans_SVM_cologne_binary_scale_ALTSL
 # tunedALMCLUSVM <- readRDS("20240927AL_MCLU+kmeans_SVM_hagadera_binary_scale_ALTSLv1_14sampleSizePor_20Unl_142seed.rds")
 
 start.time <- Sys.time()
-predLabels_data_modell_apply = predict(tunedALMCLUSVM, normalized_data)
-cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")      
+predLabels_data_modell_apply = predict(tunedALMCLUSVM, normalized_feat )
+cat("Execution time: ",round(as.numeric((Sys.time() - start.time), units = "secs"), 2),"sec\n")     
+
+
+predLabels_data_modell_apply <- as.data.frame(predLabels_data_modell_apply)
+predLabels <- predLabels_data_modell_apply[dataLabelUSE$REF != "unclassified", ]
+accALMCLUSVM_all = confusionMatrix(predLabels, dataLabel)
+
+predLabels_validateData = predict(tunedALMCLUSVM, validateFeat)
+accALMCLUSVM = confusionMatrix(predLabels_validateData, validateLabel)
+
+setwd(paste0(path, "GitHub/active-learning-virtual-SVM/images/maps/",city))
+# Plot confusion matrices
+plot_confusion_matrix(accALMCLUSVM_all, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix_all.png", sep = "_"))
+plot_confusion_matrix(accALMCLUSVM, filename = paste(city,invariance,model_prob,model_name,"confusion_matrix.png", sep = "_"))
+
 
 setwd(paste0(path, "GitHub/active-learning-virtual-SVM/make_maps/",city))
 outputfile = paste0(format(Sys.time(),"%Y%m%d"),model_name,"_",city,"_",model_prob,"_",invariance,"_",sampleSizePor[1],"Size_",b,"Unl_samples.csv")
