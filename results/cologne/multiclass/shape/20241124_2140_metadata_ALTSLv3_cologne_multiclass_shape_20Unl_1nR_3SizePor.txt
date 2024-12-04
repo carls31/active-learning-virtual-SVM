@@ -1,0 +1,24 @@
+OA Execution time: 0.49h
+Realization 1 | seed: 64 execution time: 0.49h
+
+AL_MS+kmeans+Train_SVM: 0.774540604888877
+
+SVM_SLUn training time: 49.5sec
+VSVM_SL training time: 38.6sec
+VSVM_SLUn training time: 75.6sec
+VSVM_SLvUn training time: 155.3sec
+AL_MCLU+kmeans_SVM training time: 729.2sec
+AL_MS+tSNE+SL_SVM training time: 697.3sec
+AL_MS+kmeans+semiSL_SVM training time: 730.4sec
+
+Number of SVM SVs: 69
+Number of SVM_SLUn SVs: 92
+Number of VSVM_SL SVs: 116
+Number of VSVM_SLUn SVs: 262
+Number of VSVM_SLvUn SVs: 252
+Number of AL_MS+tSNE_SVM SVs: 104
+Number of AL_MS+tSNE+SL_SVM SVs: 128
+Number of AL_MS+kmeans+Train_SVM SVs: 101
+Number of AL_MS+kmeans+semiSL_SVM SVs: 143
+Number of AL_MCLU+kmeans_SVM SVs: 128
+Number of final train Labels AL: 101

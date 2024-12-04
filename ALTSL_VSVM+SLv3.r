@@ -11,17 +11,17 @@ library(Rtsne)      # t-distributed stochastic neighbour embedding
 ##################################################################################################################
 
 nR = 1                   # number of realizations
-cities = c("cologne")    # cologne or hagadera location
+cities = c("hagadera")    # cologne or hagadera location
 invariances = c("scale")   # scale or shape invariance
-model_probs = c("multiclass")  # multiclass or binary problem
+model_probs = c("binary")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
-bound = c(0.3, 0.6)      # radius around SV - threshold       
-boundMargin = c(1.5, 0.5)  # distance from hyperplane - threshold   
+bound = c(0.3, 0.6)           # radius around SV - threshold       
+boundMargin = c(1.5, 0.5)     # distance from hyperplane - threshold   
 # sampleSizePor = c(25,30, 40,40, 60,60, 100,100, 180,180, 340,340, 500,500)
-sampleSizePor = c(65,100, 100) # only one sample size for plotting the thematc map
+sampleSizePor = c(65,100, 100) # only one sample size for plotting the thematic map
 
-path = '/home/data1/Lorenzo/'
+path = "D:/"
 #####################################################  Utils  ####################################################
 # ************************************************************************************************************** #
 #                                       lorenzo.carlassara98@gmail.com                                           #
@@ -33,7 +33,7 @@ lgtS=TRUE
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
 num_cores <- parallel::detectCores()-1 # Numbers of CPU cores for parallel processing
 
-if(!dir.exists(path)){path = "D:/"}
+# if(!dir.exists(path)){path = '/home/data1/Lorenzo/'}
 
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = "Kappa"){ #x = training descriptors, y = class labels
   
@@ -401,7 +401,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
 
 # mclu_sampling(new_tunedSVM, predLabelsVSVM_unc)
 # mclu_sampling(org=new_tunedVSVM_v1, samp=predLabelsVSVM_unc, pred_all, binaryClassProblem, classes=NA) 
-# Evaluate Multiclass Level Uncertainty (MCLU)
+# Evaluate Multiclass Level Uncertainty (MCLU) with multi-cores CPU processing
 mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
                           realiz=realization, s_size=sample_size, plot_flag=FALSE ) {
   if(is.na(classes)){classes=as.factor(levels(samp[, ncol(samp)]))}
@@ -1045,7 +1045,8 @@ classificationProblem = function(generalDataPool){
 for (model_prob in model_probs) { 
   for (invariance in invariances) {
     for (city in cities) {
-        
+         
+      
       if(city=="cologne"){ 
         # sampleSizePor = c(30,36, 48,48, 72,72, 120,120, 216,216, 408,408, 600,600)
         sampleSizePor = c(78,120, 120) # only one sample size for plotting the thematc map
@@ -1053,7 +1054,7 @@ for (model_prob in model_probs) {
       if(model_prob=="binary"){ 
       # sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200) # old
         # sampleSizePor = c(8,10, 14,14, 22,22, 38,38, 70,70, 134,134, 200,200)
-        sampleSizePor = c(24,40, 40) # only one sample size for plotting the thematc map
+        sampleSizePor = c(32,40, 40) # only one sample size for plotting the thematc map
       }
       colheader = as.character(sampleSizePor) # corresponding column names
       ###############################################  Preprocessing  ############################################
@@ -1830,7 +1831,7 @@ for (model_prob in model_probs) {
             # subset for each outer iteration test data to speed up computing
             testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
             
-            if(realization==11){
+            if(realization==9999){
               # *************
               if (lgtS) {
                 # set.seed(seed)        
@@ -2606,8 +2607,8 @@ for (model_prob in model_probs) {
 
             cat("\n") ############################### AL MCLU + t-SNE&Class SVM #######################################
             model_name_AL_VSVMSL ="AL_MCLU+kmeans_SVM"
-
-            cat("active labeling ",model_name_AL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+                                                                                                         
+            cat("active labeling ",model_name_AL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round((length(sampleSizePor))/2),"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2775,7 +2776,7 @@ for (model_prob in model_probs) {
             model_name_ALSL_VSVMSL = "AL_MS+tSNE+SL_SVM"
             model_name_ALSL_VSVMSL2 = "AL_MS+tSNE_SVM"
             
-            cat("active labeling ",model_name_ALSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling ",model_name_ALSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round((length(sampleSizePor))/2),"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
@@ -2961,7 +2962,7 @@ for (model_prob in model_probs) {
             model_name_ALTrainSL_VSVMSL = "AL_MS+kmeans+semiSL_SVM"
             model_name_ALTrainSL_VSVMSL2 = "AL_MS+kmeans+Train_SVM"
             
-            cat("active labeling ",model_name_ALTrainSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",length(sampleSizePor)/2,"]\n",sep="")
+            cat("active labeling ",model_name_ALTrainSL_VSVMSL," | ",length(trainLabels_AL)," [",(sample_size+1)/2,"/",round((length(sampleSizePor))/2),"]\n",sep="")
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
