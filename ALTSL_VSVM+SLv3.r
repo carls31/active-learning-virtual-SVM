@@ -7,19 +7,19 @@ library(progress)   # progress bar visualization
 library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
-library(Rtsne)      # t-distributed stochastic neighbour embedding
+library(Rtsne)      # t-distributed stochastic neighbor embedding
 ##################################################################################################################
 
 nR = 1                   # number of realizations
-cities = c("hagadera")    # cologne or hagadera location
-invariances = c("scale")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+cities = c("cologne")    # cologne or hagadera location
+invariances = c("shape")   # scale or shape invariance
+model_probs = c("multiclass")  # multiclass or binary problem
 
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6)           # radius around SV - threshold       
 boundMargin = c(1.5, 0.5)     # distance from hyperplane - threshold   
 # sampleSizePor = c(25,30, 40,40, 60,60, 100,100, 180,180, 340,340, 500,500)
-sampleSizePor = c(65,100, 100) # only one sample size for plotting the thematic map
+sampleSizePor = c(65,100, 100) #c(125,200, 200) c(200,375, 375) # only one sample size for plotting the thematic map
 
 path = "D:/"
 #####################################################  Utils  ####################################################
@@ -1046,10 +1046,9 @@ for (model_prob in model_probs) {
   for (invariance in invariances) {
     for (city in cities) {
          
-      
       if(city=="cologne"){ 
         # sampleSizePor = c(30,36, 48,48, 72,72, 120,120, 216,216, 408,408, 600,600)
-        sampleSizePor = c(78,120, 120) # only one sample size for plotting the thematc map
+        sampleSizePor = c(120,300, 300)  # c(78,120, 120) # only one sample size for plotting the thematic map
       } 
       if(model_prob=="binary"){ 
       # sampleSizePor = c(10,12, 20,20, 40,40, 64,64, 92,92, 124,124, 160,160, 200,200) # old
@@ -3207,6 +3206,7 @@ for (model_prob in model_probs) {
           #   saveRDS(tmp_new_tunedSVM_ALT, paste0(format(Sys.time(),"%Y%m%d"),model_name_ALTrainSL_VSVMSL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_",seed,"seed.rds"))
           # }
           if (sample_size==length(sampleSizePor)) {
+            write((paste0(format(Sys.time(),"%Y%m%d")," | seed: ",seed," | sample size: ",sampleSizePor[sample_size])), file='seed_list.txt', append=TRUE)
             saveRDS(tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_tunedSVM,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_realiz",realization,"_",seed,"seed.rds"))
             saveRDS(bestFittingModelSVMUn, paste0(format(Sys.time(),"%Y%m%d"),model_name_SVMUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_realiz",realization,"_",seed,"seed.rds"))
             saveRDS(bestFittingModel, paste0(format(Sys.time(),"%Y%m%d"),model_name_VSVM_SL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b,"Unl_realiz",realization,"_",seed,"seed.rds"))

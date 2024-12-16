@@ -1,0 +1,19 @@
+64
+119
+89
+69
+72
+67
+78
+66
+82
+113
+20241208 | seed: 116 | sample size: 120
+20241208 | seed: 150 | sample size: 120
+20241208 | seed: 120 | sample size: 120
+20241209 | seed: 129 | sample size: 120
+20241209 | seed: 70 | sample size: 120
+20241209 | seed: 62 | sample size: 120
+20241214 | seed: 51 | sample size: 120
+20241214 | seed: 51 | sample size: 120
+20241214 | seed: 129 | sample size: 300
