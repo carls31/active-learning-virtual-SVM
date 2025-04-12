@@ -62,6 +62,14 @@
  62. FUTURE -> change policy for active labeling (consider also the numberr of duplicates)
  63. limitation of the poolsize
  64. do not use flag_class = TRUE -> it is for future implementations. see 60.
+ 65. TODO identify where the train, test and valid sets valriables change
+ 66. TODO use unused training set samples as unlabeled pool of active candidates
+ 67. TODO check the output variables -> save the whole confusion
+ 68. TODO configure the 2nd iteration of AL framework
+ 69. TODO configure the semi active samples function to pick up the MOST CERTAIN samples 
+ 70. TODO rename correclty and unifoormly the models 
+ 71. TODO update the model pseudo algorithms 
+
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 
 Lu et al.(2016): A Novel Synergetic Classification Approach for  Hyperspectral and Panchromatic Images Based on Self-Learning

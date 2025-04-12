@@ -8,7 +8,7 @@ library(stats)      # k-means clustering
 library(foreach)    # parallel processing
 library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
-##################################################################################################################
+##########################################################################################
 
 nR = 1                   # number of realizations
 cities = c("cologne")    # cologne or hagadera location
@@ -19,7 +19,7 @@ b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6)           # radius around SV - threshold       
 boundMargin = c(1.5, 0.5)     # distance from hyperplane - threshold   
 # sampleSizePor = c(25,30, 40,40, 60,60, 100,100, 180,180, 340,340, 500,500)
-sampleSizePor = c(65,100, 100) # only one sample size for plotting the thematic map
+sampleSizePor = c(65,100, 100, 150, 150) # only one sample size for plotting the thematic map for two setup
 
 path = "D:/"
 #####################################################  Utils  ####################################################
@@ -91,7 +91,7 @@ rem_extrem = function(org, VSV1, a=0.7){
   # Euclidean Distance between two points lying in the input space
   euc_dis = function(a, b){
     temp = 0
-    for(ii in 1:length(a)){
+    for(ii in seq_along(a)){
       temp = temp +((1e-16+a[[ii]]-b[[ii]])^2)
     }
     if (is.nan(sqrt(pmax(0,temp)))) {
@@ -268,8 +268,8 @@ pred_one = function(modelfin, dataPoint, dataPointLabels, binaryClassProb=binary
       
       if(as.integer(dataPointLabels[ll]) %in% as.integer(binaryClassProb[[l]])){ #print(paste("vero", pred))
         pred = sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
-          # modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
-          modelfin@kernelf(modelfin@xmatrix[[l]][j,], dataPoint[1:length(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+          # modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[seq_along(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+          modelfin@kernelf(modelfin@xmatrix[[l]][j,], dataPoint[seq_along(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
         
         if(abs(pred) < abs(smallestDistance))
           smallestDistance = abs(pred)
@@ -286,8 +286,8 @@ pred_all = function(modelfin, dataPoint, dataPointLabels, binaryClassProb=binary
     for(l in seq(along=binaryClassProb)){ #print(binaryClassProb[[l]])
       if(as.integer(dataPointLabels[ll]) %in% as.integer(binaryClassProb[[l]])){ #print(paste("vero", pred))
         pred <- sum(sapply(1:nrow(modelfin@xmatrix[[l]]), function(j) 
-          # modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[1:length(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
-          modelfin@kernelf(modelfin@xmatrix[[l]][j,], dataPoint[1:length(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+          # modelfin@kernelf(xmatrix(modelfin)[[l]][j,], dataPoint[seq_along(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
+          modelfin@kernelf(modelfin@xmatrix[[l]][j,], dataPoint[seq_along(dataPoint)])*modelfin@coef[[l]][j]))-modelfin@b[l]
 
         pred=abs(pred)+1e-9
         if(pred < smallestDistance){
@@ -1930,7 +1930,7 @@ for (model_prob in model_probs) {
           }
           # ******************************************************
           binaryClassProblem = list()
-          for (jj in 1:length(tunedSVM$finalModel@xmatrix)) { # COMPARE EVERY COUPLE COMBINATION OF CLASSES
+          for (jj in seq_along(tunedSVM$finalModel@xmatrix)) { # COMPARE EVERY COUPLE COMBINATION OF CLASSES
             binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur[tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur)]))
           }
           # ******************************************************
@@ -2422,16 +2422,16 @@ for (model_prob in model_probs) {
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
-            # for (clS in 1:length(classSize)) {
+            # for (clS in seq_along(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
             #   # Definition of sampling configuration (strata:random sampling without replacement)
             #   stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
             #   # Get new samples from trainDataCurRemaining
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-              # for (nS4it in 1:length(newSizes)) {
-                #for (cS in 1:length(clusterSizes)) {
-                  # for (rS in 1:length(resampledSize)) {
+              # for (nS4it in seq_along(newSizes)) {
+                #for (cS in seq_along(clusterSizes)) {
+                  # for (rS in seq_along(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("adding ",newSize," active samples | pool size: ",
                         nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
@@ -2590,16 +2590,16 @@ for (model_prob in model_probs) {
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
-            # for (clS in 1:length(classSize)) {
+            # for (clS in seq_along(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
             #   # Definition of sampling configuration (strata:random sampling without replacement)
             #   stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
             #   # Get new samples from trainDataCurRemaining
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-              # for (nS4it in 1:length(newSizes)) {
-                # for (cS in 1:length(clusterSizes)) {
-                  # for (rS in 1:length(resampledSize)) {
+              # for (nS4it in seq_along(newSizes)) {
+                # for (cS in seq_along(clusterSizes)) {
+                  # for (rS in seq_along(resampledSize)) {
                     # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
                     cat("adding ",newSize," active samples | pool size: ",
                         nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
@@ -2776,16 +2776,16 @@ for (model_prob in model_probs) {
             # actAcc = -1e-6
             # classSize=c(min(classPor,round(as.numeric(min(table(trainDataCurRemaining$REF)))/1)))
             # if (model_prob=="multiclass") { if (city=="hagadera"){classSize=round(classSize/2.5)} else {classSize=round(classSize/3)}}
-            # for (clS in 1:length(classSize)) {
+            # for (clS in seq_along(classSize)) {
             #   stratSampSize = c(classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS],classSize[clS])
             #   # Definition of sampling configuration (strata:random sampling without replacement)
             #   stratSampRemaining = strata(trainDataCurRemaining, c("REF"), size = stratSampSize, method = "srswor")
             #   # Get new samples from trainDataCurRemaining
             #   samplesRemaining = getdata(trainDataCurRemaining, stratSampRemaining)
             #   # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesRemaining$ID_unit), ]
-            # for (nS4it in 1:length(newSizes)) {
-            # for (cS in 1:length(clusterSizes)) {
-            # for (rS in 1:length(resampledSize)) {
+            # for (nS4it in seq_along(newSizes)) {
+            # for (cS in seq_along(clusterSizes)) {
+            # for (rS in seq_along(resampledSize)) {
             # cat("tot samples: ",resampledSize[rS]," [",rS,"/",length(resampledSize),"] | per iter: ",newSize," [",nS4it,"/",length(newSizes),"] | pool size: ",
             cat("adding ",newSize," active samples | pool size: ",
                 nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
