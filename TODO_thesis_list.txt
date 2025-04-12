@@ -1,0 +1,69 @@
+ aggiungere 27 pagine di tesi
+aggiustare le parti relative al binary (e.g. , motivazione per cui non si considera) e a hagadera shape multiclass metrics
+
+
+hyperpameters list with explanation:
+ - number of clusters
+ - pool size
+ - number of total active labeled samples
+ - number of active labeled samples per iteration
+ - number of iterations (1 is enough if we have MCLU + k-means)
+
+
+Results and Discussion Chapters
+ - AL MS + semi: it is the worst one, we do not observe an encreaseing in the accuracy. The reasons might be that
+   first of all, we are semi labeling uncertain samples and most-likely lot of them are wrong labeled.  
+   Plus, this encrease the number of SVs since the model tries to learn also the wrong labeled samples close to the
+   decisions boundary.
+   One could think to add the "least uncertain" samples instead of the "remaining most uncertain" samples to overcome the misclassied samples issue,
+   but those samples would just represent pruned samples in the SL strategy.
+ - Also AL MS + SL does not provide better accuracy even if still better then semi, the reason for that might be 
+   that in the active learnning framework we are already in a saturated enviroment i.e. is difficult for a 
+   self-learning strategy to overcome the active learning one.
+It is not that active learing is better than semi or SL, on the contrary they are essential for AL. Indeed, it is 
+crucial for AL to have a solid ground/starting SVM model in order to be able to build a precise uncertainty distance function
+the actual semi and SL strategy are currently the best choice for it. 
+Whereas after the active learning strategy is deployed it is redundant to keep alse the semi and SL on.
+
+the overall best performing model are AL MS and AL MS with tSNE
+-> even with a "poor" starting portion of data pool for the train set,  AL MS + SL and AL MS + semi SL perform better wrt the other models.
+   in average (n=10 realization) the model that perform better (according to acc? F1? confusion_matrix?) are... 
+   
+with random sampling increasing the number of training samples the amount of information provided remain random, 
+whereas with active learning, the margin sampling function allows to label as training samples, the most uncertain samples, 
+provideing higher information to the model to learn
+
+
+
+add model trained on v3 (benchmark model trained on random selected samples and NOT on AL samples)
+
+why we discarded some old models from the benchark
+
+
+check which is the BEST input model overall for AL 
+-> it would be a waste to require a high consuming model in term of time and SVs (see SVs plot for comparisons) 
+
+further developments: train CNN to compare
+
+need more realizations (min 20 in total, 32 or more could be even better -> need to distinguish better between to models performace)
+need of encreasing the maximum training size to 200 samples
+
+describe the drop of accuracy as due to the AL that overclass "seeking information"-ability of old models
+
+why acc per class in some classes is higher for the worst models (SVM SLUn and AL MS semiSL),  worst according to the thematics maps visualization
+-> how do the metrics handle imbalanced classes? how do the models do it instead?
+
+difference between AL4VSVM v1 and AL4VSVM v3
+
+choice of number of clusters, as well as the number of sambles per cluster
+
+curse of dimensionality
+
+comment on the thematic maps that perform differently from the reference
+
+citare nel testo tutti le tabelle, immagini e algoritmi
+
+
+PARADIGM instead of framework
+
+leggere struttura tesi nel Regolamento_Lauree
