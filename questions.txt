@@ -69,6 +69,8 @@
  69. TODO configure the semi active samples function to pick up the MOST CERTAIN samples 
  70. TODO rename correclty and unifoormly the models 
  71. TODO update the model pseudo algorithms 
+ 72. TODO check once again the original tunc_oz repo models baseline
+ 73. TODO check input and output of the pseudo algorithms
 
 CHECK THE VALUES INSIDE THE COMPUTED VECTORS
 

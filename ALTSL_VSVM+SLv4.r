@@ -19,7 +19,7 @@ b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6)           # radius around SV - threshold       
 boundMargin = c(1.5, 0.5)     # distance from hyperplane - threshold   
 # sampleSizePor = c(25,30, 40,40, 60,60, 100,100, 180,180, 340,340, 500,500)
-sampleSizePor = c(65,100, 100, 150, 150) # only one sample size for plotting the thematic map for two setup
+sampleSizePor = c(65, 80, 80, 100, 100) # only one sample size for plotting the thematic map for two setup
 
 path = "D:/"
 #####################################################  Utils  ####################################################
@@ -83,7 +83,7 @@ svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = 
   )
   return(svmFitNarrow)  
 }
-# ***********************************
+
 # rem_extrem(variable[[1]], variable[[2]], bound[jj])
 # rem_extrem(org= SVtotal_ud, VSV1=S01C09, a=0.7)
 # Evaluate the distance between Virtual Support Vectors and Support Vectors lying in the input space
@@ -726,26 +726,26 @@ add_AL_samples = function(distance_data,
         selected_clusters <- list()
         for (label in class_labels) { selected_clusters[[label]] <- c()  }
       }
-    } else {  # Start selecting for the second set of selected_indices2
+    # } else {  # Start selecting for the second set of selected_indices2
       
-      # Check if the current class has not exceeded the allowed number of samples
-      if (class_sample_count[class_label] < samples_per_class2 || !flag_class ) {
-        # Check if the cluster has not been selected for this class
-        if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class2) {
+    #   # Check if the current class has not exceeded the allowed number of samples
+    #   if (class_sample_count[class_label] < samples_per_class2 || !flag_class ) {
+    #     # Check if the cluster has not been selected for this class
+    #     if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class2) {
           
-          # Add the sample's cluster to the selected clusters for this class
-          selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
+    #       # Add the sample's cluster to the selected clusters for this class
+    #       selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
           
-          # Add the index of the selected sample to the second selection
-          selected_indices2 <- c(selected_indices2, as.numeric(rownames(ref_added_or[sample,])))
+    #       # Add the index of the selected sample to the second selection
+    #       selected_indices2 <- c(selected_indices2, as.numeric(rownames(ref_added_or[sample,])))
           
-          # Increment the count of selected samples for this class
-          class_sample_count[class_label] <- class_sample_count[class_label] + 1
-        }
-      }
+    #       # Increment the count of selected samples for this class
+    #       class_sample_count[class_label] <- class_sample_count[class_label] + 1
+    #     }
+    #   }
       
-      # Stop if we have reached the desired total number of samples for the second selection
-      if (sum(class_sample_count) >= newSize2) { break }
+    #   # Stop if we have reached the desired total number of samples for the second selection
+    #   if (sum(class_sample_count) >= newSize2) { break }
     }
   }
   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
