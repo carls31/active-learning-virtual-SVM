@@ -633,41 +633,7 @@ add_AL_samples = function(distance_data,
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
   }
   # ***********************************************************************************
-  
-  # # Initialize a vector to store selected sample indices
-  # selected_indices <- c()
-  # cluster_samples <- c()
-  # selected_indices_semi <- c()
-  # label_samples_semi <- c()
-  # labels_in_semi <- c()
-  # tmpSize = 0
-  # # Iterate over clusters and select one sample from each cluster
-  # for (sample in seq_len(nrow(ref_added_or))) {
-  #   if (!( ref_added_or[sample,]$cluster %in% cluster_samples) && tmpSize < newSize){
-  #     if(flag_cluster){
-  #       cluster_samples <- c(cluster_samples, ref_added_or[sample,]$cluster)
-  #     }
-  #     tmpSize = tmpSize+1
-  #     
-  #     ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
-  #     selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
-  #   }
-  # 
-  #   # if (tmpSize >= newSize && tmpSize < newSize + semi_size - nclass +1) {
-  #   #     tmpSize <- tmpSize + 1
-  #   #     selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
-  #   #     if (!(ref_added_or[sample,]$label %in% labels_in_semi) ) {
-  #   #       labels_in_semi <- c(labels_in_semi, ref_added_or[sample,]$label)
-  #   #     }
-  #   # }
-  #   # if(tmpSize < newSize + semi_size && length(labels_in_semi) < nclass && !(ref_added_or[sample,]$label %in% labels_in_semi)){
-  #   #       labels_in_semi <- c(labels_in_semi, ref_added_or[sample,]$label)
-  #   #       tmpSize <- tmpSize + 1
-  #   #       selected_indices_semi <- c(selected_indices_semi, as.numeric(rownames(ref_added_or[sample,])))
-  #   # }
-  # 
-  #   
-  # }
+
   
   # Initialize vectors to store selected sample indices for two selections
   selected_indices <- c()
@@ -726,26 +692,22 @@ add_AL_samples = function(distance_data,
         selected_clusters <- list()
         for (label in class_labels) { selected_clusters[[label]] <- c()  }
       }
-    # } else {  # Start selecting for the second set of selected_indices2
-      
-    #   # Check if the current class has not exceeded the allowed number of samples
-    #   if (class_sample_count[class_label] < samples_per_class2 || !flag_class ) {
-    #     # Check if the cluster has not been selected for this class
-    #     if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class2) {
-          
-    #       # Add the sample's cluster to the selected clusters for this class
-    #       selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
-          
-    #       # Add the index of the selected sample to the second selection
-    #       selected_indices2 <- c(selected_indices2, as.numeric(rownames(ref_added_or[sample,])))
-          
-    #       # Increment the count of selected samples for this class
-    #       class_sample_count[class_label] <- class_sample_count[class_label] + 1
-    #     }
-    #   }
-      
-    #   # Stop if we have reached the desired total number of samples for the second selection
-    #   if (sum(class_sample_count) >= newSize2) { break }
+    } else {  # Start selecting for the second set of selected_indices2
+      ref_added_or <- ref_added_or[order(-ref_added_or$distance), ]
+      # Check if the current class has not exceeded the allowed number of samples
+      if (class_sample_count[class_label] < samples_per_class2 || !flag_class ) {
+        # Check if the cluster has not been selected for this class
+        if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class2) {
+          # Add the sample's cluster to the selected clusters for this class
+          selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
+          # Add the index of the selected sample to the second selection
+          selected_indices2 <- c(selected_indices2, as.numeric(rownames(ref_added_or[sample,])))
+          # Increment the count of selected samples for this class
+          class_sample_count[class_label] <- class_sample_count[class_label] + 1
+        }
+      }
+      # Stop if we have reached the desired total number of samples for the second selection
+      if (sum(class_sample_count) >= newSize2) { break }
     }
   }
   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
