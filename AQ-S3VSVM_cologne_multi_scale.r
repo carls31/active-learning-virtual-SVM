@@ -19,7 +19,7 @@ b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6)           # radius around SV - threshold       
 boundMargin = c(1.5, 0.5)     # distance from hyperplane - threshold   
 # sampleSizePor = c(25, 30, 40, 60, 100, 180, 340, 500, 1000) 
-sampleSizePor = c(78, 96, 120) # only one sample size for plotting the thematic map for two setup
+sampleSizePor = c(78, 120) # 96,  only one sample size for plotting the thematic map for two setup
 
 path = "D:/"
 ###############################################  Utils  ####################################################
