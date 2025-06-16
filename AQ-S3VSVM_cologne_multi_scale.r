@@ -1371,7 +1371,8 @@ for (realization in seq(1,nR)) {
       
       # **********************
       # get next train set portion
-      trainFeat <- rbind(trainFeat[,], setNames(newtrainFeat, names))
+      # trainFeat <- rbind(trainFeat[,], setNames(newtrainFeat, names))
+      trainFeat <- rbind(setNames(trainFeat[,], names), setNames(newtrainFeat, names))
       trainLabels <- unlist(list(trainLabels[], newtrainLabels))
       
     }
