@@ -1345,8 +1345,8 @@ for (realization in seq(1,nR)) {
       # subset on base level
       testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
     } else {
-      sampleSize = round((sampleSizePor[sample_size+1]-sampleSizePor[sample_size])/nclass)
-      
+      # sampleSize = round((sampleSizePor[sample_size+1]-sampleSizePor[sample_size])/nclass)
+      sampleSize = round(sampleSizePor[sample_size]/nclass)
       shares = c(sampleSize,sampleSize,sampleSize,sampleSize,sampleSize,sampleSize)
       
       
@@ -1361,19 +1361,27 @@ for (realization in seq(1,nR)) {
       trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
       trainDataCurRemaining <- trainDataCurRemaining[-c(samplesID), ]
       
-      newtrainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
-      newtrainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
+      
+      trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
+      trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
       # *********************************************************************
       
       # subset on L_4 ***************************** SVM base for invariants ************************************
-      newtrainFeat = newtrainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+      trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
-      
-      # **********************
-      # get next train set portion
-      # trainFeat <- rbind(trainFeat[,], setNames(newtrainFeat, names))
-      trainFeat <- rbind(setNames(trainFeat[,], names), setNames(newtrainFeat, names))
-      trainLabels <- unlist(list(trainLabels[], newtrainLabels))
+      # newtrainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
+      # newtrainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
+      # # *********************************************************************
+      # 
+      # # subset on L_4 ***************************** SVM base for invariants ************************************
+      # newtrainFeat = newtrainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+      # # ************************************************ *******************************************************
+      # 
+      # # **********************
+      # # get next train set portion
+      # # trainFeat <- rbind(trainFeat[,], setNames(newtrainFeat, names))
+      # trainFeat <- rbind(setNames(trainFeat[,], names), setNames(newtrainFeat, names))
+      # trainLabels <- unlist(list(trainLabels[], newtrainLabels))
       
     }
     
@@ -1424,6 +1432,7 @@ for (realization in seq(1,nR)) {
     freq_table <- table(SVtotal$REF)
     zero_label_classes <- names(freq_table[freq_table == 0])
     if (length(zero_label_classes) > 0) {
+      cat("\nFound an empty class label")
       for (class in zero_label_classes) {
         # Find the indices of rows in train DataCur with the zero label class
         class_indices <- which(trainLabels == class)
@@ -2463,7 +2472,7 @@ for (realization in seq(1,nR)) {
       bestFittingALModelvUn <- SLresult$bestFittingModel
       # new_best_trainFeatVSVMvUn <- SLresult$best_trainFeatVSVM
       # new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
-      # new_best_bound_SLvUn = SLresult$best_bound
+      new_best_bound_SLvUn = SLresult$best_bound
       # new_best_boundMargin_SLvUn = SLresult$best_boundMargin
       trainALvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
