@@ -1944,6 +1944,8 @@ for (realization in seq(1,nR)) {
       
       tmp_pred = predict(AL_MS_tSNE_tunedSVM, validateFeatsub)
       cm_AL_MS_tSNE  = confusionMatrix(tmp_pred, validateLabels)
+      train.timeALv2_tSNE_VSVMSL <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time+d.time, 1)
+      
       cat(model_name_AL_MS_tSNE," accuracy: ",round(cm_AL_MS_tSNE$overall["Accuracy"],5),"\n",sep="")
       # **********************
       
@@ -1955,7 +1957,7 @@ for (realization in seq(1,nR)) {
       best_cluster = clusterSizes[cS]
       
       
-      cat(model_name_AL_MS_tSNE," accuracy: ",round(cm_AL_MS_tSNE$overall["Accuracy"],5),sep="")#," | execution time: ",train.timeALv2_tSNE_VSVMSL,"sec\n"
+      cat(model_name_AL_MS_tSNE," accuracy: ",round(cm_AL_MS_tSNE$overall["Accuracy"],5)," | execution time: ",train.timeALv2_tSNE_VSVMSL,"sec\n",sep="")#
       
       AccuracyAL_MS_tSNE[realization,sample_size+1] = as.numeric((cm_AL_MS_tSNE$overall["Accuracy"]))
       KappaAL_MS_tSNE[realization,sample_size+1] = as.numeric((cm_AL_MS_tSNE$overall["Kappa"]))
@@ -2101,7 +2103,7 @@ for (realization in seq(1,nR)) {
       AL_MS_semiAL_bestFittingModel <- upd_SLresult$bestFittingModel
       tmp_pred = predict(AL_MS_semiAL_bestFittingModel, validateFeatsub)
       cm_AL_MS_semiAL  = confusionMatrix(tmp_pred, validateLabels)
-      t.time <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time+d.time, 1)
+      train.timeALv2_SEMI_VSVMSL <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+best_train.time+sampling.time+d.time, 1)
       
       
       
@@ -2110,8 +2112,7 @@ for (realization in seq(1,nR)) {
       # best_resample = resampledSize[rS]
       # best_classSize = classSize[clS]
       # best_cluster = clusterSizes[cS]
-      train.timeALv2_SEMI_VSVMSL = t.time
-      
+
       
       cat(model_name_AL_MS_semiAL," accuracy: ",round(cm_AL_MS_semiAL$overall["Accuracy"],5)," | execution time: ",train.timeALv2_SEMI_VSVMSL,"sec\n",sep="")
       
@@ -2259,7 +2260,7 @@ for (realization in seq(1,nR)) {
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       predLabelsALSVMsumUn = predict(bestFittingALModelSVMUn, validateFeatsub)
       cm_AL_SVM_SL_Un = confusionMatrix(predLabelsALSVMsumUn, validateLabels)
-      cat("ALSVM_SL_Un accuracy: ",round(cm_AL_SVM_SL_Un$overall["Accuracy"],5)," | execution time: ",t.timeSVMUn,"sec\n",sep="")
+      cat("ALSVM_SL_Un accuracy: ",round(cm_AL_SVM_SL_Un$overall["Accuracy"],5)," | execution time: ",t.timeALSVMUn,"sec\n",sep="")
       
       AccuracyALSVM_SL_Un[realization,sample_size+1] = as.numeric(cm_AL_SVM_SL_Un$overall["Accuracy"])
       KappaALSVM_SL_Un[realization,sample_size+1] = as.numeric(cm_AL_SVM_SL_Un$overall["Kappa"])
@@ -2480,6 +2481,7 @@ for (realization in seq(1,nR)) {
         # new_bestTrainFeatVSVM <- best_trainFeatVSVMvUn
         # new_bestTrainLabelsVSVM <- best_trainLabelsVSVMvUn
         # best_boundMargin <- best_boundMargin_SLvUn
+        best_train.time <- trainALvUn.time
         best_model_name <- model_name_vUn
       }
       #######################################################################################################
