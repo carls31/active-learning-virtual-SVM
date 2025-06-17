@@ -3,6 +3,7 @@ script = "ALTSLv3"  # -> New train samples and Active labeled samples are distin
 library(caret)
 library(kernlab)
 library(sampling)
+library(e1071)
 library(progress)   # progress bar visualization
 library(stats)      # k-means clustering
 library(foreach)    # parallel processing
@@ -21,7 +22,7 @@ boundMargin = c(1.5, 0.5)     # distance from hyperplane - threshold
 # sampleSizePor = c(25,30, 40,40, 60,60, 100,100, 180,180, 340,340, 500,500)
 sampleSizePor = c(65, 80, 80, 100, 100) # only one sample size for plotting the thematic map for two setup
 
-path = "D:/"
+path = "E:/"
 #####################################################  Utils  ####################################################
 # ************************************************************************************************************** #
 #                                       lorenzo.carlassara98@gmail.com                                           #
@@ -31,9 +32,9 @@ path = "D:/"
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 lgtS=TRUE
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores()-1 # Numbers of CPU cores for parallel processing
+num_cores <- parallel::detectCores()-2 # Numbers of CPU cores for parallel processing
 
-# if(!dir.exists(path)){path = '/home/data1/Lorenzo/'}
+if(!dir.exists(path)){path = 'D:/'} # '/home/data1/Lorenzo/'
 
 svmFit = function(x, y, indexTrain, classProb = FALSE, showPrg = TRUE, metric = "Kappa"){ #x = training descriptors, y = class labels
   
@@ -1027,7 +1028,7 @@ sindexSVMDATA = 37        # start of baseline model with one segmentation scale 
 eindexSVMDATA = sindexSVMDATA + numFeat -1              # end of base data
 
   
-# # To load them back:
+# # To load them back: "E:\tunc_oz\apply_model\rds_data_r_import\cologne\scale"
 setwd(paste0(path, "tunc_oz/apply_model/", "rds_data_r_import/",city,"/",invariance))
 if (file.exists(paste0(city,"_",model_prob,"_",invariance,"_trainDataPoolAllLev.rds"))) {
   
@@ -2242,7 +2243,7 @@ for (realization in seq(1,nR)) {
       best_model <- model_name_vUn
     }
     ########################################################################################################
-    if (num_cores>=3 && sample_size<length(sampleSizePor)) {
+    if (num_cores>=2 && sample_size<length(sampleSizePor)) {
       cat("\n") ############################### Sampling unlabeled data #####################################
 
       # get the new size for the active labeling
@@ -2855,7 +2856,7 @@ for (realization in seq(1,nR)) {
   trainvUn.time_oa = trainvUn.time_oa+trainvUn.time
   train.timeALv1_VSVMSL_oa = train.timeALv1_VSVMSL_oa+train.timeALv1_tSNE_VSVMSL
   train.timeALv2_SEMI_VSVMSL_oa = train.timeALv2_SEMI_VSVMSL_oa+train.timeALv2_SEMI_VSVMSL
-  train.timeALv2_tSNE_VSVMSL_oa = train.timeALv2_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSL
+  train.timeALv2_tSNE_VSVMSL_oa = train.timeALv2_tSNE_VSVMSL_oa+train.timeALv2_tSNE_VSVMSLS
   time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
   cat("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h\n\n")
 } 
