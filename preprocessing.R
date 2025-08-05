@@ -6,8 +6,8 @@ library(caret)
 ##################################################################################################################
 
 cities = c("hagadera")    # cologne or hagadera location
-invariances = c("shape")   # scale or shape invariance
-model_probs = c("binary")  # multiclass or binary problem
+invariances = c("scale")   # scale or shape invariance
+model_probs = c("multiclass")  # multiclass or binary problem
 
 path = '/home/data1/Lorenzo/'
 #####################################################  Utils  ####################################################
@@ -315,7 +315,7 @@ for (model_prob in model_probs) {
           
           setwd(paste0(path, "tunc_oz/apply_model/", "csv_data_r_import/",city,"/",invariance))
           
-          # import data
+          # import data "D:/tunc_oz/apply_model/csv_data_r_import/hagadera/scale/hagadera_all_level_scale_specgeomtex.csv"
           generalDataPool = read.csv2(inputPath,header = T, sep =";",colClasses = columnclass)
           colnames(generalDataPool)[209] = "REF"
           
