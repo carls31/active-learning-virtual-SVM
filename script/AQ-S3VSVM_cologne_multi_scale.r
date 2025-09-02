@@ -298,7 +298,7 @@ pred_all = function(modelfin, dataPoint, dataPointLabels, binaryClassProb=binary
 #   
 #   distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
 #   
-#   registerDoParallel(num_cores)
+#   registerDoParallel(cl)
 #   distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
 #     # calculate_margin_distance(k)
 #     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), samp[k, ncol(samp)])
@@ -320,13 +320,28 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
   # Initialize data frame to store margin distance for each sample
   margin_distance <- data.frame(control_label = as.character(samp[, ncol(samp)]), distance = numeric(nrow(samp)))
   
+  library(parallel)
+  library(doParallel)
+  library(foreach)
+  
+  print(paste("Starting cluster with", num_cores, "cores"))
+  showConnections(all = TRUE)
+  
   # Set up parallel backend
-  registerDoParallel(num_cores)
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
   margin_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
     # calculate_margin_distance(k)
     pred_one(org$finalModel, unlist(samp[k, -ncol(samp)]), classes, binaryClassProblem)
   }
+  
+  # Clean up
+  stopCluster(cl)
   registerDoSEQ()
+  
+  # Debug - after cleanup
+  print("Cluster stopped.")
+  showConnections(all = TRUE)
   
   # scale distances
   scaled_distances <- apply(margin_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
@@ -411,12 +426,27 @@ mclu_sampling <- function(org, samp, pred_all,binaryClassProblem, classes=NA,
     # return(cbind(abs(distance_top[1] - distance_top[2]),abs(distance_top[1] - distance_top[2])+1e-6*distance_top[1],distance_top[1],distance_top[2]))
   }
   
+  library(parallel)
+  library(doParallel)
+  library(foreach)
+  
+  print(paste("Starting cluster with", num_cores, "cores"))
+  showConnections(all = TRUE)
+  
   # Use foreach for parallel processing
-  registerDoParallel(num_cores)
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
   mclu_distances <- foreach(k = 1:nrow(samp), .combine = rbind) %dopar% {
     calculate_mclu_distance(k)
   }
+  
+  # Clean up
+  stopCluster(cl)
   registerDoSEQ()
+  
+  # Debug - after cleanup
+  print("Cluster stopped.")
+  showConnections(all = TRUE)
   
   mclu_scaled_distances <- apply(mclu_distances, 2, function(x) (x - min(x)) / (max(x) - min(x)))
   # uncertainty$distance <- mclu_distances
@@ -703,10 +733,20 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
 
   actKappa = -1e-6
   cat("applying constraints to VSVs candidates\n")
+  
+  library(parallel)
+  library(doParallel)
+  library(foreach)
+  
+  print(paste("Starting cluster with", num_cores, "cores"))
+  showConnections(all = TRUE)
+  
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
+  
   # iteration over bound to test different bound thresholds determining the radius of acception
   for(jj in seq(along=bound)){
-    
-    registerDoParallel(num_cores)
+
     # Apply foreach loop to process each SVL variable and bind the results
     if(model_prob=="binary"){ # print("binary")
       SVinvarRadi <- foreach(variable = SVL_variables, .combine = rbind) %dopar% {
@@ -724,8 +764,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         # assign("last.warning", NULL, envir = baseenv())
       }
     } # print("step 2")
-    registerDoSEQ() # print("step 3")
-    
+
     # remove NAs 
     SVinvarRadi = na.omit(SVinvarRadi)
     
@@ -797,6 +836,15 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
       }
     }
   } 
+  
+  # Clean up
+  stopCluster(cl)
+  registerDoSEQ()
+  
+  # Debug - after cleanup
+  print("Cluster stopped.")
+  showConnections(all = TRUE)
+  
   return(list(bestFittingModel = bestFittingModel, 
               actKappa = actKappa, 
               best_trainFeatVSVM = best_trainFeatVSVM, 
@@ -963,7 +1011,7 @@ classificationProblem = function(generalDataPool){
 # sampleSizePor = c(5,10,20,32,46,62,80,100) # Class sample size: round(250/6) label per class i.e. 42 # c(100,80,62,46,32,20,10,5)
 lgtS=TRUE
 train  = TRUE              # if TRUE, train the models otherwise load them from dir 
-num_cores <- parallel::detectCores()-1 # Numbers of CPU cores for parallel processing
+num_cores <- parallel::detectCores()/2 # Numbers of CPU cores for parallel processing
 
 # if(!dir.exists(path)){path = '/home/data1/Lorenzo/'}
 
@@ -2539,7 +2587,7 @@ for (realization in seq(1,nR)) {
   }
   cat("\n") ###################################  End realization ############################################
   # Store hyperparameters 
-  best_model_oa=c(best_model_oa,best_model,": ",as.numeric(best_acc),"\n")
+  best_model_oa=c(best_model_oa,best_model_name,": ",as.numeric(best_acc),"\n")
   trainSVMUn.time_oa = trainSVMUn.time_oa+t.timeSVMUn
   trainSL.time_oa = trainSL.time_oa+t.timeSL
   trainUn.time_oa = trainUn.time_oa+trainUn.time
@@ -2691,3 +2739,4 @@ if (length(sampleSizePor)>=2) {
   cat("Number of ", model_name_AL_MS_semiAL ," SVs: ",length(AL_MS_semiAL_bestFittingModel$finalModel@SVindex),"\nNumber of ", model_name_AL_MCLU ," SVs: ", length(AL_MCLU_tunedSVM$finalModel@SVindex),"\nNumber of final train Labels AL: ",length(trainLabels_AL),"\n\n",sep="")
   cat("performance results: acquired\n\n\n")
 }
+
