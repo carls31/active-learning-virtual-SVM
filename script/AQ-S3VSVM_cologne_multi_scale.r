@@ -1295,8 +1295,8 @@ for (realization in seq(1,nR)) {
       # subset on L_4 ***************************** SVM base for invariants ************************************
       trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
-      
-      trainFeat <- rbind(trainFeat[,], setNames(trainFeat4AL, names))
+      names = objInfoNames[1:(length(objInfoNames)-1)]
+      trainFeat <- rbind(setNames(trainFeat, names), setNames(trainFeat4AL, names))
       trainLabels <- unlist(list(trainLabels[], trainLabels4AL))
       
       
@@ -1342,7 +1342,7 @@ for (realization in seq(1,nR)) {
       # subset on base level
       testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
       
-      testFeatsub <- rbind(testFeatsub[,], setNames(testFeatsub4AL, names))
+      testFeatsub <- rbind(setNames(testFeatsub, names), setNames(testFeatsub4AL, names))
       testLabels <- unlist(list(testLabels[], testLabels4AL))
       
       
@@ -1693,33 +1693,6 @@ for (realization in seq(1,nR)) {
       newSize = round(sampleSizePor[sample_size]/3)
 
 
-      
-      # sampleSize = round(sampleSizePor[sample_size]/nclass)
-      # shares = c(sampleSize/3,sampleSize/3,sampleSize/3,sampleSize/3,sampleSize/3,sampleSize/3)
-      
-      # if (sample_size==1){
-      #   trainFeat_AL = setNames(trainFeat,objInfoNames[1:(length(objInfoNames)-1)])
-      #   trainLabels_AL = trainLabels
-      #   
-      #   trainDataCurRemaining_AL = trainDataCurRemaining #assign it at the beginning row 1271
-      # }
-
-      # stratSamp = strata(testDataCurBeg, c("REF"), size = shares, method = "srswor")
-      # samples = getdata(testDataCurBeg, stratSamp)
-      # testDataCur = samples[,1:ncol(testDataAllLev)]
-      # 
-      # # split test feat from test label for later join with trainData
-      # testFeat = testDataCur[,1:(ncol(testDataCur)-1)]
-      # testLabels = testDataCur[,ncol(testDataCur)]
-      # 
-      # # subset on base level
-      # testFeatsub = testFeat[sindexSVMDATA:eindexSVMDATA]
-      
-      
-
-          
-      
-      
       clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
       
       
@@ -1759,10 +1732,7 @@ for (realization in seq(1,nR)) {
       
       MCLU_trainFeat_AL <- setNames(trainFeat4AL, names)
       MCLU_trainLabels_AL <- trainLabels4AL
-      
-      # newSize_for_iter = newSize #sampleSize/10 # or just 4
-      # num_iters = round(resampledSize[rS]/newSize_for_iter) # 1, 3, 5, 10, 16, 24, 50, 100
-      
+
       trainStart.time <- Sys.time()
       
       predLabelsVSVM = predict(tunedSVM4AL, upd_dataCurFeatsub)
