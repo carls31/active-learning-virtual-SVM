@@ -702,7 +702,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
         tryCatch({
           setNames(rem_extrem_kerneldist(variable[[1]], variable[[2]], bound[jj], SVMfinModel@kernelf), objInfoNames)
         }, error = function(e) {
-          message(paste("Error in task", variable, ":", e$message))
+          print(paste("Error in task", variable, ":", e$message))
           NULL  # Return NULL in case of error
         })
         # assign("last.warning", NULL, envir = baseenv())
@@ -2270,16 +2270,16 @@ for (realization in seq(1,nR)) {
        
       trainStart.time <- Sys.time()
       
-      S01C09 = trainDataCur[SVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
-      S03C05 = trainDataCur[SVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
-      S03C07 = trainDataCur[SVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]
-      S05C03 = trainDataCur[SVindex,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))]
-      S05C05 = trainDataCur[SVindex,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))]
-      S05C07 = trainDataCur[SVindex,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]
-      S07C03 = trainDataCur[SVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]
-      S09C01 = trainDataCur[SVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]
+      S01C09 = trainDataCur[ALSVindex,c((numFeat+1):(2*numFeat),ncol(trainDataCur))]
+      S03C05 = trainDataCur[ALSVindex,c(((2*numFeat)+1):(3*numFeat),ncol(trainDataCur))]
+      S03C07 = trainDataCur[ALSVindex,c(((3*numFeat)+1):(4*numFeat),ncol(trainDataCur))]
+      S05C03 = trainDataCur[ALSVindex,c(((4*numFeat)+1):(5*numFeat),ncol(trainDataCur))]
+      S05C05 = trainDataCur[ALSVindex,c(((5*numFeat)+1):(6*numFeat),ncol(trainDataCur))]
+      S05C07 = trainDataCur[ALSVindex,c(((6*numFeat)+1):(7*numFeat),ncol(trainDataCur))]
+      S07C03 = trainDataCur[ALSVindex,c(((7*numFeat)+1):(8*numFeat),ncol(trainDataCur))]
+      S09C01 = trainDataCur[ALSVindex,c(((8*numFeat)+1):(9*numFeat),ncol(trainDataCur))]
       
-      SVinvar = rbind(setNames(SVtotal,objInfoNames),
+      SVinvar = rbind(setNames(ALSVtotal,objInfoNames),
                       setNames(S01C09,objInfoNames),
                       setNames(S03C05,objInfoNames),
                       setNames(S03C07,objInfoNames),
@@ -2293,14 +2293,14 @@ for (realization in seq(1,nR)) {
       cat("evaluation of VSVM with self learning | ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       
       SVL_variables = list(
-        list(SVtotal, S01C09),
-        list(SVtotal, S03C05),
-        list(SVtotal, S03C07),
-        list(SVtotal, S05C03),
-        list(SVtotal, S05C05),
-        list(SVtotal, S05C07),
-        list(SVtotal, S07C03),
-        list(SVtotal, S09C01)
+        list(ALSVtotal, S01C09),
+        list(ALSVtotal, S03C05),
+        list(ALSVtotal, S03C07),
+        list(ALSVtotal, S05C03),
+        list(ALSVtotal, S05C05),
+        list(ALSVtotal, S05C07),
+        list(ALSVtotal, S07C03),
+        list(ALSVtotal, S09C01)
       )
       
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
@@ -2355,14 +2355,14 @@ for (realization in seq(1,nR)) {
       cat("evaluation of VSVM SL with ",b[bb]," semi-labeled samples | ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       # get VSs, means rows of SV but with subset on different level
       SVL_variables=list(
-        list(SVtotal, S09C01),
-        list(SVtotal, S07C03),
-        list(SVtotal, S05C07),
-        list(SVtotal, S05C05),
-        list(SVtotal, S05C03),
-        list(SVtotal, S03C07),
-        list(SVtotal, S03C05),
-        list(SVtotal, S01C09),
+        list(ALSVtotal, S09C01),
+        list(ALSVtotal, S07C03),
+        list(ALSVtotal, S05C07),
+        list(ALSVtotal, S05C05),
+        list(ALSVtotal, S05C03),
+        list(ALSVtotal, S03C07),
+        list(ALSVtotal, S03C05),
+        list(ALSVtotal, S01C09),
         list(totalUn, S01C09Un = cbind(trainDataCurRemaining_SL[indexUn,c((numFeat+1):(2*numFeat))], REF_b)),
         list(totalUn, S03C05Un = cbind(trainDataCurRemaining_SL[indexUn,c(((2*numFeat)+1):(3*numFeat))], REF_b)),
         list(totalUn, S03C07Un = cbind(trainDataCurRemaining_SL[indexUn,c(((3*numFeat)+1):(4*numFeat))], REF_b)),
@@ -2414,14 +2414,14 @@ for (realization in seq(1,nR)) {
       cat("evaluation of AL VSVM SL with ",b[bb]," virtual semi-labeled samples"," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="") #  [",bb,"/",length(b),"]","
       
       SVL_variables=list(
-        list(SVtotal, S09C01),
-        list(SVtotal, S07C03),
-        list(SVtotal, S05C07),
-        list(SVtotal, S05C05),
-        list(SVtotal, S05C03),
-        list(SVtotal, S03C07),
-        list(SVtotal, S03C05),
-        list(SVtotal, S01C09),
+        list(ALSVtotal, S09C01),
+        list(ALSVtotal, S07C03),
+        list(ALSVtotal, S05C07),
+        list(ALSVtotal, S05C05),
+        list(ALSVtotal, S05C03),
+        list(ALSVtotal, S03C07),
+        list(ALSVtotal, S03C05),
+        list(ALSVtotal, S01C09),
         list(SVtotalvUn_v, S01C09vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c((numFeat+1):(2*numFeat))], REF_v)),
         list(SVtotalvUn_v, S03C05vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((2*numFeat)+1):(3*numFeat))], REF_v)),
         list(SVtotalvUn_v, S03C07vUn = cbind(trainDataCurRemaining_SL[indexvUn_v,c(((3*numFeat)+1):(4*numFeat))], REF_v)),
