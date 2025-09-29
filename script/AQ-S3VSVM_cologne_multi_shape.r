@@ -10,7 +10,7 @@ library(doParallel) # multiple CPU cores
 library(Rtsne)      # t-distributed stochastic neighbour embedding
 ############################################################################################################
 
-nR = 1                   # number of realizations
+nR = 20                   # number of realizations
 city = "cologne"    # cologne or hagadera location
 invariance = "shape"   # scale or shape invariance
 model_prob = "multiclass" # multiclass or binary problem
@@ -2768,8 +2768,8 @@ if(model_prob == "binary"){
 type = "l"
 
 ######################################## Accuracy ##########################################
-file_name_acc = "20250928_cologne_multiclass_scale_acc_AQS3VSVM_20Unl_20nR_9SizePor"
-file_name_kappa = "20250928_cologne_multiclass_scale_Kappa_AQS3VSVM_20Unl_20nR_9SizePor"
+file_name_acc = "20250928_cologne_multiclass_shape_acc_AQS3VSVM_20Unl_20nR_9SizePor"
+file_name_kappa = "20250928_cologne_multiclass_shape_Kappa_AQS3VSVM_20Unl_20nR_9SizePor"
 
 
 png(filename=paste0(file_name_acc,".png"),
