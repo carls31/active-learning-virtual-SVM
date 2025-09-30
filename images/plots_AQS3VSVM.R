@@ -54,7 +54,7 @@ lenged_names = c("SVM single-level L4",
                  "VSVM-SL-semi-labeled",
                  "VSVM-SL-virtual-semi-labeled",
                  
-                 "AQ MCLU SVM",
+                 # "AQ MCLU SVM",
                  "AQ MS SVM",
                  # "AQ MS semi-AL SVM",
                  "AQ MS + tSNE",
@@ -71,13 +71,13 @@ SVM_SL_col     <- 2   # red
 VSVM_SL_col    <- 3   # blue
 AL_MCLU_SVM_col<- 4   # dark green
 AL_MS_col      <- 5   # purple
-AL_SVM_SL_col  <- 6   # orange
+AL_SVM_SL_col  <- 4   # dark green # 6 orange
 AL_VSVM_SL_col <- 7   # brown
 
 legend_col = c(SVM_col, 
                SVM_SL_col, 
                VSVM_SL_col, VSVM_SL_col, VSVM_SL_col,   # VSVM-SL family shares blue
-               AL_MCLU_SVM_col,
+               # AL_MCLU_SVM_col,
                AL_MS_col, AL_MS_col, # AL_MS_col,          # AL MS family shares purple
                AL_SVM_SL_col,                            # AL SVM-SL
                AL_VSVM_SL_col, AL_VSVM_SL_col, AL_VSVM_SL_col # AL VSVM-SL family shares brown
@@ -93,9 +93,9 @@ VSVM_SL_vUn_lty<- 3    # dotted
 AL_MCLU_SVM_lty<- 1    # solid
 AL_MS_lty      <- 1    # solid
 AL_MS_semiAL_lty<- 2   # dashed
-AL_MS_tSNE_lty <- 3    # dotted
+AL_MS_tSNE_lty <- 2    # dashed
 
-AL_SVM_SL_lty  <- 2    # dashed
+AL_SVM_SL_lty  <- 3    # dotted
 AL_VSVM_SL_lty <- 1    # solid
 AL_VSVM_SL_Un_lty<- 2  # dashed
 AL_VSVM_SL_vUn_lty<- 3 # dotted
@@ -103,7 +103,7 @@ AL_VSVM_SL_vUn_lty<- 3 # dotted
 lenged_lty = c(SVM_lty,
                SVM_SL_lty,
                VSVM_SL_lty, VSVM_SL_Un_lty, VSVM_SL_vUn_lty,
-               AL_MCLU_SVM_lty,
+               # AL_MCLU_SVM_lty,
                AL_MS_lty, 
                # AL_MS_semiAL_lty, 
                AL_MS_tSNE_lty,
@@ -188,7 +188,7 @@ lines(x, avgVSVM_SL,       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
 lines(x, avgVSVM_SL_Un_b,  type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
 lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
 
-lines(x, avgVSVM_SL_Un_it,    type=type, col=AL_MCLU_SVM_col, lwd=2, lty=AL_MCLU_SVM_lty)
+# lines(x, avgVSVM_SL_Un_it,    type=type, col=AL_MCLU_SVM_col, lwd=2, lty=AL_MCLU_SVM_lty)
 lines(x, avgVSVM_SL_Un_itSL,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
 lines(x, avgVSVM_SL_Un_itSL2, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_tSNE_lty)
 # lines(x, avgVSVM_SL_Un_itTSL, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_semiAL_lty)
