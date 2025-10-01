@@ -10,6 +10,7 @@ if(!dir.exists(path)){path = "D:/"}
 
 # Load saved R objects
 load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/scale/20250929_0613_cologne_multiclass_scale_acc_ALTSLv3_20Unl_20nR_9SizePor.RData")
+load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/scale/20250929_0613_cologne_multiclass_scale_kappa_ALTSLv3_20Unl_20nR_9SizePor.RData")
 
 # (optional) Check what objects were loaded
 ls()
@@ -57,9 +58,9 @@ lenged_names = c("SVM single-level L4",
                  # "AQ MCLU SVM",
                  "AQ MS SVM",
                  # "AQ MS semi-AL SVM",
-                 "AQ MS + tSNE",
+                 # "AQ MS + tSNE SVM",
                  
-                 "AQ SVM-SL-semi-labeled", 
+                 "AQ SVM-SL-semi-active-labeled", 
                  "AQ VSVM-SL",
                  "AQ VSVM-SL-semi-labeled",
                  "AQ VSVM-SL-virtual-semi-labeled"
@@ -78,7 +79,7 @@ legend_col = c(SVM_col,
                SVM_SL_col, 
                VSVM_SL_col, VSVM_SL_col, VSVM_SL_col,   # VSVM-SL family shares blue
                # AL_MCLU_SVM_col,
-               AL_MS_col, AL_MS_col, # AL_MS_col,          # AL MS family shares purple
+               AL_MS_col, # AL_MS_col, # AL_MS_col,          # AL MS family shares purple
                AL_SVM_SL_col,                            # AL SVM-SL
                AL_VSVM_SL_col, AL_VSVM_SL_col, AL_VSVM_SL_col # AL VSVM-SL family shares brown
 )
@@ -106,7 +107,7 @@ lenged_lty = c(SVM_lty,
                # AL_MCLU_SVM_lty,
                AL_MS_lty, 
                # AL_MS_semiAL_lty, 
-               AL_MS_tSNE_lty,
+               # AL_MS_tSNE_lty,
                AL_SVM_SL_lty,
                AL_VSVM_SL_lty, AL_VSVM_SL_Un_lty, AL_VSVM_SL_vUn_lty
 )
@@ -122,7 +123,7 @@ if(model_prob == "multiclass"){
   
   if(city=="cologne"){
     yUpperBound = 0.80 # 0.76
-    ylowerBound = 0.48 # 0.54
+    ylowerBound = 0.46 # 0.54
     
   }
 }
@@ -144,7 +145,7 @@ type = "l"
 
 ######################################## Accuracy ##########################################
 file_name_acc = "20250928_PROVA_cologne_multiclass_shape_acc_AQS3VSVM_20Unl_20nR_9SizePor"
-file_name_kappa = "20250928_cologne_multiclass_shape_Kappa_AQS3VSVM_20Unl_20nR_9SizePor"
+file_name_kappa = "20250928_PROVA_cologne_multiclass_shape_Kappa_AQS3VSVM_20Unl_20nR_9SizePor"
 
 
 png(filename=paste0(file_name_acc,".png"),
@@ -190,7 +191,7 @@ lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_l
 
 # lines(x, avgVSVM_SL_Un_it,    type=type, col=AL_MCLU_SVM_col, lwd=2, lty=AL_MCLU_SVM_lty)
 lines(x, avgVSVM_SL_Un_itSL,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
-lines(x, avgVSVM_SL_Un_itSL2, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_tSNE_lty)
+# lines(x, avgVSVM_SL_Un_itSL2, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_tSNE_lty)
 # lines(x, avgVSVM_SL_Un_itTSL, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_semiAL_lty)
 
 lines(x, avgALSVM_SL_Un_b,   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
@@ -218,7 +219,7 @@ if(model_prob == "multiclass"){
   
   if(city=="cologne"){
     yUpperBound = 0.81 # 0.76
-    ylowerBound = 0.45 # 0.54
+    ylowerBound = 0.40 # 0.54
     
   }
 }
@@ -235,3 +236,125 @@ if(model_prob == "binary"){
     
   }
 }
+
+
+# ===== Accuracy +/- std dev =====
+if(nrow(AccuracySVM) > 1){
+  
+  sdSVM           = ExCsvMSD(AccuracySVM)[2,]
+  sdSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un)[2,]
+  sdVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL)[2,]
+  sdVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un)[2,]
+  sdVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn)[2,]
+  
+  sdVSVM_SL_Un_it    = ExCsvMSD(AccuracyAL_MCLU)[2,]
+  sdVSVM_SL_Un_itSL  = ExCsvMSD(AccuracyAL_MS)[2,]  
+  sdVSVM_SL_Un_itTSL = ExCsvMSD(AccuracyAL_MS_semiAL)[2,]  
+  sdVSVM_SL_Un_itSL2 = ExCsvMSD(AccuracyAL_MS_tSNE)[2,]
+  
+  sdALSVM_SL_Un_b    = ExCsvMSD(AccuracyALSVM_SL_Un)[2,]
+  sdALVSVM_SL        = ExCsvMSD(AccuracyALVSVM_SL)[2,]
+  sdALVSVM_SL_Un_b   = ExCsvMSD(AccuracyALVSVM_SL_Un)[2,]
+  sdALVSVM_SL_vUn_b  = ExCsvMSD(AccuracyALVSVM_SL_vUn)[2,]
+  
+  png(filename=paste0(file_name_acc,"_sd.png"),
+      units="in", width=20, height=16,
+      pointsize=24, res=96)
+  
+  msdSVMPlot = plot(x, avgSVM, log="x",
+                    ylim=range(c(ylowerBound,yUpperBound)),
+                    pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
+                    xlab="number of labeled samples per class",
+                    ylab="accuracy (%) +/- std dev",
+                    main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
+  
+  # Families
+  lines(x, avgSVM_SL_Un_b,   type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
+  lines(x, avgVSVM_SL,       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
+  lines(x, avgVSVM_SL_Un_b,  type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
+  lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
+  
+  # lines(x, avgVSVM_SL_Un_it,    type=type, col=AL_MCLU_SVM_col, lwd=2, lty=AL_MCLU_SVM_lty)
+  lines(x, avgVSVM_SL_Un_itSL,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
+  # lines(x, avgVSVM_SL_Un_itSL2, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_tSNE_lty)
+  # lines(x, avgVSVM_SL_Un_itTSL, type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_semiAL_lty)
+  
+  lines(x, avgALSVM_SL_Un_b,   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
+  lines(x, avgALVSVM_SL,       type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
+  lines(x, avgALVSVM_SL_Un_b,  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
+  lines(x, avgALVSVM_SL_vUn_b, type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
+  
+  # Std dev bars (arrows)
+  arrows(x, avgVSVM_SL - sdVSVM_SL,     x, avgVSVM_SL + sdVSVM_SL,     length=0.075, angle=90, code=3, col=VSVM_SL_col, lty=VSVM_SL_lty)
+  arrows(x, avgVSVM_SL_vUn_b - sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b + sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3, col=VSVM_SL_col, lty=VSVM_SL_vUn_lty)
+  # arrows(x, avgVSVM_SL_Un_it - sdVSVM_SL_Un_it, x, avgVSVM_SL_Un_it + sdVSVM_SL_Un_it, length=0.075, angle=90, code=3, col=AL_MCLU_SVM_col, lty=AL_MCLU_SVM_lty)
+  # arrows(x, avgVSVM_SL_Un_itTSL - sdVSVM_SL_Un_itTSL, x, avgVSVM_SL_Un_itTSL + sdVSVM_SL_Un_itTSL, length=0.075, angle=90, code=3, col=AL_MS_col, lty=AL_MS_semiAL_lty)
+  
+  arrows(x, avgVSVM_SL_Un_itSL - sdVSVM_SL_Un_itSL,     x, avgVSVM_SL_Un_itSL + sdVSVM_SL_Un_itSL,     length=0.075, angle=90, code=3, col=AL_MS_col, lty=AL_MS_lty)
+  # arrows(x, avgVSVM_SL_Un_itSL2 - sdVSVM_SL_Un_itSL2, x, avgVSVM_SL_Un_itSL2 + sdVSVM_SL_Un_itSL2, length=0.075, angle=90, code=3, col=AL_MS_col, lty=AL_MS_tSNE_lty)
+  
+  arrows(x, avgALVSVM_SL - sdALVSVM_SL,     x, avgALVSVM_SL + sdALVSVM_SL,     length=0.075, angle=90, code=3, col=AL_VSVM_SL_col, lty=AL_VSVM_SL_lty)
+  arrows(x, avgALVSVM_SL_vUn_b - sdALVSVM_SL_vUn_b, x, avgALVSVM_SL_vUn_b + sdALVSVM_SL_vUn_b, length=0.075, angle=90, code=3, col=AL_VSVM_SL_col, lty=AL_VSVM_SL_vUn_lty)
+  
+  legend("bottomright", lenged_names, lty=lenged_lty, col=legend_col) 
+  dev.off()
+}
+
+if(model_prob == "multiclass"){
+  
+  if(city=="hagadera"){
+    yUpperBound = 0.972
+    ylowerBound = 0.81
+  }
+  
+  if(city=="cologne"){
+    yUpperBound = 0.73 # 0.76
+    ylowerBound = 0.33 # 0.54
+    
+  }
+}
+if(model_prob == "binary"){
+  
+  if(city=="hagadera"){
+    yUpperBound = 0.975
+    ylowerBound = 0.79
+    
+  }
+  if(city=="cologne"){
+    yUpperBound = 0.935
+    ylowerBound = 0.81
+    
+  }
+}
+
+# ===== Kappa =====
+png(filename=paste0(file_name_kappa,".png"),
+    units="in", width=20, height=16,
+    pointsize=24, res=96)
+
+if(nrow(KappaSVM) > 1){
+  msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,], log="x",
+                    ylim=range(c(ylowerBound,yUpperBound)),
+                    pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
+                    xlab="number of labeled samples per class",
+                    ylab="Kappa-score",
+                    main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
+  
+  lines(x, ExCsvMSD(KappaSVM_SL_Un)[1,],     type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
+  lines(x, ExCsvMSD(KappaVSVM_SL)[1,],       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
+  lines(x, ExCsvMSD(KappaVSVM_SL_Un)[1,],    type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
+  lines(x, ExCsvMSD(KappaVSVM_SL_vUn)[1,],   type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
+  
+  # lines(x, ExCsvMSD(KappaAL_MCLU)[1,],       type=type, col=AL_MCLU_SVM_col, lwd=2, lty=AL_MCLU_SVM_lty)
+  lines(x, ExCsvMSD(KappaAL_MS)[1,],         type=type, col=AL_MS_col,       lwd=2, lty=AL_MS_lty)
+  # lines(x, ExCsvMSD(KappaAL_MS_tSNE)[1,],    type=type, col=AL_MS_col,       lwd=2, lty=AL_MS_tSNE_lty)
+  # lines(x, ExCsvMSD(KappaAL_MS_semiAL)[1,],  type=type, col=AL_MS_col,       lwd=2, lty=AL_MS_semiAL_lty)
+  
+  lines(x, ExCsvMSD(KappaALSVM_SL_Un)[1,],   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
+  lines(x, ExCsvMSD(KappaALVSVM_SL)[1,],     type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
+  lines(x, ExCsvMSD(KappaALVSVM_SL_Un)[1,],  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
+  lines(x, ExCsvMSD(KappaALVSVM_SL_vUn)[1,], type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
+}
+
+legend("bottomright", lenged_names, lty=lenged_lty, col=legend_col) 
+dev.off()
