@@ -2,17 +2,24 @@ library(scales)
 
 city = "cologne"    # cologne or hagadera
 model_prob = "multiclass"     # multiclass or binary
-invariance = "scale"     # scale or shape
+invariance = "shape"     # scale or shape
 
 path = '/home/data1/Lorenzo/'
 if(!dir.exists(path)){path = "D:/"}
 
 
 # Load saved R objects
-load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/scale/20250929_0613_cologne_multiclass_scale_acc_ALTSLv3_20Unl_20nR_9SizePor.RData")
-load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/scale/20250929_0613_cologne_multiclass_scale_kappa_ALTSLv3_20Unl_20nR_9SizePor.RData")
+# load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/scale/20250929_0613_cologne_multiclass_scale_acc_ALTSLv3_20Unl_20nR_9SizePor.RData")
+# load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/scale/20250929_0613_cologne_multiclass_scale_kappa_ALTSLv3_20Unl_20nR_9SizePor.RData")
 
-# (optional) Check what objects were loaded
+load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/shape/20251004_1646_cologne_multiclass_shape_acc_ALTSLv3_20Unl_20nR_9SizePor.RData")
+load("D:/GitHub/active-learning-virtual-SVM/results/cologne/multiclass/shape/20251004_1646_cologne_multiclass_shape_Kappa_ALTSLv3_20Unl_20nR_9SizePor.RData")
+
+
+
+
+
+
 ls()
 
 
@@ -144,8 +151,8 @@ if(model_prob == "binary"){
 type = "l"
 
 ######################################## Accuracy ##########################################
-file_name_acc = "20250928_PROVA_cologne_multiclass_shape_acc_AQS3VSVM_20Unl_20nR_9SizePor"
-file_name_kappa = "20250928_PROVA_cologne_multiclass_shape_Kappa_AQS3VSVM_20Unl_20nR_9SizePor"
+file_name_acc = "20251005_PROVA_cologne_multiclass_shape_acc_AQS3VSVM_20Unl_20nR_9SizePor"
+file_name_kappa = "20251005_PROVA_cologne_multiclass_shape_Kappa_AQS3VSVM_20Unl_20nR_9SizePor"
 
 
 png(filename=paste0(file_name_acc,".png"),
@@ -180,7 +187,7 @@ msdSVMPlot = plot(x, avgSVM,log = "x",
                   ylim=range(c(ylowerBound,yUpperBound)),
                   pch=20, type= type,       col = SVM_col, lwd = 2,lty = SVM_lty,
                   xlab= "number of labeled samples per class",
-                  ylab= "accuracy (%)",
+                  ylab= "accuracy",
                   main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
 )
 
@@ -265,7 +272,7 @@ if(nrow(AccuracySVM) > 1){
                     ylim=range(c(ylowerBound,yUpperBound)),
                     pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
                     xlab="number of labeled samples per class",
-                    ylab="accuracy (%) +/- std dev",
+                    ylab="accuracy +/- std dev",
                     main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
   
   # Families
