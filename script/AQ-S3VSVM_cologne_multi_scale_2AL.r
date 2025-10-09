@@ -734,7 +734,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
           if (signa < boundMargin[kk]) {
             SVinvar = rbind(SVinvar, SVinvarRadi[m, ])
           }
-          pb$tick()
+          # pb$tick()
         }
       } else { warning("SVinvarRadi has no rows to process") }
       
@@ -827,7 +827,7 @@ self_learn_AL = function(
       SVinvar = rbind(SVinvar, row_with_distance)
       upd_Labels <- c(upd_Labels, upd_dataCurLabels[m])
       # }
-      pb$tick()
+      # pb$tick()
     }
   } else { 
     warning("SVinvarRadi has no rows to process") 
@@ -1117,6 +1117,8 @@ AccuracyAL_MS_tSNE = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyAL_MS_tSNE) = colheader
 AccuracyAL_MS = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyAL_MS) = colheader
+AccuracyAL_MS_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyAL_MS_2IT) = colheader
 AccuracyAL_MS_semiAL = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyAL_MS_semiAL) = colheader
 
@@ -1147,8 +1149,7 @@ colnames(KappaSVM) = colheader
 KappaSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaSVM_SL_Un) = colheader
 
-# KappaVSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
-# colnames(KappaVSVM) = colheader
+
 KappaVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaVSVM_SL) = colheader
 KappaVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1162,20 +1163,22 @@ KappaAL_MS_tSNE = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaAL_MS_tSNE) = colheader
 KappaAL_MS = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaAL_MS) = colheader
+KappaAL_MS_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaAL_MS_2IT) = colheader
 KappaAL_MS_semiAL = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaAL_MS_semiAL) = colheader
 
 
-KappaALSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(KappaALSVM) = colheader
-KappaALSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(KappaALSVM_SL_Un) = colheader
-KappaALVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(KappaALVSVM_SL) = colheader
-KappaALVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(KappaALVSVM_SL_Un) = colheader
-KappaALVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(KappaALVSVM_SL_vUn) = colheader
+KappaALSVM_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALSVM_2IT) = colheader
+KappaALSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALSVM_SL_Un_2IT) = colheader
+KappaALVSVM_SL_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALVSVM_SL_2IT) = colheader
+KappaALVSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALVSVM_SL_Un_2IT) = colheader
+KappaALVSVM_SL_vUn_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALVSVM_SL_vUn_2IT) = colheader
 
 
 
@@ -1198,6 +1201,8 @@ SVsAL_MS_tSNE = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsAL_MS_tSNE) = colheader
 SVsAL_MS = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsAL_MS) = colheader
+SVsAL_MS_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(SVsAL_MS_2IT) = colheader
 SVsAL_MS_semiAL = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsAL_MS_semiAL) = colheader
 
@@ -1212,8 +1217,6 @@ colnames(SVsALVSVM_SL_Un) = colheader
 SVsALVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsALVSVM_SL_vUn) = colheader
 
-SVsALSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(SVsALSVM) = colheader
 SVsALSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsALSVM_SL_Un_2IT) = colheader
 SVsALVSVM_SL_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1318,8 +1321,8 @@ for (realization in seq(1,nR)) {
       
       
       
-      trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
-      trainLabels4AL_2IT = trainDataCur[,ncol(trainDataPoolAllLev)]
+      trainFeat = trainDataCur4AL_2IT[,1:(ncol(trainDataPoolAllLev)-1)]
+      trainLabels4AL_2IT = trainDataCur4AL_2IT[,ncol(trainDataPoolAllLev)]
       # *********************************************************************
       
       # subset on L_4 ***************************** SVM base for invariants ************************************
@@ -1840,7 +1843,7 @@ for (realization in seq(1,nR)) {
           nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
       
       
-      upd_dataCur <- samplesRemaining_1IT[,1:(ncol(trainDataCur)+1)]
+      upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
       upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
       upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
       
@@ -1895,9 +1898,9 @@ for (realization in seq(1,nR)) {
       # **********************
       # get al train set portion
       
-      trainFeat4AL <- rbind(setNames(trainFeat4AL, names), setNames(new_trainFeat, names))
-      trainLabels4AL <- unlist(list(trainLabels4AL[], new_trainLabels))
-      SVtotal = setNames(cbind(trainFeat4AL, trainLabels4AL),c(objInfoNames[-length(objInfoNames)],"REF"))
+      trainFeat4AL <- rbind(setNames(trainFeat4AL_1IT, names), setNames(new_trainFeat, names))
+      trainLabels4AL <- unlist(list(trainLabels4AL_1IT[], new_trainLabels))
+      SVtotal = setNames(cbind(trainFeat4AL_1IT, trainLabels4AL_1IT),c(objInfoNames[-length(objInfoNames)],"REF"))
 
       # **********************
       
@@ -1924,7 +1927,7 @@ for (realization in seq(1,nR)) {
       
       AccuracyAL_MS[realization,sample_size] = as.numeric((cm_AL_MS$overall["Accuracy"]))
       KappaAL_MS[realization,sample_size] = as.numeric((cm_AL_MS$overall["Kappa"]))
-      SVsAL_MS[realization,sample_size] = as.numeric(length(AL_MS_tunedSVM_1IT$finalModel@SVindex))
+      SVsAL_MS[realization,sample_size] = as.numeric(length(AL_MS_tunedSVM$finalModel@SVindex))
       
       
       
@@ -2689,10 +2692,8 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
       bestFittingALModelvUn <- SLresult$bestFittingModel
-      # new_best_trainFeatVSVMvUn <- SLresult$best_trainFeatVSVM
-      # new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
+
       new_best_bound_SLvUn = SLresult$best_bound
-      # new_best_boundMargin_SLvUn = SLresult$best_boundMargin
       trainALvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       new_predLabelsALVSVMvUnsum = predict(bestFittingALModelvUn, validateFeatsub)
