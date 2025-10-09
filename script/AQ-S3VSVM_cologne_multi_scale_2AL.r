@@ -18,7 +18,7 @@ model_prob = "multiclass" # multiclass or binary problem
 b = c(20)                     # size of balanced_unlabeled_samples per class
 bound = c(0.3, 0.6, 0.9)           # radius around SV - threshold       
 boundMargin = c(1.5, 1, 0.5)     # distance from hyperplane - threshold   
-sampleSizePor = c(24, 48, 72, 120, 240, 480, 600) # c(25, 30, 40, 60, 100, 180, 340, 500, 1000) 
+sampleSizePor = c(24, 60, 96, 180, 276, 360, 480, 600) # c(24, 36, 48,  72, 120, 240, 480, 600) 
 # sampleSizePor = c(78, 120)  only one sample size for plotting the thematic map for two setup
 
 path = "D:/"
@@ -1559,7 +1559,7 @@ for (realization in seq(1,nR)) {
     SVtotalSVMUn = trainDataCurRemainingSVM_Un[SVindexSVMUn ,c(sindexSVMDATA:eindexSVMDATA)]
     SVtotalSVMUn = cbind(SVtotalSVMUn, REFSVM)
 
-    cat("evaluation of SVM with self learning and semi-labeled  | realization [",realization,"/",nR,"] | samples: ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
+    cat("evaluation of SVM with self learning and semi-labeled | realization [",realization,"/",nR,"] | samples: ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
 
       SVL_variables = list(
         list(SVtotalSVMUn, SVL2SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1))], REFSVM)),
@@ -1687,7 +1687,7 @@ for (realization in seq(1,nR)) {
       totalUn = trainDataCurRemaining_SL[indexUn ,c(sindexSVMDATA:eindexSVMDATA)]
       totalUn = cbind(totalUn, REF_b)
 
-      cat("evaluation of VSVM SL with ",b[bb]," semi-labeled  | realization [",realization,"/",nR,"] | samples: ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
+      cat("evaluation of VSVM SL with ",b[bb]," semi-labeled | realization [",realization,"/",nR,"] | samples: ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       # get VSs, means rows of SV but with subset on different level
         SVL_variables = list(
           list(SVtotal, SVL2),
@@ -2392,9 +2392,9 @@ for (realization in seq(1,nR)) {
       cm_AL_VSVM_SL = confusionMatrix(predLabelsALVSVMsum, validateLabels)
       cat("AL VSVM_SL accuracy: ",round(cm_AL_VSVM_SL$overall["Accuracy"],5),"\n",sep="")
       
-      AccuracyALVSVM_SL_1IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL$overall["Accuracy"])
-      KappaALVSVM_SL_1IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL$overall["Kappa"])
-      SVsALVSVM_SL_1IT[realization,sample_size] = as.numeric(length(bestFittingALModel$finalModel@SVindex))
+      AccuracyALVSVM_SL_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL$overall["Accuracy"])
+      KappaALVSVM_SL_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL$overall["Kappa"])
+      SVsALVSVM_SL_2IT[realization,sample_size] = as.numeric(length(bestFittingALModel$finalModel@SVindex))
       if (cm_AL_VSVM_SL$overall["Accuracy"]>best_acc) {
         best_acc <- cm_AL_VSVM_SL$overall["Accuracy"]
         new_bestModel <- bestFittingALModel
