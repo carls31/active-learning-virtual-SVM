@@ -1,4 +1,4 @@
-script = "ALTSLv3"  # -> New train samples and Active labeled samples are distinct data
+script = "AQ-S3VSVM"  
 ###############################################  Libraries  ################################################
 library(caret)
 library(kernlab)
@@ -296,7 +296,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
   library(doParallel)
   library(foreach)
   
-  print(paste("Starting cluster with", num_cores, "cores"))
+  # print(paste("Starting cluster with", num_cores, "cores"))
   showConnections(all = TRUE)
   
   # Set up parallel backend
@@ -311,7 +311,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
   registerDoSEQ()
   
   # Debug - after cleanup
-  print("Cluster stopped.")
+  # print("Cluster stopped.")
   showConnections(all = TRUE)
   
   # scale distances
@@ -378,185 +378,280 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
   return(merged_data)
 }
 
-add_AL_samples = function(distance_data,
-                          features=NULL, ref, 
-                          new_trainFeat_AL=NULL, new_trainLabels_AL=NULL,
-                          newSize=10, cluster=100, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=FALSE, 
-                          realiz=realization, s_size=sample_size, newSize2=20*nclass, plot_flag=FALSE, flag_cluster=FALSE, flag_class=FALSE){
-  if(cluster<newSize){cluster=round(max(newSize*1.01,nrow(distance_data)/10))}
 
-  # merge features and original labels
-  ref_added = cbind(distance_data, ref)
-  
-  # order by most uncertain samples
-  ref_added_or = ref_added[order(ref_added$distance),]
-  
-  if(tSNE_flag) { flag_cluster=TRUE
-  # ********************** duplicates check
-  duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
-  num_duplicates <- sum(duplicate_rows)
-  if (num_duplicates > 0) {
-    # cat("Number of duplicate rows:", num_duplicates, "\n")
-    # Find indices of duplicates
-    duplicate_indices <- which(duplicate_rows)
+# add_AL_samples(distance_data=sampled_data,
+#                features=sampled_data[,1:numFeat], ref=reference_label,
+#                new_trainFeat_AL=trainFeat4AL_IT, new_trainLabels_AL=trainLabels4AL_IT,
+#                newSize=newSize_for_iter, cluster=clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
+#                ID_unit=upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
 
-    # Remove duplicates
-    ref_added_or <- ref_added_or[!duplicate_rows, ]
-    cat("Samples after removing duplicates:", nrow(ref_added_or), "\n")
+
+# add_AL_samples = function(distance_data,
+#                           features=NULL, ref, 
+#                           new_trainFeat_AL=NULL, new_trainLabels_AL=NULL,
+#                           newSize=10, cluster=100, ID_unit=NULL, nFeat=numFeat, PCA_flag=FALSE, tSNE_flag=FALSE, 
+#                           realiz=realization, s_size=sample_size, newSize2=20*nclass, plot_flag=FALSE, flag_cluster=FALSE, flag_class=FALSE){
+#   if(cluster<newSize){cluster=round(max(newSize*1.01,nrow(distance_data)/10))}
+# 
+#   # merge features and original labels
+#   ref_added = cbind(distance_data, ref)
+#   
+#   # order by most uncertain samples
+#   ref_added_or = ref_added[order(ref_added$distance),]
+#   
+#   if(tSNE_flag) { flag_cluster=TRUE
+#   # ********************** duplicates check
+#   duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
+#   num_duplicates <- sum(duplicate_rows)
+#   if (num_duplicates > 0) {
+#     # cat("Number of duplicate rows:", num_duplicates, "\n")
+#     # Find indices of duplicates
+#     duplicate_indices <- which(duplicate_rows)
+# 
+#     # Remove duplicates
+#     ref_added_or <- ref_added_or[!duplicate_rows, ]
+#     cat("Samples after removing duplicates:", nrow(ref_added_or), "\n")
+#   }
+#   # Perform t-SNE
+#   tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
+#   tsne_data <- data.frame(tsne_result$Y)
+#   colnames(tsne_data) <- c("tSNE1", "tSNE2")
+#   
+#   tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
+#   
+#   km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+#   
+#   # Add cluster information to the data
+#   ref_added_or$cluster <- km_tsne$cluster
+#   
+#   } else {
+#     ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
+#     km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+#     ref_added_or$cluster <- km_result$cluster
+#   }
+#   # **********************
+#   
+#   # ***********************************************************************************
+#   if (!(is.logical(plot_flag)) && realiz==1 && s_size==1) {
+#     setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city,"/",model_prob,"/",invariance))
+#     
+#     # Define colors for clusters
+#     cluster_colors <- rainbow(cluster)
+#     
+#     if(tSNE_flag){
+#       tsne_data_with_distance$Cluster <- as.factor(km_tsne$cluster)
+#       
+#       png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"), plot_flag, "_cluster_tSNE_distance_", script, "_", city, "_", model_prob, "_", invariance, ".png"),
+#           units="in", 
+#           width=16, 
+#           height=20, 
+#           pointsize=24,
+#           res=96)
+#       par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
+#       
+#       # Plot t-SNE
+#       plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
+#            pch = 20, cex = 0.5, main = c("t-SNE with K-means Clustering ", cluster),
+#            xlab = "t-SNE 1", ylab = "t-SNE 2")
+# 
+#       # Plot t-SNE with Distance
+#       plot(tsne_data_with_distance$tSNE1, ref_added_or$distance, col = cluster_colors[tsne_data_with_distance$Cluster],
+#            pch = 20, cex = 0.5, main = "K-means Clustering on t-SNE + Distance",
+#            xlab = "t-SNE 1", ylab = "Distance")
+#       dev.off()
+#     }
+#     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
+#   }
+#   # ***********************************************************************************
+# 
+#   
+#   # Initialize vectors to store selected sample indices for two selections
+#   selected_indices <- c()
+#   selected_indices2 <- c()
+#   # Calculate the number of samples to select per class
+#   samples_per_class <- ceiling(newSize / nclass)
+#   samples_per_class2 <- ceiling(newSize2 / nclass)
+#   
+#   # Initialize a list to keep track of the clusters selected per class
+#   selected_clusters <- list()
+#   
+#   # Initialize a named vector to store how many samples have been selected per class
+#   class_labels <- unique(as.character(ref_added_or$label))
+#   class_sample_count <- setNames(rep(0, length(class_labels)), class_labels)
+#   
+#   # Initialize the list with empty vectors for each class label
+#   for (label in class_labels) { selected_clusters[[label]] <- c() }
+#   
+#   # Initialize a flag to indicate if the first set of selected_indices is completed
+#   first_selection_done <- FALSE
+#   
+#   # Iterate over the samples and select based on classes
+#   for (sample in seq_len(nrow(ref_added_or))) {
+#     # Convert class_label to character to avoid issues with factors
+#     class_label <- as.character(ref_added_or[sample,]$label)
+#     cluster_id <- ref_added_or[sample,]$cluster
+#     
+#     # Check if we have already completed the first selection
+#     if (!first_selection_done) {
+#       # Check if the current class has not exceeded the allowed number of samples
+#       #if (class_sample_count[class_label] < samples_per_class || !flag_class) {
+#         # Check if the cluster has not been selected for this class
+#         if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class) {
+#           
+#           # Add the sample's cluster to the selected clusters for this class
+#           if(flag_cluster){ selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id) }
+#           
+#           # Assign the label and add the index
+#           ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
+#           selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
+#           
+#           # Increment the count of selected samples for this class
+#           class_sample_count[class_label] <- class_sample_count[class_label] + 1
+#         }
+#       #}
+#       
+#       # Check if the first selection is done
+#       if (sum(class_sample_count) >= newSize) {
+#         first_selection_done <- TRUE
+#         
+#         # Reset class_sample_count 
+#         class_sample_count <- setNames(rep(0, length(class_labels)), class_labels)
+#         selected_clusters <- list()
+#         for (label in class_labels) { selected_clusters[[label]] <- c()  }
+#         ref_added <- ref_added[order(-ref_added$distance), ]
+#       }
+#     # } else {  # Start selecting for the second set of selected_indices2
+#     # 
+#     #   # Check if the current class has not exceeded the allowed number of samples
+#     #   #if (class_sample_count[class_label] < samples_per_class2 || !flag_class ) {
+#     #     # Check if the cluster has not been selected for this class
+#     #     if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class2) {
+#     #       # Add the sample's cluster to the selected clusters for this class
+#     #       selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
+#     #       # Add the index of the selected sample to the second selection
+#     #       selected_indices2 <- c(selected_indices2, as.numeric(rownames(ref_added_or[sample,])))
+#     #       # Increment the count of selected samples for this class
+#     #       class_sample_count[class_label] <- class_sample_count[class_label] + 1
+#     #     }
+#     #   #}
+#     #   # Stop if we have reached the desired total number of samples for the second selection
+#     #   if (sum(class_sample_count) >= newSize2) break
+#     }
+#   }
+#   ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
+#   
+#  
+#   # Remove relabeled samples from validateLabels
+#   features <- features[!(rownames(features) %in% selected_indices), ]
+#   reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
+#   semi_idx <- which(rownames(ref_added_reor) %in% selected_indices2)
+#   cat("length selected_indices ",length(selected_indices))
+# 
+#     new_trainFeat_AL <- ref_added_reor[reor_idx, 1:nFeat]
+#     new_trainLabels_AL <- ref_added_reor[reor_idx, nFeat+1]
+#     return(list(IDunit=ID_unit[reor_idx], semiIDunit=ID_unit[semi_idx], 
+#                 semi_samples = ref_added_reor[semi_idx, 1:(nFeat+1)],
+#                 new_trainFeat_AL = new_trainFeat_AL, 
+#                 new_trainLabels_AL = new_trainLabels_AL))
+#     
+# }
+
+add_AL_samples <- function(distance_data,
+                           features = NULL, ref, 
+                           new_trainFeat_AL = NULL, new_trainLabels_AL = NULL,
+                           newSize = 10, cluster = 100, ID_unit = NULL, nFeat = numFeat, 
+                           PCA_flag = FALSE, tSNE_flag = FALSE, 
+                           realiz = realization, s_size = sample_size, 
+                           newSize2 = 20 * nclass, plot_flag = FALSE, 
+                           flag_cluster = FALSE, flag_class = FALSE) {
+  
+  if (cluster < newSize) {
+    cluster <- round(max(newSize * 1.01, nrow(distance_data) / 10))
   }
-  # Perform t-SNE
-  tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30, verbose = FALSE, max_iter = 500)
-  tsne_data <- data.frame(tsne_result$Y)
-  colnames(tsne_data) <- c("tSNE1", "tSNE2")
   
-  tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
+  # Merge features, original labels, and ID_unit
+  ref_added <- cbind(distance_data, ref, ID_unit = ID_unit)
   
-  km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+  # Order by most uncertain samples (distance)
+  ref_added_or <- ref_added[order(ref_added$distance), ]
   
-  # Add cluster information to the data
-  ref_added_or$cluster <- km_tsne$cluster
-  
+  # Duplicates check if tSNE_flag
+  if (tSNE_flag) {
+    flag_cluster <- TRUE
+    
+    duplicate_rows <- duplicated(ref_added_or[, 1:nFeat])
+    if (sum(duplicate_rows) > 0) {
+      ref_added_or <- ref_added_or[!duplicate_rows, ]
+      cat("Samples after removing duplicates:", nrow(ref_added_or), "\n")
+    }
+    
+    # t-SNE
+    tsne_result <- Rtsne(ref_added_or[, 1:nFeat], dims = 2, perplexity = 30,
+                         verbose = FALSE, max_iter = 500)
+    tsne_data <- data.frame(tsne_result$Y)
+    colnames(tsne_data) <- c("tSNE1", "tSNE2")
+    tsne_data_with_distance <- cbind(tsne_data, distance = ref_added_or$distance)
+    km_tsne <- kmeans(tsne_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
+    ref_added_or$cluster <- km_tsne$cluster
   } else {
-    ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], setNames(ref_added_or$'distance', 'distance'))
+    ref_data_with_distance <- cbind(ref_added_or[, 1:nFeat], distance = ref_added_or$distance)
     km_result <- kmeans(ref_data_with_distance, centers = cluster, iter.max = 25, nstart = 50)
     ref_added_or$cluster <- km_result$cluster
   }
-  # **********************
   
-  # ***********************************************************************************
-  if (!(is.logical(plot_flag)) && realiz==1 && s_size==1) {
-    setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city,"/",model_prob,"/",invariance))
-    
-    # Define colors for clusters
-    cluster_colors <- rainbow(cluster)
-    
-    if(tSNE_flag){
-      tsne_data_with_distance$Cluster <- as.factor(km_tsne$cluster)
-      
-      png(filename=paste0(format(Sys.time(),"%Y%m%d_%H%M"), plot_flag, "_cluster_tSNE_distance_", script, "_", city, "_", model_prob, "_", invariance, ".png"),
-          units="in", 
-          width=16, 
-          height=20, 
-          pointsize=24,
-          res=96)
-      par(mfrow = c(2, 1), mar = c(5, 4, 4, 8), xpd = TRUE)
-      
-      # Plot t-SNE
-      plot(tsne_data$tSNE1, tsne_data$tSNE2, col = cluster_colors[tsne_data_with_distance$Cluster],
-           pch = 20, cex = 0.5, main = c("t-SNE with K-means Clustering ", cluster),
-           xlab = "t-SNE 1", ylab = "t-SNE 2")
-
-      # Plot t-SNE with Distance
-      plot(tsne_data_with_distance$tSNE1, ref_added_or$distance, col = cluster_colors[tsne_data_with_distance$Cluster],
-           pch = 20, cex = 0.5, main = "K-means Clustering on t-SNE + Distance",
-           xlab = "t-SNE 1", ylab = "Distance")
-      dev.off()
-    }
-    setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
-  }
-  # ***********************************************************************************
-
+  # Initialize
+  selected_IDunit <- c()
+  selected_IDunit2 <- c()
   
-  # Initialize vectors to store selected sample indices for two selections
-  selected_indices <- c()
-  selected_indices2 <- c()
-  # Calculate the number of samples to select per class
   samples_per_class <- ceiling(newSize / nclass)
   samples_per_class2 <- ceiling(newSize2 / nclass)
   
-  # Initialize a list to keep track of the clusters selected per class
-  selected_clusters <- list()
-  
-  # Initialize a named vector to store how many samples have been selected per class
   class_labels <- unique(as.character(ref_added_or$label))
   class_sample_count <- setNames(rep(0, length(class_labels)), class_labels)
   
-  # Initialize the list with empty vectors for each class label
-  for (label in class_labels) { selected_clusters[[label]] <- c() }
+  selected_clusters <- list()
+  for (label in class_labels) selected_clusters[[label]] <- c()
   
-  # Initialize a flag to indicate if the first set of selected_indices is completed
   first_selection_done <- FALSE
   
-  # Iterate over the samples and select based on classes
+  # Iterate over samples
   for (sample in seq_len(nrow(ref_added_or))) {
-    # Convert class_label to character to avoid issues with factors
-    class_label <- as.character(ref_added_or[sample,]$label)
-    cluster_id <- ref_added_or[sample,]$cluster
+    class_label <- as.character(ref_added_or$label[sample])
+    cluster_id <- ref_added_or$cluster[sample]
     
-    # Check if we have already completed the first selection
     if (!first_selection_done) {
-      # Check if the current class has not exceeded the allowed number of samples
-      #if (class_sample_count[class_label] < samples_per_class || !flag_class) {
-        # Check if the cluster has not been selected for this class
-        if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class) {
-          
-          # Add the sample's cluster to the selected clusters for this class
-          if(flag_cluster){ selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id) }
-          
-          # Assign the label and add the index
-          ref_added_or[sample,]$label <- ref_added_or[sample,]$ref
-          selected_indices <- c(selected_indices, as.numeric(rownames(ref_added_or[sample,])))
-          
-          # Increment the count of selected samples for this class
-          class_sample_count[class_label] <- class_sample_count[class_label] + 1
-        }
-      #}
+      if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || 
+          length(unique(ref_added_or[ref_added_or$label == class_label, "cluster"])) < samples_per_class) {
+        
+        if (flag_cluster) selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
+        
+        # Add original ID_unit
+        selected_IDunit <- c(selected_IDunit, ref_added_or$ID_unit[sample])
+        
+        class_sample_count[class_label] <- class_sample_count[class_label] + 1
+      }
       
-      # Check if the first selection is done
       if (sum(class_sample_count) >= newSize) {
         first_selection_done <- TRUE
-        
-        # Reset class_sample_count 
         class_sample_count <- setNames(rep(0, length(class_labels)), class_labels)
         selected_clusters <- list()
-        for (label in class_labels) { selected_clusters[[label]] <- c()  }
-        ref_added <- ref_added[order(-ref_added$distance), ]
+        for (label in class_labels) selected_clusters[[label]] <- c()
       }
-    } else {  # Start selecting for the second set of selected_indices2
-
-      # Check if the current class has not exceeded the allowed number of samples
-      #if (class_sample_count[class_label] < samples_per_class2 || !flag_class ) {
-        # Check if the cluster has not been selected for this class
-        if (!(cluster_id %in% selected_clusters[[class_label]]) || !flag_cluster || length(unique(ref_added_or[ref_added_or$label==class_label,"cluster"]))<samples_per_class2) {
-          # Add the sample's cluster to the selected clusters for this class
-          selected_clusters[[class_label]] <- c(selected_clusters[[class_label]], cluster_id)
-          # Add the index of the selected sample to the second selection
-          selected_indices2 <- c(selected_indices2, as.numeric(rownames(ref_added_or[sample,])))
-          # Increment the count of selected samples for this class
-          class_sample_count[class_label] <- class_sample_count[class_label] + 1
-        }
-      #}
-      # Stop if we have reached the desired total number of samples for the second selection
-      if (sum(class_sample_count) >= newSize2) break
     }
   }
-  ref_added_reor = ref_added_or[order(as.numeric(rownames(ref_added_or))),]
   
-  # Add relabeled samples to new_trainFeat_AL and new_trainLabels_AL
-  if(length(features)>1){
-    # Remove relabeled samples from validateLabels
-    features <- features[!(rownames(features) %in% selected_indices), ]
-    reor_idx <- which(rownames(ref_added_reor) %in% selected_indices)
-    semi_idx <- which(rownames(ref_added_reor) %in% selected_indices2)
-    
-    if(length(ID_unit)>100){
-      new_trainFeat_AL <- ref_added_reor[reor_idx, 1:nFeat]
-      new_trainLabels_AL <- ref_added_reor[reor_idx, nFeat+1]
-      return(list(IDunit=ID_unit[reor_idx], semiIDunit=ID_unit[semi_idx], 
-                  semi_samples = ref_added_reor[semi_idx, 1:(nFeat+1)],
-                  # features = features, labels = ref[-reor_idx], 
-                  new_trainFeat_AL = new_trainFeat_AL, 
-                  new_trainLabels_AL = new_trainLabels_AL))
-    } 
-    cat("Not returning ID_unit\n")
-    new_trainFeat_AL <- rbind(new_trainFeat_AL, ref_added_reor[reor_idx, 1:nFeat])
-    new_trainLabels_AL <- c(new_trainLabels_AL, ref_added_reor[reor_idx, nFeat+1])
-    return(list(features = features, labels = ref[-reor_idx],
-                new_trainFeat_AL = new_trainFeat_AL, 
-                new_trainLabels_AL = new_trainLabels_AL))
-  } 
-  return(ref_added_reor[, nFeat+1])
+  # Retrieve selected samples from original dataset
+  # new_trainFeat_AL <- trainDataCurRemaining4AL_IT[selected_IDunit, 1:nFeat]
+  new_trainFeat_AL <- ref_added_or[match(selected_IDunit, ref_added_or$ID_unit), 1:nFeat]
+  new_trainLabels_AL <- ref_added_or$ref[match(selected_IDunit, ref_added_or$ID_unit)]
+  
+  return(list(
+    IDunit = selected_IDunit,
+    new_trainFeat_AL = new_trainFeat_AL,
+    new_trainLabels_AL = new_trainLabels_AL
+  ))
 }
+
 
 self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, SVtotal, objInfoNames, rem_extrem, rem_extrem_kerneldist, SVL_variables, SVMfinModel=tunedSVM$finalModel, train=TRUE, classProb = FALSE) {
 
@@ -567,7 +662,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
   library(doParallel)
   library(foreach)
   
-  print(paste("Starting cluster with", num_cores, "cores"))
+  # print(paste("Starting cluster with", num_cores, "cores"))
   showConnections(all = TRUE)
   
   cl <- makeCluster(num_cores)
@@ -672,7 +767,7 @@ self_learn = function(testFeatsub, testLabels, bound, boundMargin, model_name, S
   registerDoSEQ()
   
   # Debug - after cleanup
-  print("Cluster stopped.")
+  # print("Cluster stopped.")
   showConnections(all = TRUE)
   
   return(list(bestFittingModel = bestFittingModel, 
@@ -1080,52 +1175,23 @@ for (realization in seq(1,nR)) {
       samples = getdata(trainDataCurBeg, stratSamp)
       samplesID = samples$ID_unit
       
-      trainDataCur4AL_1IT = samples[,1:ncol(trainDataPoolAllLev)]
+      samples[1, sindexSVMDATA:eindexSVMDATA]
+      trainDataCurBeg[samples$ID_unit[1], sindexSVMDATA:eindexSVMDATA]
+      
+      trainDataCur4AL_IT = samples[,1:ncol(trainDataPoolAllLev)]
       trainDataCurRemaining <- trainDataCurBeg[-c(samplesID), ]
       
-      trainFeat = trainDataCur4AL_1IT[,1:(ncol(trainDataPoolAllLev)-1)]
-      trainLabels4AL_1IT = trainDataCur4AL_1IT[,ncol(trainDataPoolAllLev)]
+      trainFeat = trainDataCur4AL_IT[,1:(ncol(trainDataPoolAllLev)-1)]
+      trainLabels4AL_IT = trainDataCur4AL_IT[,ncol(trainDataPoolAllLev)]
       # *********************************************************************
       
       # subset on L_4 ***************************** SVM base for invariants ************************************
-      trainFeat4AL_1IT = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
+      trainFeat4AL_IT = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
       
       trainDataCurRemaining4AL_IT = trainDataCurRemaining
 
-      
-      
-      
-      # # 2IT
-      # 
-      # sampleSize = round(sampleSizePor[sample_size]/nclass)
-      # shares = c(sampleSize/4,sampleSize/4,sampleSize/4,sampleSize/4,sampleSize/4,sampleSize/4)
-      # 
-      # # definition of sampling configuration (strata:random sampling without replacement)
-      # stratSamp = strata(trainDataCurRemaining, c("REF"), size = shares, method = "srswor")
-      # #size --> vector of stratum sample sizes (in the order in which the strata are given in the input data set)
-      # 
-      # # get samples of trainDataCur and set trainDataCur new
-      # samples = getdata(trainDataCurRemaining, stratSamp)
-      # samplesID = samples$ID_unit
-      # 
-      # trainDataCur4AL_2IT = samples[,1:ncol(trainDataPoolAllLev)]
-      # trainDataCurRemaining <- trainDataCurRemaining[-c(samplesID), ]
-      # 
-      # trainFeat = trainDataCur4AL_2IT[,1:(ncol(trainDataPoolAllLev)-1)]
-      # trainLabels4AL_2IT = trainDataCur4AL_2IT[,ncol(trainDataPoolAllLev)]
-      # # *********************************************************************
-      # 
-      # # subset on L_4 ***************************** SVM base for invariants ************************************
-      # trainFeat4AL_2IT = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
-      # # ************************************************ *******************************************************
-      # names = objInfoNames[1:(length(objInfoNames)-1)]
-      # trainFeat4AL_2IT <- rbind(setNames(trainFeat4AL_1IT, names), setNames(trainFeat4AL_2IT, names))
-      # trainLabels4AL_2IT <- unlist(list(trainLabels4AL_1IT, trainLabels4AL_2IT))
-      # 
-      # trainDataCur4AL_2IT = rbind(trainDataCur4AL_1IT,trainDataCur4AL_2IT)
 
-      
       
       
       # Benchmark
@@ -1154,10 +1220,10 @@ for (realization in seq(1,nR)) {
       trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
       names = objInfoNames[1:(length(objInfoNames)-1)]
-      trainFeat <- rbind(setNames(trainFeat4AL_1IT, names), setNames(trainFeat, names))
-      trainLabels <- unlist(list(trainLabels4AL_1IT, trainLabels))
+      trainFeat <- rbind(setNames(trainFeat4AL_IT, names), setNames(trainFeat, names))
+      trainLabels <- unlist(list(trainLabels4AL_IT, trainLabels))
       
-      trainDataCur = rbind(trainDataCur4AL_1IT,trainDataCur)
+      trainDataCur = rbind(trainDataCur4AL_IT,trainDataCur)
 
       
       
@@ -1208,7 +1274,6 @@ for (realization in seq(1,nR)) {
       
       
       
-      
       # Benchmark
 
       sampleSize = round(sampleSizePor[sample_size]/nclass)
@@ -1237,12 +1302,12 @@ for (realization in seq(1,nR)) {
       # 1IT
 
       # trainData index to split between train and test in svmFit
-      countTrainData = nrow(trainFeat4AL_1IT)
+      countTrainData = nrow(trainFeat4AL_IT)
       indexTrainData4AL_1IT = list(c(1:countTrainData))
       
       # join of train and test test data (separable through indexTrainData in svmFit)
-      tuneFeat4AL_1AL = rbind(setNames(trainFeat4AL_1IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_1IT,objInfoNames[1:(length(objInfoNames)-1)]))
-      tuneLabel4AL_1AL = unlist(list(trainLabels4AL_1IT, testLabels4AL_1IT))
+      tuneFeat4AL_1AL = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_1IT,objInfoNames[1:(length(objInfoNames)-1)]))
+      tuneLabel4AL_1AL = unlist(list(trainLabels4AL_IT, testLabels4AL_1IT))
     
     
       
@@ -1298,7 +1363,7 @@ for (realization in seq(1,nR)) {
     freq_table <- table(SVtotal$REF)
     zero_label_classes <- names(freq_table[freq_table == 0])
     if (length(zero_label_classes) > 0) {
-      cat("\nFound an empty class label")
+      cat("info: prevent an entire class label to be removed | realization [",realization,"/",nR,"] | [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       for (class in zero_label_classes) {
         # Find the indices of rows in train DataCur with the zero label class
         class_indices <- which(trainLabels == class)
@@ -1587,57 +1652,46 @@ for (realization in seq(1,nR)) {
     
       
       cat("\n") ###############################  Active Query #####################################
-      
     
-    
-      # get the new size for the active labeling
-      newSize = round(sampleSizePor[sample_size]/2)
 
-
-      clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
-      
-      
       classSize=c(25000)            
+      # classSize=c(50000)            
+      # classSize=c(100000)            
       clS=1
       cat("sampling ", classSize," unlabeled data\n",sep="")
-      samplingStart.time <- Sys.time()
-      
+
       # Definition of sampling configuration (strata:random sampling without replacement)
       stratSampRemaining = strata(trainDataCurRemaining4AL_IT, size = classSize[clS], method = "srswor")
-      # Get new samples from trainDataCurRemaining4AL_IT
       samplesRemaining = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining)
       
-      sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
-      # }
+      # head(rownames(trainDataCurRemaining4AL_IT))
+      # head(rownames(samplesRemaining))
+      # head(stratSampRemaining$ID_unit)
       
+      # trainDataCurRemaining4AL_IT[samplesRemaining$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
+      # samplesRemaining[1,c(sindexSVMDATA:eindexSVMDATA)]
+      
+    
       
       # Final check for duplicates
       final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
-      cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
+      cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count,"\n",sep="")
       # cat("using currently best model: ",best_model_name," | accuracy: ",best_acc,"\n",sep="")
-      cat("using currently SVM4AL | accuracy: ",cm_SVM4AL$overall["Accuracy"],"\n",sep="")
+      cat("using currently SVM4AL with ",length(trainLabels4AL_IT)," train samples | accuracy: ",cm_SVM4AL$overall["Accuracy"],"\n",sep="")
+      
       
       cS=1  
-      
-      
-      cat("\n") ###############################  AL MS + t-SNE #######################################
-      model_name_AL_MS = "AL_MS"
-      
-      cat("active labeling ",model_name_AL_MS," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_1IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
-      
-      
-      cat("adding ",newSize," active samples | pool size: ",
-          nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
-      
+      bb = 1
       
       upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
       upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
       upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
       
-      new_trainFeat_AL <- setNames(trainFeat4AL_1IT, names)
-      new_trainLabels_AL <- trainLabels4AL_1IT
       
-      newSize_for_iter = newSize
+      trainDataCurRemaining4AL_IT[upd_dataCur$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
+      upd_dataCur[1,c(sindexSVMDATA:eindexSVMDATA)]
+      
+      
       trainStart.time <- Sys.time()
       
       # # **********************
@@ -1646,30 +1700,54 @@ for (realization in seq(1,nR)) {
       SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tunedSVM4AL, upd_dataCurFeatsub)), objInfoNames)
       
       sampledResult <- self_learn_AL(
-        SVtotal, objInfoNames, SVL_variables,
+        SVtotal, # NOT USED
+        objInfoNames, SVL_variables,
         upd_dataCurFeatsub,upd_dataCurLabels,
         plot_flag = FALSE
       )
       sampled_data <- sampledResult$sampled_data
       reference_label <- sampledResult$best_updCur_Labels
       
+      # trainDataCurRemaining4AL_IT[samplesRemaining$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
+      # sampled_data[1,1:(ncol(sampled_data)-2)]
+      
+      cat("computing samples distance required ", round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1),"sec\n",sep="")
+      
       # # **********************
       # # **********************
-
       
       
+      cat("\n") ###############################  AL MS + t-SNE #######################################
+      model_name_AL_MS = "AL_MS"
       
-      trainStart.time <- Sys.time()
-
-      ALSamplesStart.time <- Sys.time()
-      result <- add_AL_samples(sampled_data,
-                               sampled_data[,1:numFeat], reference_label,
-                               # new_trainFeat_AL, new_trainLabels_AL,
-                               trainFeat4AL_1IT, trainLabels4AL_1IT,
-                               newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                               upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
-      ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
-      # cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
+      cat("active labeling ",model_name_AL_MS," | realization [",realization,"/",nR,"] | train samples: ",length(trainLabels4AL_IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
+      
+      
+      cat("adding ",newSize," active samples | pool size: ",
+          nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS],"\n",sep="")
+      
+      # get the new size for the active labeling
+      newSize = round(sampleSizePor[sample_size]/2)
+      
+      clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
+      newSize_for_iter = newSize
+      
+      # result <- add_AL_samples(sampled_data,
+      #                          sampled_data[,1:numFeat], reference_label,
+      #                          trainFeat4AL_IT, trainLabels4AL_IT,
+      #                          newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
+      #                          upd_dataCur$ID_unit,
+      #                          tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
+      
+      result <- add_AL_samples(
+        sampled_data,
+        sampled_data[, 1:numFeat], reference_label,
+        trainFeat4AL_IT, trainLabels4AL_IT,
+        newSize_for_iter, clusterSizes[cS],
+        ID_unit = upd_dataCur$ID_unit,
+        tSNE_flag = TRUE, flag_cluster = TRUE,
+        newSize2 = b[bb] * nclass
+      )
 
       upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
       
@@ -1680,9 +1758,9 @@ for (realization in seq(1,nR)) {
       # **********************
       # get al train set portion
       
-      trainFeat4AL <- rbind(setNames(trainFeat4AL_1IT, names), setNames(new_trainFeat, names))
-      trainLabels4AL <- unlist(list(trainLabels4AL_1IT[], new_trainLabels))
-      SVtotal = setNames(cbind(trainFeat4AL_1IT, trainLabels4AL_1IT),c(objInfoNames[-length(objInfoNames)],"REF"))
+      trainFeat4AL <- rbind(setNames(trainFeat4AL_IT, names), setNames(new_trainFeat, names))
+      trainLabels4AL <- unlist(list(trainLabels4AL_IT[], new_trainLabels))
+      # SVtotal = setNames(cbind(trainFeat4AL_IT, trainLabels4AL_IT),c(objInfoNames[-length(objInfoNames)],"REF"))
 
       # **********************
       
@@ -1719,90 +1797,98 @@ for (realization in seq(1,nR)) {
       
       cat("\n") ###############################  Active Query 1IT #####################################
 
-      # get the new size for the active labeling
-      newSize = round(sampleSizePor[sample_size]/4)
-
-      clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
-
-      classSize=c(25000)            
-
-      cat("sampling ", classSize," unlabeled data\n",sep="")
-      samplingStart.time <- Sys.time()
-      
-      # Definition of sampling configuration (strata:random sampling without replacement)
-      stratSampRemaining = strata(trainDataCurRemaining4AL_IT, size = classSize[clS], method = "srswor")
-      # Get new samples from trainDataCurRemaining4AL_IT
-      samplesRemaining_1IT = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining)
-      
-      sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
-      
-      # Final check for duplicates
-      final_duplicate_count <- sum(duplicated(samplesRemaining_1IT[, c(sindexSVMDATA:eindexSVMDATA)]))
-      cat("final unlabeled pool size: ",nrow(samplesRemaining_1IT)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
-      cat("using currently SVM4AL | accuracy: ",cm_SVM4AL$overall["Accuracy"],"\n",sep="")
+      # classSize=c(25000)            
+      # 
+      # cat("sampling ", classSize," unlabeled data\n",sep="")
+      # samplingStart.time <- Sys.time()
+      # 
+      # # Definition of sampling configuration (strata:random sampling without replacement)
+      # stratSampRemaining = strata(trainDataCurRemaining4AL_IT, size = classSize[clS], method = "srswor")
+      # samplesRemaining_1IT = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining)
+      # 
+      # sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
+      # 
+      # # Final check for duplicates
+      # final_duplicate_count <- sum(duplicated(samplesRemaining_1IT[, c(sindexSVMDATA:eindexSVMDATA)]))
+      # cat("final unlabeled pool size: ",nrow(samplesRemaining_1IT)," | duplicates: ", final_duplicate_count,"\n",sep="")
+      # cat("using currently with ",length(trainLabels4AL_IT)," train samples | accuracy: ",cm_SVM4AL$overall["Accuracy"],"\n",sep="")
   
       
       cat("\n") ###############################  AL MS + t-SNE 1IT #######################################
-      # model_name_AL_MS_semiAL = "AL_MS+semiAL"
+
       model_name_AL_MS_1IT = "AL_MS_1IT"
       
-      cat("active labeling ",model_name_AL_MS_1IT," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_1IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
+      cat("active labeling ",model_name_AL_MS_1IT," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       
       
       cat("adding ",newSize," active samples | pool size: ",
-          nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
+          nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS],"\n",sep="")
+
       
-
-      upd_dataCur <- samplesRemaining_1IT[,1:(ncol(trainDataCur)+1)]
-      upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
-      upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
-
-      new_trainFeat_AL <- setNames(trainFeat4AL_1IT, names)
-      new_trainLabels_AL <- trainLabels4AL_1IT
-
+      newSize = round(sampleSizePor[sample_size]/4)
+      clusterSizes = newSize+1 
       newSize_for_iter = newSize
-      trainStart.time <- Sys.time()
 
-      # # **********************
-      # # **********************
-
-      SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tunedSVM4AL, upd_dataCurFeatsub)), objInfoNames)
-
-      sampledResult <- self_learn_AL(
-        SVtotal, objInfoNames, SVL_variables,
-        upd_dataCurFeatsub,upd_dataCurLabels,
-        plot_flag = FALSE
-      )
-      sampled_data <- sampledResult$sampled_data
-      reference_label <- sampledResult$best_updCur_Labels
-
-      # # **********************
-      # # **********************
+      # upd_dataCur <- samplesRemaining_1IT[,1:(ncol(trainDataCur)+1)]
+      # upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
+      # upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
+      
+      # trainStart.time <- Sys.time()
+      # 
+      # # # **********************
+      # # # **********************
+      # 
+      # SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tunedSVM4AL, upd_dataCurFeatsub)), objInfoNames)
+      # 
+      # sampledResult <- self_learn_AL(
+      #   SVtotal, # NOT USED
+      #   objInfoNames, SVL_variables,
+      #   upd_dataCurFeatsub,upd_dataCurLabels,
+      #   plot_flag = FALSE
+      # )
+      # sampled_data <- sampledResult$sampled_data
+      # reference_label <- sampledResult$best_updCur_Labels
+      # cat("computing samples distance required ", round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1),"sec\n",sep="")
+      # 
+      # # # **********************
+      # # # **********************
 
       
-      trainStart.time <- Sys.time()
-
-      ALSamplesStart.time <- Sys.time()
-      result <- add_AL_samples(sampled_data,
-                               sampled_data[,1:numFeat], reference_label,
-                               # new_trainFeat_AL, new_trainLabels_AL,
-                               trainFeat4AL_1IT, trainLabels4AL_1IT,
-                               newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                               upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
-      ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
-      # cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
- 
-      upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
+      # result <- add_AL_samples(sampled_data,
+      #                          sampled_data[,1:numFeat], reference_label,
+      #                          trainFeat4AL_IT, trainLabels4AL_IT,
+      #                          newSize_for_iter, clusterSizes[cS], 
+      #                          upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) 
+      
+      result <- add_AL_samples(
+        sampled_data,
+        sampled_data[, 1:numFeat], reference_label,
+        trainFeat4AL_IT, trainLabels4AL_IT,
+        newSize_for_iter, clusterSizes[cS],
+        ID_unit = upd_dataCur$ID_unit,
+        tSNE_flag = TRUE, flag_cluster = TRUE,
+        newSize2 = b[bb] * nclass
+      )
+      
+      # upd_SVindex = upd_dataCur$ID_unit %in% result$IDunit
+      # upd_SVindex = result$IDunit
       
       new_trainFeat <- result$new_trainFeat_AL
       new_trainLabels <- result$new_trainLabels_AL
-      semiAL_tot <- result$semi_samples
-      semiAL_SVindex <- upd_dataCur$ID_unit %in% result$semiIDunit
       
       
       
       
+      # trainDataCurRemaining4AL_IT[upd_dataCur$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
+      # upd_dataCur[1,c(sindexSVMDATA:eindexSVMDATA)]
+      # new_trainFeat
+      # trainDataCurRemaining4AL_IT[result$IDunit, c(sindexSVMDATA:eindexSVMDATA)]
       
+      # remove new_trainFeat from trainDataCurRemaining4AL_IT
+      trainDataCurRemaining4AL_IT <- trainDataCurRemaining4AL_IT[-(result$IDunit), ]
+
+      # add new_trainFeat allLevel to trainDataCur4AL_IT
+      trainDataCur4AL_IT = rbind(trainDataCur4AL_IT,upd_dataCur[upd_dataCur$ID_unit %in% result$IDunit, 1:(ncol(trainDataPoolAllLev))])
       
       
       
@@ -1830,19 +1916,14 @@ for (realization in seq(1,nR)) {
       # 
       # ##
       
-      
-      
-      
-      
-      
-      
+
       
       # **********************
       # get al train set portion
       
-      trainFeat4AL_1IT <- rbind(setNames(trainFeat4AL_1IT, names), setNames(new_trainFeat, names))
-      trainLabels4AL_1IT <- unlist(list(trainLabels4AL_1IT[], new_trainLabels))
-      SVtotal = setNames(cbind(trainFeat4AL_1IT, trainLabels4AL_1IT),c(objInfoNames[-length(objInfoNames)],"REF"))
+      trainFeat4AL_IT <- rbind(setNames(trainFeat4AL_IT, names), setNames(new_trainFeat, names))
+      trainLabels4AL_IT <- unlist(list(trainLabels4AL_IT[], new_trainLabels))
+      # SVtotal = setNames(cbind(trainFeat4AL_IT, trainLabels4AL_IT),c(objInfoNames[-length(objInfoNames)],"REF"))
       
       # **********************
       
@@ -1851,12 +1932,12 @@ for (realization in seq(1,nR)) {
       
       # **********************
       # trainData index to split between train and test in svmFit
-      countTrainData = nrow(trainFeat4AL_1IT)
+      countTrainData = nrow(trainFeat4AL_IT)
       indexTrainData = list(c(1:countTrainData))
       
       # join of train and test test data (separable through indexTrainData in svmFit)
-      tuneFeat = rbind(setNames(trainFeat4AL_1IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_2IT,objInfoNames[1:(length(objInfoNames)-1)]))
-      tuneLabel = unlist(list(trainLabels4AL_1IT, testLabels4AL_2IT))
+      tuneFeat = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_2IT,objInfoNames[1:(length(objInfoNames)-1)]))
+      tuneLabel = unlist(list(trainLabels4AL_IT, testLabels4AL_2IT))
       
       AL_MS_tunedSVM_1IT = svmFit(tuneFeat, tuneLabel, indexTrainData)
       tmp_pred = predict(AL_MS_tunedSVM_1IT, validateFeatsub)
@@ -1864,11 +1945,6 @@ for (realization in seq(1,nR)) {
       cat(model_name_AL_MS_1IT," accuracy: ",round(cm_AL_MS_1IT$overall["Accuracy"],5),"\n",sep="")
       # **********************
       
-
-      trainDataCurRemaining4AL_IT <- trainDataCurRemaining4AL_IT[!upd_SVindex_ud, ] # IS IT REQUIRED ? IT REQUIRED FOR AL-SVM and so on...
-
-      
-      # *********************************************************************
       
       
       cat("\n") ###############################  Active Query 2IT #####################################
@@ -1877,9 +1953,7 @@ for (realization in seq(1,nR)) {
       # get the new size for the active labeling
       newSize = round(sampleSizePor[sample_size]/4)
       
-      
       clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
-      
       
       classSize=c(25000)            
 
@@ -1888,7 +1962,6 @@ for (realization in seq(1,nR)) {
       
       # Definition of sampling configuration (strata:random sampling without replacement)
       stratSampRemaining = strata(trainDataCurRemaining4AL_IT, size = classSize[clS], method = "srswor")
-      # Get new samples from trainDataCurRemaining4AL_IT
       samplesRemaining = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining)
       
       sampling.time = round(as.numeric((Sys.time() - samplingStart.time), units = "secs"), 1)
@@ -1896,27 +1969,22 @@ for (realization in seq(1,nR)) {
       
       # Final check for duplicates
       final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
-      cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count," | sampling required ", sampling.time,"sec\n",sep="")
-      # cat("using currently best model: ",best_model_name," | accuracy: ",best_acc,"\n",sep="")
-      cat("using currently SVM4AL_1IT | accuracy: ",cm_AL_MS_1IT$overall["Accuracy"],"\n",sep="")
+      cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count,"\n",sep="")
+      cat("using currently SVM with ",length(trainLabels4AL_IT)," train samples | accuracy: ",cm_AL_MS_1IT$overall["Accuracy"],"\n",sep="")
 
       
       cat("\n") ###############################  AL MS + t-SNE 2IT #######################################
       model_name_AL_MS_2IT = "AL_MS_2IT"
       
-      cat("active labeling ",model_name_AL_MS_2IT," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_2IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
-      
+      cat("active labeling ",model_name_AL_MS_2IT," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       
       cat("adding ",newSize," active samples | pool size: ",
-          nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS]," [",cS,"/",length(clusterSizes),"]\n",sep="")
+          nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS],"\n",sep="")
       
 
       upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
       upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
       upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
-      
-      new_trainFeat_AL <- setNames(trainFeat4AL_1IT, names)
-      new_trainLabels_AL <- trainLabels4AL_1IT
       
       newSize_for_iter = newSize
       trainStart.time <- Sys.time()
@@ -1927,12 +1995,14 @@ for (realization in seq(1,nR)) {
       SVL_variables<-setNames(cbind(upd_dataCurFeatsub, predict(tunedSVM4AL, upd_dataCurFeatsub)), objInfoNames)
       
       sampledResult <- self_learn_AL(
-        SVtotal, objInfoNames, SVL_variables,
+        SVtotal, # NOT USED
+        objInfoNames, SVL_variables,
         upd_dataCurFeatsub,upd_dataCurLabels,
         plot_flag = FALSE
       )
       sampled_data <- sampledResult$sampled_data
       reference_label <- sampledResult$best_updCur_Labels
+      cat("computing samples distance required ", round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1),"sec\n",sep="")
       
       # # **********************
       # # **********************
@@ -1946,38 +2016,48 @@ for (realization in seq(1,nR)) {
       ALSamplesStart.time <- Sys.time()
       result <- add_AL_samples(sampled_data,
                                sampled_data[,1:numFeat], reference_label,
-                               # new_trainFeat_AL, new_trainLabels_AL,
-                               trainFeat4AL_1IT, trainLabels4AL_1IT,
+                               trainFeat4AL_IT, trainLabels4AL_IT,
                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
                                upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
       # cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
 
-      upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
+      # upd_SVindex = upd_dataCur$ID_unit %in% result$IDunit
       
       new_trainFeat <- result$new_trainFeat_AL
       new_trainLabels <- result$new_trainLabels_AL
+      
 
+      # remove new_trainFeat from trainDataCurRemaining4AL_IT
+      trainDataCurRemaining4AL_IT <- trainDataCurRemaining4AL_IT[-(result$IDunit), ]
+      
+      # add new_trainFeat allLevel to trainDataCur4AL_IT
+      trainDataCur4AL_IT = rbind(trainDataCur4AL_IT,upd_dataCur[upd_dataCur$ID_unit %in% result$IDunit, 1:(ncol(trainDataPoolAllLev))])
+      
       
       # **********************
       # get al train set portion
       
-      trainFeat4AL_1IT <- rbind(setNames(trainFeat4AL_1IT, names), setNames(new_trainFeat, names))
-      trainLabels4AL_1IT <- unlist(list(trainLabels4AL_1IT[], new_trainLabels))
-      SVtotal = setNames(cbind(trainFeat4AL_1IT, trainLabels4AL_1IT),c(objInfoNames[-length(objInfoNames)],"REF"))
+      trainFeat4AL_IT <- rbind(setNames(trainFeat4AL_IT, names), setNames(new_trainFeat, names))
+      trainLabels4AL_IT <- unlist(list(trainLabels4AL_IT[], new_trainLabels))
+      SVtotal = setNames(cbind(trainFeat4AL_IT, trainLabels4AL_IT),c(objInfoNames[-length(objInfoNames)],"REF"))
     
       # **********************
       
       
       # **********************
 
-      countTrainData = nrow(trainFeat4AL_1IT)
+      countTrainData = nrow(trainFeat4AL_IT)
       indexTrainData = list(c(1:countTrainData))
       
-      tuneFeat = rbind(setNames(trainFeat4AL_1IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub,objInfoNames[1:(length(objInfoNames)-1)]))
-      tuneLabel = unlist(list(trainLabels4AL_1IT, testLabels))
+      # tuneFeat = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub,objInfoNames[1:(length(objInfoNames)-1)]))
+      # tuneLabel = unlist(list(trainLabels4AL_IT, testLabels))
       
-      AL_MS_tunedSVM_2IT = svmFit(tuneFeat, tuneLabel, indexTrainData)
+      # join of train and test test data (separable through indexTrainData in svmFit)
+      tuneFeat4AL_2AL = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_2IT,objInfoNames[1:(length(objInfoNames)-1)]))
+      tuneLabel4AL_2AL = unlist(list(trainLabels4AL_IT, testLabels4AL_2IT))
+      
+      AL_MS_tunedSVM_2IT = svmFit(tuneFeat4AL_2AL, tuneLabel4AL_2AL, indexTrainData)
       tmp_pred = predict(AL_MS_tunedSVM_2IT, validateFeatsub)
       cm_AL_MS_2IT= confusionMatrix(tmp_pred, validateLabels)
       cat(model_name_AL_MS_2IT," accuracy: ",round(cm_AL_MS_2IT$overall["Accuracy"],5),"\n",sep="")
@@ -1991,8 +2071,8 @@ for (realization in seq(1,nR)) {
       SVsAL_MS_2IT[realization,sample_size] = as.numeric(length(AL_MS_tunedSVM_2IT$finalModel@SVindex))
 
       
-      trainDataCurRemaining_AL <- trainDataCurRemaining4AL_IT[!upd_SVindex_ud, ] # IT IS REQUIRED FOR AL-SVM models
-      
+      # trainDataCurRemaining_AL <- trainDataCurRemaining4AL_IT[!upd_SVindex, ] # IT IS REQUIRED FOR AL-SVM models
+      # trainDataCur4AL_IT = rbind(trainDataCur4AL_IT,upd_dataCur[upd_SVindex,1:(ncol(trainDataPoolAllLev))])
       
 
       cat("\n") ###############################  AL-SVM EQUAL TO AL_MS  #####################################
@@ -2000,16 +2080,17 @@ for (realization in seq(1,nR)) {
 
       # get original SVs of base SVM ************************* prevent removing an entire class label
       ALSVindex = AL_MS_tunedSVM_2IT$finalModel@SVindex   # indices 1:(sample size per class) ; values
-      ALSVtotal = trainDataCurRemaining4AL_IT[ALSVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCurRemaining4AL_IT))]
+      ALSVtotal = trainDataCur4AL_IT[ALSVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur4AL_IT))]
       freq_table <- table(ALSVtotal$REF)
       zero_label_classes <- names(freq_table[freq_table == 0])
       if (length(zero_label_classes) > 0) {
+        cat("info: prevent an entire class label to be removed | realization [",realization,"/",nR,"] | [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
         for (class in zero_label_classes) {
           # Find the indices of rows in train DataCur with the zero label class
-          class_indices <- which(trainLabels4AL_1IT == class)
+          class_indices <- which(trainLabels4AL_IT == class)
           # Extract the corresponding rows from trainFeat and trainLabels
-          class_feat <- trainFeat4AL_1IT[class_indices, , drop = FALSE]
-          class_labels <- trainLabels4AL_1IT[class_indices, drop = FALSE]
+          class_feat <- trainFeat4AL_IT[class_indices, , drop = FALSE]
+          class_labels <- trainLabels4AL_IT[class_indices, drop = FALSE]
           # Create a data frame with the same structure as SVtotal
           class_data <- cbind(class_feat, class_labels)
           # Append the class_data to SVtotal
@@ -2020,7 +2101,7 @@ for (realization in seq(1,nR)) {
       # ******************************************************
       binaryClassProblem = list()
       for (jj in seq_along(AL_MS_tunedSVM_2IT$finalModel@xmatrix)) { # COMPARE EVERY COUPLE COMBINATION OF CLASSES
-        binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCurRemaining4AL_IT[AL_MS_tunedSVM_2IT$finalModel@alphaindex[[jj]], ncol(trainDataCurRemaining4AL_IT)]))
+        binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur4AL_IT[AL_MS_tunedSVM_2IT$finalModel@alphaindex[[jj]], ncol(trainDataCur4AL_IT)]))
       }
       # ******************************************************
       names = objInfoNames[1:(length(objInfoNames)-1)]
@@ -2094,16 +2175,16 @@ for (realization in seq(1,nR)) {
       
       trainStart.time <- Sys.time()
       
-      SVL2 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
-      SVL3 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
+      SVL2 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA - 2*numFeat):(sindexSVMDATA - numFeat - 1), ncol(trainDataCur))]
+      SVL3 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA - numFeat):(sindexSVMDATA -1), ncol(trainDataCur))]
       
-      SVL5 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
-      SVL6 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
-      SVL7 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
-      SVL8 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
-      SVL9 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
-      SVL10 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
-      SVL11 = trainDataCurRemaining4AL_IT[ALSVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
+      SVL5 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + numFeat):((sindexSVMDATA + 2*numFeat)-1),ncol(trainDataCur))]
+      SVL6 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + 2*numFeat):((sindexSVMDATA + 3*numFeat)-1),ncol(trainDataCur))]
+      SVL7 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + 3*numFeat):((sindexSVMDATA + 4*numFeat)-1),ncol(trainDataCur))]
+      SVL8 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + 4*numFeat):((sindexSVMDATA + 5*numFeat)-1),ncol(trainDataCur))]
+      SVL9 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + 5*numFeat):((sindexSVMDATA + 6*numFeat)-1),ncol(trainDataCur))]
+      SVL10 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + 6*numFeat):((sindexSVMDATA + 7*numFeat)-1),ncol(trainDataCur))]
+      SVL11 = trainDataCur4AL_IT[ALSVindex,c((sindexSVMDATA + 7*numFeat):((sindexSVMDATA + 8*numFeat)-1),ncol(trainDataCur))]
       
       SVinvar = rbind(setNames(ALSVtotal,objInfoNames),
                       setNames(SVL2,objInfoNames),
@@ -2394,11 +2475,11 @@ if (length(sampleSizePor)>=2) {
       "\nNumber of ", model_name_AL_MS," SVs: ",length(AL_MS_tunedSVM$finalModel@SVindex),
       "\nNumber of ", model_name_AL_MS_2IT," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),
       
-      "\nNumber of final train Labels AL: ",length(trainLabels4AL_1IT),
+      "\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),
       sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.txt")
       )
   print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
-  cat("Number of ", model_name_AL_MS ," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),"\nNumber of final train Labels AL: ",length(trainLabels4AL_2IT),"\n\n",sep="")
+  cat("Number of ", model_name_AL_MS ," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),"\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),"\n\n",sep="")
   cat("performance results: acquired\n\n\n")
 }
 
