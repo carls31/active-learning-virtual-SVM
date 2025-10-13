@@ -1722,15 +1722,14 @@ for (realization in seq(1,nR)) {
       
       cat("active labeling ",model_name_AL_MS," | realization [",realization,"/",nR,"] | train samples: ",length(trainLabels4AL_IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       
+      newSize = round(sampleSizePor[sample_size]/2)
+      clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
+      newSize_for_iter = newSize
       
       cat("adding ",newSize," active samples | pool size: ",
           nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS],"\n",sep="")
       
-      # get the new size for the active labeling
-      newSize = round(sampleSizePor[sample_size]/2)
-      
-      clusterSizes = newSize+1 # c(round(max(classPor/40,newSize+1)))
-      newSize_for_iter = newSize
+
       
       # result <- add_AL_samples(sampled_data,
       #                          sampled_data[,1:numFeat], reference_label,
@@ -1820,15 +1819,14 @@ for (realization in seq(1,nR)) {
       
       cat("active labeling ",model_name_AL_MS_1IT," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       
+      newSize = round(sampleSizePor[sample_size]/4)
+      clusterSizes = newSize+1 
+      newSize_for_iter = newSize
       
       cat("adding ",newSize," active samples | pool size: ",
           nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS],"\n",sep="")
 
       
-      newSize = round(sampleSizePor[sample_size]/4)
-      clusterSizes = newSize+1 
-      newSize_for_iter = newSize
-
       # upd_dataCur <- samplesRemaining_1IT[,1:(ncol(trainDataCur)+1)]
       # upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
       # upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
