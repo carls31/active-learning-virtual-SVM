@@ -1405,9 +1405,6 @@ for (realization in seq(1,nR)) {
     
     # ==============
 
-    
-    
-    
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
     
     cat("\n") #################################  SVM #####################################
@@ -1492,14 +1489,14 @@ for (realization in seq(1,nR)) {
     cat("evaluation of SVM with self learning and semi-labeled | realization [",realization,"/",nR,"] | samples: ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
 
     SVL_variables = list(
-      list(SVtotalSVMUn, S01C09SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c((numFeat+1):(2*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S03C05SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((2*numFeat)+1):(3*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S03C07SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((3*numFeat)+1):(4*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S05C03SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((4*numFeat)+1):(5*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S05C05SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((5*numFeat)+1):(6*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S05C07SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((6*numFeat)+1):(7*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S07C03SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((7*numFeat)+1):(8*numFeat))], REFSVM)),
-      list(SVtotalSVMUn, S09C01SVMUn = cbind(trainDataCurRemainingSVM_Un[SVindexSVMUn,c(((8*numFeat)+1):(9*numFeat))], REFSVM))
+      list(SVtotalSVMUn, S01C09SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c((numFeat+1):(2*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S03C05SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((2*numFeat)+1):(3*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S03C07SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((3*numFeat)+1):(4*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S05C03SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((4*numFeat)+1):(5*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S05C05SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((5*numFeat)+1):(6*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S05C07SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((6*numFeat)+1):(7*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S07C03SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((7*numFeat)+1):(8*numFeat))], REFSVM)),
+      list(SVtotalSVMUn, S09C01SVMUn = cbind(trainDataCurRemaining_SL[SVindexSVMUn,c(((8*numFeat)+1):(9*numFeat))], REFSVM))
     )
 
     SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
@@ -1717,11 +1714,7 @@ for (realization in seq(1,nR)) {
       best_model_name <- model_name_vUn
     }
     ########################################################################################################
-    
-    
-    
-    
-      
+ 
       cat("\n") ###############################  Active Query #####################################
     
 
@@ -2195,14 +2188,14 @@ for (realization in seq(1,nR)) {
       cat("evaluation of SVM with self learning and semi-labeled samples| realization [",realization,"/",nR,"] | samples: ",sampleSizePor[sample_size]," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
       
       SVL_variables = list(
-        list(SVtotalSVMUn, S01C09SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c((numFeat+1):(2*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S03C05SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((2*numFeat)+1):(3*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S03C07SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((3*numFeat)+1):(4*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S05C03SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((4*numFeat)+1):(5*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S05C05SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((5*numFeat)+1):(6*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S05C07SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((6*numFeat)+1):(7*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S07C03SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((7*numFeat)+1):(8*numFeat))], REFSVM)),
-        list(SVtotalSVMUn, S09C01SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexSVMUn,c(((8*numFeat)+1):(9*numFeat))], REFSVM))
+        list(SVtotalSVMUn, S01C09SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c((numFeat+1):(2*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S03C05SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((2*numFeat)+1):(3*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S03C07SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((3*numFeat)+1):(4*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S05C03SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((4*numFeat)+1):(5*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S05C05SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((5*numFeat)+1):(6*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S05C07SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((6*numFeat)+1):(7*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S07C03SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((7*numFeat)+1):(8*numFeat))], REFSVM)),
+        list(SVtotalSVMUn, S09C01SVMUn = cbind(trainDataCurRemainingsub_SL[SVindexALSVMUn,c(((8*numFeat)+1):(9*numFeat))], REFSVM))
       )
       
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
