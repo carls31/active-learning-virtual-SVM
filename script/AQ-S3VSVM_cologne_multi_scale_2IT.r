@@ -1325,9 +1325,6 @@ for (realization in seq(1,nR)) {
     
     # ==============
 
-    
-    
-    
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
     
     cat("\n") #################################  SVM #####################################
@@ -1646,11 +1643,7 @@ for (realization in seq(1,nR)) {
       best_model_name <- model_name_vUn
     }
     ########################################################################################################
-    
-    
-    
-    
-      
+
       cat("\n") ###############################  Active Query #####################################
     
 
