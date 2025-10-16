@@ -1231,7 +1231,7 @@ for (realization in seq(1,nR)) {
   testDataCurBeg = testDataCurBeg[order(testDataCurBeg[,ncol(testDataCurBeg)]),]
   
   
-  for (sample_size in seq(1, length(sampleSizePor))) { # , by=2
+  for (sample_size in seq(1, length(sampleSizePor))) { 
     cat("\n") #################################  Sampling train and test data ##############################
     
     # initial seed value for randomized sampling
@@ -1804,11 +1804,10 @@ for (realization in seq(1,nR)) {
         trainFeat4AL_IT, trainLabels4AL_IT,
         newSize_for_iter, clusterSizes[cS],
         ID_unit = upd_dataCur$ID_unit,
-        tSNE_flag = TRUE, flag_cluster = TRUE,
-        newSize2 = b[bb] * nclass
+        tSNE_flag = TRUE, flag_cluster = TRUE
       )
 
-      upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
+      # upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
       
       new_trainFeat <- result$new_trainFeat_AL
       new_trainLabels <- result$new_trainLabels_AL
@@ -1854,7 +1853,7 @@ for (realization in seq(1,nR)) {
       }
       
       
-      cat("\n") ###############################  Active Query 1IT #####################################
+      # cat("\n") ###############################  Active Query 1IT #####################################
 
       # classSize=c(25000)            
       # 
@@ -1874,7 +1873,6 @@ for (realization in seq(1,nR)) {
   
       
       cat("\n") ###############################  AL MS + t-SNE 1IT #######################################
-
       model_name_AL_MS_1IT = "AL_MS_1IT"
       
       cat("active labeling ",model_name_AL_MS_1IT," | realization [",realization,"/",nR,"] | samples: ",length(trainLabels4AL_IT)," [",(sample_size),"/",round((length(sampleSizePor))),"]\n",sep="")
@@ -2406,11 +2404,6 @@ for (realization in seq(1,nR)) {
         best_model_name <- model_name_AL_VSVM_SLvUn
       }
       #######################################################################################################
-      
-      
-    
-    
-
 
     cat("\n") #################################  End sample portion #########################################
     if (sample_size==length(sampleSizePor)) {
@@ -2523,6 +2516,7 @@ if (length(sampleSizePor)>=2) {
   cat("Number of ", model_name_AL_MS ," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),"\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),"\n\n",sep="")
   cat("performance results: acquired\n\n\n")
 }
+
 
 
 
