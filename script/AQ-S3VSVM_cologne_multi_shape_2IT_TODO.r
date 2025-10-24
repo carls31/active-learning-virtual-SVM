@@ -383,7 +383,7 @@ margin_sampling <- function(org, samp, pred_one,binaryClassProblem, classes=NA,
 #                features=sampled_data[,1:numFeat], ref=reference_label,
 #                new_trainFeat_AL=trainFeat4AL_IT, new_trainLabels_AL=trainLabels4AL_IT,
 #                newSize=newSize_for_iter, cluster=clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-#                ID_unit=upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
+#                ID_unit=upd_dataCur$ID_unit,tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
 
 
 # add_AL_samples = function(distance_data,
@@ -1796,7 +1796,7 @@ for (realization in seq(1,nR)) {
       #                          trainFeat4AL_IT, trainLabels4AL_IT,
       #                          newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
       #                          upd_dataCur$ID_unit,
-      #                          tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
+      #                          tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
       
       result <- add_AL_samples(
         sampled_data,
@@ -1804,7 +1804,7 @@ for (realization in seq(1,nR)) {
         trainFeat4AL_IT, trainLabels4AL_IT,
         newSize_for_iter, clusterSizes[cS],
         ID_unit = upd_dataCur$ID_unit,
-        tSNE_flag = TRUE, flag_cluster = TRUE
+        tSNE_flag = FALSE, flag_cluster = TRUE
       )
 
       # upd_SVindex_ud = upd_dataCur$ID_unit %in% result$IDunit
@@ -1914,7 +1914,7 @@ for (realization in seq(1,nR)) {
       #                          sampled_data[,1:numFeat], reference_label,
       #                          trainFeat4AL_IT, trainLabels4AL_IT,
       #                          newSize_for_iter, clusterSizes[cS], 
-      #                          upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) 
+      #                          upd_dataCur$ID_unit,tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass) 
       
       result <- add_AL_samples(
         sampled_data,
@@ -1922,7 +1922,7 @@ for (realization in seq(1,nR)) {
         trainFeat4AL_IT, trainLabels4AL_IT,
         newSize_for_iter, clusterSizes[cS],
         ID_unit = upd_dataCur$ID_unit,
-        tSNE_flag = TRUE, flag_cluster = TRUE,
+        tSNE_flag = FALSE, flag_cluster = TRUE,
         newSize2 = b[bb] * nclass
       )
       
@@ -2070,7 +2070,7 @@ for (realization in seq(1,nR)) {
                                sampled_data[,1:numFeat], reference_label,
                                trainFeat4AL_IT, trainLabels4AL_IT,
                                newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-                               upd_dataCur$ID_unit,tSNE_flag = TRUE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
+                               upd_dataCur$ID_unit,tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
       # cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
 
