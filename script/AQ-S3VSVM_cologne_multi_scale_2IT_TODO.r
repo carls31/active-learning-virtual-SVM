@@ -2396,6 +2396,11 @@ if (length(sampleSizePor)>=2) {
        AccuracyAL_MS,
        AccuracyAL_MS_2IT,
        
+       AccuracyALSVM_SL_Un_1IT,
+       AccuracyALVSVM_SL_1IT,
+       AccuracyALVSVM_SL_Un_1IT,
+       AccuracyALVSVM_SL_vUn_1IT,
+       
        AccuracyALSVM_SL_Un_2IT,
        AccuracyALVSVM_SL_2IT,
        AccuracyALVSVM_SL_Un_2IT,
@@ -2410,7 +2415,12 @@ if (length(sampleSizePor)>=2) {
        KappaVSVM_SL_vUn,
        
        KappaAL_MS,             
-       KappaAL_MS_2IT,             
+       KappaAL_MS_2IT,          
+       
+       KappaALSVM_SL_Un_1IT,
+       KappaALVSVM_SL_1IT,
+       KappaALVSVM_SL_Un_1IT,
+       KappaALVSVM_SL_vUn_1IT,
 
        KappaALSVM_SL_Un_2IT,
        KappaALVSVM_SL_2IT,
@@ -2427,6 +2437,11 @@ if (length(sampleSizePor)>=2) {
 
        SVsAL_MS,
        SVsAL_MS_2IT,
+       
+       SVsALSVM_SL_Un_1IT,
+       SVsALVSVM_SL_1IT,
+       SVsALVSVM_SL_Un_1IT,
+       SVsALVSVM_SL_vUn_1IT,
        
        SVsALSVM_SL_Un_2IT,
        SVsALVSVM_SL_2IT,

@@ -1129,8 +1129,17 @@ colnames(AccuracyALVSVM_SL_Un) = colheader
 AccuracyALVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyALVSVM_SL_vUn) = colheader
 
+AccuracyALSVM_SL_Un_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyALSVM_SL_Un_1IT) = colheader
+AccuracyALVSVM_SL_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyALVSVM_SL_1IT) = colheader
+AccuracyALVSVM_SL_Un_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyALVSVM_SL_Un_1IT) = colheader
+AccuracyALVSVM_SL_vUn_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(AccuracyALVSVM_SL_vUn_1IT) = colheader
+
 AccuracyALSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(AccuracyALSVM_SL_Un) = colheader
+colnames(AccuracyALSVM_SL_Un_2IT) = colheader
 AccuracyALVSVM_SL_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyALVSVM_SL_2IT) = colheader
 AccuracyALVSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1157,6 +1166,15 @@ KappaAL_MS_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaAL_MS_2IT) = colheader
 KappaAL_MS_semiAL = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaAL_MS_semiAL) = colheader
+
+KappaALSVM_SL_Un_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALSVM_SL_Un_1IT) = colheader
+KappaALVSVM_SL_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALVSVM_SL_1IT) = colheader
+KappaALVSVM_SL_Un_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALVSVM_SL_Un_1IT) = colheader
+KappaALVSVM_SL_vUn_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(KappaALVSVM_SL_vUn_1IT) = colheader
 
 KappaALSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(KappaALSVM_SL_Un_2IT) = colheader
@@ -1193,6 +1211,15 @@ SVsALVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsALVSVM_SL_Un) = colheader
 SVsALVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsALVSVM_SL_vUn) = colheader
+
+SVsALSVM_SL_Un_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(SVsALSVM_SL_Un_1IT) = colheader
+SVsALVSVM_SL_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(SVsALVSVM_SL_1IT) = colheader
+SVsALVSVM_SL_Un_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(SVsALVSVM_SL_Un_1IT) = colheader
+SVsALVSVM_SL_vUn_1IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
+colnames(SVsALVSVM_SL_vUn_1IT) = colheader
 
 SVsALSVM_SL_Un_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsALSVM_SL_Un_2IT) = colheader
@@ -2456,6 +2483,11 @@ if (length(sampleSizePor)>=2) {
        AccuracyAL_MS,
        AccuracyAL_MS_2IT,
        
+       AccuracyALSVM_SL_Un_1IT,
+       AccuracyALVSVM_SL_1IT,
+       AccuracyALVSVM_SL_Un_1IT,
+       AccuracyALVSVM_SL_vUn_1IT,
+       
        AccuracyALSVM_SL_Un_2IT,
        AccuracyALVSVM_SL_2IT,
        AccuracyALVSVM_SL_Un_2IT,
@@ -2472,6 +2504,11 @@ if (length(sampleSizePor)>=2) {
        KappaAL_MS,             
        KappaAL_MS_2IT,             
 
+       KappaALSVM_SL_Un_1IT,
+       KappaALVSVM_SL_1IT,
+       KappaALVSVM_SL_Un_1IT,
+       KappaALVSVM_SL_vUn_1IT,
+       
        KappaALSVM_SL_Un_2IT,
        KappaALVSVM_SL_2IT,
        KappaALVSVM_SL_Un_2IT,
@@ -2487,6 +2524,11 @@ if (length(sampleSizePor)>=2) {
 
        SVsAL_MS,
        SVsAL_MS_2IT,
+       
+       SVsALSVM_SL_Un_1IT,
+       SVsALVSVM_SL_1IT,
+       SVsALVSVM_SL_Un_1IT,
+       SVsALVSVM_SL_vUn_1IT,
        
        SVsALSVM_SL_Un_2IT,
        SVsALVSVM_SL_2IT,
