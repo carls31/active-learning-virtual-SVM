@@ -883,6 +883,29 @@ classificationProblem = function(generalDataPool){
   generalDataPool$REF = as.factor(generalDataPool$REF)
   return(generalDataPool)
 }
+
+ExCsvMSD = function (datadase, filename = NA){
+  
+  datadase = as.matrix(datadase)
+  n = ncol(datadase)
+  if(n>1){
+    MSDdata = matrix(data = NA, nrow = 2, ncol = n)
+    for (l in seq(along=1:n)){
+      MSDdata[1,l] = mean(datadase[,l])
+      MSDdata[2,l] = sd(datadase[,l])
+    }
+    MSDdata_final = rbind(datadase, MSDdata) 
+    #export final kappa value table to .csv-file
+    if(!missing(filename)){ write.csv(MSDdata_final, filename) }
+    
+  }else{
+    MSDdata = matrix(data = NA, nrow = 2, ncol = length(datadase))
+    MSDdata[1,] = datadase
+    MSDdata[2,] = 0
+  }
+  rownames(MSDdata) = c("Mean","Std Dev")
+  return(MSDdata)
+}
 ############################################################################################################
 
 
@@ -1244,7 +1267,7 @@ seed = 5 # 5, 73, 20, 98, 133
 
 ###############################################  Training  #################################################
 
-start.time_oa <- Sys.time()
+run.time_oa <- Sys.time()
 
 for (realization in seq(1,nR)) {
   
@@ -1269,10 +1292,11 @@ for (realization in seq(1,nR)) {
     set.seed(seed)
 
     
-      # 1IT
+      ### Subset for the First iteration of AL: 1IT
       
       sampleSize = round(sampleSizePor[sample_size]/nclass)
-      shares = c(sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2)
+      shares = c(sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2) 
+      # half of the original sample size, the other half will be provided by AL framework
       
       # definition of sampling configuration (strata:random sampling without replacement)
       stratSamp = strata(trainDataCurBeg, c("REF"), size = shares, method = "srswor")
@@ -1296,16 +1320,15 @@ for (realization in seq(1,nR)) {
       trainFeat4AL_IT = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
       
+      # define training data pool for AL
       trainDataCurRemaining4AL_IT = trainDataCurRemaining
-
-
       
-      
+
       # Benchmark
       
       sampleSize = round(sampleSizePor[sample_size]/nclass)
       shares = c(sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2,sampleSize/2)
-      
+      # add the other half to the subset required by the benchmark models
       
       # definition of sampling configuration (strata:random sampling without replacement)
       stratSamp = strata(trainDataCurRemaining, c("REF"), size = shares, method = "srswor")
@@ -1318,7 +1341,6 @@ for (realization in seq(1,nR)) {
       trainDataCur = samples[,1:ncol(trainDataPoolAllLev)]
       trainDataCurRemaining <- trainDataCurRemaining[-c(samplesID), ]
       
-
       trainFeat = trainDataCur[,1:(ncol(trainDataPoolAllLev)-1)]
       trainLabels = trainDataCur[,ncol(trainDataPoolAllLev)]
       # *********************************************************************
@@ -1327,16 +1349,13 @@ for (realization in seq(1,nR)) {
       trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
       names = objInfoNames[1:(length(objInfoNames)-1)]
+      
       trainFeat <- rbind(setNames(trainFeat4AL_IT, names), setNames(trainFeat, names))
       trainLabels <- unlist(list(trainLabels4AL_IT, trainLabels))
-      
       trainDataCur = rbind(trainDataCur4AL_IT,trainDataCur)
 
-      
-      
-      
+
       # TEST
-      
       
       # 1IT
       
@@ -1356,10 +1375,8 @@ for (realization in seq(1,nR)) {
       
       # subset on base level
       testFeatsub4AL_1IT = testFeat[sindexSVMDATA:eindexSVMDATA]
-      
-     
-       
 
+      
       # 2IT
 
       sampleSize = round(sampleSizePor[sample_size]/nclass)
@@ -1379,8 +1396,7 @@ for (realization in seq(1,nR)) {
       testFeatsub4AL_2IT <- rbind(setNames(testFeatsub4AL_1IT, names), setNames(testFeatsub4AL_2IT, names))
       testLabels4AL_2IT <- unlist(list(testLabels4AL_1IT, testLabels4AL_2IT))
       
-      
-      
+
       # Benchmark
 
       sampleSize = round(sampleSizePor[sample_size]/nclass)
@@ -1400,11 +1416,8 @@ for (realization in seq(1,nR)) {
       testFeatsub <- rbind(setNames(testFeatsub4AL_2IT, names), setNames(testFeatsub, names))
       testLabels <- unlist(list(testLabels4AL_2IT, testLabels))
       
-      
-      
-      
+
       # TUNE  
-      
       
       # 1IT
 
@@ -1416,9 +1429,7 @@ for (realization in seq(1,nR)) {
       tuneFeat4AL_1AL = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_1IT,objInfoNames[1:(length(objInfoNames)-1)]))
       tuneLabel4AL_1AL = unlist(list(trainLabels4AL_IT, testLabels4AL_1IT))
     
-    
-      
-      
+
       # Benchmark
       
       # trainData index to split between train and test in svmFit
@@ -1755,18 +1766,10 @@ for (realization in seq(1,nR)) {
       stratSampRemaining = strata(trainDataCurRemaining4AL_IT, size = classSize[clS], method = "srswor")
       samplesRemaining = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining)
       
-      # head(rownames(trainDataCurRemaining4AL_IT))
-      # head(rownames(samplesRemaining))
-      # head(stratSampRemaining$ID_unit)
-      
-      # trainDataCurRemaining4AL_IT[samplesRemaining$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
-      # samplesRemaining[1,c(sindexSVMDATA:eindexSVMDATA)]
-      
-    
-      
-      # Final check for duplicates
+
+      # check for duplicates
       final_duplicate_count <- sum(duplicated(samplesRemaining[, c(sindexSVMDATA:eindexSVMDATA)]))
-      cat("final unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count,"\n",sep="")
+      cat("Unlabeled pool size: ",nrow(samplesRemaining)," | duplicates: ", final_duplicate_count,"\n",sep="")
       
       cS=1  
       bb = 1
@@ -1774,11 +1777,7 @@ for (realization in seq(1,nR)) {
       upd_dataCur <- samplesRemaining[,1:(ncol(trainDataCur)+1)]
       upd_dataCurFeatsub <- upd_dataCur[,c(sindexSVMDATA:eindexSVMDATA)]
       upd_dataCurLabels <- upd_dataCur[,ncol(trainDataCur)]
-      
-      
-      # trainDataCurRemaining4AL_IT[upd_dataCur$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
-      # upd_dataCur[1,c(sindexSVMDATA:eindexSVMDATA)]
-      
+
       
       trainStart.time <- Sys.time()
       
@@ -1802,7 +1801,6 @@ for (realization in seq(1,nR)) {
       cat("computing samples distance required ", round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1),"sec\n",sep="")
       cat("using SVM with ",length(trainLabels4AL_IT)," train samples | accuracy: ",cm_SVM4AL$overall["Accuracy"],"\n",sep="")
       # # **********************
-      # # **********************
       
       
       cat("\n") ###############################  AL MS + t-SNE #######################################
@@ -1816,15 +1814,15 @@ for (realization in seq(1,nR)) {
       
       cat("adding ",newSize," active samples | pool size: ",
           nrow(samplesRemaining)," [",clS,"/",length(classSize),"] | clusters: ",clusterSizes[cS],"\n",sep="")
-      
 
-      # result <- add_AL_samples(sampled_data,
-      #                          sampled_data[,1:numFeat], reference_label,
-      #                          trainFeat4AL_IT, trainLabels4AL_IT,
-      #                          newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
-      #                          upd_dataCur$ID_unit,
-      #                          tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
-      
+      # result <- add_AL_samples(
+      #   sampled_data,
+      #   sampled_data[,1:numFeat], reference_label,
+      #   trainFeat4AL_IT, trainLabels4AL_IT,
+      #   newSize_for_iter, clusterSizes[cS], # always greater than newSize_for_iter, # 60, 80, 100, 120
+      #   upd_dataCur$ID_unit,
+      #   tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass
+      #   ) 
       result <- add_AL_samples(
         sampled_data,
         sampled_data[, 1:numFeat], reference_label,
@@ -1848,8 +1846,7 @@ for (realization in seq(1,nR)) {
       # SVtotal = setNames(cbind(trainFeat4AL_IT, trainLabels4AL_IT),c(objInfoNames[-length(objInfoNames)],"REF"))
 
       # **********************
-      
-      
+
       
       
       # **********************
@@ -1909,7 +1906,7 @@ for (realization in seq(1,nR)) {
       
       
       
-      cat("\n") ###############################  AL-SVM 1 IT EQUAL TO AL_MS 1 IT  #####################################
+      cat("\n") ###############################  AL-SVM 1IT IS EQUAL TO AL_MS  #####################################
       
       # get original SVs of base SVM ************************* prevent removing an entire class label
       ALSVindex = AL_MS_tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
@@ -1945,17 +1942,13 @@ for (realization in seq(1,nR)) {
       trainStart.time <- Sys.time()
       # Definition of sampling configuration (strata:random sampling without replacement)
       stratSampRemaining_b = strata(trainDataCurRemaining4AL_IT, c("REF"), size = c(b[bb],b[bb],b[bb],b[bb],b[bb],b[bb]), method = "srswor")
-      
-      
-      
+
       
       samplesRemaining_b = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining_b)
       
       trainDataCurRemaining_SL = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
       trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
-      
-      
-      
+
       
       REFALSVM = predict(AL_MS_tunedSVM, trainDataCurRemainingsub_SL)
       
@@ -1983,8 +1976,7 @@ for (realization in seq(1,nR)) {
       best_trainFeatALSVMUn <- SLresult$best_trainFeatVSVM
       best_trainLabelsALSVMUn <- SLresult$best_trainLabelsVSVM
       best_boundMarginALSVMUn <- SLresult$best_boundMargin
-      # best_boundSVM_SL_Un = SLresult$best_bound
-      # best_boundMarginSVM_SL_Un = SLresult$best_boundMargin
+
       t.timeALSVMUn <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       predLabelsALSVMsumUn = predict(bestFittingALModelSVMUn, validateFeatsub)
@@ -1994,11 +1986,13 @@ for (realization in seq(1,nR)) {
       AccuracyALSVM_SL_Un[realization,sample_size] = as.numeric(cm_AL_SVM_SL_Un$overall["Accuracy"])
       KappaALSVM_SL_Un[realization,sample_size] = as.numeric(cm_AL_SVM_SL_Un$overall["Kappa"])
       SVsALSVM_SL_Un[realization,sample_size] = as.numeric(length(bestFittingALModelSVMUn$finalModel@SVindex))
+      
       if (cm_AL_SVM_SL_Un$overall["Accuracy"]>best_acc) {
         best_acc <- cm_AL_SVM_SL_Un$overall["Accuracy"]
         new_bestModel <- bestFittingALModelSVMUn
         best_model_name <- model_name_AL_SVMUn
       }
+      
       
       cat("\n") ###############################  AL-VSVM-SL ################################################
       model_name_AL_VSVM_SL = "AL_VSVM_SL"
@@ -2055,6 +2049,7 @@ for (realization in seq(1,nR)) {
       AccuracyALVSVM_SL[realization,sample_size] = as.numeric(cm_AL_VSVM_SL$overall["Accuracy"])
       KappaALVSVM_SL[realization,sample_size] = as.numeric(cm_AL_VSVM_SL$overall["Kappa"])
       SVsALVSVM_SL[realization,sample_size] = as.numeric(length(bestFittingALModel$finalModel@SVindex))
+      
       if (cm_AL_VSVM_SL$overall["Accuracy"]>best_acc) {
         best_acc <- cm_AL_VSVM_SL$overall["Accuracy"]
         new_bestModel <- bestFittingALModel
@@ -2067,16 +2062,7 @@ for (realization in seq(1,nR)) {
       
       trainStart.timeUn <- Sys.time()
       actAcc_ALvUn = -1e-6
-      bb = 1 # for (bb in seq(along=b)) {
-      
-      # # Definition of sampling configuration (strata:random sampling without replacement)
-      # stratSampRemaining_b = strata(trainDataCurRemaining4AL_IT, c("REF"), size = c(b[bb],b[bb],b[bb],b[bb],b[bb],b[bb]), method = "srswor")
-      # 
-      # samplesRemaining_b = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining_b)
-      # 
-      # trainDataCurRemaining_SL = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
-      # trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
-      
+
       REF_b = predict(bestFittingALModel, trainDataCurRemainingsub_SL)
       
       # get SV of unlabeled samples
@@ -2110,8 +2096,7 @@ for (realization in seq(1,nR)) {
       bestFittingALModelUn <- SLresult$bestFittingModel
       best_trainFeatALVSVMUn <- SLresult$best_trainFeatVSVM
       best_trainLabelsALVSVMUn <- SLresult$best_trainLabelsVSVM
-      # best_bound_SL_Un = SLresult$best_bound
-      best_boundMargin_SL_Un = SLresult$best_boundMargin
+
       trainALUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       predLabelsALVSVMsumUn = predict(bestFittingALModelUn, validateFeatsub)
@@ -2121,6 +2106,7 @@ for (realization in seq(1,nR)) {
       AccuracyALVSVM_SL_Un[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_Un$overall["Accuracy"])
       KappaALVSVM_SL_Un[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_Un$overall["Kappa"])
       SVsALVSVM_SL_Un[realization,sample_size] = as.numeric(length(bestFittingALModelUn$finalModel@SVindex))
+      
       if (cm_AL_VSVM_SL_Un$overall["Accuracy"] > best_acc) {
         best_acc <- cm_AL_VSVM_SL_Un$overall["Accuracy"]
         new_bestModel <- bestFittingALModelUn
@@ -2167,18 +2153,18 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModelvUn <- SLresult$bestFittingModel
-      
       new_best_bound_SLvUn = SLresult$best_bound
+      
       trainALvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       new_predLabelsALVSVMvUnsum = predict(bestFittingALModelvUn, validateFeatsub)
       cm_AL_VSVM_SL_vUn = confusionMatrix(new_predLabelsALVSVMvUnsum, validateLabels)
-      
       cat("AL VSVM_SL_vUn accuracy: ",round(cm_AL_VSVM_SL_vUn$overall["Accuracy"],5),"\n",sep="")
       
       AccuracyALVSVM_SL_vUn[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_vUn$overall["Accuracy"])
       KappaALVSVM_SL_vUn[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_vUn$overall["Kappa"])
       SVsALVSVM_SL_vUn[realization,sample_size] = as.numeric(length(bestFittingALModelvUn$finalModel@SVindex))
+      
       if (cm_AL_VSVM_SL_vUn$overall["Accuracy"] > best_acc){
         best_acc <- cm_AL_VSVM_SL_vUn$overall["Accuracy"]
         new_bestModel <- bestFittingALModelvUn
@@ -2258,17 +2244,10 @@ for (realization in seq(1,nR)) {
         tSNE_flag = FALSE, flag_cluster = TRUE,
         newSize2 = b[bb] * nclass
       )
-      
-      # upd_SVindex = upd_dataCur$ID_unit %in% result$IDunit
-      # upd_SVindex = result$IDunit
-      
+
       new_trainFeat <- result$new_trainFeat_AL
       new_trainLabels <- result$new_trainLabels_AL
 
-      # trainDataCurRemaining4AL_IT[upd_dataCur$ID_unit[1],c(sindexSVMDATA:eindexSVMDATA)]
-      # upd_dataCur[1,c(sindexSVMDATA:eindexSVMDATA)]
-      # new_trainFeat
-      # trainDataCurRemaining4AL_IT[result$IDunit, c(sindexSVMDATA:eindexSVMDATA)]
       
       # remove new_trainFeat from trainDataCurRemaining4AL_IT
       trainDataCurRemaining4AL_IT <- trainDataCurRemaining4AL_IT[-(result$IDunit), ]
@@ -2322,10 +2301,9 @@ for (realization in seq(1,nR)) {
       
       AL_MS_tunedSVM_1IT = svmFit(tuneFeat, tuneLabel, indexTrainData)
       tmp_pred = predict(AL_MS_tunedSVM_1IT, validateFeatsub)
-      cm_AL_MS_1IT  = confusionMatrix(tmp_pred, validateLabels)
+      cm_AL_MS_1IT  = confusionMatrix(tmp_pred, validateLabels) # computed just for logging info
       cat(model_name_AL_MS_1IT," accuracy: ",round(cm_AL_MS_1IT$overall["Accuracy"],5),"\n",sep="")
       # **********************
-      
       
       
       cat("\n") ###############################  Active Query 2IT #####################################
@@ -2398,9 +2376,6 @@ for (realization in seq(1,nR)) {
                                upd_dataCur$ID_unit,tSNE_flag = FALSE, flag_cluster = TRUE, newSize2=b[bb]*nclass) #,
       ALS.time <- round(as.numeric((Sys.time() - ALSamplesStart.time), units = "secs"), 1)
       # cat("getting active-labeled samples and updated datasets required ", ALS.time,"sec\n",sep="")
-
-      # upd_SVindex = upd_dataCur$ID_unit %in% result$IDunit
-      
       new_trainFeat <- result$new_trainFeat_AL
       new_trainLabels <- result$new_trainLabels_AL
       
@@ -2427,15 +2402,13 @@ for (realization in seq(1,nR)) {
       countTrainData = nrow(trainFeat4AL_IT)
       indexTrainData = list(c(1:countTrainData))
       
-      # tuneFeat = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub,objInfoNames[1:(length(objInfoNames)-1)]))
-      # tuneLabel = unlist(list(trainLabels4AL_IT, testLabels))
-      
+
       # join of train and test test data (separable through indexTrainData in svmFit)
       tuneFeat4AL_2AL = rbind(setNames(trainFeat4AL_IT,objInfoNames[1:(length(objInfoNames)-1)]), setNames(testFeatsub4AL_2IT,objInfoNames[1:(length(objInfoNames)-1)]))
       tuneLabel4AL_2AL = unlist(list(trainLabels4AL_IT, testLabels4AL_2IT))
       
-      AL_MS_tunedSVM = svmFit(tuneFeat4AL_2AL, tuneLabel4AL_2AL, indexTrainData)
-      tmp_pred = predict(AL_MS_tunedSVM, validateFeatsub)
+      AL_MS_tunedSVM_2IT = svmFit(tuneFeat4AL_2AL, tuneLabel4AL_2AL, indexTrainData)
+      tmp_pred = predict(AL_MS_tunedSVM_2IT, validateFeatsub)
       cm_AL_MS_2IT= confusionMatrix(tmp_pred, validateLabels)
       cat(model_name_AL_MS_2IT," accuracy: ",round(cm_AL_MS_2IT$overall["Accuracy"],5),"\n",sep="")
       
@@ -2446,10 +2419,12 @@ for (realization in seq(1,nR)) {
       AccuracyAL_MS_2IT[realization,sample_size] = as.numeric((cm_AL_MS_2IT$overall["Accuracy"]))
       KappaAL_MS_2IT[realization,sample_size] = as.numeric((cm_AL_MS_2IT$overall["Kappa"]))
       SVsAL_MS_2IT[realization,sample_size] = as.numeric(length(AL_MS_tunedSVM_2IT$finalModel@SVindex))
-
       
-      # trainDataCurRemaining4AL_IT <- trainDataCurRemaining4AL_IT[!upd_SVindex, ] # IT IS REQUIRED FOR AL-SVM models
-      # trainDataCur4AL_IT = rbind(trainDataCur4AL_IT,upd_dataCur[upd_SVindex,1:(ncol(trainDataPoolAllLev))])
+      if (cm_AL_MS_2IT$overall["Accuracy"] > best_acc){
+        best_acc <- cm_AL_MS_2IT$overall["Accuracy"]
+        new_bestModel <- AL_MS_tunedSVM_2IT
+        best_model_name <- model_name_AL_MS_2IT
+      } 
       
 
       cat("\n") ###############################  AL-SVM EQUAL TO AL_MS  #####################################
@@ -2489,17 +2464,13 @@ for (realization in seq(1,nR)) {
       trainStart.time <- Sys.time()
       # Definition of sampling configuration (strata:random sampling without replacement)
       stratSampRemaining_b = strata(trainDataCurRemaining4AL_IT, c("REF"), size = c(b[bb],b[bb],b[bb],b[bb],b[bb],b[bb]), method = "srswor")
-      
 
       
-  
       samplesRemaining_b = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining_b)
 
       trainDataCurRemaining_SL = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
       trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
-      
-      
-      
+
       
       REFALSVM = predict(AL_MS_tunedSVM_2IT, trainDataCurRemainingsub_SL)
       
@@ -2524,11 +2495,7 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
       bestFittingALModelSVMUn_2IT <- SLresult$bestFittingModel
-      # best_trainFeatALSVMUn <- SLresult$best_trainFeatVSVM
-      # best_trainLabelsALSVMUn <- SLresult$best_trainLabelsVSVM
-      # best_boundMarginALSVMUn <- SLresult$best_boundMargin
-      # best_boundSVM_SL_Un = SLresult$best_bound
-      # best_boundMarginSVM_SL_Un = SLresult$best_boundMargin
+
       t.timeALSVMUn <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       predLabelsALSVMsumUn = predict(bestFittingALModelSVMUn_2IT, validateFeatsub)
@@ -2538,6 +2505,7 @@ for (realization in seq(1,nR)) {
       AccuracyALSVM_SL_Un_2IT[realization,sample_size] = as.numeric(cm_AL_SVM_SL_Un_2IT$overall["Accuracy"])
       KappaALSVM_SL_Un_2IT[realization,sample_size] = as.numeric(cm_AL_SVM_SL_Un_2IT$overall["Kappa"])
       SVsALSVM_SL_Un_2IT[realization,sample_size] = as.numeric(length(bestFittingALModelSVMUn_2IT$finalModel@SVindex))
+      
       if (cm_AL_SVM_SL_Un_2IT$overall["Accuracy"]>best_acc) {
         best_acc <- cm_AL_SVM_SL_Un_2IT$overall["Accuracy"]
         new_bestModel <- bestFittingALModelSVMUn_2IT
@@ -2585,10 +2553,7 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
       bestFittingALModel_2IT <- SLresult$bestFittingModel
-      # best_trainFeatALVSVM <- SLresult$best_trainFeatVSVM
-      # best_trainLabelsALVSVM <- SLresult$best_trainLabelsVSVM
-      # best_bound_SL = SLresult$best_bound
-      # best_boundMargin_SL = SLresult$best_boundMargin
+
       t.timeALSL <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
       
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
@@ -2611,15 +2576,6 @@ for (realization in seq(1,nR)) {
       
       trainStart.timeUn <- Sys.time()
       actAcc_ALvUn = -1e-6
-      bb = 1 # for (bb in seq(along=b)) {
-      
-      # # Definition of sampling configuration (strata:random sampling without replacement)
-      # stratSampRemaining_b = strata(trainDataCurRemaining4AL_IT, c("REF"), size = c(b[bb],b[bb],b[bb],b[bb],b[bb],b[bb]), method = "srswor")
-      # 
-      # samplesRemaining_b = getdata(trainDataCurRemaining4AL_IT, stratSampRemaining_b)
-      # 
-      # trainDataCurRemaining_SL = samplesRemaining_b[,1:ncol(trainDataPoolAllLev)]
-      # trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
       
       REF_b = predict(bestFittingALModel, trainDataCurRemainingsub_SL)
       
@@ -2652,10 +2608,7 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
       bestFittingALModelUn_2IT <- SLresult$bestFittingModel
-      # best_trainFeatALVSVMUn <- SLresult$best_trainFeatVSVM
-      # best_trainLabelsALVSVMUn <- SLresult$best_trainLabelsVSVM
-      # best_bound_SL_Un = SLresult$best_bound
-      # best_boundMargin_SL_Un = SLresult$best_boundMargin
+
       trainALUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       predLabelsALVSVMsumUn = predict(bestFittingALModelUn_2IT, validateFeatsub)
@@ -2665,6 +2618,7 @@ for (realization in seq(1,nR)) {
       AccuracyALVSVM_SL_Un_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_Un_2IT$overall["Accuracy"])
       KappaALVSVM_SL_Un_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_Un_2IT$overall["Kappa"])
       SVsALVSVM_SL_Un_2IT[realization,sample_size] = as.numeric(length(bestFittingALModelUn_2IT$finalModel@SVindex))
+      
       if (cm_AL_VSVM_SL_Un_2IT$overall["Accuracy"] > best_acc) {
         best_acc <- cm_AL_VSVM_SL_Un_2IT$overall["Accuracy"]
         new_bestModel <- bestFittingALModelUn_2IT
@@ -2711,7 +2665,7 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
       bestFittingALModelvUn_2IT <- SLresult$bestFittingModel
-      # new_best_bound_SLvUn = SLresult$best_bound
+
       trainALvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       new_predLabelsALVSVMvUnsum = predict(bestFittingALModelvUn_2IT, validateFeatsub)
@@ -2742,6 +2696,11 @@ for (realization in seq(1,nR)) {
       saveRDS(bestFittingALModelUn, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SLUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       saveRDS(bestFittingALModelvUn, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SLvUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       
+      saveRDS(bestFittingALModelSVMUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_SVMUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModel_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SL_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModelUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SLUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModelvUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SLvUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      
 
       saveRDS(AL_MS_tunedSVM, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_MS,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       saveRDS(AL_MS_tunedSVM_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_MS_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
@@ -2760,6 +2719,11 @@ for (realization in seq(1,nR)) {
       saveRDS(cm_AL_VSVM_SL, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SL,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       saveRDS(cm_AL_VSVM_SL_Un, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       saveRDS(cm_AL_VSVM_SL_vUn, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLvUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      
+      saveRDS(cm_AL_SVM_SL_Un_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_SVMUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(cm_AL_VSVM_SL_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SL_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(cm_AL_VSVM_SL_Un_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(cm_AL_VSVM_SL_vUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLvUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
     }
   }
   cat("\n") ###################################  End realization ############################################
@@ -2767,9 +2731,8 @@ for (realization in seq(1,nR)) {
   best_model_oa=c(best_model_oa,best_model_name,": ",as.numeric(best_acc),"\n")
   time.taken_iter = c(time.taken_iter, c("Realization ",realization," | seed: ",seed," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h"),"\n")
   cat("Realization ",realization," execution time: ",round(as.numeric((Sys.time() - start.time), units = "hours"), 2),"h\n\n")
-} 
-if (length(sampleSizePor)>=2) {
-  time.taken_oa <- round(as.numeric((Sys.time() - start.time_oa), units = "hours"), 2)
+  
+  
   setwd(paste0(path,"GitHub/active-learning-virtual-SVM/results/",city,"/",model_prob,"/",invariance))
   save(AccuracySVM, 
        AccuracySVM_SL_Un,
@@ -2790,8 +2753,8 @@ if (length(sampleSizePor)>=2) {
        AccuracyALVSVM_SL_Un_2IT,
        AccuracyALVSVM_SL_vUn_2IT,
        
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
-       )
+       file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
+  )
   save(KappaSVM, 
        KappaSVM_SL_Un,
        KappaVSVM_SL,
@@ -2800,7 +2763,7 @@ if (length(sampleSizePor)>=2) {
        
        KappaAL_MS,             
        KappaAL_MS_2IT,             
-
+       
        KappaALSVM_SL_Un,
        KappaALVSVM_SL,
        KappaALVSVM_SL_Un,
@@ -2811,14 +2774,14 @@ if (length(sampleSizePor)>=2) {
        KappaALVSVM_SL_Un_2IT,
        KappaALVSVM_SL_vUn_2IT,
        
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
-       )
+       file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
+  )
   save(SVsSVM, 
        SVsSVM_SL_Un,
        SVsVSVM_SL,
        SVsVSVM_SL_Un,
        SVsVSVM_SL_vUn,
-
+       
        SVsAL_MS,
        SVsAL_MS_2IT,
        
@@ -2832,67 +2795,48 @@ if (length(sampleSizePor)>=2) {
        SVsALVSVM_SL_Un_2IT,
        SVsALVSVM_SL_vUn_2IT,
        
-       file=paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_SVs_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
-       )
-  
-  cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model_oa,
-      
+       file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_SVs_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
+  )
+  setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
+} 
 
-      
-      "\nNumber of ", model_name_tunedSVM ," SVs: ",length(tunedSVM$finalModel@SVindex),
-      "\nNumber of ", model_name_SVMUn ," SVs: ",length(bestFittingModelSVMUn$finalModel@SVindex),
-      "\nNumber of ", model_name_VSVM_SL ," SVs: ",length(bestFittingModel$finalModel@SVindex),
-      "\nNumber of ", model_name_Un ," SVs: ",length(bestFittingModelUn$finalModel@SVindex),
-      "\nNumber of ", model_name_vUn ," SVs: ",length(bestFittingModelvUn$finalModel@SVindex),
-      
-      "\nNumber of ", model_name_AL_MS," SVs: ",length(AL_MS_tunedSVM$finalModel@SVindex),
-      "\nNumber of ", model_name_AL_MS_2IT," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),
-      
-      "\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),
-      sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.txt")
-      )
-  print(confusionMatrix(new_trainLabels,predict(bestFittingModel, new_trainFeat)))
-  cat("Number of ", model_name_AL_MS ," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),"\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),"\n\n",sep="")
-  cat("performance results: acquired\n\n\n")
-}
-
-
-
-
-
-
-
-
-
-ExCsvMSD = function (datadase, filename = NA){
-  
-  datadase = as.matrix(datadase)
-  n = ncol(datadase)
-  if(n>1){
-    MSDdata = matrix(data = NA, nrow = 2, ncol = n)
-    for (l in seq(along=1:n)){
-      MSDdata[1,l] = mean(datadase[,l])
-      MSDdata[2,l] = sd(datadase[,l])
-    }
-    MSDdata_final = rbind(datadase, MSDdata) 
-    #export final kappa value table to .csv-file
-    if(!missing(filename)){ write.csv(MSDdata_final, filename) }
+time.taken_oa <- round(as.numeric((Sys.time() - run.time_oa), units = "hours"), 2)
+cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model_oa,
     
-  }else{
-    MSDdata = matrix(data = NA, nrow = 2, ncol = length(datadase))
-    MSDdata[1,] = datadase
-    MSDdata[2,] = 0
-  }
-  rownames(MSDdata) = c("Mean","Std Dev")
-  return(MSDdata)
-}
+    "\nNumber of ", model_name_tunedSVM ," SVs: ",length(tunedSVM$finalModel@SVindex),
+    "\nNumber of ", model_name_SVMUn ," SVs: ",length(bestFittingModelSVMUn$finalModel@SVindex),
+    "\nNumber of ", model_name_VSVM_SL ," SVs: ",length(bestFittingModel$finalModel@SVindex),
+    "\nNumber of ", model_name_Un ," SVs: ",length(bestFittingModelUn$finalModel@SVindex),
+    "\nNumber of ", model_name_vUn ," SVs: ",length(bestFittingModelvUn$finalModel@SVindex),
+    
+    "\nNumber of ", model_name_AL_MS," SVs: ",length(AL_MS_tunedSVM$finalModel@SVindex),
+    "\nNumber of ", model_name_AL_MS_2IT," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),
+    
+    "\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),
+    
+    sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.txt")
+    )
+
+cat("Number of ", model_name_AL_MS ," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),"\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),"\n\n",sep="")
+cat("performance results: acquired\n\n\n")
+
+
+
+
+
+
+
+
+
+
+
 
 nclass=6
 if(model_prob=="binary"){ nclass=2 }
 
 column_names <- colnames(AccuracySVM)
 
-x <- 2*as.integer(column_names)/nclass # we consider also test/validate samples 
+x <- 2*as.integer(column_names)/nclass # we consider also test samples 
 
 lenged_names = c("SVM single-level L4", 
                  "SVM-SL + semi-labeled", 
