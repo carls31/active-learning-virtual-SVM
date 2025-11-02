@@ -1949,7 +1949,7 @@ for (realization in seq(1,nR)) {
       cat("\n") ###############################  AL-SVM 1IT IS EQUAL TO AL_MS  #####################################
       
       # get original SVs of base SVM ************************* prevent removing an entire class label
-      ALSVindex = AL_MS_tunedSVM_2IT$finalModel@SVindex   # indices 1:(sample size per class) ; values
+      ALSVindex = AL_MS_tunedSVM$finalModel@SVindex   # indices 1:(sample size per class) ; values
       ALSVtotal = trainDataCur4AL_IT[ALSVindex ,c(sindexSVMDATA:eindexSVMDATA,ncol(trainDataCur4AL_IT))]
       freq_table <- table(ALSVtotal$REF)
       zero_label_classes <- names(freq_table[freq_table == 0])
@@ -1970,8 +1970,8 @@ for (realization in seq(1,nR)) {
       }
       # ******************************************************
       binaryClassProblem = list()
-      for (jj in seq_along(AL_MS_tunedSVM_2IT$finalModel@xmatrix)) { # COMPARE EVERY COUPLE COMBINATION OF CLASSES
-        binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur4AL_IT[AL_MS_tunedSVM_2IT$finalModel@alphaindex[[jj]], ncol(trainDataCur4AL_IT)]))
+      for (jj in seq_along(AL_MS_tunedSVM$finalModel@xmatrix)) { # COMPARE EVERY COUPLE COMBINATION OF CLASSES
+        binaryClassProblem[[length(binaryClassProblem)+1]] = c(unique(trainDataCur4AL_IT[AL_MS_tunedSVM$finalModel@alphaindex[[jj]], ncol(trainDataCur4AL_IT)]))
       }
       # ******************************************************
       names = objInfoNames[1:(length(objInfoNames)-1)]
@@ -1990,7 +1990,7 @@ for (realization in seq(1,nR)) {
       trainDataCurRemainingsub_SL = trainDataCurRemaining_SL[sindexSVMDATA:eindexSVMDATA]
       
       
-      REFALSVM = predict(AL_MS_tunedSVM_2IT, trainDataCurRemainingsub_SL)
+      REFALSVM = predict(AL_MS_tunedSVM, trainDataCurRemainingsub_SL)
       
       # get SV of unlabeled samples
       SVindexALSVMUn = 1:nrow(trainDataCurRemainingsub_SL)
@@ -2012,7 +2012,7 @@ for (realization in seq(1,nR)) {
       )
       
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                             SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
+                             SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModelSVMUn <- SLresult$bestFittingModel
       
       t.timeALSVMUn <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
@@ -2074,7 +2074,7 @@ for (realization in seq(1,nR)) {
       )
       
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_VSVM_SL, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                             SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
+                             SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModel <- SLresult$bestFittingModel
       
       t.timeALSL <- round(as.numeric((Sys.time() - trainStart.time), units = "secs")+trainSVM.time, 1)
@@ -2132,7 +2132,7 @@ for (realization in seq(1,nR)) {
       )
       
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_Un, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                             SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
+                             SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModelUn <- SLresult$bestFittingModel
       
       trainALUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
@@ -2191,7 +2191,7 @@ for (realization in seq(1,nR)) {
       )
       
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
-                             SVL_variables, AL_MS_tunedSVM_2IT$finalModel)
+                             SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModelvUn <- SLresult$bestFittingModel
       
       new_best_bound_SLvUn = SLresult$best_bound
