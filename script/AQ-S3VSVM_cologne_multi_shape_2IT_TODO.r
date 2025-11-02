@@ -910,11 +910,6 @@ ExCsvMSD = function (datadase, filename = NA){
 
 
 
-
-
-
-
-
 ###############################################  Preprocessing  ###############################################
 
 lgtS=TRUE
@@ -1116,9 +1111,7 @@ if (file.exists(paste0(city,"_",model_prob,"_",invariance,"_trainDataPoolAllLev.
   
   #########################################################################################
   
-  
-  
-  
+
   setwd(paste0(path, "tunc_oz/apply_model/", "rds_data_r_import/",city,"/",invariance))
   saveRDS(trainDataPoolAllLev, paste0(city,"_",model_prob,"_",invariance,"_trainDataPoolAllLev.rds"))
   saveRDS(testDataAllLev, paste0(city,"_",model_prob,"_",invariance,"_testDataAllLev.rds"))
@@ -1215,15 +1208,6 @@ SVsAL_MS = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsAL_MS) = colheader
 SVsAL_MS_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsAL_MS_2IT) = colheader
-
-SVsALSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(SVsALSVM_SL_Un) = colheader
-SVsALVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(SVsALVSVM_SL) = colheader
-SVsALVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(SVsALVSVM_SL_Un) = colheader
-SVsALVSVM_SL_vUn = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(SVsALVSVM_SL_vUn) = colheader
 
 SVsALSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(SVsALSVM_SL_Un) = colheader
@@ -1476,9 +1460,9 @@ for (realization in seq(1,nR)) {
       trainFeat = trainFeat[sindexSVMDATA:eindexSVMDATA] # ALL the preprocessing made before is still required for test and validate set
       # ************************************************ *******************************************************
       names = objInfoNames[1:(length(objInfoNames)-1)]
-      
       trainFeat <- rbind(setNames(trainFeat4AL_IT, names), setNames(trainFeat, names))
       trainLabels <- unlist(list(trainLabels4AL_IT, trainLabels))
+      
       trainDataCur = rbind(trainDataCur4AL_IT,trainDataCur)
 
 
@@ -1568,7 +1552,7 @@ for (realization in seq(1,nR)) {
       tuneLabel = unlist(list(trainLabels, testLabels))
     
     
-    # ==============
+    
 
     setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
     
@@ -1859,10 +1843,7 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, SVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables)
       bestFittingModelvUn <- SLresult$bestFittingModel
-      # new_best_trainFeatVSVMvUn <- SLresult$best_trainFeatVSVM
-      # new_best_trainLabelsVSVMvUn <- SLresult$best_trainLabelsVSVM
-      # new_best_bound_SLvUn = SLresult$best_bound
-      # new_best_boundMargin_SLvUn = SLresult$best_boundMargin
+
       trainvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       new_predLabelsVSVMvUnsum = predict(bestFittingModelvUn, validateFeatsub)
@@ -2100,9 +2081,6 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_SVMUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModelSVMUn <- SLresult$bestFittingModel
-      best_trainFeatALSVMUn <- SLresult$best_trainFeatVSVM
-      best_trainLabelsALSVMUn <- SLresult$best_trainLabelsVSVM
-      best_boundMarginALSVMUn <- SLresult$best_boundMargin
 
       t.timeALSVMUn <- round(as.numeric((Sys.time() - trainStart.time), units = "secs"), 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
@@ -2280,8 +2258,7 @@ for (realization in seq(1,nR)) {
       SLresult <- self_learn(testFeatsub, testLabels, bound, boundMargin, model_name_vUn, ALSVtotal, objInfoNames,rem_extrem,rem_extrem_kerneldist, #classProb=TRUE,
                              SVL_variables, AL_MS_tunedSVM$finalModel)
       bestFittingALModelvUn <- SLresult$bestFittingModel
-      new_best_bound_SLvUn = SLresult$best_bound
-      
+
       trainALvUn.time <- round(as.numeric((Sys.time() - trainStart.timeUn), units = "secs")+trainSVM.time, 1)
       # predict labels of test data i.e. run classification and accuracy assessment for the best bound setting
       new_predLabelsALVSVMvUnsum = predict(bestFittingALModelvUn, validateFeatsub)
@@ -2320,31 +2297,7 @@ for (realization in seq(1,nR)) {
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+
       
       
 
@@ -2542,7 +2495,6 @@ for (realization in seq(1,nR)) {
       # **********************
       
       
-      
       AccuracyAL_MS_2IT[realization,sample_size] = as.numeric((cm_AL_MS_2IT$overall["Accuracy"]))
       KappaAL_MS_2IT[realization,sample_size] = as.numeric((cm_AL_MS_2IT$overall["Kappa"]))
       SVsAL_MS_2IT[realization,sample_size] = as.numeric(length(AL_MS_tunedSVM_2IT$finalModel@SVindex))
@@ -2691,6 +2643,7 @@ for (realization in seq(1,nR)) {
       AccuracyALVSVM_SL_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_2IT$overall["Accuracy"])
       KappaALVSVM_SL_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_2IT$overall["Kappa"])
       SVsALVSVM_SL_2IT[realization,sample_size] = as.numeric(length(bestFittingALModel_2IT$finalModel@SVindex))
+      
       if (cm_AL_VSVM_SL_2IT$overall["Accuracy"]>best_acc) {
         best_acc <- cm_AL_VSVM_SL_2IT$overall["Accuracy"]
         new_bestModel <- bestFittingALModel_2IT
@@ -2803,6 +2756,7 @@ for (realization in seq(1,nR)) {
       AccuracyALVSVM_SL_vUn_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_vUn_2IT$overall["Accuracy"])
       KappaALVSVM_SL_vUn_2IT[realization,sample_size] = as.numeric(cm_AL_VSVM_SL_vUn_2IT$overall["Kappa"])
       SVsALVSVM_SL_vUn_2IT[realization,sample_size] = as.numeric(length(bestFittingALModelvUn_2IT$finalModel@SVindex))
+      
       if (cm_AL_VSVM_SL_vUn_2IT$overall["Accuracy"] > best_acc){
         best_acc <- cm_AL_VSVM_SL_vUn_2IT$overall["Accuracy"]
         new_bestModel <- bestFittingALModelvUn_2IT
@@ -2847,10 +2801,10 @@ for (realization in seq(1,nR)) {
       saveRDS(cm_AL_VSVM_SL_Un, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       saveRDS(cm_AL_VSVM_SL_vUn, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLvUn,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
       
-      saveRDS(cm_AL_SVM_SL_Un_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_SVMUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
-      saveRDS(cm_AL_VSVM_SL_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SL_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
-      saveRDS(cm_AL_VSVM_SL_Un_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
-      saveRDS(cm_AL_VSVM_SL_vUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),"_confusionMatrix_",model_name_AL_VSVM_SLvUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModelSVMUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_SVMUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModel_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SL_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModelUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SLUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
+      saveRDS(bestFittingALModelvUn_2IT, paste0(format(Sys.time(),"%Y%m%d"),model_name_AL_VSVM_SLvUn_2IT,"_",city,"_",model_prob,"_",invariance,"_",script,"_",sampleSizePor[sample_size],"sampleSizePor_",b[bb],"Unl_realiz",realization,"_",seed,"seed.rds"))
     }
   }
   cat("\n") ###################################  End realization ############################################
@@ -2935,32 +2889,10 @@ for (realization in seq(1,nR)) {
     models_acc   <- model_combinations[[cname]]
     models_kappa <- kappa_combinations[[cname]]
     
-    if(model_prob == "multiclass"){
-      
-      if(city=="hagadera"){
-        yUpperBound = 0.972
-        ylowerBound = 0.81
-      }
-      
-      if(city=="cologne"){
+
         yUpperBound = 0.80 # 0.76
         ylowerBound = 0.48 # 0.54
-        
-      }
-    }
-    if(model_prob == "binary"){
-      
-      if(city=="hagadera"){
-        yUpperBound = 0.975
-        ylowerBound = 0.79
-        
-      }
-      if(city=="cologne"){
-        yUpperBound = 0.935
-        ylowerBound = 0.81
-        
-      }
-    }
+
     # Accuracy
     plot_models(
       models = models_acc,
@@ -2969,32 +2901,11 @@ for (realization in seq(1,nR)) {
       filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor", cname)
     )
     
-    if(model_prob == "multiclass"){
-      
-      if(city=="hagadera"){
-        yUpperBound = 0.972
-        ylowerBound = 0.81
-      }
-      
-      if(city=="cologne"){
+
         yUpperBound = 0.81 # 0.76
         ylowerBound = 0.45 # 0.54
         
-      }
-    }
-    if(model_prob == "binary"){
-      
-      if(city=="hagadera"){
-        yUpperBound = 0.975
-        ylowerBound = 0.79
-        
-      }
-      if(city=="cologne"){
-        yUpperBound = 0.935
-        ylowerBound = 0.81
-        
-      }
-    }
+
     # Accuracy SD
     plot_models(
       models = models_acc,
@@ -3003,32 +2914,11 @@ for (realization in seq(1,nR)) {
       filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor","_sd", cname)
     )
     
-    if(model_prob == "multiclass"){
-      
-      if(city=="hagadera"){
-        yUpperBound = 0.972
-        ylowerBound = 0.81
-      }
-      
-      if(city=="cologne"){
+
         yUpperBound = 0.72 # 0.76
         ylowerBound = 0.35 # 0.54
         
-      }
-    }
-    if(model_prob == "binary"){
-      
-      if(city=="hagadera"){
-        yUpperBound = 0.975
-        ylowerBound = 0.79
-        
-      }
-      if(city=="cologne"){
-        yUpperBound = 0.935
-        ylowerBound = 0.81
-        
-      }
-    }
+
     # Kappa
     plot_models(
       models = models_kappa,
@@ -3080,240 +2970,240 @@ cat("performance results: acquired\n\n\n")
 
 
 
-setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
-
-if(model_prob == "multiclass"){
-
-  if(city=="hagadera"){
-    yUpperBound = 0.972
-    ylowerBound = 0.81
-  }
-
-  if(city=="cologne"){
-    yUpperBound = 0.80 # 0.76
-    ylowerBound = 0.48 # 0.54
-
-  }
-}
-if(model_prob == "binary"){
-
-  if(city=="hagadera"){
-    yUpperBound = 0.975
-    ylowerBound = 0.79
-
-  }
-  if(city=="cologne"){
-    yUpperBound = 0.935
-    ylowerBound = 0.81
-
-  }
-}
-
-
-######################################## Accuracy ##########################################
-file_name_acc = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor")
-file_name_kappa = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor")
-
-
-png(filename=paste0(file_name_acc,".png"),
-    units="in",
-    width=20,
-    height=16,
-    pointsize=24,
-    res=96)
-
-# # ******************************************************************************************************
-
-
-avgSVM           = ExCsvMSD(AccuracySVM)[1,]
-avgSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un)[1,]
-avgVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL)[1,]
-avgVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un)[1,]
-avgVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn)[1,]
-
-avgAL_MS      = ExCsvMSD(AccuracyAL_MS)[1,]
-avgAL_MS_2IT     = ExCsvMSD(AccuracyAL_MS_2IT)[1,]
-
-avgALSVM_SL_Un_2IT   = ExCsvMSD(AccuracyALSVM_SL_Un_2IT)[1,]
-avgALVSVM_SL_2IT      = ExCsvMSD(AccuracyALVSVM_SL_2IT)[1,]
-avgALVSVM_SL_Un_2IT  = ExCsvMSD(AccuracyALVSVM_SL_Un_2IT)[1,]
-avgALVSVM_SL_vUn_2IT = ExCsvMSD(AccuracyALVSVM_SL_vUn_2IT)[1,]
-
-# *********************************************
-
-msdSVMPlot = plot(x, avgSVM,log = "x",
-                  ylim=range(c(ylowerBound,yUpperBound)),
-                  pch=20, type= type,       col = SVM_col, lwd = 2,lty = SVM_lty,
-                  xlab= "number of labeled samples per class",
-                  ylab= "accuracy",
-                  main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
-)
-
-lines(x, avgSVM_SL_Un_b,   type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
-lines(x, avgVSVM_SL,       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
-lines(x, avgVSVM_SL_Un_b,  type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
-lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
-
-lines(x, avgAL_MS,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
-lines(x, avgAL_MS_2IT,  type=type, col=AL_MS_2IT_col,        lwd=2, lty=AL_MS_lty)
-
-
-lines(x, avgALSVM_SL_Un_2IT,   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
-lines(x, avgALVSVM_SL_2IT,       type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
-lines(x, avgALVSVM_SL_Un_2IT,  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
-lines(x, avgALVSVM_SL_vUn_2IT, type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
-
-
-# # ******************************************************************************************************
-
-legend("bottomright", 
-       lenged_names,
-       lty = lenged_lty,
-       col= legend_col
-) 
-
-dev.off()
-
-if(model_prob == "multiclass"){
-  
-  if(city=="hagadera"){
-    yUpperBound = 0.972
-    ylowerBound = 0.81
-  }
-  
-  if(city=="cologne"){
-    yUpperBound = 0.81 # 0.76
-    ylowerBound = 0.40 # 0.54
-    
-  }
-}
-if(model_prob == "binary"){
-  
-  if(city=="hagadera"){
-    yUpperBound = 0.975
-    ylowerBound = 0.79
-    
-  }
-  if(city=="cologne"){
-    yUpperBound = 0.935
-    ylowerBound = 0.81
-    
-  }
-}
-
-
-# ===== Accuracy +/- std dev =====
-if(nrow(AccuracySVM) > 1){
-  
-  sdSVM           = ExCsvMSD(AccuracySVM)[2,]
-  sdSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un)[2,]
-  sdVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL)[2,]
-  sdVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un)[2,]
-  sdVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn)[2,]
-  
-  sdAL_MS  = ExCsvMSD(AccuracyAL_MS)[2,]  
-  sdAL_MS_2IT  = ExCsvMSD(AccuracyAL_MS_2IT)[2,]  
-  
-  sdALSVM_SL_Un_2IT    = ExCsvMSD(AccuracyALSVM_SL_Un_2IT)[2,]
-  sdALVSVM_SL_2IT        = ExCsvMSD(AccuracyALVSVM_SL_2IT)[2,]
-  sdALVSVM_SL_Un_2IT   = ExCsvMSD(AccuracyALVSVM_SL_Un_2IT)[2,]
-  sdALVSVM_SL_vUn_2IT  = ExCsvMSD(AccuracyALVSVM_SL_vUn_2IT)[2,]
-  
-  png(filename=paste0(file_name_acc,"_sd.png"),
-      units="in", width=20, height=16,
-      pointsize=24, res=96)
-  
-  msdSVMPlot = plot(x, avgSVM, log="x",
-                    ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
-                    xlab="number of labeled samples per class",
-                    ylab="accuracy +/- std dev",
-                    main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
-  
-  lines(x, avgSVM_SL_Un_b,   type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
-  lines(x, avgVSVM_SL,       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
-  lines(x, avgVSVM_SL_Un_b,  type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
-  lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
-  
-  lines(x, avgAL_MS,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
-  lines(x, avgAL_MS_2IT,  type=type, col=AL_MS_2IT_col,        lwd=2, lty=AL_MS_lty)
-  
-  
-  lines(x, avgALSVM_SL_Un_2IT,   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
-  lines(x, avgALVSVM_SL_2IT,       type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
-  lines(x, avgALVSVM_SL_Un_2IT,  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
-  lines(x, avgALVSVM_SL_vUn_2IT, type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
-  
-  # Std dev bars (arrows)
-  arrows(x, avgVSVM_SL - sdVSVM_SL,     x, avgVSVM_SL + sdVSVM_SL,     length=0.075, angle=90, code=3, col=VSVM_SL_col, lty=VSVM_SL_lty)
-  arrows(x, avgVSVM_SL_vUn_b - sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b + sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3, col=VSVM_SL_col, lty=VSVM_SL_vUn_lty)
-  
-  arrows(x, avgAL_MS - sdAL_MS,     x, avgAL_MS + sdAL_MS,     length=0.075, angle=90, code=3, col=AL_MS_col, lty=AL_MS_lty)
-  arrows(x, avgAL_MS_2IT - sdAL_MS_2IT,     x, avgAL_MS_2IT + sdAL_MS_2IT,     length=0.075, angle=90, code=3, col=AL_MS_2IT_col, lty=AL_MS_lty)
-  
-  # arrows(x, avgALVSVM_SL - sdALVSVM_SL,     x, avgALVSVM_SL + sdALVSVM_SL,     length=0.075, angle=90, code=3, col=AL_VSVM_SL_col, lty=AL_VSVM_SL_lty)
-  # arrows(x, avgALVSVM_SL_vUn_b - sdALVSVM_SL_vUn_b, x, avgALVSVM_SL_vUn_b + sdALVSVM_SL_vUn_b, length=0.075, angle=90, code=3, col=AL_VSVM_SL_col, lty=AL_VSVM_SL_vUn_lty)
-  
-  legend("bottomright", lenged_names, lty=lenged_lty, col=legend_col) 
-  dev.off()
-}
-
-if(model_prob == "multiclass"){
-  
-  if(city=="hagadera"){
-    yUpperBound = 0.972
-    ylowerBound = 0.81
-  }
-  
-  if(city=="cologne"){
-    yUpperBound = 0.73 # 0.76
-    ylowerBound = 0.33 # 0.54
-    
-  }
-}
-if(model_prob == "binary"){
-  
-  if(city=="hagadera"){
-    yUpperBound = 0.975
-    ylowerBound = 0.79
-    
-  }
-  if(city=="cologne"){
-    yUpperBound = 0.935
-    ylowerBound = 0.81
-    
-  }
-}
-
-# ===== Kappa =====
-png(filename=paste0(file_name_kappa,".png"),
-    units="in", width=20, height=16,
-    pointsize=24, res=96)
-
-if(nrow(KappaSVM) > 1){
-  msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,], log="x",
-                    ylim=range(c(ylowerBound,yUpperBound)),
-                    pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
-                    xlab="number of labeled samples per class",
-                    ylab="Kappa-score",
-                    main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
-  
-  lines(x, ExCsvMSD(KappaSVM_SL_Un)[1,],     type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
-  lines(x, ExCsvMSD(KappaVSVM_SL)[1,],       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
-  lines(x, ExCsvMSD(KappaVSVM_SL_Un)[1,],    type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
-  lines(x, ExCsvMSD(KappaVSVM_SL_vUn)[1,],   type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
-  
-  lines(x, ExCsvMSD(KappaAL_MS)[1,],         type=type, col=AL_MS_col,       lwd=2, lty=AL_MS_lty)
-  lines(x, ExCsvMSD(KappaAL_MS_2IT)[1,],         type=type, col=AL_MS_2IT_col,       lwd=2, lty=AL_MS_lty)
-  
-  
-  lines(x, ExCsvMSD(KappaALSVM_SL_Un_2IT)[1,],   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
-  lines(x, ExCsvMSD(KappaALVSVM_SL_2IT)[1,],     type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
-  lines(x, ExCsvMSD(KappaALVSVM_SL_Un_2IT)[1,],  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
-  lines(x, ExCsvMSD(KappaALVSVM_SL_vUn_2IT)[1,], type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
-}
-
-legend("bottomright", lenged_names, lty=lenged_lty, col=legend_col) 
-dev.off()
+# setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
+# 
+# if(model_prob == "multiclass"){
+# 
+#   if(city=="hagadera"){
+#     yUpperBound = 0.972
+#     ylowerBound = 0.81
+#   }
+# 
+#   if(city=="cologne"){
+#     yUpperBound = 0.80 # 0.76
+#     ylowerBound = 0.48 # 0.54
+# 
+#   }
+# }
+# if(model_prob == "binary"){
+# 
+#   if(city=="hagadera"){
+#     yUpperBound = 0.975
+#     ylowerBound = 0.79
+# 
+#   }
+#   if(city=="cologne"){
+#     yUpperBound = 0.935
+#     ylowerBound = 0.81
+# 
+#   }
+# }
+# 
+# 
+# ######################################## Accuracy ##########################################
+# file_name_acc = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor")
+# file_name_kappa = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor")
+# 
+# 
+# png(filename=paste0(file_name_acc,".png"),
+#     units="in",
+#     width=20,
+#     height=16,
+#     pointsize=24,
+#     res=96)
+# 
+# # # ******************************************************************************************************
+# 
+# 
+# avgSVM           = ExCsvMSD(AccuracySVM)[1,]
+# avgSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un)[1,]
+# avgVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL)[1,]
+# avgVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un)[1,]
+# avgVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn)[1,]
+# 
+# avgAL_MS      = ExCsvMSD(AccuracyAL_MS)[1,]
+# avgAL_MS_2IT     = ExCsvMSD(AccuracyAL_MS_2IT)[1,]
+# 
+# avgALSVM_SL_Un_2IT   = ExCsvMSD(AccuracyALSVM_SL_Un_2IT)[1,]
+# avgALVSVM_SL_2IT      = ExCsvMSD(AccuracyALVSVM_SL_2IT)[1,]
+# avgALVSVM_SL_Un_2IT  = ExCsvMSD(AccuracyALVSVM_SL_Un_2IT)[1,]
+# avgALVSVM_SL_vUn_2IT = ExCsvMSD(AccuracyALVSVM_SL_vUn_2IT)[1,]
+# 
+# # *********************************************
+# 
+# msdSVMPlot = plot(x, avgSVM,log = "x",
+#                   ylim=range(c(ylowerBound,yUpperBound)),
+#                   pch=20, type= type,       col = SVM_col, lwd = 2,lty = SVM_lty,
+#                   xlab= "number of labeled samples per class",
+#                   ylab= "accuracy",
+#                   main = paste(city,"-", model_prob,"classification problem -", invariance,"invariance")
+# )
+# 
+# lines(x, avgSVM_SL_Un_b,   type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
+# lines(x, avgVSVM_SL,       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
+# lines(x, avgVSVM_SL_Un_b,  type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
+# lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
+# 
+# lines(x, avgAL_MS,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
+# lines(x, avgAL_MS_2IT,  type=type, col=AL_MS_2IT_col,        lwd=2, lty=AL_MS_lty)
+# 
+# 
+# lines(x, avgALSVM_SL_Un_2IT,   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
+# lines(x, avgALVSVM_SL_2IT,       type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
+# lines(x, avgALVSVM_SL_Un_2IT,  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
+# lines(x, avgALVSVM_SL_vUn_2IT, type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
+# 
+# 
+# # # ******************************************************************************************************
+# 
+# legend("bottomright", 
+#        lenged_names,
+#        lty = lenged_lty,
+#        col= legend_col
+# ) 
+# 
+# dev.off()
+# 
+# if(model_prob == "multiclass"){
+#   
+#   if(city=="hagadera"){
+#     yUpperBound = 0.972
+#     ylowerBound = 0.81
+#   }
+#   
+#   if(city=="cologne"){
+#     yUpperBound = 0.81 # 0.76
+#     ylowerBound = 0.40 # 0.54
+#     
+#   }
+# }
+# if(model_prob == "binary"){
+#   
+#   if(city=="hagadera"){
+#     yUpperBound = 0.975
+#     ylowerBound = 0.79
+#     
+#   }
+#   if(city=="cologne"){
+#     yUpperBound = 0.935
+#     ylowerBound = 0.81
+#     
+#   }
+# }
+# 
+# 
+# # ===== Accuracy +/- std dev =====
+# if(nrow(AccuracySVM) > 1){
+#   
+#   sdSVM           = ExCsvMSD(AccuracySVM)[2,]
+#   sdSVM_SL_Un_b   = ExCsvMSD(AccuracySVM_SL_Un)[2,]
+#   sdVSVM_SL       = ExCsvMSD(AccuracyVSVM_SL)[2,]
+#   sdVSVM_SL_Un_b  = ExCsvMSD(AccuracyVSVM_SL_Un)[2,]
+#   sdVSVM_SL_vUn_b = ExCsvMSD(AccuracyVSVM_SL_vUn)[2,]
+#   
+#   sdAL_MS  = ExCsvMSD(AccuracyAL_MS)[2,]  
+#   sdAL_MS_2IT  = ExCsvMSD(AccuracyAL_MS_2IT)[2,]  
+#   
+#   sdALSVM_SL_Un_2IT    = ExCsvMSD(AccuracyALSVM_SL_Un_2IT)[2,]
+#   sdALVSVM_SL_2IT        = ExCsvMSD(AccuracyALVSVM_SL_2IT)[2,]
+#   sdALVSVM_SL_Un_2IT   = ExCsvMSD(AccuracyALVSVM_SL_Un_2IT)[2,]
+#   sdALVSVM_SL_vUn_2IT  = ExCsvMSD(AccuracyALVSVM_SL_vUn_2IT)[2,]
+#   
+#   png(filename=paste0(file_name_acc,"_sd.png"),
+#       units="in", width=20, height=16,
+#       pointsize=24, res=96)
+#   
+#   msdSVMPlot = plot(x, avgSVM, log="x",
+#                     ylim=range(c(ylowerBound,yUpperBound)),
+#                     pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
+#                     xlab="number of labeled samples per class",
+#                     ylab="accuracy +/- std dev",
+#                     main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
+#   
+#   lines(x, avgSVM_SL_Un_b,   type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
+#   lines(x, avgVSVM_SL,       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
+#   lines(x, avgVSVM_SL_Un_b,  type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
+#   lines(x, avgVSVM_SL_vUn_b, type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
+#   
+#   lines(x, avgAL_MS,  type=type, col=AL_MS_col,        lwd=2, lty=AL_MS_lty)
+#   lines(x, avgAL_MS_2IT,  type=type, col=AL_MS_2IT_col,        lwd=2, lty=AL_MS_lty)
+#   
+#   
+#   lines(x, avgALSVM_SL_Un_2IT,   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
+#   lines(x, avgALVSVM_SL_2IT,       type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
+#   lines(x, avgALVSVM_SL_Un_2IT,  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
+#   lines(x, avgALVSVM_SL_vUn_2IT, type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
+#   
+#   # Std dev bars (arrows)
+#   arrows(x, avgVSVM_SL - sdVSVM_SL,     x, avgVSVM_SL + sdVSVM_SL,     length=0.075, angle=90, code=3, col=VSVM_SL_col, lty=VSVM_SL_lty)
+#   arrows(x, avgVSVM_SL_vUn_b - sdVSVM_SL_vUn_b, x, avgVSVM_SL_vUn_b + sdVSVM_SL_vUn_b, length=0.075, angle=90, code=3, col=VSVM_SL_col, lty=VSVM_SL_vUn_lty)
+#   
+#   arrows(x, avgAL_MS - sdAL_MS,     x, avgAL_MS + sdAL_MS,     length=0.075, angle=90, code=3, col=AL_MS_col, lty=AL_MS_lty)
+#   arrows(x, avgAL_MS_2IT - sdAL_MS_2IT,     x, avgAL_MS_2IT + sdAL_MS_2IT,     length=0.075, angle=90, code=3, col=AL_MS_2IT_col, lty=AL_MS_lty)
+#   
+#   # arrows(x, avgALVSVM_SL - sdALVSVM_SL,     x, avgALVSVM_SL + sdALVSVM_SL,     length=0.075, angle=90, code=3, col=AL_VSVM_SL_col, lty=AL_VSVM_SL_lty)
+#   # arrows(x, avgALVSVM_SL_vUn_b - sdALVSVM_SL_vUn_b, x, avgALVSVM_SL_vUn_b + sdALVSVM_SL_vUn_b, length=0.075, angle=90, code=3, col=AL_VSVM_SL_col, lty=AL_VSVM_SL_vUn_lty)
+#   
+#   legend("bottomright", lenged_names, lty=lenged_lty, col=legend_col) 
+#   dev.off()
+# }
+# 
+# if(model_prob == "multiclass"){
+#   
+#   if(city=="hagadera"){
+#     yUpperBound = 0.972
+#     ylowerBound = 0.81
+#   }
+#   
+#   if(city=="cologne"){
+#     yUpperBound = 0.73 # 0.76
+#     ylowerBound = 0.33 # 0.54
+#     
+#   }
+# }
+# if(model_prob == "binary"){
+#   
+#   if(city=="hagadera"){
+#     yUpperBound = 0.975
+#     ylowerBound = 0.79
+#     
+#   }
+#   if(city=="cologne"){
+#     yUpperBound = 0.935
+#     ylowerBound = 0.81
+#     
+#   }
+# }
+# 
+# # ===== Kappa =====
+# png(filename=paste0(file_name_kappa,".png"),
+#     units="in", width=20, height=16,
+#     pointsize=24, res=96)
+# 
+# if(nrow(KappaSVM) > 1){
+#   msdSVMPlot = plot(x, ExCsvMSD(KappaSVM)[1,], log="x",
+#                     ylim=range(c(ylowerBound,yUpperBound)),
+#                     pch=20, type=type, col=SVM_col, lwd=2, lty=SVM_lty,
+#                     xlab="number of labeled samples per class",
+#                     ylab="Kappa-score",
+#                     main=paste(city,"-", model_prob,"classification problem -", invariance,"invariance"))
+#   
+#   lines(x, ExCsvMSD(KappaSVM_SL_Un)[1,],     type=type, col=SVM_SL_col,   lwd=2, lty=SVM_SL_lty)
+#   lines(x, ExCsvMSD(KappaVSVM_SL)[1,],       type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_lty)
+#   lines(x, ExCsvMSD(KappaVSVM_SL_Un)[1,],    type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_Un_lty)
+#   lines(x, ExCsvMSD(KappaVSVM_SL_vUn)[1,],   type=type, col=VSVM_SL_col,  lwd=2, lty=VSVM_SL_vUn_lty)
+#   
+#   lines(x, ExCsvMSD(KappaAL_MS)[1,],         type=type, col=AL_MS_col,       lwd=2, lty=AL_MS_lty)
+#   lines(x, ExCsvMSD(KappaAL_MS_2IT)[1,],         type=type, col=AL_MS_2IT_col,       lwd=2, lty=AL_MS_lty)
+#   
+#   
+#   lines(x, ExCsvMSD(KappaALSVM_SL_Un_2IT)[1,],   type=type, col=AL_SVM_SL_col,  lwd=2, lty=AL_SVM_SL_lty)
+#   lines(x, ExCsvMSD(KappaALVSVM_SL_2IT)[1,],     type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_lty)
+#   lines(x, ExCsvMSD(KappaALVSVM_SL_Un_2IT)[1,],  type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_Un_lty)
+#   lines(x, ExCsvMSD(KappaALVSVM_SL_vUn_2IT)[1,], type=type, col=AL_VSVM_SL_col, lwd=2, lty=AL_VSVM_SL_vUn_lty)
+# }
+# 
+# legend("bottomright", lenged_names, lty=lenged_lty, col=legend_col) 
+# dev.off()
 
 
