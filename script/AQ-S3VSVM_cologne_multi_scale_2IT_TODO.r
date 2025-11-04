@@ -2852,19 +2852,6 @@ for (realization in seq(1,nR)) {
     )
     
 
-        yUpperBound = 0.81 # 0.76
-        ylowerBound = 0.45 # 0.54
-        
-
-    # Accuracy SD
-    plot_models(
-      models = models_acc,
-      metric = "accuracy ± sd",
-      styles = styles,
-      filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor","_sd", cname)
-    )
-    
-
         yUpperBound = 0.72 # 0.76
         ylowerBound = 0.35 # 0.54
         
