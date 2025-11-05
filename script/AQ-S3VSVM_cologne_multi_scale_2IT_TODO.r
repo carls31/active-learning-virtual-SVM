@@ -1046,7 +1046,6 @@ AccuracySVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracySVM) = colheader
 AccuracySVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracySVM_SL_Un) = colheader
-
 AccuracyVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyVSVM_SL) = colheader
 AccuracyVSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1058,11 +1057,7 @@ AccuracyAL_MS = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyAL_MS) = colheader
 AccuracyAL_MS_2IT = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyAL_MS_2IT) = colheader
-AccuracyAL_MS_semiAL = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(AccuracyAL_MS_semiAL) = colheader
 
-AccuracyALSVM = matrix(data = NA, nrow = nR, ncol = length(colheader))
-colnames(AccuracyALSVM) = colheader
 AccuracyALSVM_SL_Un = matrix(data = NA, nrow = nR, ncol = length(colheader))
 colnames(AccuracyALSVM_SL_Un) = colheader
 AccuracyALVSVM_SL = matrix(data = NA, nrow = nR, ncol = length(colheader))
@@ -1174,6 +1169,12 @@ if(model_prob=="binary"){ nclass=2  }
 
 # Plotting
 
+comb1_acc <- c("AccuracySVM","AccuracySVM_SL_Un","AccuracyVSVM_SL","AccuracyVSVM_SL_Un","AccuracyVSVM_SL_vUn", 
+               "AccuracyAL_MS","AccuracyALSVM_SL_Un","AccuracyALVSVM_SL","AccuracyALVSVM_SL_Un", "AccuracyALVSVM_SL_vUn") 
+comb2_acc <- c("AccuracySVM","AccuracySVM_SL_Un","AccuracyVSVM_SL","AccuracyVSVM_SL_Un","AccuracyVSVM_SL_vUn", 
+               "AccuracyAL_MS_2IT","AccuracyALSVM_SL_Un_2IT","AccuracyALVSVM_SL_2IT","AccuracyALVSVM_SL_Un_2IT", "AccuracyALVSVM_SL_vUn_2IT") 
+comb3_acc <- c("AccuracyAL_MS","AccuracyALSVM_SL_Un","AccuracyALVSVM_SL","AccuracyALVSVM_SL_Un", "AccuracyALVSVM_SL_vUn", 
+               "AccuracyAL_MS_2IT","AccuracyALSVM_SL_Un_2IT","AccuracyALVSVM_SL_2IT","AccuracyALVSVM_SL_Un_2IT", "AccuracyALVSVM_SL_vUn_2IT")
 
 comb1 <- c(
   "SVM single-level L4", "SVM-SL + semi-labeled",
@@ -1196,15 +1197,21 @@ comb3 <- c(
   "AL VSVM-SL with 2 queries", "AL VSVM-SL + semi-labeled with 2 queries", "AL VSVM-SL + virtual semi-labeled with 2 queries"
 )
 
+map1 <- setNames(comb1_acc, comb1) 
+map2 <- setNames(comb2_acc, comb2) 
+map3 <- setNames(comb3_acc, comb3) 
+
+model_maps <- list( comb1 = map1, comb2 = map2, comb3 = map3 )
+
 model_combinations <- list(
   comb1 = comb1,
   comb2 = comb2,
   comb3 = comb3
 )
 
-kappa_combinations <- lapply(model_combinations, function(x){
-  gsub("^Accuracy", "Kappa", x)
-})
+model_maps_kappa <- lapply(model_maps, function(m){ 
+  setNames(gsub("^Accuracy", "Kappa", m), names(m)) 
+  })
 
 # cOLORS 
 SVM_col        <- 1   # black
@@ -1232,18 +1239,18 @@ AL_VSVM_SL_Un_lty<- 2  # dashed
 AL_VSVM_SL_vUn_lty<- 3 # dotted
 
 styles <- list(
-  AccuracySVM              = list(col=SVM_col,        lty=SVM_lty),
-  AccuracySVM_SL_Un        = list(col=SVM_SL_col,     lty=SVM_SL_lty),
-  AccuracyVSVM_SL          = list(col=VSVM_SL_col,    lty=VSVM_SL_lty),
-  AccuracyVSVM_SL_Un       = list(col=VSVM_SL_col,    lty=VSVM_SL_Un_lty),
-  AccuracyVSVM_SL_vUn      = list(col=VSVM_SL_col,    lty=VSVM_SL_vUn_lty),
+  list(col=SVM_col,        lty=SVM_lty),
+  list(col=SVM_SL_col,     lty=SVM_SL_lty),
+  list(col=VSVM_SL_col,    lty=VSVM_SL_lty),
+  list(col=VSVM_SL_col,    lty=VSVM_SL_Un_lty),
+  list(col=VSVM_SL_col,    lty=VSVM_SL_vUn_lty),
   
-  AccuracyAL_MS            = list(col=AL_MS_col,      lty=AL_MS_lty),
+  list(col=AL_MS_col,      lty=AL_MS_lty),
   
-  AccuracyALSVM_SL_Un      = list(col=AL_SVM_SL_col,  lty=AL_SVM_SL_lty),
-  AccuracyALVSVM_SL        = list(col=AL_VSVM_SL_col, lty=AL_VSVM_SL_lty),
-  AccuracyALVSVM_SL_Un     = list(col=AL_VSVM_SL_col, lty=AL_VSVM_SL_Un_lty),
-  AccuracyALVSVM_SL_vUn    = list(col=AL_VSVM_SL_col, lty=AL_VSVM_SL_vUn_lty)
+  list(col=AL_SVM_SL_col,  lty=AL_SVM_SL_lty),
+  list(col=AL_VSVM_SL_col, lty=AL_VSVM_SL_lty),
+  list(col=AL_VSVM_SL_col, lty=AL_VSVM_SL_Un_lty),
+  list(col=AL_VSVM_SL_col, lty=AL_VSVM_SL_vUn_lty)
 )
 
 kappa_styles <- lapply(styles, function(s) s)
@@ -1254,9 +1261,16 @@ get_avg_sd <- function(matname){
   list(avg = res[1,], sd = res[2,])
 }
 
+get_avg_sd <- function(matname, realization){ 
+  M <- get(matname) # take only rows 1..realization 
+  M <- M[1:realization, , drop = FALSE] 
+  res <- ExCsvMSD(M) # your mean/sd function 
+  list(avg = res[1,], sd = res[2,]) 
+}
+
 x <- 2*as.integer(colheader)/nclass # we consider also test samples 
 
-plot_models <- function(models, metric = "acc", styles, filename){
+plot_models <- function(models, labels, metric = "acc", styles, filename, realization){
   
   # Compute statistics for all models
   stats <- lapply(models, get_avg_sd)
@@ -1271,8 +1285,8 @@ plot_models <- function(models, metric = "acc", styles, filename){
   plot(x, avg1, log="x",xaxt = "n",
        ylim=range(c(ylowerBound, yUpperBound)),
        pch=20, type="l",
-       col=styles[[first]]$col, 
-       lwd=2, lty=styles[[first]]$lty,
+       col=styles[[1]]$col, 
+       lwd=2, lty=styles[[1]]$lty,
        xlab="number of labelled samples per class",
        ylab=metric,
        main=paste(city,"-", model_prob,"-", invariance))
@@ -1282,17 +1296,18 @@ plot_models <- function(models, metric = "acc", styles, filename){
   axis(1, at = x, labels = x)
   
   # Add additional models
-  for(m in models[-1]) {
-    lines(x, stats[[m]]$avg,
-          type="l",
-          col=styles[[m]]$col,
-          lwd=2,
-          lty=styles[[m]]$lty)
+  for(i in 2:length(models)) { 
+    m <- models[i] 
+    lines(x, stats[[m]]$avg, 
+          type="l", 
+          col=styles[[i]]$col, 
+          lwd=2, 
+          lty=styles[[i]]$lty)
   }
   
   legend("bottomright", legend = models,
-         col = sapply(models, \(m) styles[[m]]$col),
-         lty = sapply(models, \(m) styles[[m]]$lty),
+         col = sapply(models, \(m) styles[[i]]$col),
+         lty = sapply(models, \(m) styles[[i]]$lty),
          cex=0.8)
   
   dev.off()
@@ -2836,8 +2851,10 @@ for (realization in seq(1,nR)) {
   setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
   for(cname in names(model_combinations)){
     
-    models_acc   <- model_combinations[[cname]]
-    models_kappa <- kappa_combinations[[cname]]
+    labels_acc <- model_combinations[[cname]] 
+    models_acc <- unname(model_maps[[cname]][labels_acc]) # actual names 
+    labels_kappa <- model_combinations[[cname]] 
+    models_kappa <- unname(model_maps_kappa[[cname]][labels_kappa])
     
 
         yUpperBound = 0.80 # 0.76
@@ -2845,10 +2862,12 @@ for (realization in seq(1,nR)) {
         
     # Accuracy
     plot_models(
-      models = models_acc,
-      metric = "accuracy (%)",
+      models = models_acc, 
+      labels = labels_acc,
+      metric = "accuracy",
       styles = styles,
-      filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor", cname)
+      filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor", cname),
+      realization = realization
     )
     
 
@@ -2859,9 +2878,11 @@ for (realization in seq(1,nR)) {
     # Kappa
     plot_models(
       models = models_kappa,
+      labels = labels_kappa,
       metric = "kappa",
       styles = kappa_styles,
-      filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor", cname)
+      filename = paste0(format(run.time_oa,"%Y%m%d"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[1],"Unl_",nR,"nR_",length(sampleSizePor),"SizePor", cname),
+      realization = realization
     )
   }
   setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance)) 
