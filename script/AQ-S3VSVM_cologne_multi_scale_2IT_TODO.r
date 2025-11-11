@@ -1273,7 +1273,7 @@ x <- 2*as.integer(colheader)/nclass # we consider also test samples
 plot_models <- function(models, labels, metric = "acc", styles, filename, realization){
   
   # Compute statistics for all models
-  stats <- lapply(models, get_avg_sd)
+  stats <- lapply(models, function(m) get_avg_sd(m, realization))
   
   # main model (first one) defines the base plot
   first <- models[1]
