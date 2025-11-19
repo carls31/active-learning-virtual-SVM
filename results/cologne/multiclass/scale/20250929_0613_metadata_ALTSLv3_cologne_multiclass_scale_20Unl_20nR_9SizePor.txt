@@ -48,6 +48,8 @@ Number of VSVM_SLUn SVs: 1537
 Number of VSVM_SLvUn SVs: 1148
 Number of AL_MS+tSNE SVs: 709
 Number of AL_MS SVs: 557
+Number of final train Labels AL: 1188
+
+
 Number of AL_MS+semiAL SVs: 835
 Number of AL_MCLU SVs: 698
-Number of final train Labels AL: 1188

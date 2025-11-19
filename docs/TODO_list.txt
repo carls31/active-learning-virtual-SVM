@@ -1,0 +1,3 @@
+implement script to print performance tables and plot thematic maps inside the pipeline 
+check if it is feasible to automatize the above point
+checck for error inside 1IT
