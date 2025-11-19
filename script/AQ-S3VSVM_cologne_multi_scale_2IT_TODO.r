@@ -1307,10 +1307,7 @@ plot_models <- function(models, labels, metric = "accuracy", styles, filename, r
 
 
 
-# legend("bottomright", legend = labels,
-#        col = sapply(models, \(m) styles[[i]]$col),
-#        lty = sapply(models, \(m) styles[[i]]$lty),
-#        cex=0.8)
+
 
 
 
@@ -2888,6 +2885,7 @@ for (realization in seq(1,nR)) {
   
 } 
 
+setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
 time.taken_oa <- round(as.numeric((Sys.time() - run.time_oa), units = "hours"), 2)
 cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model_oa,
 
@@ -2948,4 +2946,3 @@ for(cname in names(model_combinations)){
     realization = realization
   )
 }
-setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance)) 
