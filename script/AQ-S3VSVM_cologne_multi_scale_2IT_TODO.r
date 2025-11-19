@@ -2791,7 +2791,11 @@ for (realization in seq(1,nR)) {
        AccuracyALVSVM_SL_Un_2IT,
        AccuracyALVSVM_SL_vUn_2IT,
        
-       file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_acc_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
+       file=paste0(
+         format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+         "_acc_",script,"_",b[bb],"Unl_",realization,
+         "nR_",length(sampleSizePor),"SizePor.RData"
+      )
   )
   save(KappaSVM, 
        KappaSVM_SL_Un,
@@ -2812,7 +2816,11 @@ for (realization in seq(1,nR)) {
        KappaALVSVM_SL_Un_2IT,
        KappaALVSVM_SL_vUn_2IT,
        
-       file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_Kappa_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
+       file=paste0(
+         format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+         "_Kappa_",script,"_",b[bb],"Unl_",realization,
+         "nR_",length(sampleSizePor),"SizePor.RData"
+      )
   )
   save(SVsSVM, 
        SVsSVM_SL_Un,
@@ -2833,11 +2841,42 @@ for (realization in seq(1,nR)) {
        SVsALVSVM_SL_Un_2IT,
        SVsALVSVM_SL_vUn_2IT,
        
-       file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_SVs_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
+       file=paste0(
+         format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+         "_SVs_",script,"_",b[bb],"Unl_",realization,
+         "nR_",length(sampleSizePor),"SizePor.RData"
+      )
   )
-  # setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
-  
-  
+  if (realization != 1) {
+    prev_file <- paste0(
+      format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+      "_acc_",script,"_",b[bb],"Unl_",realization-1,
+      "nR_",length(sampleSizePor),"SizePor.RData"
+    )
+    if (file.exists(prev_file)) {
+      file.remove(prev_file)
+      message("Deleted previous realization file: ", prev_file)
+    }
+    prev_file <- paste0(
+      format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+      "_Kappa_",script,"_",b[bb],"Unl_",realization-1,
+      "nR_",length(sampleSizePor),"SizePor.RData"
+    )
+    if (file.exists(prev_file)) {
+      file.remove(prev_file)
+      message("Deleted previous realization file: ", prev_file)
+    }
+    prev_file <- paste0(
+      format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+      "_SVs_",script,"_",b[bb],"Unl_",realization-1,
+      "nR_",length(sampleSizePor),"SizePor.RData"
+    )
+    if (file.exists(prev_file)) {
+      file.remove(prev_file)
+      message("Deleted previous realization file: ", prev_file)
+    }
+  }
+
   
   
   setwd(paste0(path,"GitHub/active-learning-virtual-SVM/","images/",city))
