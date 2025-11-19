@@ -2891,8 +2891,35 @@ for (realization in seq(1,nR)) {
        
        file=paste0(format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,"_SVs_",script,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.RData")
   )
-  # setwd(paste0(path, "GitHub/active-learning-virtual-SVM/saved_models/",city,"/",model_prob,"/",invariance))
-  
+  if (realization != 1) {
+    prev_file <- paste0(
+      format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+      "_acc_",script,"_",b[bb],"Unl_",realization-1,
+      "nR_",length(sampleSizePor),"SizePor.RData"
+    )
+    if (file.exists(prev_file)) {
+      file.remove(prev_file)
+      message("Deleted previous realization file: ", prev_file)
+    }
+    prev_file <- paste0(
+      format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+      "_Kappa_",script,"_",b[bb],"Unl_",realization-1,
+      "nR_",length(sampleSizePor),"SizePor.RData"
+    )
+    if (file.exists(prev_file)) {
+      file.remove(prev_file)
+      message("Deleted previous realization file: ", prev_file)
+    }
+    prev_file <- paste0(
+      format(run.time_oa,"%Y%m%d_%H%M"),"_",city,"_",model_prob,"_",invariance,
+      "_SVs_",script,"_",b[bb],"Unl_",realization-1,
+      "nR_",length(sampleSizePor),"SizePor.RData"
+    )
+    if (file.exists(prev_file)) {
+      file.remove(prev_file)
+      message("Deleted previous realization file: ", prev_file)
+    }
+  }  
   
   
   
