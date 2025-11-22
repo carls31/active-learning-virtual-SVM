@@ -1353,7 +1353,7 @@ plot_models <- function(models, labels, metric = "accuracy", styles, filename, r
        pch=20, type="l",
        col=styles[[1]]$col, 
        lwd=2, lty=styles[[1]]$lty,
-       xlab="number of labelled samples per class",
+       xlab="number of labeled samples per class",
        ylab=metric,
        main=paste(city,"-", model_prob,"-", invariance))
   
