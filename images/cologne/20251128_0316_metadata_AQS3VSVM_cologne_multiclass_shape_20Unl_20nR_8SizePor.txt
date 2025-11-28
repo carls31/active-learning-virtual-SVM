@@ -1,0 +1,51 @@
+OA Execution time: 224.77h
+Realization 1 | seed: 366 execution time: 9.83h
+Realization 2 | seed: 726 execution time: 12.67h
+Realization 3 | seed: 1086 execution time: 11.71h
+Realization 4 | seed: 1446 execution time: 10.12h
+Realization 5 | seed: 1806 execution time: 11.99h
+Realization 6 | seed: 2166 execution time: 10.75h
+Realization 7 | seed: 2526 execution time: 11h
+Realization 8 | seed: 2886 execution time: 10.37h
+Realization 9 | seed: 3246 execution time: 12.57h
+Realization 10 | seed: 3606 execution time: 9.8h
+Realization 11 | seed: 3966 execution time: 10.1h
+Realization 12 | seed: 4326 execution time: 13.23h
+Realization 13 | seed: 4686 execution time: 11.56h
+Realization 14 | seed: 5046 execution time: 12.02h
+Realization 15 | seed: 5406 execution time: 10.1h
+Realization 16 | seed: 5766 execution time: 10.95h
+Realization 17 | seed: 6126 execution time: 10.77h
+Realization 18 | seed: 6486 execution time: 12.12h
+Realization 19 | seed: 6846 execution time: 11.55h
+Realization 20 | seed: 7206 execution time: 11.54h
+
+AL_MS_2IT: 0.786861255068339
+AL_VSVM_SLvUn_2IT: 0.796447463816761
+AL_MS_2IT: 0.792316711867744
+AL_MS_2IT: 0.801661251488055
+AL_MS: 0.792571807058529
+AL_VSVM_SLvUn_2IT: 0.787116350259123
+AL_VSVM_SLUn_2IT: 0.789134735014276
+AL_MS_2IT: 0.798018313149486
+SVM: 0.78625708224806
+AL_MS_2IT: 0.785500747384155
+AL_MS_2IT: 0.78747885395129
+AL_MS_2IT: 0.798425570383896
+AL_MS: 0.803881027183302
+VSVM_SL: 0.769980218934329
+AL_MS: 0.778259624249259
+AL_MS: 0.794088952140562
+AL_MS: 0.778626603295651
+AL_VSVM_SLvUn_2IT: 0.795359952740259
+AL_VSVM_SL_2IT: 0.798331587945186
+AL_VSVM_SLvUn_2IT: 0.789524090831789
+
+Number of SVM SVs: 281
+Number of SVM_SLUn SVs: 662
+Number of VSVM_SL SVs: 1892
+Number of VSVM_SLUn SVs: 2363
+Number of VSVM_SLvUn SVs: 2352
+Number of AL_MS SVs: 359
+Number of AL_MS_2IT SVs: 377
+Number of final train Labels AL: 600

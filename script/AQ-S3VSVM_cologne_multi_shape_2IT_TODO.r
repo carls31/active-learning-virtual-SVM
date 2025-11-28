@@ -907,9 +907,9 @@ ExCsvMSD = function (datadase, filename = NA){
   return(MSDdata)
 }
 ############################################################################################################
-
-
-
+# check AL VSVM SL (compared to AL VSVM SL with 2 queries)
+# check 
+# check semi-supervised framework
 ###############################################  Preprocessing  ###############################################
 
 lgtS=TRUE
@@ -2981,7 +2981,6 @@ cat("OA Execution time: ", time.taken_oa, "h\n", time.taken_iter,"\n",best_model
     "\nNumber of ", model_name_AL_MS_2IT," SVs: ",length(AL_MS_tunedSVM_2IT$finalModel@SVindex),
     
     "\nNumber of final train Labels AL: ",length(trainLabels4AL_IT),
-    
     sep = "", file = paste0(format(Sys.time(),"%Y%m%d_%H%M"),"_metadata_",script,"_",city,"_",model_prob,"_",invariance,"_",b[bb],"Unl_",realization,"nR_",length(sampleSizePor),"SizePor.txt")
     )
 
